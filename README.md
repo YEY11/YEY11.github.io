@@ -5,7 +5,7 @@ Hi, 欢迎来到 Andy 的个人博客。
 
 于是在 Github 上找到了广受好评的[黄玄](https://huangxuan.me/)大佬的[模板仓库](https://github.com/Huxpro/huxblog-boilerplate)，然而可能是我太菜，刚改完仓库名就直接 404 了。。
 
-![test image size](https://tva1.sinaimg.cn/large/006y8mN6ly1g75hm73j6sj30c70cot9l.jpg){:height="20%" width="20%"}
+<img src="https://tva1.sinaimg.cn/large/006y8mN6ly1g75hm73j6sj30c70cot9l.jpg" alt="dog" width="20%">
 
 各种尝试无果后，无奈之下，意外发现了另一位大佬的[教程](https://www.jianshu.com/p/e68fba58f75c)，试了一下终于成功了。👏👏👏
 
