@@ -7,10 +7,10 @@ Hi, 欢迎来到 [Andy 的个人博客](https://andy-tk.github.io)。ε٩(๑> �
 
 <img src="https://github.com/Andy-TK/Andy-TK.github.io/blob/master/img/post-my-first-blog-02.jpg" alt="dog" width="15%">
 
-
 各种尝试无果后，无奈之下，意外发现了另一位大佬的[教程](https://www.jianshu.com/p/e68fba58f75c)，试了一下终于成功了。👏👏👏
 
 博客主页效果图：
+
 <img src="https://github.com/Andy-TK/Andy-TK.github.io/blob/master/img/DEMO.png" alt="demo" width="70%">
 
 呼。。终于可以开始写博客了，在接下来会不定期更新一些自己关于数据科学的学习笔记，算是记录一个小白成长的过程吧。另外，读书、旅行、生活方面可能也会偶尔在上面吐槽。欢迎关注，谢谢捧场(～￣▽￣)～。
