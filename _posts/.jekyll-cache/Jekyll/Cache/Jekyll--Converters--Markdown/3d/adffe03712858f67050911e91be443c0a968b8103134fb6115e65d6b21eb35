@@ -1,4 +1,4 @@
-I"y/<!-- 数学公式 -->
+I"|/<!-- 数学公式 -->
 <script src="https://cdn.mathjax.org/mathjax/latest/MathJax.js?config=TeX-AMS-MML_HTMLorMML" type="text/javascript"></script>
 
 <script type="text/x-mathjax-config">
@@ -41,7 +41,7 @@
   </li>
   <li>参数方法（“参数估计”）
     <ul>
-      <li>模型 ${p_\theta(x):\theta \in \Theta}$ 的类别由参数 $\Theta$ （可以是实数或者向量等）索引</li>
+      <li>模型 $\{p_\theta(x):\theta \in \Theta\}$ 的类别由参数 $\Theta$ （可以是实数或者向量等）索引</li>
       <li>点估计 $\hat \theta (x_1,x_2,…,x_n)$ 是数据的一个函数（或者统计量）</li>
     </ul>
   </li>
@@ -70,8 +70,7 @@
 <ul>
   <li>一个设计估计量的一般原则</li>
   <li>涉及优化</li>
-  <li>$\hat\theta(x_1,…,x_n) \in \argmax\limits_{\theta\in\Theta} \prod_{i=1}^{n}p_\theta(x_i)$ 
-（乘积是因为假设数据点之间互相独立）</li>
+  <li>$\hat\theta(x_1,…,x_n) \in \argmax\limits_{\theta\in\Theta} \prod_{i=1}^{n}p_{\theta}(x_i)$ （乘积是因为假设数据点之间互相独立）</li>
   <li>MLE 估计量是相合的（在一定条件下）</li>
 </ul>
 

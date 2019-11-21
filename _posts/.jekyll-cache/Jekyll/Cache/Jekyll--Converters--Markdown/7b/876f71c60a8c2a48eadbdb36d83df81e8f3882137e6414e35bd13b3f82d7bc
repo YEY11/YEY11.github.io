@@ -1,4 +1,4 @@
-I"y/<!-- 数学公式 -->
+I"�1<!-- 数学公式 -->
 <script src="https://cdn.mathjax.org/mathjax/latest/MathJax.js?config=TeX-AMS-MML_HTMLorMML" type="text/javascript"></script>
 
 <script type="text/x-mathjax-config">
@@ -41,7 +41,7 @@
   </li>
   <li>参数方法（“参数估计”）
     <ul>
-      <li>模型 ${p_\theta(x):\theta \in \Theta}$ 的类别由参数 $\Theta$ （可以是实数或者向量等）索引</li>
+      <li>模型 $\{p_\theta(x):\theta \in \Theta\}$ 的类别由参数 $\Theta$ （可以是实数或者向量等）索引</li>
       <li>点估计 $\hat \theta (x_1,x_2,…,x_n)$ 是数据的一个函数（或者统计量）</li>
     </ul>
   </li>
@@ -70,7 +70,7 @@
 <ul>
   <li>一个设计估计量的一般原则</li>
   <li>涉及优化</li>
-  <li>$\hat \theta(x_1,…,x_n) \in \argmax\limits_{\theta\in\Theta} \prod_{i=1}^{n}p_\theta(x_i)$ （乘积是因为假设数据点之间互相独立）</li>
+  <li>$\hat\theta(x_1,…,x_n) \in \mathop{\operatorname{arg\,max}}\limits_{\theta\in\Theta} \prod_{i=1}^{n}p_\theta(x_i)$ （乘积是因为假设数据点之间互相独立）</li>
   <li>MLE 估计量是相合的（在一定条件下）</li>
 </ul>
 
@@ -79,7 +79,7 @@
   <li>已知数据来自参数未知的伯努利分布（例如偏向硬币），找出该分布的均值</li>
   <li>均值的 MLE 估计
     <ul>
-      <li>$p_\theta(x)=\begin{cases}\theta,\quad \text{if }x=0\1-\theta,\quad \text{if }x=1\end{cases}=\theta^x (1-\theta)^{1-x}$
+      <li>$p_\theta(x)=\begin{cases}\theta,\quad \text{if }x=0\\1-\theta,\quad \text{if }x=1\end{cases}=\theta^x (1-\theta)^{1-x}$
 (注意：对于所有其他的 $x$，$p_\theta(x)=0$)</li>
       <li>最大化似然函数得到：$\hat\theta=\dfrac{1}{n}\sum_{i=1}^n X_i$</li>
     </ul>
@@ -115,7 +115,7 @@ $p_\theta(x)=\frac{1}{\sqrt{2\pi\sigma^2}}\exp(-\frac{1}{2\sigma^2}(x-\mu)^2)$ �
 <h3 id="21-决策理论">2.1 决策理论</h3>
 <ul>
   <li>采取行动以最大化效用 - 与经济学和运筹学相关</li>
-  <li>决策规则 $\delta(\bm{x}) \in A$，其中 $A$ 表示行动空间
+  <li>决策规则 $\delta(\boldsymbol x) \in A$，其中 $A$ 表示行动空间
     <ul>
       <li>例如：点估计 $\hat\theta(x_1,…,x_n)$</li>
       <li>例如：样本外预测 $\hat Y_{n+1}\mid X_1,Y_1,…,X_n,Y_n,X_{n+1}$</li>
@@ -132,14 +132,14 @@ $p_\theta(x)=\frac{1}{\sqrt{2\pi\sigma^2}}\exp(-\frac{1}{2\sigma^2}(x-\mu)^2)$ �
 <h3 id="22-风险与经验风险最小化erm">2.2 风险与经验风险最小化（ERM）</h3>
 <ul>
   <li>在决策理论中，我们真正关心的是期望损失</li>
-  <li>损失 $R_\theta[\delta]=E_{\bm{X}\sim \theta}[l(\delta(\bm{X}),\theta)]$
+  <li>损失 $R_\theta[\delta]=E_{\boldsymbol{X}\sim \theta}[l(\delta(\boldsymbol{X}),\theta)]$
     <ul>
       <li>例如：真实测试误差，或者泛化误差</li>
     </ul>
   </li>
   <li>目标：选择 $\delta$ 使得 $R_\theta[\delta]$ 最小</li>
   <li>无法直接完成，为什么？</li>
-  <li>ERM：使用训练集 $\bm{X}$ 来近似估计 $p_\theta$
+  <li>ERM：使用训练集 $\boldsymbol{X}$ 来近似估计 $p_\theta$
     <ul>
       <li>经验风险最小化 $\hat R_\theta[\delta]=\frac{1}{n}\sum_{i=1}^n l(\delta(X_i),\theta)$</li>
     </ul>
@@ -208,25 +208,31 @@ $P(X=x)=\sum_t P(X=x,\theta=t)$ （这被称为证据）</li>
 
 <h4 id="例子">例子</h4>
 <ul>
-  <li>
-    <table>
-      <tbody>
-        <tr>
-          <td>我们对 $X</td>
-          <td>\theta$ 建模为 $N(\theta,1)$，先验为 $N(0,1)$</td>
-        </tr>
-      </tbody>
-    </table>
-  </li>
+  <li>我们对 $X\mid\theta$ 建模为 $N(\theta,1)$，先验为 $N(0,1)$</li>
   <li>假设我们观测到 $X=1$，然后更新先验<br />
-$\begin{aligned}
-P(\theta\mid X=1)&amp;=\dfrac{P(X=1\mid \theta)P(\theta)}{P(X=1)} <br />
-             &amp;\propto P(X=1\mid \theta)P(\theta) <br />
-             &amp;=\left[\frac{1}{\sqrt{2\pi}}\exp\left(-\frac{(1-\theta)^2}{2}\right)\right]\left[\frac{1}{\sqrt{2\pi}}\exp\left(-\frac{\theta^2}{2}\right)\right] <br />
-             &amp;\propto N(0.5,0.5)
-\end{aligned}$
+<script type="math/tex">% <![CDATA[
+\begin{eqnarray}
+P(\theta\mid X=1)&=&\dfrac{P(X=1\mid \theta)P(\theta)}{P(X=1)} \\
+             &\propto & P(X=1\mid \theta)P(\theta) \\
+             &=&\left[\frac{1}{\sqrt{2\pi}}\exp\left(-\frac{(1-\theta)^2}{2}\right)\right]\left[\frac{1}{\sqrt{2\pi}}\exp\left(-\frac{\theta^2}{2}\right)\right] \\
+             &\propto & N(0.5,0.5)
+\end{eqnarray} %]]></script>
 注意：允许将常量提到前面，并通过归一化 “忽略”</li>
 </ul>
+
+<script type="math/tex; mode=display">% <![CDATA[
+\begin{eqnarray} 
+y &=& x^4 + 4      \nonumber \\
+  &=& (x^2+2)^2 -4x^2 \nonumber \\
+  &\le&(x^2+2)^2    \nonumber
+\end{eqnarray} %]]></script>
+
+<p>$\begin{aligned}
+  P(\theta\mid X=1)&amp;=\dfrac{P(X=1\mid \theta)P(\theta)}{P(X=1)} <br />
+               &amp;\propto P(X=1\mid \theta)P(\theta) <br />
+               &amp;=\left[\frac{1}{\sqrt{2\pi}}\exp\left(-\frac{(1-\theta)^2}{2}\right)\right]\left[\frac{1}{\sqrt{2\pi}}\exp\left(-\frac{\theta^2}{2}\right)\right] <br />
+               &amp;\propto N(0.5,0.5)
+  \end{aligned}$</p>
 
 <h3 id="33-如何利用贝叶斯进行点估计">3.3 如何利用贝叶斯进行点估计</h3>
 <ul>
