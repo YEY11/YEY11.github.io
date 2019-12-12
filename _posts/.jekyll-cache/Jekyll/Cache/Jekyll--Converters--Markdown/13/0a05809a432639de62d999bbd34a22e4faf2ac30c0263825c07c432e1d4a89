@@ -1,4 +1,4 @@
-I"�<<!-- 数学公式 -->
+I""=<!-- 数学公式 -->
 <script src="https://cdn.mathjax.org/mathjax/latest/MathJax.js?config=TeX-AMS-MML_HTMLorMML" type="text/javascript"></script>
 
 <script type="text/x-mathjax-config">
@@ -141,7 +141,7 @@ $\sum_{i=1}^{n}\log p(y_i|\boldsymbol x_i)=-\dfrac{1}{2\sigma^2}\sum_{i=1}^{n}(y
 <ul>
   <li>训练 = 拟合 = 参数估计</li>
   <li>典型公式
-$\hat\boldsymbol\theta \in \mathop{\operatorname{arg\,min}}\limits_{\boldsymbol{\theta} \in \boldsymbol{\Theta}} L(data,\boldsymbol{\theta})$
+$\hat{\boldsymbol\theta}\in\mathop{\operatorname{arg\,min}}\limits_{\boldsymbol\theta\in\boldsymbol\Theta} L(data,\boldsymbol\theta)$
     <ul>
       <li>$\mathop{\operatorname{arg\,min}}$ 是因为我们希望最小化而非最小值
         <ul>
@@ -164,9 +164,12 @@ $\hat\boldsymbol\theta \in \mathop{\operatorname{arg\,min}}\limits_{\boldsymbol{
   <li>解析解（又称闭合解）
     <ul>
       <li>仅在少数情况下可以得到</li>
-      <li>假设无约束、$L$ 可微的情况下，令参数的一阶偏导为零：
-$\dfrac{\partial L}{\partial \theta_1}=…=\dfrac{\partial L}{\partial \theta_p}=0$
-注意：为了检查是否为局部最小值，需要二阶偏导大于 $0$（或者 Hessian 矩阵是正定的），这是在假定不受约束的前提下（通常还需要检查边界），另外请参考后面的拉格朗日方法。</li>
+      <li>
+        <p>假设无约束、$L$ 可微的情况下，令参数的一阶偏导为零：
+$\dfrac{\partial L}{\partial \theta_1}=…=\dfrac{\partial L}{\partial \theta_p}=0$</p>
+
+        <p>注意：为了检查是否为局部最小值，需要二阶偏导大于 $0$（或者 Hessian 矩阵是正定的），这是在假定不受约束的前提下（通常还需要检查边界），另外请参考后面的拉格朗日方法。</p>
+      </li>
     </ul>
   </li>
   <li>通过迭代求近似解
@@ -175,7 +178,7 @@ $\dfrac{\partial L}{\partial \theta_1}=…=\dfrac{\partial L}{\partial \theta_p}
       <li>更新：$\boldsymbol\theta^{(i+1)}\leftarrow SomeRule[\boldsymbol\theta^{(i)}]$，设置 $i\leftarrow i+1$</li>
       <li>终止：决定是否停止</li>
       <li>回到第 2 步</li>
-      <li>停止：返回 $\hat\boldsymbol\theta\approx\boldsymbol\theta^{(i)}$</li>
+      <li>停止：返回 $\hat{\boldsymbol\theta}\approx\boldsymbol\theta^{(i)}$</li>
     </ol>
   </li>
 </ul>
@@ -205,7 +208,7 @@ $\dfrac{\partial L}{\partial \theta_1}=…=\dfrac{\partial L}{\partial \theta_p}
           <li>固定 $\boldsymbol\theta^{(i+1)}$ 部分，除了第 $j$ 项</li>
           <li>找到使 $L\left(\theta_j^{(i+1)}\right)$ 最小化的 $\hat\theta_j^{(i+1)}$</li>
           <li>更新 $\boldsymbol\theta^{(i+1)}$ 的第 $j$ 项</li>
-          <li>返回 $\hat\boldsymbol\theta\approx\boldsymbol\theta^{(i)}$</li>
+          <li>返回 $\hat{\boldsymbol\theta}\approx\boldsymbol\theta^{(i)}$</li>
         </ol>
       </li>
     </ol>
@@ -227,7 +230,7 @@ $\dfrac{\partial L}{\partial \theta_1}=…=\dfrac{\partial L}{\partial \theta_p}
 </ul>
 
 <h3 id="36-梯度下降">3.6 梯度下降</h3>
-<p><img src="https://tva1.sinaimg.cn/large/006y8mN6ly1g8d70xpghnj30i60j8n0s.jpg" width="40%" align="right" /></p>
+<p><img src="https://tva1.sinaimg.cn/large/006y8mN6ly1g8d70xpghnj30i60j8n0s.jpg" width="30%" align="right" /></p>
 
 <ul>
   <li>假设 $L$ 是可微的
@@ -235,7 +238,7 @@ $\dfrac{\partial L}{\partial \theta_1}=…=\dfrac{\partial L}{\partial \theta_p}
       <li>选择 $\boldsymbol\theta^{(1)}$ 和某个 $T$</li>
       <li>对 $i$ 从 $1$ 到 $T$（也可以采用其他终止条件）：
 $\boldsymbol\theta^{(i+1)}\leftarrow\boldsymbol\theta^{(i)}-\eta\nabla L(\boldsymbol\theta^{(i)})$</li>
-      <li>返回 $\hat\boldsymbol\theta\approx\boldsymbol\theta^{(i)}$</li>
+      <li>返回 $\hat{\boldsymbol\theta}\approx\boldsymbol\theta^{(i)}$</li>
     </ol>
   </li>
   <li>注意：$\eta$ 在每一步中是动态更新的</li>
@@ -243,7 +246,7 @@ $\boldsymbol\theta^{(i+1)}\leftarrow\boldsymbol\theta^{(i)}-\eta\nabla L(\boldsy
 </ul>
 
 <h3 id="37-凸目标函数">3.7 凸目标函数</h3>
-<p><img src="https://tva1.sinaimg.cn/large/006y8mN6ly1g8d7cxg8abj30fa0gewh6.jpg" width="40%" align="right" /></p>
+<p><img src="https://tva1.sinaimg.cn/large/006y8mN6ly1g8d7cxg8abj30fa0gewh6.jpg" width="30%" align="right" /></p>
 
 <ul>
   <li>“碗形” 函数</li>
@@ -266,11 +269,11 @@ $f(t\boldsymbol a+(1-t)\boldsymbol b)\le tf(\boldsymbol a)+(1-t)f(\boldsymbol b)
     </ul>
   </li>
   <li>具体来说，我们将经常使用 $L_2$ 范数（又称欧几里德距离）:
-$|\boldsymbol a|=|\boldsymbol a|_2\equiv\sqrt{a_1^2+…+a_n^2}$</li>
+$\|\boldsymbol a\|=\|\boldsymbol a\|_2\equiv\sqrt{a_1^2+…+a_n^2}$</li>
   <li>以及 $L_1$ 范数（也称为绝对范数或曼哈顿距离）:
-$|\boldsymbol a|_1\equiv |a_1|+…+|a_n|$</li>
+$\|\boldsymbol a\|_1\equiv |a_1|+…+|a_n|$</li>
   <li>例如，平方和误差就是一个平方范数：
-$L=\sum_{i=1}^{n}\left(y_i-\sum_{j=0}^{m}X_{ij}w_j\right)^2=|\boldsymbol y-boldsymbolm{Xw}|^2$</li>
+$L=\sum_{i=1}^{n}\left(y_i-\sum_{j=0}^{m}X_{ij}w_j\right)^2=\|\boldsymbol y-boldsymbolm{Xw}\|^2$</li>
 </ul>
 
 <h3 id="以及更多">以及更多</h3>
