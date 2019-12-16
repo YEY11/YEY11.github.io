@@ -1,4 +1,4 @@
-I"�=<!-- 数学公式 -->
+I"><!-- 数学公式 -->
 <script src="https://cdn.mathjax.org/mathjax/latest/MathJax.js?config=TeX-AMS-MML_HTMLorMML" type="text/javascript"></script>
 
 <script type="text/x-mathjax-config">
@@ -279,15 +279,23 @@ $\boldsymbol\theta^{(i+1)}\leftarrow\boldsymbol\theta^{(i)}-\eta\nabla L(\boldsy
       <li>通常作为机器学习优化中的目标函数或者停止条件的一部分</li>
     </ul>
   </li>
-  <li>具体来说，我们将经常使用 $L_2$ 范数（又称欧几里德距离）:
-$\|\boldsymbol a\|=\|\boldsymbol a\|_2\equiv\sqrt{a_1^2+…+a_n^2}$</li>
-  <li>以及 $L_1$ 范数（也称为绝对范数或曼哈顿距离）:
-$\|\boldsymbol a\|_1\equiv |a_1|+…+|a_n|$</li>
-  <li>例如，平方和误差就是一个平方范数：
-$L=\sum_{i=1}^{n}\left(y_i-\sum_{j=0}^{m}X_{ij}w_j\right)^2=\|\boldsymbol y-boldsymbolm{Xw}\|^2$</li>
+  <li>
+    <p>具体来说，我们将经常使用 $L_2$ 范数（又称欧几里德距离）:</p>
+
+    <p>$\|\boldsymbol a\|=\|\boldsymbol a\|_2\equiv\sqrt{a_1^2+…+a_n^2}$</p>
+  </li>
+  <li>
+    <p>以及 $L_1$ 范数（也称为绝对范数或曼哈顿距离）:</p>
+
+    <p>$\|\boldsymbol a\|_1\equiv |a_1|+…+|a_n|$</p>
+  </li>
+  <li>
+    <p>例如，平方和误差就是一个平方范数：</p>
+
+    <p>$L=\sum_{i=1}^{n}\left(y_i-\sum_{j=0}^{m}X_{ij}w_j\right)^2=\|\boldsymbol y-\boldsymbol{Xw}\|^2$</p>
+  </li>
 </ul>
 
-<p>$A|B$</p>
 <h3 id="以及更多">以及更多</h3>
 <ul>
   <li>如果存在约束怎么办？</li>
@@ -318,10 +326,15 @@ $L=\sum_{i=1}^{n}\left(y_i-\sum_{j=0}^{m}X_{ij}w_j\right)^2=\|\boldsymbol y-bold
   <li>训练数据：${(\boldsymbol x_1,y_1),…,(\boldsymbol x_n,y_n)}$ （注意：这里 $\boldsymbol x_i$ 是粗体，表示向量）</li>
   <li>为了方便，行代表实例（所以，列代表属性），用一个 $n\times(m+1)$ 的矩阵 $\boldsymbol X$ 和一个 $n$ 维向量 $\boldsymbol y$ 代表训练数据</li>
   <li>概率模型 / 决策规则假设：$\boldsymbol y\approx\boldsymbol{Xw}$</li>
-  <li>为了找到 $\boldsymbol w$，最小化平方和误差：
-$L=\sum_{i=1}^{n}\left(y_i-\sum_{j=0}^{m}X_{ij}w_j\right)^2$</li>
-  <li>令偏导数为零，对 $\boldsymbol w$ 求解：
-$\hat\boldsymbol w=(\boldsymbol{X’X})^{-1}\boldsymbol{X’y}$
+  <li>
+    <p>为了找到 $\boldsymbol w$，最小化平方和误差：</p>
+
+    <p>$L=\sum_{i=1}^{n}\left(y_i-\sum_{j=0}^{m}X_{ij}w_j\right)^2$</p>
+  </li>
+  <li>
+    <p>令偏导数为零，对 $\boldsymbol w$ 求解：</p>
+
+    <p>$\hat{\boldsymbol w}=(\boldsymbol{X’X})^{-1}\boldsymbol{X’y}$</p>
     <ul>
       <li>该方程组称为正规方程</li>
       <li>只有当矩阵的逆存在时，该方程组才是良定义的</li>
