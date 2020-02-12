@@ -2,7 +2,7 @@
 layout:     post   				    # 使用的布局（不需要改）
 title:      Say Bye, Say Hi   	# 标题 
 subtitle:   「You are my favorite hello and hardest goodbye.」  #副标题
-date:       2018-01-21 				# 时间
+date:       2014-07-12 				# 时间
 author:     Andy 						# 作者
 header-img: img/post-manchester.jpg 	#这篇文章标题背景图片
 catalog: true 						# 是否归档
