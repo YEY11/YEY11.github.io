@@ -1,4 +1,4 @@
-I")&<!-- 数学公式 -->
+I"5&<!-- 数学公式 -->
 <script src="https://cdn.mathjax.org/mathjax/latest/MathJax.js?config=TeX-AMS-MML_HTMLorMML" type="text/javascript"></script>
 
 <script type="text/x-mathjax-config">
@@ -39,7 +39,7 @@
   <li>具有单个隐藏层的 ANN 是一个通用近似器</li>
   <li>例如，这样的 ANN 可以表示任何布尔函数：<br /><br />
 $OR(x_1,x_2)\qquad \qquad u=g(x_1+x_2-0.5)$<br />
-$AND(x_1,x_2)\qquad \quad u=g(x_1+x_2-1.5)$<br />
+$AND(x_1,x_2)\qquad \quad \; u=g(x_1+x_2-1.5)$<br />
 $NOT(x_1)\qquad \qquad\;\; u=g(-x_1)$<br />
 如果 $r\ge 0$，那么$g(r)=1$；否则，$g(r)=0$<br />
 <br /></li>
@@ -238,5 +238,5 @@ $v=\max(u_{11},u_{12},…,u_{mm})$</li>
   </li>
 </ul>
 
-<p>下节内容：支持向量机</p>
+<p>下节内容：支持向量机（SVM）</p>
 :ET
