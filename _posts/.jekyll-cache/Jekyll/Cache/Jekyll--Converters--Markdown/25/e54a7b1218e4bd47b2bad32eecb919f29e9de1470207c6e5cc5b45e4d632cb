@@ -1,0 +1,205 @@
+I"&<!-- 数学公式 -->
+<script src="https://cdn.mathjax.org/mathjax/latest/MathJax.js?config=TeX-AMS-MML_HTMLorMML" type="text/javascript"></script>
+
+<script type="text/x-mathjax-config">
+  MathJax.Hub.Config({
+    tex2jax: {
+      skipTags: ['script', 'noscript', 'style', 'textarea', 'pre'],
+      inlineMath: [['$','$']]
+    }
+  });
+</script>
+
+<h1 id="lecture-11-核方法">Lecture 11 核方法</h1>
+<h2 id="主要内容">主要内容</h2>
+<ul>
+  <li><strong>核化</strong>
+    <ul>
+      <li>SVM 对偶公式的基扩展</li>
+      <li>“核技巧”；特征空间点积的快速计算</li>
+    </ul>
+  </li>
+  <li><strong>模块化学习</strong>
+    <ul>
+      <li>从特征变换中分离出“学习模块”</li>
+      <li>表示定理</li>
+    </ul>
+  </li>
+  <li><strong>构造核</strong>
+    <ul>
+      <li>常见核及其特性概述</li>
+      <li>Mercer 定理</li>
+      <li>学习非常规数据类型</li>
+    </ul>
+  </li>
+</ul>
+
+<h2 id="1-svm-核化">1. SVM 核化</h2>
+<p><strong>通过基扩展进行特征变换；通过对核进行直接评估来实现加速 —— “核技巧”</strong></p>
+<h3 id="11-svm-处理非线性数据">1.1 SVM 处理非线性数据</h3>
+<ul>
+  <li>方法 1：软间隔 SVM（参考 Lecture 10）</li>
+  <li>方法 2：<strong>特征空间</strong> 变换（参考 Lecture 4）
+    <ul>
+      <li>将数据映射到一个新的特征空间</li>
+      <li>在新的特征空间中运行硬间隔或者软间隔 SVM</li>
+      <li>决策边界在原始特征空间中是非线性的<br />
+<img src="http://andy-blog.oss-cn-beijing.aliyuncs.com/blog/2020-02-14-WX20200214-133247%402x.png" width="80%" /></li>
+    </ul>
+  </li>
+</ul>
+
+<h3 id="12-特征变换基扩展">1.2 特征变换（基扩展）</h3>
+<ul>
+  <li>考虑一个二分类问题</li>
+  <li>每个样本点具有特征 $[x_1, x_2]$</li>
+  <li>
+    <p>非线性可分<br />
+<img src="http://andy-blog.oss-cn-beijing.aliyuncs.com/blog/2020-02-14-WX20200214-133923%402x.png" width="40%" /></p>
+  </li>
+  <li>现在“增加”一个特征 $x_3=x_1^2+x_2^2$</li>
+  <li>每个样本点现在为 $[x_1, x_2, x_1^2+x_2^2]$</li>
+  <li>现在数据变成线性可分了<br />
+<img src="http://andy-blog.oss-cn-beijing.aliyuncs.com/blog/2020-02-14-WX20200214-134026%402x.png" width="40%" /></li>
+</ul>
+
+<h3 id="13-朴素工作流">1.3 朴素工作流</h3>
+<ul>
+  <li>选择 / 设计一个线性模型</li>
+  <li>选择 / 设计一个高维变换 $\varphi (x)$
+    <ul>
+      <li>希望在添加了许多各种特征之后，其中一些特征将使数据变得线性可分</li>
+    </ul>
+  </li>
+  <li>对于 <strong>每个</strong> 训练样本，以及 <strong>每个</strong> 新的实例，计算 $\varphi (x)$</li>
+  <li>训练分类器 / 进行预测</li>
+  <li><strong>问题：</strong> 对于高维 / 无限维的 $\varphi (x)$，<strong>计算 $\varphi (x)$ 是不现实 / 不可能的</strong></li>
+</ul>
+
+<h3 id="14-硬间隔-svm-的对偶公式">1.4 硬间隔 SVM 的对偶公式</h3>
+<ul>
+  <li><strong>训练：</strong> 寻找 $\boldsymbol \lambda$ 使得</li>
+</ul>
+
+<script type="math/tex; mode=display">\begin{array}{cc}\mathop{\operatorname{arg\,max}}\limits_{\boldsymbol \lambda}\sum_{i=1}^{n}\lambda_i-\dfrac{1}{2}\sum_{i=1}^{n}\sum_{j=1}^{n}\lambda_i \lambda_j y_i y_j \color{red}{\underbrace{\fbox{$\color{black}{\boldsymbol x_i' \boldsymbol x_j}$}}_{\text{点积}}}\\\\
+\text{s.t.}\quad \lambda_i\ge 0 \;\text{and}\;\sum_{i=1}^{n}\lambda_i y_i=0 \end{array}</script>
+
+<ul>
+  <li><strong>预测：</strong> 根据 $s$ 的符号对实例 $\boldsymbol x$ 进行分类</li>
+</ul>
+
+<script type="math/tex; mode=display">s=b^*+\sum_{i=1}^{n}\lambda_i^* y_i \color{red}{\underbrace{\fbox{$\color{black}{\boldsymbol x_i' \boldsymbol x}$}}_{\text{点积}}}</script>
+
+<p>注意：对于任意支持向量 $j$，通过求解 <script type="math/tex">y_j(b^{*}+\sum_{i=1}^{n}\lambda_i^* y_i \color{red}{\fbox{$\color{black}{\boldsymbol x_i' \boldsymbol x_j}$}})=1</script> 来找到 $b^*$</p>
+
+<h3 id="15-特征空间中的硬间隔-svm">1.5 特征空间中的硬间隔 SVM</h3>
+<ul>
+  <li><strong>训练：</strong> 寻找 $\boldsymbol \lambda$ 使得</li>
+</ul>
+
+<script type="math/tex; mode=display">\begin{array}{cc}\mathop{\operatorname{arg\,max}}\limits_{\boldsymbol \lambda}\sum_{i=1}^{n}\lambda_i-\dfrac{1}{2}\sum_{i=1}^{n}\sum_{j=1}^{n}\lambda_i \lambda_j y_i y_j \color{red}{\fbox{$\color{black}{\varphi (\boldsymbol x_i)' \varphi (\boldsymbol x_j)}$}}\\\\
+\text{s.t.}\quad \lambda_i\ge 0 \;\text{and}\;\sum_{i=1}^{n}\lambda_i y_i=0 \end{array}</script>
+
+<ul>
+  <li><strong>预测：</strong> 根据 $s$ 的符号对实例 $\boldsymbol x$ 进行分类</li>
+</ul>
+
+<script type="math/tex; mode=display">s=b^*+\sum_{i=1}^{n}\lambda_i^* y_i \color{red}{\fbox{$\color{black}{\varphi (\boldsymbol x_i)' \varphi (\boldsymbol x)}$}}</script>
+
+<p>注意：对于任意支持向量 $j$，通过求解 <script type="math/tex">y_j(b^{*}+\sum_{i=1}^{n}\lambda_i^* y_i \color{red}{\fbox{$\color{black}{\varphi (\boldsymbol x_i)' \varphi (\boldsymbol x_j)}$}})=1</script> 来找到 $b^*$</p>
+
+<h3 id="16-观察核表示">1.6 观察：核表示</h3>
+<ul>
+  <li>参数估计和计算预测都仅依赖于 <strong>点积</strong> 形式的数据
+    <ul>
+      <li>在原始特征空间：$\boldsymbol u’ \boldsymbol v=\sum_{i=1}^{m}u_i v_i$</li>
+      <li>在经过特征变换后的空间：$\varphi(\boldsymbol u)’ \varphi(\boldsymbol v)=\sum_{i=1}^{l}\varphi(\boldsymbol u)_i \varphi(\boldsymbol v)_i$</li>
+    </ul>
+  </li>
+  <li><strong>核函数</strong> 是可以在某些特征空间中表示为点积的函数<br />
+$K(\boldsymbol u, \boldsymbol v)=\varphi(\boldsymbol u)’ \varphi(\boldsymbol v)$</li>
+</ul>
+
+<h3 id="17-核函数是一种捷径例子">1.7 核函数是一种捷径：例子</h3>
+<ul>
+  <li>对于某些 $\varphi(\boldsymbol x)$，<strong>直接对核函数进行计算</strong> 要比先映射到特征空间然后再计算点积 <strong>更快</strong>。</li>
+  <li>例如，考虑两个向量 $\boldsymbol u =[ u_1 ]$ 和 $\boldsymbol v =[ v_1 ]$，以及变换 $\varphi(\boldsymbol x)=[ x_1^2, \sqrt{2c} x_1, c ]$，其中 $c$ 是某个常数
+    <ul>
+      <li>所以，$\varphi(\boldsymbol u)=[ u_1^2, \sqrt{2c} u_1, c ]’$（<span style="color:green;">2 步操作</span>）和 $\varphi(\boldsymbol v)=[ v_1^2, \sqrt{2c} v_1, c ]’$（<span style="color:green;">+2 步操作</span>）</li>
+      <li>然后，$\varphi(\boldsymbol u)’\varphi(\boldsymbol v)=(u_1^2 v_1^2+2cu_1 v_1+c^2)$ （<span style="color:green;">+5 步操作 = 9 步操作</span>）</li>
+    </ul>
+  </li>
+  <li>
+    <p>这可以通过 <strong>直接计算核函数</strong> 来代替</p>
+
+    <script type="math/tex; mode=display">\varphi(\boldsymbol u)' \varphi(\boldsymbol v)=(u_1 v_1 +c)^2</script>
+
+    <ul>
+      <li>现在只需 <strong>3 步操作</strong></li>
+      <li>这里，$K(\boldsymbol u, \boldsymbol v)=(u_1 v_1 +c)^2$ 是相应的核函数</li>
+    </ul>
+  </li>
+</ul>
+
+<h3 id="18-更通用的核技巧">1.8 更通用的：“核技巧”</h3>
+<ul>
+  <li>考虑两个训练数据点 $\boldsymbol x_i$ 和 $\boldsymbol x_j$，以及它们在经过变换后的特征空间中的点积。</li>
+  <li>$k_{ij}\equiv \varphi(\boldsymbol x_i)’\varphi(\boldsymbol x_j)$ <span style="color:red;">核矩阵</span> 可以按如下步骤计算：
+    <ol>
+      <li>计算 $\varphi(\boldsymbol x_i)’$</li>
+      <li>计算 $\varphi(\boldsymbol x_j)$</li>
+      <li>计算 $k_{ij}=\varphi(\boldsymbol x_i)’\varphi(\boldsymbol x_j)$</li>
+    </ol>
+  </li>
+  <li>然而，对于某些变换 $\varphi$，存在一种“捷径”函数可以得到与 $K(\boldsymbol x_i,\boldsymbol x_j)=k_{ij}$ 完全相同的答案：
+    <ul>
+      <li>不包含上面的 1-3 步，而且没有计算 $\varphi(\boldsymbol x_i)$ 和 $\varphi(\boldsymbol x_j)$</li>
+      <li>通常，计算 $k_{ij}$ 的时间复杂度为 $O(m)$，但是计算 $\varphi(\boldsymbol x)$ 的时间复杂度为 $O(l)$，其中 $l \gg m$（<strong>计算上不现实</strong>）甚至 $l=\infty$（<strong>计算上不可行</strong>）</li>
+    </ul>
+  </li>
+</ul>
+
+<h3 id="19-核函数硬间隔-svm">1.9 核函数硬间隔 SVM</h3>
+<ul>
+  <li><strong>训练：</strong> 寻找 $\boldsymbol \lambda$ 使得</li>
+</ul>
+
+<script type="math/tex; mode=display">\begin{array}{cc}\mathop{\operatorname{arg\,max}}\limits_{\boldsymbol \lambda}\sum_{i=1}^{n}\lambda_i-\dfrac{1}{2}\sum_{i=1}^{n}\sum_{j=1}^{n}\lambda_i \lambda_j y_i y_j \color{red}{\underbrace{\fbox{$\color{black}{K(\boldsymbol x_i, \boldsymbol x_j)}$}}_{\text{特征映射通过核函数实现}}}\\\\
+\text{s.t.}\quad \lambda_i\ge 0 \;\text{and}\;\sum_{i=1}^{n}\lambda_i y_i=0 \end{array}</script>
+
+<ul>
+  <li><strong>预测：</strong> 根据 $s$ 的符号对实例 $\boldsymbol x$ 进行分类</li>
+</ul>
+
+<script type="math/tex; mode=display">s=b^*+\sum_{i=1}^{n}\lambda_i^* y_i \color{red}{\underbrace{\fbox{$\color{black}{\boldsymbol x_i' \boldsymbol x}$}}_{\text{点积}}}</script>
+
+<p>注意：对于任意支持向量 $j$，通过求解 <script type="math/tex">y_j(b^{*}+\sum_{i=1}^{n}\lambda_i^* y_i \color{red}{\fbox{$\color{black}{\boldsymbol x_i' \boldsymbol x_j}$}})=1</script> 来找到 $b^*$</p>
+
+<p><span style="color:red;">text</span></p>
+
+<hr />
+
+<h2 id="总结">总结</h2>
+<ul>
+  <li>软间隔 SVM
+    <ul>
+      <li>直觉和问题的数学表述</li>
+    </ul>
+  </li>
+  <li>构造对偶问题
+    <ul>
+      <li>拉格朗日乘子法、KKT 条件</li>
+      <li>弱对偶和强对偶</li>
+    </ul>
+  </li>
+  <li>补充
+    <ul>
+      <li>互补松弛性</li>
+      <li>训练注意事项</li>
+    </ul>
+  </li>
+</ul>
+
+<p>下节内容：核方法</p>
+
+:ET
