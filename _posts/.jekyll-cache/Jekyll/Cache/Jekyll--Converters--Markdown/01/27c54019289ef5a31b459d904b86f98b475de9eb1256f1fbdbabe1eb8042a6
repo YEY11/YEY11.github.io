@@ -1,0 +1,30 @@
+I"�<!-- 数学公式 -->
+<script src="https://cdn.mathjax.org/mathjax/latest/MathJax.js?config=TeX-AMS-MML_HTMLorMML" type="text/javascript"></script>
+
+<script type="text/x-mathjax-config">
+  MathJax.Hub.Config({
+    tex2jax: {
+      skipTags: ['script', 'noscript', 'style', 'textarea', 'pre'],
+      inlineMath: [['$','$']]
+    }
+  });
+</script>
+
+<h1 id="lecture-12-集成学习">Lecture 12 集成学习</h1>
+<h2 id="主要内容">主要内容</h2>
+<ul>
+  <li><strong>集成学习：对冲你的赌注</strong></li>
+  <li><strong>Bagging 和随机森林</strong></li>
+  <li><strong>Boosting</strong></li>
+  <li><strong>Stacking</strong></li>
+</ul>
+
+<h2 id="1-集成学习">1. 集成学习</h2>
+<p><strong>集成学习：对冲你的赌注</strong></p>
+<h3 id="11-为什么是-一个真实的-模型">1.1 为什么是 “一个真实的” 模型？</h3>
+<ul>
+  <li></li>
+</ul>
+
+<p>下节内容：集成学习</p>
+:ET

@@ -1,0 +1,38 @@
+I"<!-- 数学公式 -->
+<script src="https://cdn.mathjax.org/mathjax/latest/MathJax.js?config=TeX-AMS-MML_HTMLorMML" type="text/javascript"></script>
+
+<script type="text/x-mathjax-config">
+  MathJax.Hub.Config({
+    tex2jax: {
+      skipTags: ['script', 'noscript', 'style', 'textarea', 'pre'],
+      inlineMath: [['$','$']]
+    }
+  });
+</script>
+
+<h1 id="lecture-12-集成学习">Lecture 12 集成学习</h1>
+<h2 id="主要内容">主要内容</h2>
+<ul>
+  <li><strong>集成学习：对冲你的赌注</strong></li>
+  <li><strong>Bagging 和随机森林</strong></li>
+  <li><strong>Boosting</strong></li>
+  <li><strong>Stacking</strong></li>
+</ul>
+
+<h2 id="1-集成学习">1. 集成学习</h2>
+<p><strong>集成学习：对冲你的赌注</strong></p>
+<h3 id="11-为什么是-一个真实的-模型">1.1 为什么是 “一个真实的” 模型？</h3>
+<ul>
+  <li>到目前为止，我们已经讨论了各个模型，并在孤立 / 竞争中考虑了每个模型</li>
+  <li>我们知道如何评估每个模型的性能（通过准确率、F-measure 等），这使我们能够给一个数据集从 <strong>总体上</strong> 选择出最优的模型</li>
+  <li>但 <strong>总体上</strong> 并没有隐含着每个样本的表现
+    <ul>
+      <li>总体上最优的模型：在某些实例上可能会出错</li>
+      <li>总体上最差的模型：在某些实例上可能会更好</li>
+    </ul>
+  </li>
+  <li><span style="color:red">集成</span> 让我们可以综合使用多个模型</li>
+</ul>
+
+<p>下节内容：集成学习</p>
+:ET
