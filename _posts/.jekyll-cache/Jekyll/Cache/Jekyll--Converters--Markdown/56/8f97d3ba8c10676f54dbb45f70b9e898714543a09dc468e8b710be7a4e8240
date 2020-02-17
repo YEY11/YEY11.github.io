@@ -1,0 +1,42 @@
+I"�<!-- 数学公式 -->
+<script src="https://cdn.mathjax.org/mathjax/latest/MathJax.js?config=TeX-AMS-MML_HTMLorMML" type="text/javascript"></script>
+
+<script type="text/x-mathjax-config">
+  MathJax.Hub.Config({
+    tex2jax: {
+      skipTags: ['script', 'noscript', 'style', 'textarea', 'pre'],
+      inlineMath: [['$','$']]
+    }
+  });
+</script>
+
+<h1 id="lecture-13-多臂老虎机问题">Lecture 13 多臂老虎机问题</h1>
+<h2 id="主要内容">主要内容</h2>
+<ul>
+  <li><strong>随机多臂老虎机</strong>
+    <ul>
+      <li>“我们学会采取行动的地方；我们仅仅接受奖励形式的间接监督；并且我们只观测行动带来的奖励。” —— 这是一个关于 <strong>探索-利用（Exploration-Exploitation）</strong> 权衡最简单的设定</li>
+      <li>不确定性下的顺序决策</li>
+      <li>$(\varepsilon)$-Greedy</li>
+      <li>UCB 算法</li>
+    </ul>
+  </li>
+</ul>
+
+<h2 id="1-多臂老虎机">1. 多臂老虎机</h2>
+<h3 id="11-多臂老虎机问题mab">1.1 多臂老虎机问题（MAB）</h3>
+<p><img src="http://andy-blog.oss-cn-beijing.aliyuncs.com/blog/2020-02-17-WX20200217-191218%402x.png" width="60%" /></p>
+
+<p><strong><span style="color:steelblue">问题描述：</span></strong></p>
+<blockquote>
+  <p>赌场内，有一名赌徒想要去摇老虎机，现在有一排老虎机，每台老虎机都拥有一个 <strong>摇臂（arm）</strong>，而且每台老虎机看上去都一样。每次投一枚硬币就能获得一次摇臂的机会，而且每个摇臂按下都有可能获得 <strong>奖励（rewards）</strong> —— 但是，每台老虎机吐出奖励的概率分布是未知的。作为赌徒，自然希望自己的 <strong>累积收益的期望（expected cumulative reward）最大化</strong>（假如一共有 $n$ 次摇臂的机会），那么，请问这名赌徒应该采取怎样的行动？<br /></p>
+
+  <p>—— 这就是 <strong>多臂老虎机问题（Multi-armed bandit, MAB)</strong></p>
+</blockquote>
+
+<h3 id="12-探索explorationvs-利用exploitation">1.2 探索（Exploration）vs. 利用（Exploitation）</h3>
+
+<h2 id="总结">总结</h2>
+
+<p>下节内容：多臂老虎机问题</p>
+:ET

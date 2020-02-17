@@ -1,0 +1,32 @@
+I"�<!-- 数学公式 -->
+<script src="https://cdn.mathjax.org/mathjax/latest/MathJax.js?config=TeX-AMS-MML_HTMLorMML" type="text/javascript"></script>
+
+<script type="text/x-mathjax-config">
+  MathJax.Hub.Config({
+    tex2jax: {
+      skipTags: ['script', 'noscript', 'style', 'textarea', 'pre'],
+      inlineMath: [['$','$']]
+    }
+  });
+</script>
+
+<h1 id="lecture-13-多臂老虎机问题">Lecture 13 多臂老虎机问题</h1>
+<h2 id="主要内容">主要内容</h2>
+<ul>
+  <li><strong>随机多臂老虎机</strong>
+    <ul>
+      <li>“”我们学会采取行动的地方；我们仅仅接受奖励形式的间接监督；并且我们只观测行动带来的奖励 —— 这是一个关于 <strong>探索（）- 利用（）</strong> 权衡最简单的设定</li>
+    </ul>
+  </li>
+</ul>
+
+<h2 id="1-集成学习">1. 集成学习</h2>
+<p>*</p>
+
+<h2 id="总结">总结</h2>
+<ul>
+  <li></li>
+</ul>
+
+<p>下节内容：多臂老虎机问题</p>
+:ET
