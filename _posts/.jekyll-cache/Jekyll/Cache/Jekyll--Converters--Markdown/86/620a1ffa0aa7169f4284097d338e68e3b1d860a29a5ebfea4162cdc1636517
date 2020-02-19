@@ -1,0 +1,314 @@
+I"�9<!-- 数学公式 -->
+<script src="https://cdn.mathjax.org/mathjax/latest/MathJax.js?config=TeX-AMS-MML_HTMLorMML" type="text/javascript"></script>
+
+<script type="text/x-mathjax-config">
+  MathJax.Hub.Config({
+    tex2jax: {
+      skipTags: ['script', 'noscript', 'style', 'textarea', 'pre'],
+      inlineMath: [['$','$']]
+    }
+  });
+</script>
+
+<h1 id="lecture-14-贝叶斯回归">Lecture 14 贝叶斯回归</h1>
+<h2 id="主要内容">主要内容</h2>
+<ul>
+  <li><strong>点估计未捕获到的不确定性</strong></li>
+  <li><strong>贝叶斯方法保留不确定性</strong></li>
+  <li><strong>顺序贝叶斯更新</strong></li>
+  <li><strong>共轭先验（Normal-Normal）</strong></li>
+  <li><strong>利用后验在测试集上进行贝叶斯预测</strong></li>
+</ul>
+
+<h2 id="1-回顾贝叶斯">1. 回顾贝叶斯</h2>
+<h3 id="11-训练--优化">1.1 训练 = 优化？</h3>
+<p><strong>学习与推断阶段：</strong></p>
+<ul>
+  <li><strong><span style="color:steelblue">对于分类问题：</span></strong>
+    <ul>
+      <li>
+        <p>建模（以 Logistic 回归为例）</p>
+
+        <script type="math/tex; mode=display">p(y|\boldsymbol x)=\text{sigmoid}(\boldsymbol x'\boldsymbol w)</script>
+      </li>
+      <li>
+        <p>参数拟合数据</p>
+
+        <script type="math/tex; mode=display">\hat{\boldsymbol w}=\mathop{\operatorname{arg\,max}}\limits_{\boldsymbol w}p(\boldsymbol y|\boldsymbol X,\boldsymbol w)p(\boldsymbol w)</script>
+      </li>
+      <li>
+        <p>进行预测</p>
+
+        <script type="math/tex; mode=display">p(y_*|\boldsymbol x_*)=\text{sigmoid}(\boldsymbol x_*'\hat{\boldsymbol w})</script>
+      </li>
+    </ul>
+  </li>
+  <li><strong><span style="color:steelblue">对于回归问题：</span></strong>
+    <ul>
+      <li>
+        <p>建模</p>
+
+        <script type="math/tex; mode=display">p(y|\boldsymbol x)=\text{Normal}(\boldsymbol x'\boldsymbol w;\sigma^2)</script>
+      </li>
+      <li>
+        <p>参数拟合数据</p>
+
+        <script type="math/tex; mode=display">\hat{\boldsymbol w}=\mathop{\operatorname{arg\,max}}\limits_{\boldsymbol w}p(\boldsymbol y|\boldsymbol X,\boldsymbol w)p(\boldsymbol w)</script>
+      </li>
+      <li>
+        <p>进行预测</p>
+
+        <script type="math/tex; mode=display">E[y_* ]=\boldsymbol x_*'\hat{\boldsymbol w}</script>
+      </li>
+    </ul>
+  </li>
+</ul>
+
+<p><span style="color:red"><script type="math/tex">\hat{\boldsymbol w}</script> 对应于 “点估计”</span></p>
+
+<h3 id="12-贝叶斯替代">1.2 贝叶斯替代</h3>
+<p><strong><script type="math/tex">\hat{\boldsymbol w}</script> 并没有什么特别之处……如果我们不只是使用参数的一个估计值呢？</strong></p>
+<ul>
+  <li><strong><span style="color:steelblue">对于分类问题：</span></strong>
+    <ul>
+      <li>
+        <p>建模</p>
+
+        <script type="math/tex; mode=display">p(y|\boldsymbol x)=\text{sigmoid}(\boldsymbol x'\boldsymbol w)</script>
+      </li>
+      <li>
+        <p>考虑那些可以比较好地拟合数据的 <span style="color:red">可能的参数空间</span></p>
+
+        <script type="math/tex; mode=display">p(\boldsymbol w|\boldsymbol X,\boldsymbol y)</script>
+      </li>
+      <li>
+        <p>进行 <span style="color:red">“期望的”</span> 预测</p>
+
+        <script type="math/tex; mode=display">p(y_*|\boldsymbol x_*)=E_{p(\boldsymbol w|\boldsymbol X,\boldsymbol y)}\left[\text{sigmoid}(\boldsymbol x_*'\boldsymbol w)\right]</script>
+      </li>
+    </ul>
+  </li>
+  <li><strong><span style="color:steelblue">对于回归问题：</span></strong>
+    <ul>
+      <li>
+        <p>建模</p>
+
+        <script type="math/tex; mode=display">p(y|\boldsymbol x)=\text{Normal}(\boldsymbol x'\boldsymbol w;\sigma^2)</script>
+      </li>
+      <li>
+        <p>考虑那些可以比较好地拟合数据的 <span style="color:red">可能的参数空间</span></p>
+
+        <script type="math/tex; mode=display">p(\boldsymbol w|\boldsymbol X,\boldsymbol y)</script>
+      </li>
+      <li>
+        <p>进行 <span style="color:red">“期望的”</span> 预测</p>
+
+        <script type="math/tex; mode=display">p(y_*|\boldsymbol x_*)=E_{p(\boldsymbol w|\boldsymbol X,\boldsymbol y)}\left[\text{Normal}(\boldsymbol x_*'\boldsymbol w;\sigma^2)\right]</script>
+      </li>
+    </ul>
+  </li>
+</ul>
+
+<h2 id="2-不确定性">2. 不确定性</h2>
+<p><strong>如果用于训练的数据集很小，我们很少会完全信任任何从中学习到的模型。我们能否量化这种不确定性，并将其用于预测呢？</strong></p>
+<h3 id="21-重新审视回归问题">2.1 重新审视回归问题</h3>
+
+<p><img src="http://andy-blog.oss-cn-beijing.aliyuncs.com/blog/2020-02-19-WX20200219-145612%402x.png" width="60%" /></p>
+
+<p><span style="color:red">线性回归：</span> $y=w_0+w_1x$<br />
+这里，$y=$ humidity（湿度），$x=$ temperature（温度）</p>
+
+<ul>
+  <li>从数据中学习模型
+    <ul>
+      <li>
+        <p>通过选择权重来最小化误差残差</p>
+
+        <script type="math/tex; mode=display">\hat{\boldsymbol w}=(\boldsymbol X'\boldsymbol X)^{-1}\boldsymbol X'\boldsymbol y</script>
+      </li>
+    </ul>
+  </li>
+  <li>但是我们对于得到的 $\hat{\boldsymbol w}$ 和预测值有多大的信心？</li>
+</ul>
+
+<h3 id="22-我们应该相信点估计-hatboldsymbol-w-吗">2.2 我们应该相信点估计 $\hat{\boldsymbol w}$ 吗？</h3>
+<ul>
+  <li>我们的学习算法有多稳定？
+<img src="http://andy-blog.oss-cn-beijing.aliyuncs.com/blog/2020-02-19-WX20200219-152254%402x.png" width="80%" /><br />
+<strong><center><span style="font-size:10pt">两个具有不同噪声水平的数据集以及它们各自对应的似然函数</span></center></strong>
+    <center><span style="font-size:10pt">（来源：<span style="font-style:italic">A First Course in Machine Learning (p.81)</span> by Rogers &amp; Girolami）</span></center>
+
+    <ul>
+      <li>$\hat{\boldsymbol w}$ 对于噪声高度敏感</li>
+      <li>参数估计的不确定性有多少？</li>
+      <li>如果目标参数的 <strong>负对数似然（Negative Log Likelihood, NLL）</strong> 的在峰值处越高且窄，说明我们掌握的信息量越大</li>
+    </ul>
+  </li>
+  <li>形式化为 <strong>费雪信息矩阵（Fisher Information Matrix）</strong>
+    <ul>
+      <li>$E[ 2^{nd} \text{ deriv of NLL}]$<br />
+$\cal I$ $=\dfrac{1}{\sigma^2}\boldsymbol X’\boldsymbol X$</li>
+    </ul>
+  </li>
+  <li>衡量关于 $\hat{\boldsymbol w}$ 的目标函数的曲率</li>
+</ul>
+
+<h2 id="3-贝叶斯视角">3. 贝叶斯视角</h2>
+<p><strong>保留所有的未知因素（例如：参数的不确定性）并对它们进行建模，并且在进行统计推断时利用这些信息。</strong></p>
+<h3 id="31-一个贝叶斯人的视角">3.1 一个贝叶斯人的视角</h3>
+<ul>
+  <li>我们有理由认为 <strong>所有的</strong> 参数对于数据而言都是常数吗？
+    <ul>
+      <li>对于训练数据拟合更好的权重的概率应该大于其他权重的概率</li>
+      <li>利用所有可能的权重进行预测，乘以各自的概率作为缩放系数</li>
+    </ul>
+  </li>
+  <li>这就是 <span style="color:red">贝叶斯推断</span> 背后的思想</li>
+</ul>
+
+<h3 id="32-参数的不确定性">3.2 参数的不确定性</h3>
+<p><img src="http://andy-blog.oss-cn-beijing.aliyuncs.com/blog/2020-02-19-WX20200219-191611%402x.png" width="40%" align="right" /></p>
+
+<ul>
+  <li>目标函数有很多合理的解
+    <ul>
+      <li>为什么只选择其中的某一个呢？</li>
+    </ul>
+  </li>
+  <li>考虑 <span style="color:red">所有</span> 可能的参数值背后的原因
+    <ul>
+      <li>乘以它们的 <span style="color:red">后验概率</span> 作为加权项</li>
+    </ul>
+  </li>
+  <li>更具鲁棒性的预测
+    <ul>
+      <li>可以更好地避免过拟合，尤其是对于小的训练集而言</li>
+      <li>可以得到表达能力更强的模型类别（例如：贝叶斯 Logistic 回归是非线性模型）</li>
+    </ul>
+  </li>
+</ul>
+
+<h3 id="33-频率学家-vs-贝叶斯人的-分歧">3.3 频率学家 vs. 贝叶斯人的 “分歧”</h3>
+<ul>
+  <li><strong><span style="color:red">频率学家：</span></strong> 使用 <strong>点估计</strong>、<strong>正则化</strong>、<strong>p值</strong> … 进行学习
+    <ul>
+      <li>简单的假设背后是复杂的理论支撑</li>
+      <li>大部分算法都比较简单，非常偏实用的机器学习研究</li>
+    </ul>
+  </li>
+  <li><strong><span style="color:red">贝叶斯人：</span></strong> 保留 <strong>不确定性</strong>，在进行统计推断时对未知因素进行 <strong>边缘化（求和）</strong>
+    <ul>
+      <li>一些理论</li>
+      <li>算法通常更加复杂，但并非总是如此</li>
+      <li>通常（并非绝对）在计算上开销更高</li>
+    </ul>
+  </li>
+</ul>
+
+<h2 id="4-贝叶斯回归">4. 贝叶斯回归</h2>
+<p><strong>将贝叶斯推断应用于线性回归，对于 $\boldsymbol w$ 使用正态先验</strong></p>
+<h3 id="41-再谈线性回归">4.1 再谈线性回归</h3>
+<ul>
+  <li>
+    <p>回忆线性回归的概率公式</p>
+
+    <script type="math/tex; mode=display">y\sim \text{Normal}(\boldsymbol x'\boldsymbol w, \sigma^2)</script>
+
+    <script type="math/tex; mode=display">\boldsymbol w\sim \text{Normal}(\boldsymbol 0,\gamma^2 \boldsymbol I_D)</script>
+
+    <p>其中，$\boldsymbol I_D$ 是 $D\times D$ 的单位矩阵</p>
+  </li>
+  <li>
+    <p>贝叶斯规则</p>
+
+    <script type="math/tex; mode=display">p(\boldsymbol w|\boldsymbol X,\boldsymbol y)=\dfrac{p(\boldsymbol y|\boldsymbol X,\boldsymbol w)p(\boldsymbol w)}{p(\boldsymbol y|\boldsymbol X)}</script>
+
+    <p>这里，我们假设 $\boldsymbol w$ 与 $\boldsymbol X$ 之间互相独立：<br />
+<script type="math/tex">p(\boldsymbol w|\boldsymbol X,\boldsymbol y) = \dfrac{p(\boldsymbol w,\boldsymbol X,\boldsymbol y)}{p(\boldsymbol X,\boldsymbol y)}
+=\dfrac{p(\boldsymbol y|\boldsymbol X,\boldsymbol w)p(\boldsymbol X,\boldsymbol w)}{p(\boldsymbol y|\boldsymbol X)p(\boldsymbol X)}
+=\dfrac{p(\boldsymbol y|\boldsymbol X,\boldsymbol w)p(\boldsymbol X)p(\boldsymbol w)}{p(\boldsymbol y|\boldsymbol X)p(\boldsymbol X)}
+=\dfrac{p(\boldsymbol y|\boldsymbol X,\boldsymbol w)p(\boldsymbol w)}{p(\boldsymbol y|\boldsymbol X)}</script></p>
+
+    <script type="math/tex; mode=display">\max \limits_{\boldsymbol w}p(\boldsymbol w|\boldsymbol X,\boldsymbol y)=\max \limits_{\boldsymbol w}p(\boldsymbol y|\boldsymbol X,\boldsymbol w)p(\boldsymbol w)</script>
+
+    <p>这里，我们采用点估计避免计算边缘似然项。</p>
+  </li>
+  <li>
+    <p>导致目标函数惩罚化（岭回归）</p>
+  </li>
+</ul>
+
+<h3 id="42-贝叶斯线性回归">4.2 贝叶斯线性回归</h3>
+<ul>
+  <li>
+    <p>回退一步，考虑完全后验</p>
+
+    <script type="math/tex; mode=display">% <![CDATA[
+\begin{align}
+p(\boldsymbol w|\boldsymbol X,\boldsymbol y,\sigma^2)
+&= \dfrac{p(\boldsymbol y|\boldsymbol X,\boldsymbol w,\sigma^2)p(\boldsymbol w)}{p(\boldsymbol y|\boldsymbol X,\sigma^2)} \\
+&= \dfrac{p(\boldsymbol y|\boldsymbol X,\boldsymbol w,\sigma^2)p(\boldsymbol w)}{\int \color{red}{\underbrace{\color{black}{p(\boldsymbol y|\boldsymbol X,\boldsymbol w,\sigma^2)p(\boldsymbol w)}}_{p(\boldsymbol y,\boldsymbol w|\boldsymbol X,\sigma^2)}} \text{ d} \boldsymbol w}
+\end{align} %]]></script>
+
+    <p>这里，我们假设噪声的方差已知。</p>
+  </li>
+  <li>我们可以计算分母（<span style="color:red">边缘似然</span> 或者 <span style="color:red">证据</span>）吗？
+    <ul>
+      <li>如果是这样，我们可以使用完全后验，而非仅仅是它的众数</li>
+    </ul>
+  </li>
+  <li>我们有两个正态分布
+    <ul>
+      <li>正态似然 $\times$ 正态先验</li>
+    </ul>
+  </li>
+  <li>它们的乘积也是一个正态分布
+    <ul>
+      <li><strong><span style="color:red">共轭先验：</span></strong> 当似然函数和先验的乘积结果的分布与先验分布相同时（即后验分布与先验分布属于同类），则先验分布与后验分布被称为 <strong>共轭分布</strong>，而先验分布被称为似然函数的 <strong>共轭先验</strong>。<br />
+例如，高斯分布家族在高斯似然函数下与其自身共轭(自共轭)。</li>
+      <li>利用正态分布的归一化常数可以很容易地计算出 <strong>证据（边缘似然）</strong></li>
+    </ul>
+  </li>
+  <li><span style="color:red">后验的闭合解（Closed Form Solution）</span></li>
+</ul>
+
+<script type="math/tex; mode=display">% <![CDATA[
+\begin{align}
+  p(\boldsymbol w|\boldsymbol X,\boldsymbol y,\sigma^2) &\propto \text{Normal}(\boldsymbol w|\boldsymbol 0,\gamma^2\boldsymbol I_D)\text{Normal}(\boldsymbol y|\boldsymbol {Xw},\sigma^2\boldsymbol I_N) \\
+  &\propto \text{Normal}(\boldsymbol w|\boldsymbol w_N,\boldsymbol V_N)
+  \end{align} %]]></script>
+
+<p>其中，$\boldsymbol w_N=\dfrac{1}{\sigma^2}\boldsymbol V_N\boldsymbol X’\boldsymbol y \;,\quad \boldsymbol V_N=\sigma^2(\boldsymbol X’\boldsymbol X+\dfrac{\sigma^2}{\gamma^2}\boldsymbol I_D)^{-1}$</p>
+
+<p><strong>注意：</strong> 之前的均值（和众数）都是 MAP 的解。</p>
+
+<p>我们可以通过两个正态分布的乘积来验证：将指数部分合并在一起，并对常系数部分 “完成平方” 来表示为常系数的平方乘以一个指数部分（即正态分布）。</p>
+
+<p>回顾之前 <a href="https://andy-tk.top/2019/11/06/%E7%BB%9F%E8%AE%A1%E6%9C%BA%E5%99%A8%E5%AD%A6%E4%B9%A002/">Lecture 02 的 3.2 节</a> 中提到的例子：</p>
+<ul>
+  <li>我们对 $X\mid\theta$ 建模为 $\text{N}(\theta,1)$，先验为 $N(0,1)$</li>
+  <li>
+    <p>假设我们观测到 $X=1$，然后更新先验<br /></p>
+
+    <script type="math/tex; mode=display">% <![CDATA[
+\begin{align}
+P(\theta|X=1) &= \dfrac{P(X=1| \theta)P(\theta)}{P(X=1)} \tag{1}\\
+&\propto P(X=1| \theta)P(\theta) \\
+&=\left[\dfrac{1}{\sqrt{2\pi}}\exp\left(-\dfrac{(1-\theta)^2}{2}\right)\right]\left[\dfrac{1}{\sqrt{2\pi}}\exp\left(-\frac{\theta^2}{2}\right)\right] \\
+&\propto \exp\left(-\dfrac{(1-\theta)^2+\theta^2}{2}\right) \\
+&= \exp\left(-\dfrac{2\theta^2-2\theta+1}{2}\right) \\
+&= \exp\left(-\dfrac{\theta^2-\theta+\frac{1}{2}}{2\times \frac{1}{2}}\right) \\
+&= \exp\left(-\dfrac{\theta^2-\theta+\frac{1}{4}}{2\times \frac{1}{2}}\right) \cdot \exp\left(-\dfrac{\frac{1}{4}}{2\times \frac{1}{2}}\right)\\
+&\propto \exp\left(-\dfrac{\theta^2-\theta+\frac{1}{4}}{2\times \frac{1}{2}}\right)\\
+&= \exp\left(-\dfrac{(\theta-\frac{1}{2})^2}{2\times \frac{1}{2}}\right)\\
+&\propto N(0.5,0.5)
+\end{align} %]]></script>
+
+    <p>注意：允许将常量提到前面，并通过归一化 “忽略”</p>
+  </li>
+</ul>
+
+<h2 id="总结">总结</h2>
+
+<p>下节内容：</p>
+:ET
