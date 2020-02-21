@@ -1,0 +1,46 @@
+I"{<!-- 数学公式 -->
+<script src="https://cdn.mathjax.org/mathjax/latest/MathJax.js?config=TeX-AMS-MML_HTMLorMML" type="text/javascript"></script>
+
+<script type="text/x-mathjax-config">
+  MathJax.Hub.Config({
+    tex2jax: {
+      skipTags: ['script', 'noscript', 'style', 'textarea', 'pre'],
+      inlineMath: [['$','$']]
+    }
+  });
+</script>
+
+<h1 id="lecture-15-贝叶斯分类">Lecture 15 贝叶斯分类</h1>
+<h2 id="主要内容">主要内容</h2>
+<ul>
+  <li><strong>离散设定下的贝叶斯思想</strong>
+    <ul>
+      <li>Beta-Binomial 共轭</li>
+    </ul>
+  </li>
+  <li><strong>贝叶斯分类</strong>
+    <ul>
+      <li>非共轭的渐进必要性</li>
+    </ul>
+  </li>
+</ul>
+
+<h2 id="1-离散设定下的贝叶斯思想">1. 离散设定下的贝叶斯思想</h2>
+<h3 id="11-如何将贝叶斯观点应用于离散数据">1.1 如何将贝叶斯观点应用于离散数据？</h3>
+<ul>
+  <li>优先考虑 <strong>生成</strong> 输入的 <strong>生成式模型</strong>
+    <ul>
+      <li>对比 <strong>判别式模型</strong>，其将输入作为 <strong>条件</strong></li>
+      <li>模型对比
+|生成式模型|判别式模型|
+|—|—|
+|对输入 $\boldsymbol x$ 和标签 $y$ 的联合分布 $p(\boldsymbol x,y)$进行建模，并通过贝叶斯规则来计算 $p(y\mid \boldsymbol x)$，然后选择最可能的标签 $y$ 进行预测 | 直接对后验条件概率 $p(y\mid \boldsymbol x)$ 建模，或者从输入 $\boldsymbol x$ 学习一个直接映射到类别的标签 $y$|
+|例如：朴素贝叶斯|例如：Logistic 回归|</li>
+    </ul>
+  </li>
+</ul>
+
+<h2 id="总结">总结</h2>
+
+<p>下节内容：贝叶斯分类</p>
+:ET
