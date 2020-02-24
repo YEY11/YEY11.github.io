@@ -1,0 +1,127 @@
+I"~<!-- 数学公式 -->
+<script src="https://cdn.mathjax.org/mathjax/latest/MathJax.js?config=TeX-AMS-MML_HTMLorMML" type="text/javascript"></script>
+
+<script type="text/x-mathjax-config">
+  MathJax.Hub.Config({
+    tex2jax: {
+      skipTags: ['script', 'noscript', 'style', 'textarea', 'pre'],
+      inlineMath: [['$','$']]
+    }
+  });
+</script>
+
+<h1 id="lecture-17-pgm-的概率推断和统计推断">Lecture 17 PGM 的概率推断和统计推断</h1>
+<h2 id="主要内容">主要内容</h2>
+<ul>
+  <li><strong>PGM 的概率推断</strong></li>
+  <li><strong>PGM 的统计推断</strong>
+    <h2 id="1-pgm-的概率推断">1. PGM 的概率推断</h2>
+    <p><strong>利用贝叶斯规则和边缘化，根据一个 PGM 的联合分布，计算边缘和条件分布。这里我们将学习如何有效地做到这一点。</strong></p>
+    <h3 id="11-两个熟悉的例子">1.1 两个熟悉的例子</h3>
+  </li>
+  <li>
+    <p>朴素贝叶斯<span style="color:red">（频率学家 / 贝叶斯人）</span></p>
+
+    <p><img src="http://andy-blog.oss-cn-beijing.aliyuncs.com/blog/2020-02-23-WX20200223-164813%402x.png" width="20%" /></p>
+
+    <ul>
+      <li>根据给定数据选择最有可能的类别</li>
+      <li>$\Pr(Y|X_1,…,X_d)=\dfrac{\Pr(Y,X_1,…,X_d)}{\Pr(X_1,…,X_d)}=\dfrac{\Pr(Y,X_1,…,X_d)}{\sum_y\Pr(Y=y,X_1,…,X_d)}$<br />
+<br /></li>
+    </ul>
+  </li>
+  <li>
+    <p>数据 $X|\theta \sim N(\theta,1)$，其中先验 $\theta \sim N(0,1)$ <span style="color:red">（贝叶斯人）</span></p>
+
+    <p><img src="http://andy-blog.oss-cn-beijing.aliyuncs.com/blog/2020-02-23-WX20200223-165045%402x.png" width="20%" /></p>
+
+    <ul>
+      <li>给定观测 $X=x$，更新后验</li>
+      <li>$\Pr(\theta |X)=\dfrac{\Pr(\theta,X)}{\Pr(X)}=\dfrac{\Pr(\theta,X)}{\sum_{\theta}Pr(\theta,X)}$<br />
+<br /></li>
+    </ul>
+  </li>
+  <li><span style="color:red">联合分布 + 贝叶斯规则 + 边缘化 $\to$ 任何东西</span></li>
+</ul>
+
+<h3 id="12-继续-lecture-16-中核电站的例子">1.2 继续 Lecture 16 中核电站的例子</h3>
+<ul>
+  <li>
+    <p><strong><span style="color:steelblue">问题：</span></strong> 已知警报响了，最终核电站仍然由于高温熔毁的概率是多少？</p>
+
+    <p><img src="http://andy-blog.oss-cn-beijing.aliyuncs.com/blog/2020-02-23-WX20200223-170414%402x.png" width="45%" /></p>
+  </li>
+  <li>
+    <p>需要求解的概率为<br />
+<script type="math/tex">% <![CDATA[
+\begin{align}
+\Pr(HT|AS=t) &= \dfrac{\Pr(HT,AS=t)}{\Pr(AS=t)} \\
+&= \dfrac{\sum_{FG,HG,FA}\Pr(AS=t,FA,HG,FG,HT)}{\sum_{FG,HG,FA,HT'}\Pr(AS=t,FA,HR,FG,HT')}
+\end{align} %]]></script></p>
+  </li>
+  <li>
+    <p>分子部分（分母部分类似）<br />
+<script type="math/tex">% <![CDATA[
+\begin{align}
+& 展开累加求和项，联合 \,\color{red}{2^5 \,个表格的累加求和}\\
+&= \sum_{FG}\sum_{HG}\sum_{FA}\Pr(HT)\Pr(HG|HT,FG)\Pr(FG)\Pr(AS=t|FA,HG)\Pr(FA) \\\\
+& 将累加求和分配到 \color{red}{\,尽可能小的几张表上}\\
+&= \Pr(HT)\sum_{FG}\Pr(FG)\sum_{HG}\Pr(HG|HT,FG)\sum_{FA}\Pr(FA)\color{red}{\Pr(AS=t|FA,HG)}\\
+& \color{red}{消除 \,AS}：由于\, AS \,为已观测到的变量，所以实际上无需操作\\\\
+&= \Pr(HT)\sum_{FG}\Pr(FG)\sum_{HG}\Pr(HG|HT,FG)\sum_{FA}\color{red}{\Pr(FA)m_{AS}(FA,HG)}\\
+& \color{red}{消除 \,FA}：将 \,1\times 2\,的表格和 \,2\times 2\,的表格相乘\\\\
+&= \Pr(HT)\sum_{FG}\Pr(FG)\sum_{HG}\color{red}{\Pr(HG|HT,FG)m_{FA}(HG)}\\
+& \color{red}{消除 \,HG}：将 \,2\times 2\times 2\,的表格和 \,2\times 1\,的表格相乘\\\\
+&= \Pr(HT)\sum_{FG}\color{red}{\Pr(FG)m_{hg}(HT,FG)}\\
+& \color{red}{消除 \,FG}：将 \,1\times 2\,的表格和 \,2\times 2\,的表格相乘\\\\
+&= \Pr(HT)m_{FG}(HT)
+\end{align} %]]></script></p>
+
+    <p><img src="http://andy-blog.oss-cn-beijing.aliyuncs.com/blog/2020-02-24-WX20200224-131401%402x.png" /></p>
+
+    <p>表格相乘，然后相加，实际上相当于矩阵乘法：</p>
+
+    <p><img src="http://andy-blog.oss-cn-beijing.aliyuncs.com/blog/2020-02-24-WX20200224-131526%402x.png" width="60%" /></p>
+  </li>
+</ul>
+
+<h3 id="13-消除算法">1.3 消除算法</h3>
+
+<p><img src="http://andy-blog.oss-cn-beijing.aliyuncs.com/blog/2020-02-24-WX20200224-121016%402x.png" /></p>
+
+<h3 id="14-消除算法的运行时">1.4 消除算法的运行时</h3>
+
+<p><img src="http://andy-blog.oss-cn-beijing.aliyuncs.com/blog/2020-02-24-WX20200224-132034%402x.png" /></p>
+
+<ul>
+  <li>在消除的每一步
+    <ul>
+      <li>移除一个节点</li>
+      <li>连接该节点剩下的相邻节点 $\to$ 在 “重构的” 图中 <span style="color:red">形成一个 clique</span>（cliques 就是包含在每个累加求和里的随机变量）</li>
+    </ul>
+  </li>
+  <li><span style="color:red">最大 clique</span> 中的时间复杂度是 <span style="color:red">指数级的</span></li>
+  <li>不同的消除顺序将产生不同的 cliques
+    <ul>
+      <li><span style="color:red">树的宽度</span>：最大 clique 顺序的最小值</li>
+      <li>最好的可能的时间复杂度与树的宽度呈指数关系</li>
+    </ul>
+  </li>
+</ul>
+
+<h2 id="总结">总结</h2>
+<ul>
+  <li>概率图模型
+    <ul>
+      <li>动机：应用，统一算法</li>
+      <li>动机：贝叶斯理论的理想工具</li>
+      <li>独立性降低了计算 / 模型复杂度</li>
+      <li>PGM：联合概率因式分解的简洁表示</li>
+      <li>U-PGM</li>
+    </ul>
+  </li>
+  <li>PGM 的例子与应用</li>
+</ul>
+
+<p>下节内容：PGM 的概率推断和统计推断</p>
+:ET
