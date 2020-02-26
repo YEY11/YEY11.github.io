@@ -1,0 +1,476 @@
+I"�s<!-- 数学公式 -->
+<script src="https://cdn.mathjax.org/mathjax/latest/MathJax.js?config=TeX-AMS-MML_HTMLorMML" type="text/javascript"></script>
+
+<script type="text/x-mathjax-config">
+  MathJax.Hub.Config({
+    tex2jax: {
+      skipTags: ['script', 'noscript', 'style', 'textarea', 'pre'],
+      inlineMath: [['$','$']]
+    }
+  });
+</script>
+
+<h1 id="lecture-18-高斯混合模型和-em-算法">Lecture 18 高斯混合模型和 EM 算法</h1>
+<h2 id="主要内容">主要内容</h2>
+<ul>
+  <li><strong>无监督学习</strong>
+    <ul>
+      <li>问题的多样性</li>
+    </ul>
+  </li>
+  <li><strong>高斯混合模型（GMM）</strong>
+    <ul>
+      <li>一种用于聚类的概率方法</li>
+      <li>GMM</li>
+      <li>优化问题的 GMM 聚类</li>
+    </ul>
+  </li>
+  <li><strong>期望最大化（EM）算法</strong>
+    <h2 id="1-无监督学习">1. 无监督学习</h2>
+    <p><strong>机器学习中的一个大的分支，关注在标签缺失的数据上学习其结构</strong></p>
+    <h3 id="11-在此之前监督学习">1.1 在此之前：监督学习</h3>
+  </li>
+  <li>监督学习：总体目标是根据数据做出预测</li>
+  <li>为此，我们学习了诸如：随机森林、ANN 和 SVM 等算法</li>
+  <li>我们有实例 $\boldsymbol x_i\in \boldsymbol R^m\;(i=1,…,n)$，以及对应的标签 $y_i$ 作为输入，目标是预测新的实例的标签。</li>
+  <li>可以看作是一个函数逼近问题，但请注意：泛化能力很关键</li>
+  <li>老虎机：部分监督的设定</li>
+</ul>
+
+<h3 id="12-现在无监督学习">1.2 现在：无监督学习</h3>
+<ul>
+  <li>接下来我们将介绍无监督学习方法</li>
+  <li>在无监督学习中，没有所谓叫做 “标签” 的专门变量</li>
+  <li>相应地，我们只有一个数据点的集合 $\boldsymbol x_i\in \boldsymbol R^m\;(i=1,…,n)$</li>
+  <li>无监督学习的目的是 <span style="color:red">探索数据的结构（模式、规律等）</span></li>
+  <li>“探索数据结构” 的目的是模糊的</li>
+</ul>
+
+<h3 id="13-无监督学习任务">1.3 无监督学习任务</h3>
+<ul>
+  <li>无监督学习包括很多不同类别的任务：
+    <ul>
+      <li>聚类</li>
+      <li>降维</li>
+      <li>概率模型的参数学习</li>
+    </ul>
+  </li>
+  <li>相关应用：
+    <ul>
+      <li>市场篮子分析。例如，使用超市的交易日志查找经常被一起购买的商品</li>
+      <li>离群值检测。例如，发现潜在的信用卡交易欺诈</li>
+      <li>经常用于（有监督）机器学习 pipeline 中的无监督任务</li>
+    </ul>
+  </li>
+</ul>
+
+<h3 id="14-回顾k-means-聚类">1.4 回顾：k-means 聚类</h3>
+<p><strong><span style="color:steelblue">k-means 算法描述：</span></strong><br />
+1.$\,$<strong>初始化：</strong> 随机选择 $k$ 个集群 <span style="color:red">中心</span><br />
+2.$\,$<strong>更新：</strong><br />
+$\qquad$a. <span style="color:red">分配数据点</span> 到最近的集群中心<br />
+$\qquad$b. 在当前的分配下，<span style="color:red">重新计算集群中心</span><br />
+3.$\,$<strong>终止：</strong> 如果集群中心没有发生变化，那么 <span style="color:purple">算法停止</span><br />
+4.$\,$返回 <span style="color:purple">步骤 2</span></p>
+
+<p>选择典型的 $L_2$ 范数来表示距离。<br />
+K-means 仍然是最受欢迎的数据挖掘算法之一。</p>
+
+<p><img src="http://andy-blog.oss-cn-beijing.aliyuncs.com/blog/2020-02-25-WX20200225-164732%402x.png" /></p>
+
+<p><strong><center><span style="font-size:10pt">使用重新缩放的 Old Faithful 据集的 K-means 算法的图示</span></center></strong><center><span style="font-size:10pt">Source: <span style="font-style:italic">Pattern Recognition and Machine Learning (p.426)</span> by Bishop</span></center></p>
+
+<ul>
+  <li>需要预先指定集群数 $k$</li>
+  <li>使用欧几里得距离衡量 “差异性”</li>
+  <li>寻找 “球形” 集群</li>
+  <li>迭代优化过程</li>
+</ul>
+
+<h2 id="2-高斯混合模型gmm">2. 高斯混合模型（GMM）</h2>
+<p><strong>从概率的视角看聚类算法</strong></p>
+<h3 id="21-对数据聚类中的不确定性建模">2.1 对数据聚类中的不确定性建模</h3>
+<ul>
+  <li>k-means 聚类将每个数据点都精确地分配到某一个集群</li>
+  <li>类似于 k-means，一个概率的混合模型同样需要预先指定集群数 $k$</li>
+  <li>不同于 k-means，概率模型让我们得以表达有关每个数据点 <span style="color:red">来源的不确定性</span>
+    <ul>
+      <li>每个数据点来自集群 $c$ 的概率为 $w_c$，其中 $c=1,…,k$</li>
+    </ul>
+  </li>
+  <li>也就是说，每个数据点仍然只来自某个特定的集群（又称 “组分”），但是我们不确定来自哪一个</li>
+  <li>接下来
+    <ul>
+      <li>将各个组分建模为高斯分布</li>
+      <li>拟合过程展示了一般的期望最大化（EM）算法</li>
+    </ul>
+  </li>
+</ul>
+
+<h3 id="22-聚类概率模型">2.2 聚类：概率模型</h3>
+<p>数据点 $\boldsymbol x_i$ 是来自 $K$ 个分布（或者说 “组分”）的混合的独立同分布（i.i.d.）样本</p>
+
+<center><span style="font-size:10pt">混合中的每个组分就是我们所说的一个集群</span></center>
+<p><img src="http://andy-blog.oss-cn-beijing.aliyuncs.com/blog/2020-02-25-WX20200225-182850%402x.png" /></p>
+
+<p>原则上，我们可以将 <span style="color:red">组分</span> 假设为任何分布，但是，正态分布是一种常见的建模选择 $\to$ 高斯混合模型（Gaussian Mixture Model, GMM）</p>
+
+<h3 id="23-正态又称-高斯分布">2.3 正态（又称 “高斯”）分布</h3>
+<ul>
+  <li>
+    <p>回忆 $1$-维 高斯分布：</p>
+
+    <script type="math/tex; mode=display">N(x|\mu,\sigma)\equiv \dfrac{1}{\sqrt{2\pi \sigma^2}}\exp \left(-\dfrac{(x-\mu)^2}{2\sigma^2}\right)</script>
+  </li>
+  <li>
+    <p>然后，一个 $d$-维 高斯分布为：</p>
+
+    <script type="math/tex; mode=display">N(\boldsymbol x|\boldsymbol{\mu},\mathbf{\Sigma})\equiv (2\pi)^{-\frac{d}{2}}|\mathbf{\Sigma}|^{-\frac{1}{2}}\exp \left(-\dfrac{1}{2}(\boldsymbol x-\boldsymbol \mu)^T \mathbf{\Sigma}^{-1}(\boldsymbol x-\boldsymbol \mu)\right)</script>
+
+    <ul>
+      <li>$\mathbf{\Sigma}$ 是 <span style="color:red">协方差矩阵</span>，是一个 PSD（半正定）对称 $d\times d$ 矩阵</li>
+      <li>$|\mathbf{\Sigma}|$ 表示行列式</li>
+      <li>不需要记住完整的公式</li>
+    </ul>
+  </li>
+</ul>
+
+<p><img src="http://andy-blog.oss-cn-beijing.aliyuncs.com/blog/2020-02-25-WX20200225-185102%402x.png" width="80%" /></p>
+
+<h3 id="24-高斯混合模型gmm">2.4 高斯混合模型（GMM）</h3>
+<ul>
+  <li>
+    <p>高斯混合分布（对于单个数据点）：</p>
+
+    <script type="math/tex; mode=display">p(\boldsymbol x)\equiv \sum_{j=1}^{k}w_j \mathcal N(\boldsymbol x|\boldsymbol{\mu}_j,\mathbf{\Sigma}_j)\equiv \sum_{j=1}^{k}p(\boldsymbol C_j)p(\boldsymbol x|\boldsymbol C_j)</script>
+  </li>
+  <li><script type="math/tex">p(\boldsymbol x|\boldsymbol C_j)\equiv \mathcal N(\boldsymbol x|\boldsymbol{\mu}_j,\mathbf{\Sigma}_j)</script>
+是类别 $j$ 的类别 / 组分条件密度（建模为高斯分布）</li>
+  <li>这里，$p(\boldsymbol C_j)\ge 0$，并且 $\sum_{j=1}^{k}p(\boldsymbol C_j)=1$</li>
+  <li>模型的参数为 $p(\boldsymbol C_j),\boldsymbol \mu_j,\mathbf{\Sigma}_j$，其中 $j=1,…,k$</li>
+</ul>
+
+<p><img src="http://andy-blog.oss-cn-beijing.aliyuncs.com/blog/2020-02-25-WX20200225-192451%402x.png" width="50%" /></p>
+
+<p><strong><center><span style="font-size:10pt">出于可视化的目的，混合与单独组分密度经过了缩放处理</span></center></strong></p>
+
+<p><strong><span style="color:steelblue">思考：</span></strong> 考虑一个 3D 数据的 GMM 模型，该模型包含 5 个组分。请问该模型有多少个独立的 <span style="color:red">标量参数</span>？<br />
+<br />
+请注意，这里要求独立的标量参数。<br />
+对于某个集群 <script type="math/tex">\boldsymbol C_j\;(j=1,...,5)</script> 而言：<br />
+首先，3D 数据的协方差矩阵 <script type="math/tex">\mathbf{\Sigma}_j</script> 是一个 <script type="math/tex">3\times 3</script> 的对称矩阵，所以有 6 个（对角线 + 某一侧的元素）不同的标量参数；<br />
+然后，均值 <script type="math/tex">\boldsymbol{\mu}_j</script> 是一个 <script type="math/tex">3 \times 1</script> 的向量，所以有 3 个不同的标量参数；<br />
+最后，每个集群 <script type="math/tex">\boldsymbol C_j\;(j=1,...,5)</script> 对应一个权重参数 $w_j$（即该集群对应的概率），但是由于存在归一化约束 <script type="math/tex">\sum_{j=1}^{5}w_j=1</script>，所以，权重的独立标量个数为 4 个（最后一个权重可以用 1 减去其余权重之和表示）；<br />
+因此，该模型独立的标量参数的个数为 <script type="math/tex">6 \times 5+3\times 5+1\times 4=49</script></p>
+
+<h3 id="25-聚类的模型估计">2.5 聚类的模型估计</h3>
+<ul>
+  <li>给定一组数据点，我们假设数据点是由 GMM 生成的
+    <ul>
+      <li>我们数据集中的每个点来源于第 $j$ 个正态分布组分的概率为 $w_j=p(\boldsymbol C_j)$</li>
+    </ul>
+  </li>
+  <li>现在，聚类等同于寻找 “最佳解释” 观测数据的 GMM 参数</li>
+  <li>利用之前学过的 <span style="color:red">MLE</span> 方法寻找能够最大化 $p(\boldsymbol x_1,…,\boldsymbol x_n)$ 的参数</li>
+</ul>
+
+<h3 id="26-拟合-gmm">2.6 拟合 GMM</h3>
+<ul>
+  <li>
+    <p>建模假设数据点之间互相独立，目标是找到 $p(\boldsymbol C_j),\boldsymbol \mu_j,\mathbf \Sigma_j\;(j=1,…,k)$，使得最大化</p>
+
+    <script type="math/tex; mode=display">p(\boldsymbol x_1,...,\boldsymbol x_n)=\prod_{i=1}^{n}\sum_{j=1}^{k}p(\boldsymbol C_j)p(\boldsymbol x_i|\boldsymbol C_j)</script>
+
+    <p>其中，
+<script type="math/tex">p(\boldsymbol x|\boldsymbol C_j)\equiv \mathcal N(\boldsymbol x|\boldsymbol \mu_j,\mathbf \Sigma_j)</script></p>
+
+    <p>我们可以对其解析求解吗？</p>
+  </li>
+  <li>
+    <p>我们很难直接对原式求导，可以利用常见的 <span style="color:red">取对数技巧</span></p>
+
+    <script type="math/tex; mode=display">\log p(\boldsymbol x_1,...,\boldsymbol x_n)=\sum_{i=1}^{n}\log \left(\sum_{j=1}^{k}p(\boldsymbol C_j)p(\boldsymbol x_i|\boldsymbol C_j)\right)</script>
+
+    <p><span style="color:red">$\to$ 期望最大化（EM）</span></p>
+  </li>
+</ul>
+
+<h2 id="3-期望最大化em算法">3. 期望最大化（EM）算法</h2>
+<h3 id="31-em-的动机">3.1 EM 的动机</h3>
+<ul>
+  <li>考虑一个参数概率模型 $p(\boldsymbol X|\boldsymbol{\theta})$，其中 $\boldsymbol X$ 表示数据，$\boldsymbol{\theta}$ 表示一个参数向量</li>
+  <li>根据 MLE，我们需要最大化关于 $\boldsymbol{\theta}$ 的函数 $p(\boldsymbol X|\boldsymbol{\theta})$
+    <ul>
+      <li>等价于最大化 $\log p(\boldsymbol X|\boldsymbol{\theta})$</li>
+    </ul>
+  </li>
+  <li>然而，存在一些问题：
+    <ol>
+      <li>有时我们 <span style="color:red">没有观测到</span> 其中一些计算对数似然所需的变量<br />
+ 例如：我们并不能预先知道 GMM 集群归属</li>
+      <li>有时对数似然的形式处理起来不方便<br />
+ 例如：对一个 GMM 对数似然求导，会得到一个很麻烦的等式</li>
+    </ol>
+  </li>
+</ul>
+
+<h3 id="32-mle-vs-em">3.2 MLE vs EM</h3>
+<ul>
+  <li>MLE 是频率学家的做法，其建议在给定数据集的情况下，我们应该使用的 “最佳” 参数是使数据概率最大化的参数
+    <ul>
+      <li>MLE 是一种正式提出问题的方法</li>
+    </ul>
+  </li>
+  <li>EM 是一种算法
+    <ul>
+      <li>EM 是一种用来解决 MLE 所提出的问题的方法</li>
+      <li>尤其是存在未观测到的隐变量时，EM 算法非常便捷</li>
+    </ul>
+  </li>
+  <li>MLE 可以通过其他方法求解，例如：梯度下降（但是梯度下降并不总是最便捷的方法）</li>
+</ul>
+
+<h3 id="33-期望最大化em算法">3.3 期望最大化（EM）算法</h3>
+<p><strong><span style="color:steelblue">EM 算法描述：</span></strong><br />
+1.$\,$初始化步骤：<br />
+$\qquad$初始化 $K$ 个集群：$\boldsymbol C_1,…,\boldsymbol C_K$<br />
+$\qquad$对于每个集群 $j$，都有参数 $(\boldsymbol \mu_j,\mathbf \Sigma_j)$ 和 $p(\boldsymbol C_j)$<br />
+2.$\,$迭代步骤：<br />
+$\qquad$a. 估计每个数据点的所属集群 $p(\boldsymbol C_j|\boldsymbol x_i)$ $\qquad \color{blue}{\Longrightarrow} \qquad$ <span style="color:red">期望</span><br />
+$\qquad$b. 重新估计每个集群 $j$ 的参数 $(\boldsymbol \mu_j,\mathbf \Sigma_j)$ 和 $p(\boldsymbol C_j)$ $\qquad \color{blue}{\Longrightarrow} \qquad$ <span style="color:red">最大化  </span></p>
+
+<h3 id="34-将-em-算法用于-gmm-和泛化">3.4 将 EM 算法用于 GMM 和泛化</h3>
+<ul>
+  <li>EM 是一种通用方法，不仅仅局限于 GMM
+    <ul>
+      <li>目的：在存在 <span style="color:red">隐变量</span> $\boldsymbol Z$ 的情况下，实现 <span style="color:red">MLE</span></li>
+    </ul>
+  </li>
+  <li>GMM 中的变量和参数分别是什么？
+    <ul>
+      <li><strong>变量：</strong> 点的位置 $\boldsymbol X$ 和集群分配 $\boldsymbol Z$<br />
+令 $z_i$ 表示每个数据点 $\boldsymbol x_i$ 的真实集群归属，在 $\boldsymbol z$ 已知的情况下，计算似然函数很简单</li>
+      <li><strong>参数：</strong> $\boldsymbol \theta$ 表示集群的位置与大小</li>
+    </ul>
+  </li>
+  <li>EM 算法到底做了什么？
+    <ul>
+      <li>在对数似然的下界上的 <span style="color:red">坐标上升法</span>
+        <ul>
+          <li>M 步骤：在模型参数 $\boldsymbol \theta$ 中的上升</li>
+          <li>E 步骤：在边缘化似然 $p(\boldsymbol Z)$ 中的上升</li>
+        </ul>
+      </li>
+      <li>每一步都朝着 <span style="color:red">局部</span> 最优方向移动</li>
+      <li>可能中途会卡住，可能需要 <span style="color:red">随机重启</span></li>
+    </ul>
+  </li>
+</ul>
+
+<h3 id="35-所需工具jensen-不等式">3.5 所需工具：Jensen 不等式</h3>
+<ul>
+  <li>
+    <p>比较将平均函数作用在一个凸函数前后的影响：</p>
+
+    <script type="math/tex; mode=display">f\left(Average(\boldsymbol x)\right)\le Average\left(f(\boldsymbol x)\right)</script>
+  </li>
+  <li>例子：
+    <ul>
+      <li>令 $f$ 为某个凸函数，例如 $f(x)=x^2$</li>
+      <li>考虑 $\boldsymbol x=[1,2,3,4,5]’$，那么 $f(\boldsymbol x)=[1,4,9,16,25]’$</li>
+      <li>输入的平均值为 $Average(\boldsymbol x)=3$</li>
+      <li>$f\left(Average(\boldsymbol x)\right)=9$</li>
+      <li>输出的平均值为 $Average\left(f(\boldsymbol x)\right)=12.4$</li>
+    </ul>
+
+    <p><img src="http://andy-blog.oss-cn-beijing.aliyuncs.com/blog/2020-02-26-WX20200226-151822%402x.png" width="30%" align="right" /></p>
+  </li>
+  <li>证明来自凸度的定义
+    <ul>
+      <li>归纳证明</li>
+    </ul>
+  </li>
+  <li>一般表述：
+    <ul>
+      <li>如果 $\boldsymbol X$ 是一个随机变量，$f$ 是一个凸函数</li>
+      <li>那么，$\color{red}{f\left(\mathbb{E}[\boldsymbol X] \right)\le \mathbb{E}\left[f(\boldsymbol X)\right]}$</li>
+    </ul>
+  </li>
+</ul>
+
+<h3 id="36-利用隐变量"><a name="anchor1"><span style="color:black">3.6 利用隐变量</span></a></h3>
+<p>我们希望最大化 $\log p(\boldsymbol X|\boldsymbol \theta)$，我们没有观测到 $\boldsymbol Z$（这里为离散），但我们仍然可以引入它。<br />
+<br /></p>
+
+<script type="math/tex; mode=display">% <![CDATA[
+\begin{align}
+\color{steelblue}{\fbox{$\color{black}{\log p(\boldsymbol X|\boldsymbol \theta)}$}} &= \log \sum_{\boldsymbol Z}p(\boldsymbol X,\boldsymbol Z|\boldsymbol \theta) \qquad \color{steelblue}{\leftarrow \,边缘化（这里\, \sum_{\boldsymbol Z}...\,在所有可能的\,\boldsymbol Z\,的取值上迭代）}\\
+&= \log \sum_{\boldsymbol Z}\left(p(\boldsymbol X,\boldsymbol Z|\boldsymbol \theta)\cdot \dfrac{p(\boldsymbol Z)}{p(\boldsymbol Z)} \right)
+\qquad \color{steelblue}{\leftarrow \,需要\,\boldsymbol Z\,具有非零的边缘概率}\\
+&= \log \sum_{\boldsymbol Z}\left(p(\boldsymbol Z)\cdot \dfrac{p(\boldsymbol X,\boldsymbol Z|\boldsymbol \theta)}{p(\boldsymbol Z)} \right)\\
+&= \log \mathbb{E}_{\boldsymbol Z}\left[\dfrac{p(\boldsymbol X,\boldsymbol Z|\boldsymbol \theta)}{p(\boldsymbol Z)}\right]\\
+&\ge \mathbb{E}_{\boldsymbol Z}\left[ \log \dfrac{p(\boldsymbol X,\boldsymbol Z|\boldsymbol \theta)}{p(\boldsymbol Z)}\right] \qquad \color{steelblue}{\leftarrow \,\text{Jesen 不等式可以满足，因为 }\log(...)\,是一个凸函数}\\
+&= \color{steelblue}{\fbox{$\color{black}{\mathbb{E}_{\boldsymbol Z}\left[ \log p(\boldsymbol X,\boldsymbol Z|\boldsymbol \theta) \right] - \mathbb{E}_{\boldsymbol Z}\left[ \log p(\boldsymbol Z)\right]}$}}
+\end{align} %]]></script>
+
+<h3 id="37-最大化下界">3.7 最大化下界</h3>
+<ul>
+  <li>$\,$
+<script type="math/tex">\log p(\boldsymbol X|\boldsymbol \theta)\ge \mathbb{E}_{\boldsymbol Z}\left[ \log p(\boldsymbol X,\boldsymbol Z|\boldsymbol \theta) \right] - \mathbb{E}_{\boldsymbol Z}\left[ \log p(\boldsymbol Z)\right]\\</script></li>
+  <li>不等式右边的部分（Right Hand Side, RHS）是原始对数似然的一个 <span style="color:red">下界</span>
+    <ul>
+      <li>这对于任何 $\boldsymbol \theta$ 和任何非零 $p(\boldsymbol Z)$ 都满足</li>
+    </ul>
+  </li>
+  <li>直觉上，我们希望将下界尽可能往上推进</li>
+  <li>这个下界是一个关于 <span style="color:red">两个 “变量” $\boldsymbol \theta$ 和 $p(\boldsymbol Z)$</span> 的函数。我们希望最大化 RHS（不等式右边的部分），将其视为关于这两个 “变量” 的一个函数。</li>
+  <li>同时对两个 “变量” 进行优化是非常困难的，因此，EM 算法采用了一种迭代过程</li>
+  <li>EM 本质上是 <span style="color:red">坐标上升</span>：
+    <ul>
+      <li>固定 $\boldsymbol \theta$，优化关于 $p(\boldsymbol Z)$ 的下界函数</li>
+      <li>固定 $p(\boldsymbol Z)$，优化 $\boldsymbol \theta$</li>
+    </ul>
+  </li>
+  <li>EM 算法的方便之处在于：
+    <ul>
+      <li>对于任何点 $\boldsymbol \theta^*$，可以证明设定 $p(\boldsymbol Z)=p(\boldsymbol Z|\boldsymbol X,\boldsymbol \theta^*)$ 使得下界更紧（<a name="anchor2">关于这点，我们将在后面给出简略证明</a>）</li>
+      <li>对于任何 $p(\boldsymbol Z)$，不等式右边第二项与 $\boldsymbol \theta$ 无关</li>
+      <li>当 $p(\boldsymbol Z)=p(\boldsymbol Z|\boldsymbol X,\boldsymbol \theta^*)$ 时，不等式右边第一项可以视为一个关于 $\boldsymbol \theta$ 的函数，通常情况下，我们可以得到使得该函数最大化的 $\boldsymbol \theta$ 的闭合解
+        <ul>
+          <li>如果不能，那么我们可能不会采用 EM 算法</li>
+        </ul>
+      </li>
+    </ul>
+  </li>
+</ul>
+
+<h3 id="38-示例">3.8 示例</h3>
+
+<script type="math/tex; mode=display">\log p(\boldsymbol X|\boldsymbol \theta)\ge \underbrace{\mathbb{E}_{\boldsymbol Z}\left[ \log p(\boldsymbol X,\boldsymbol Z|\boldsymbol \theta) \right] - \mathbb{E}_{\boldsymbol Z}\left[ \log p(\boldsymbol Z)\right]}_{\equiv \,G\left(\boldsymbol \theta,\,p(\boldsymbol Z)\right)}\\</script>
+
+<p><img src="http://andy-blog.oss-cn-beijing.aliyuncs.com/blog/2020-02-26-WX20200226-170945%402x.png" width="60%" /></p>
+
+<p><img src="http://andy-blog.oss-cn-beijing.aliyuncs.com/blog/2020-02-26-WX20200226-171003%402x.png" width="60%" /></p>
+
+<p><img src="http://andy-blog.oss-cn-beijing.aliyuncs.com/blog/2020-02-26-WX20200226-171022%402x.png" width="60%" /></p>
+
+<h3 id="39-em-作为迭代优化">3.9 EM 作为迭代优化</h3>
+<p><strong><span style="color:steelblue">EM 算法描述：</span></strong><br />
+1.$\,$<strong>初始化：</strong> 选择（随机）初始值 $\boldsymbol \theta^{(1)}$<br />
+2.$\,$<strong>更新：</strong><br />
+$\qquad$a. <span style="color:red">E 步骤：</span>计算 $Q\left(\boldsymbol \theta,\boldsymbol \theta^{(t)}\right)\equiv \mathbb E_{\boldsymbol Z|\boldsymbol X,\boldsymbol \theta^{(t)}}\left[\log p(\boldsymbol X,\boldsymbol Z| \boldsymbol \theta)\right]$<br />
+$\qquad$b. <span style="color:red">M 步骤：</span>$\boldsymbol \theta^{(t+1)}=\mathop{\operatorname{arg\,max}}\limits_{\boldsymbol \theta}Q\left(\boldsymbol \theta,\boldsymbol \theta^{(t)}\right)$<br />
+3.$\,$<strong>终止：</strong> 如果没有变化，那么 <span style="color:purple">算法停止</span><br />
+4.$\,$返回 <span style="color:purple">步骤 2</span><br />
+<br />
+<span style="color:red">该算法最终将会停止（收敛），但最终得到的估计值可能只是一个局部最大值</span></p>
+
+<h3 id="310-设定一个紧的下界">3.10 设定一个紧的下界</h3>
+<p>现在，我们将证明之前 <a href="#anchor2">“3.7 最大化下界”</a> 中提到的：</p>
+
+<blockquote>
+  <p>对于任何点 $\boldsymbol \theta^*$，可以证明设定 $p(\boldsymbol Z)=p(\boldsymbol Z|\boldsymbol X,\boldsymbol \theta^*)$ 使得下界更紧</p>
+</blockquote>
+
+<p>回顾之前<a href="#anchor1">“3.6 利用隐变量”</a> 中的推导过程：</p>
+
+<script type="math/tex; mode=display">% <![CDATA[
+\begin{align}
+\color{steelblue}{\fbox{$\color{black}{\log p(\boldsymbol X|\boldsymbol \theta)}$}} &= \log \sum_{\boldsymbol Z}p(\boldsymbol X,\boldsymbol Z|\boldsymbol \theta)\\
+&= \log \sum_{\boldsymbol Z}\left(p(\boldsymbol X,\boldsymbol Z|\boldsymbol \theta)\cdot \dfrac{p(\boldsymbol Z)}{p(\boldsymbol Z)} \right)\\
+&= \log \sum_{\boldsymbol Z}\left(p(\boldsymbol Z)\cdot \dfrac{p(\boldsymbol X,\boldsymbol Z|\boldsymbol \theta)}{p(\boldsymbol Z)} \right)\\
+&= \log \mathbb{E}_{\boldsymbol Z}\left[\dfrac{p(\boldsymbol X,\boldsymbol Z|\boldsymbol \theta)}{p(\boldsymbol Z)}\right]\\
+&\color{steelblue}{\fbox{$\color{black}{\ge \mathbb{E}_{\boldsymbol Z}\left[ \log \dfrac{p(\boldsymbol X,\boldsymbol Z|\boldsymbol \theta)}{p(\boldsymbol Z)}\right]}$}}\\
+&= \mathbb{E}_{\boldsymbol Z}\left[ \log p(\boldsymbol X,\boldsymbol Z|\boldsymbol \theta) \right] - \mathbb{E}_{\boldsymbol Z}\left[ \log p(\boldsymbol Z)\right]
+\end{align} %]]></script>
+
+<p>我们将最终结果回退一步：</p>
+
+<script type="math/tex; mode=display">% <![CDATA[
+\begin{align}
+\log p(\boldsymbol X|\boldsymbol \theta) &\ge \mathbb{E}_{\boldsymbol Z}\left[ \log \dfrac{p(\boldsymbol X,\boldsymbol Z|\boldsymbol \theta)}{p(\boldsymbol Z)}\right]\\
+&= \mathbb{E}_{\boldsymbol Z}\left[ \log \dfrac{p(\boldsymbol Z|\boldsymbol X,\boldsymbol \theta)p(\boldsymbol X|\boldsymbol \theta)}{p(\boldsymbol Z)}\right] \qquad \color{steelblue}{\leftarrow \,概率的链式法则}\\
+&= \mathbb{E}_{\boldsymbol Z}\left[ \log \dfrac{p(\boldsymbol Z|\boldsymbol X,\boldsymbol \theta)}{p(\boldsymbol Z)}+\log p(\boldsymbol X|\boldsymbol \theta)\right]\\
+&= \mathbb{E}_{\boldsymbol Z}\left[ \log \dfrac{p(\boldsymbol Z|\boldsymbol X,\boldsymbol \theta)}{p(\boldsymbol Z)}\right] + \mathbb{E}_{\boldsymbol Z}\left[\log p(\boldsymbol X|\boldsymbol \theta)\right] \qquad \color{steelblue}{\leftarrow \, \mathbb{E}[.]\,的线性性质}\\
+&= \mathbb{E}_{\boldsymbol Z}\left[ \log \dfrac{p(\boldsymbol Z|\boldsymbol X,\boldsymbol \theta)}{p(\boldsymbol Z)}\right] + \log p(\boldsymbol X|\boldsymbol \theta) \qquad \color{steelblue}{\leftarrow \, 常数的\,\mathbb{E}[.]\,是其本身}\\
+\end{align} %]]></script>
+
+<p>最后，我们得到：</p>
+
+<script type="math/tex; mode=display">\color{steelblue}{\overbrace{\color{black}{\log p(\boldsymbol X|\boldsymbol \theta)}}^{最终目标：最大化}} \ge\, \color{steelblue}{\overbrace{\color{orange}{\underbrace{\color{black}{\mathbb{E}_{\boldsymbol Z}\left[ \log \dfrac{p(\boldsymbol Z|\boldsymbol X,\boldsymbol \theta)}{p(\boldsymbol Z)}\right]}}_{首先，注意到该项\,\le\,0 \\该项也称为\,p(\boldsymbol Z)\,和\, p(\boldsymbol Z|\boldsymbol X,\boldsymbol \theta)\,之间的\\负的 \text{ KL (Kullback-Leibler) } 散度}} \color{black}{+ \log p(\boldsymbol X|\boldsymbol \theta)}}^{我们希望最大化的下界}}</script>
+
+<p>其次，注意到如果 $p(\boldsymbol Z)=p(\boldsymbol Z|\boldsymbol X,\boldsymbol \theta)$，那么</p>
+
+<script type="math/tex; mode=display">\mathbb{E}_{p(\boldsymbol Z|\boldsymbol X,\boldsymbol \theta)}\left[\log \dfrac{p(\boldsymbol Z|\boldsymbol X,\boldsymbol \theta)}{p(\boldsymbol Z|\boldsymbol X,\boldsymbol \theta)}\right]=\mathbb{E}_{p(\boldsymbol Z|\boldsymbol X,\boldsymbol \theta)}[\log 1]=0</script>
+
+<p>对于任何 $\boldsymbol \theta^*$，设定 $p(\boldsymbol Z)=p(\boldsymbol Z|\boldsymbol X,\boldsymbol \theta^*)$ 通过在 $\log p(\boldsymbol X| \boldsymbol \theta^{*})$ 上最大化下界，使得其更紧</p>
+
+<h2 id="4-高斯混合模型的参数估计">4. 高斯混合模型的参数估计</h2>
+<p><strong>EM 算法的一个经典应用</strong></p>
+<h3 id="41-gmm-的隐变量">4.1 GMM 的隐变量</h3>
+<ul>
+  <li>令 $z_1,…,z_n$ 表示对应数据点 $\boldsymbol x_1,…,\boldsymbol x_n$ 的 <span style="color:red">真实来源</span>。每个 $z_i$ 都是一个取值在 $1,…,k$ 之间的离散变量，其中，$k$ 是集群的数量</li>
+  <li>
+    <p>现在，对比原始对数似然</p>
+
+    <script type="math/tex; mode=display">\log p(\boldsymbol x_1,...,\boldsymbol x_n)=\sum_{i=1}^{n}\log \left(\sum_{c=1}^{k}w_c \mathcal N(\boldsymbol x_i|\boldsymbol \mu_c,\mathbf \Sigma_c)\right)</script>
+  </li>
+  <li>
+    <p>根据 <span style="color:red">完全对数似然</span>（如果我们知道 $\boldsymbol z$）</p>
+
+    <script type="math/tex; mode=display">\log p(\boldsymbol x_1,...,\boldsymbol x_n,\boldsymbol z)=\sum_{i=1}^{n}\log \left(w_{z_i} \mathcal N(\boldsymbol x_i|\boldsymbol \mu_{z_i},\mathbf \Sigma_{z_i})\right)</script>
+  </li>
+  <li>回忆一下，对一个正态密度函数取对数，可以得到一个 <span style="color:red">容易处理</span> 的表达式</li>
+</ul>
+
+<h3 id="42-处理关于-boldsymbol-z-的不确定性">4.2 处理关于 $\boldsymbol z$ 的不确定性</h3>
+<ul>
+  <li>我们无法计算完全对数似然，因为我们不知道 $\boldsymbol z$</li>
+  <li>EM 算法处理这种不确定性的方法是：将 $\log p(\boldsymbol X,\boldsymbol z|\boldsymbol \theta)$ 用其期望 $\mathbb{E}_{\boldsymbol z|\boldsymbol X,\boldsymbol \theta^{(t)}}\left[\log p(\boldsymbol X,\boldsymbol z|\boldsymbol \theta)\right]$ 来替代</li>
+  <li>这反过来需要给定当前参数估计的 $\color{red}{p\left(\boldsymbol z|\boldsymbol X,\boldsymbol \theta^{(t)}\right)}$ 的分布</li>
+  <li>假设 $z_i$ 成对独立，我们需要得到 $p\left(z_i=c|\boldsymbol x_i,\boldsymbol \theta^{(t)}\right)$</li>
+  <li>
+    <p>例如：假设 $\boldsymbol x_i=(-2,-2)$，请问这个数据点来自集群 1 的概率是多少？</p>
+
+    <p><img src="http://andy-blog.oss-cn-beijing.aliyuncs.com/blog/2020-02-26-WX20200226-203420%402x.png" width="50%" /></p>
+  </li>
+  <li>
+    <p>设隐变量 $\boldsymbol Z$ 为真实来自的集群，根据贝叶斯规则，其满足</p>
+
+    <script type="math/tex; mode=display">p\left(z_i=c|\boldsymbol x_i,\boldsymbol \theta^{(t)}\right)=\dfrac{w_c \mathcal N(\boldsymbol x_i|\boldsymbol \mu_c,\mathbf \Sigma_c)}{\sum_{l=1}^{k}w_l \mathcal N(\boldsymbol x_i|\boldsymbol \mu_l,\mathbf \Sigma_l)}</script>
+  </li>
+  <li>
+    <p>这个概率称为集群 $c$ 对数据点 $i$ 承担的 <span style="color:red">“责任”</span></p>
+
+    <script type="math/tex; mode=display">r_{ic}\equiv p\left(z_i=c|\boldsymbol x_i,\boldsymbol \theta^{(t)}\right)</script>
+  </li>
+</ul>
+
+<h3 id="43-gmm-的-e-步骤期望">4.3 GMM 的 E 步骤（期望）</h3>
+<p>为了简化表示，我们将 $\boldsymbol x_1,…,\boldsymbol x_n$ 记为 $\boldsymbol X$</p>
+
+<script type="math/tex; mode=display">% <![CDATA[
+\begin{align}
+Q\left(\boldsymbol \theta,\boldsymbol \theta^{(t)}\right) &\equiv \mathbb{E}_{\boldsymbol z|\boldsymbol X,\boldsymbol \theta^{(t)}}\left[\log p(\boldsymbol X,\boldsymbol z|\boldsymbol \theta)\right]\\\\
+&= \sum_{\boldsymbol z}p\left(\boldsymbol z|\boldsymbol X,\boldsymbol \theta^{(t)}\right) \log p(\boldsymbol X,\boldsymbol z|\boldsymbol \theta)\\
+&= \sum_{\boldsymbol z}p\left(\boldsymbol z|\boldsymbol X,\boldsymbol \theta^{(t)}\right) \sum_{i=1}^{n}\log w_{z_i}\mathcal N(\boldsymbol x_i|\boldsymbol \mu_{z_i},\mathbf \Sigma_{z_i})\\
+&= \sum_{i=1}^{n}\sum_{\boldsymbol z}p\left(\boldsymbol z|\boldsymbol X,\boldsymbol \theta^{(t)}\right) \log w_{z_i}\mathcal N(\boldsymbol x_i|\boldsymbol \mu_{z_i},\mathbf \Sigma_{z_i})\\
+&= \sum_{i=1}^{n}\sum_{c=1}^{k}r_{ic}\log w_{z_i}\mathcal N(\boldsymbol x_i|\boldsymbol \mu_{z_i},\mathbf \Sigma_{z_i})\\
+&= \sum_{i=1}^{n}\sum_{c=1}^{k}r_{ic}\log w_{z_i} + \sum_{i=1}^{n}\sum_{c=1}^{k}r_{ic}\log \mathcal N(\boldsymbol x_i|\boldsymbol \mu_{z_i},\mathbf \Sigma_{z_i})
+\end{align} %]]></script>
+
+<h3 id="44-gmm-的-m-步骤最大化">4.4 GMM 的 M 步骤（最大化）</h3>
+<ul>
+  <li>
+    <p>在 M（最大化）步骤中，将 $Q\left(\boldsymbol \theta,\boldsymbol \theta^{(t)}\right)$ 对每个参数取其对应的偏导数，并且将这些偏导数设为零，从而得到新的参数估计</p>
+
+    <script type="math/tex; mode=display">w_c^{(t+1)}=\dfrac{1}{n}\sum_{i=1}^{n}r_{ic}</script>
+
+    <script type="math/tex; mode=display">\boldsymbol \mu_c^{(t+1)}=</script>
+  </li>
+</ul>
+
+<h2 id="总结">总结</h2>
+
+<p>下节内容：高斯混合模型（GMM）和期望最大化（EM）</p>
+:ET

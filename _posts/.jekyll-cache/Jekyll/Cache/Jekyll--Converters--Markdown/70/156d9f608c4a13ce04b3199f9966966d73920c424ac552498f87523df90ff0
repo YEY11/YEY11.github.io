@@ -1,0 +1,54 @@
+I"�<!-- 数学公式 -->
+<script src="https://cdn.mathjax.org/mathjax/latest/MathJax.js?config=TeX-AMS-MML_HTMLorMML" type="text/javascript"></script>
+
+<script type="text/x-mathjax-config">
+  MathJax.Hub.Config({
+    tex2jax: {
+      skipTags: ['script', 'noscript', 'style', 'textarea', 'pre'],
+      inlineMath: [['$','$']]
+    }
+  });
+</script>
+
+<h1 id="lecture-18-高斯混合模型和-em-算法">Lecture 18 高斯混合模型和 EM 算法</h1>
+<h2 id="主要内容">主要内容</h2>
+<ul>
+  <li><strong>无监督学习</strong>
+    <ul>
+      <li>问题的多样性</li>
+    </ul>
+  </li>
+  <li><strong>高斯混合模型（GMM）</strong>
+    <ul>
+      <li>一种用于聚类的概率方法</li>
+      <li>GMM</li>
+      <li>优化问题的 GMM 聚类</li>
+    </ul>
+  </li>
+  <li><strong>期望最大化（EM）算法</strong>
+    <h2 id="1-无监督学习">1. 无监督学习</h2>
+    <p><strong>机器学习中的一个大的分支，关注在标签缺失的数据上学习其结构</strong></p>
+    <h3 id="11-在此之前监督学习">1.1 在此之前：监督学习</h3>
+  </li>
+</ul>
+
+<h2 id="总结">总结</h2>
+<ul>
+  <li>PGM 的概率推断
+    <ul>
+      <li>什么是 PGM 的概率推断？我们为什么要研究它？</li>
+      <li>消除算法；用 cliques 量化复杂度</li>
+      <li>蒙特卡洛方法作为精确积分的近似替代</li>
+    </ul>
+  </li>
+  <li>PGM 的统计推断
+    <ul>
+      <li>什么是 PGM 的统计推断？我们为什么要研究它？</li>
+      <li>对于完全观测数据，直接使用 MLE</li>
+      <li>对于 隐变量 / 观测变量混合的数据，使用 EM 算法</li>
+    </ul>
+  </li>
+</ul>
+
+<p>下节内容：高斯混合模型（GMM）和期望最大化（EM）</p>
+:ET
