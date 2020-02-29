@@ -1,0 +1,23 @@
+I"�<!-- 数学公式 -->
+<script src="https://cdn.mathjax.org/mathjax/latest/MathJax.js?config=TeX-AMS-MML_HTMLorMML" type="text/javascript"></script>
+
+<script type="text/x-mathjax-config">
+  MathJax.Hub.Config({
+    tex2jax: {
+      skipTags: ['script', 'noscript', 'style', 'textarea', 'pre'],
+      inlineMath: [['$','$']]
+    }
+  });
+</script>
+
+<h1 id="lecture-00-03-线性文本分类">Lecture 00-03 线性文本分类</h1>
+
+<blockquote>
+  <p>参考资料：Natural Language Processing: Chapter 2 - Linear text classiﬁcation (p.13-46) —— by Jacob Eisenstein</p>
+</blockquote>
+
+<h2 id="引言">引言</h2>
+<p>我们从 <strong>文本分类</strong> 问题开始：给定一个文本文档，为其分配一个离散标签 $y\in \mathcal Y$，其中 $\mathcal Y$ 是可能标签的集合。文本分类有着很广泛的应用，从垃圾邮件过滤到电子健康记录分析等等。本章从数学的角度描述了一些最著名的应用和最高效的文本分类算法，这应该有助于您理解这些算法的作用以及为什么起作用。文本分类也是更复杂的自然语言处理任务的基础。 对于没有机器学习或统计学背景的读者来说，本章中的材料要比后面的大部分内容花费更多的时间来消化。 但是，随着这些基本分类算法背后的数学原理在本书的其他上下文中再次出现，这项投资将获得回报。</p>
+
+<p>下节内容：线性分类器</p>
+:ET
