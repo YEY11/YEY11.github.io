@@ -1,0 +1,23 @@
+I"�<!-- 数学公式 -->
+<script src="https://cdn.mathjax.org/mathjax/latest/MathJax.js?config=TeX-AMS-MML_HTMLorMML" type="text/javascript"></script>
+
+<script type="text/x-mathjax-config">
+  MathJax.Hub.Config({
+    tex2jax: {
+      skipTags: ['script', 'noscript', 'style', 'textarea', 'pre'],
+      inlineMath: [['$','$']]
+    }
+  });
+</script>
+
+<h1 id="lecture-00-02-数值优化基础">Lecture 00-02 数值优化基础</h1>
+
+<blockquote>
+  <p>参考资料：Natural Language Processing: Appendix B (p.485-488) —— by Eisenstein, Jacob</p>
+</blockquote>
+
+<h2 id="引言">引言</h2>
+<p>无约束数值优化涉及到求解具有以下形式的问题：</p>
+
+<p>下节内容：数值优化基础</p>
+:ET

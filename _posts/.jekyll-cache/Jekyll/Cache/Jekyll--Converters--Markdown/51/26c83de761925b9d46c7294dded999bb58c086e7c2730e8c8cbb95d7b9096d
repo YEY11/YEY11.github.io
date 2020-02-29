@@ -1,0 +1,45 @@
+I"^<!-- 数学公式 -->
+<script src="https://cdn.mathjax.org/mathjax/latest/MathJax.js?config=TeX-AMS-MML_HTMLorMML" type="text/javascript"></script>
+
+<script type="text/x-mathjax-config">
+  MathJax.Hub.Config({
+    tex2jax: {
+      skipTags: ['script', 'noscript', 'style', 'textarea', 'pre'],
+      inlineMath: [['$','$']]
+    }
+  });
+</script>
+
+<h1 id="lecture-00-02-数值优化基础">Lecture 00-02 数值优化基础</h1>
+
+<blockquote>
+  <p>参考资料：Natural Language Processing: Appendix B (p.485-488) —— by Eisenstein, Jacob</p>
+</blockquote>
+
+<h2 id="引言">引言</h2>
+<p>无约束数值优化涉及到求解具有以下形式的问题：</p>
+
+<script type="math/tex; mode=display">\min \limits_{\boldsymbol x\in \mathbb R^D}f(\boldsymbol x) \tag{1}</script>
+
+<p>其中，$x\in \mathbb R^D$ 是一个由 $D$ 个实数构成的向量。</p>
+
+<p>微分是数值优化的基础。假设在某个点 $\boldsymbol x^*$ 处，$f$ 的每个偏导数都等于 $0$：形式上，$\left. \frac{\partial f}{\partial x_i}\right| _{\boldsymbol x^*}=0$。那么 $\boldsymbol x^*$ 被称为 $f$ 的一个 <strong>临界点</strong>。 如果 $f$ 是一个 <strong>凸函数</strong>，那么 $f(\boldsymbol x^*)$ 的值等于 $f$ 的全局最小值，当且仅当 $\boldsymbol x^*$ 是 $f$ 的临界点时。</p>
+
+<table>
+  <tbody>
+    <tr>
+      <td>例如，考虑一个凸函数 $f(x)=(x-2)^2+3$，如 <a href="#fig1a">图 1(a)</a> 所示。导数为∂f∂x= 2x-4。 通过将导数设置为零并求解x，获得x * = 2，可以获得唯一最小值。现在考虑多元凸函数f（x）= 1 2</td>
+      <td> </td>
+      <td>。 x − [2，1]⊤</td>
+      <td> </td>
+      <td>2，其中</td>
+      <td> </td>
+      <td>x</td>
+      <td> </td>
+      <td>2是平方的欧几里得范数。 部分</td>
+    </tr>
+  </tbody>
+</table>
+
+<p>下节内容：数值优化基础</p>
+:ET
