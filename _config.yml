@@ -106,3 +106,7 @@ friends: [
         href: "https://developer.apple.com/"
     }
 ]
+
+
+# Native Debugging for Homepage Display
+plugins: [jekyll-paginate]
