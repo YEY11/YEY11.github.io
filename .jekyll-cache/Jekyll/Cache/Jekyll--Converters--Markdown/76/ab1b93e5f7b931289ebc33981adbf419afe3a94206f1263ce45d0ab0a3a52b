@@ -1,0 +1,183 @@
+I"�<!-- 数学公式 -->
+<script src="https://cdn.mathjax.org/mathjax/latest/MathJax.js?config=TeX-AMS-MML_HTMLorMML" type="text/javascript"></script>
+
+<script type="text/x-mathjax-config">
+  MathJax.Hub.Config({
+    tex2jax: {
+      skipTags: ['script', 'noscript', 'style', 'textarea', 'pre'],
+      inlineMath: [['$','$']]
+    }
+  });
+</script>
+
+<h1 id="lecture-01-课程概览与介绍">Lecture 01 课程概览与介绍</h1>
+
+<h2 id="1-课程介绍">1. 课程介绍</h2>
+<h3 id="11-预备知识">1.1 预备知识</h3>
+<ul>
+  <li>本课程要求先修以下两门课程中的任意一门：
+    <ul>
+      <li><a href="https://handbook.unimelb.edu.au/2020/subjects/comp90049">COMP90049 机器学习导论</a></li>
+      <li><a href="https://handbook.unimelb.edu.au/2020/subjects/comp30027">COMP30027 机器学习</a></li>
+    </ul>
+  </li>
+  <li>阅读材料：<a href="https://canvas.lms.unimelb.edu.au/courses/17601/files/2586500/download"><strong><em>Natural Language Processing</em></strong></a> by Jacob Eisenstein
+    <ul>
+      <li>Probability: <a href="https://andy-tk.top/2020/02/28/COMP90042-00-01/">Appendix A</a></li>
+      <li>Optimisation: <a href="https://andy-tk.top/2020/02/28/COMP90042-00-02/">Appendix B</a></li>
+      <li>Linear classifiers: <a href="https://andy-tk.top/2020/02/29/COMP90042-00-03/">Chapter 2</a></li>
+      <li>Neural networks: Chapter 3</li>
+    </ul>
+  </li>
+  <li>Python 编程经验</li>
+  <li>不需要具备语言学或者高等数学知识</li>
+  <li>注意：本课程不属于 “普通” 计算机科学
+    <ul>
+      <li>涉及一些基本 <span style="color:red">语言学</span>，例如：句法和词法</li>
+      <li>需要 <span style="color:red">数学</span>，例如：代数、优化、线性代数、动态规划</li>
+    </ul>
+  </li>
+</ul>
+
+<h3 id="12-期望与结果">1.2 期望与结果</h3>
+<ul>
+  <li>期望
+    <ul>
+      <li>提高 Python 技能</li>
+      <li>保持阅读进度</li>
+      <li>课堂参与</li>
+    </ul>
+  </li>
+  <li>结果
+    <ul>
+      <li>从实践中熟悉各种文本分析技术</li>
+      <li>了解这些工具背后的理论模型</li>
+      <li>阅读相关研究文献的能力</li>
+    </ul>
+  </li>
+</ul>
+
+<h3 id="13-作业与考试">1.3 作业与考试</h3>
+<ul>
+  <li><strong>作业</strong>（占总成绩的 20%，每个作业占 6-7%）
+    <ul>
+      <li>基于研讨会的小型作业</li>
+      <li>每隔几周发布一次，每个作业会给 2-3 周时间完成</li>
+    </ul>
+  </li>
+  <li><strong>项目</strong>（占总成绩的 30%）
+    <ul>
+      <li>发布日期：复活节前后</li>
+      <li>截止日期：学期末</li>
+    </ul>
+  </li>
+  <li><strong>考试</strong>（占总成绩的 50%）
+    <ul>
+      <li>两个小时，闭卷考试</li>
+      <li>内容涉及讲义、研讨会和规定的阅读材料</li>
+    </ul>
+  </li>
+  <li><strong><span style="color:red">通过标准</span></strong>：考试分数 &gt; 50% ；作业 + 项目 &gt; 50%</li>
+</ul>
+
+<h3 id="14-教学人员">1.4 教学人员</h3>
+<ul>
+  <li><strong>讲师</strong>：Jey Han Lau</li>
+  <li><strong>主管助教</strong>：Zenan Zhai</li>
+  <li><strong>助教</strong>：
+    <ul>
+      <li>Aili Shen</li>
+      <li>Biaoyan Fang</li>
+      <li>Dalin Wang</li>
+      <li>Fajri</li>
+      <li>Haonan Li</li>
+      <li>Jun Wang</li>
+      <li>Nitika Mathur</li>
+    </ul>
+  </li>
+</ul>
+
+<h3 id="15-推荐教材">1.5 推荐教材</h3>
+<ul>
+  <li>教材：
+    <ul>
+      <li><strong>JM3:</strong> <em>Jurafsky and Martin; <a href="https://web.stanford.edu/~jurafsky/slp3/">Speech and Language Processing</a></em>, 3<sup>rd</sup> ed., Prentice Hall. draft</li>
+      <li><strong>E18:</strong> <em>Eisenstein; <a href="https://canvas.lms.unimelb.edu.au/courses/17601/files/2586500/download">Natural Language Processing</a></em>, Draft 15/10/18</li>
+      <li><strong>G15:</strong> <em>Goldberg; <a href="https://canvas.lms.unimelb.edu.au/courses/17601/files/2586501/download">A Primer on Neural Network Models for Natural Language Processing</a></em></li>
+    </ul>
+  </li>
+  <li>推荐 Python 学习资料：
+    <ul>
+      <li><em>Steven Bird, Ewan Klein and Edward Loper; <a href="http://www.nltk.org/book/">Natural Language Processing with Python</a></em>, O’Reilly, 2009</li>
+    </ul>
+  </li>
+  <li>阅读材料的链接和课程讲义将发布在 Canvas</li>
+</ul>
+
+<h3 id="16-进度安排">1.6 进度安排</h3>
+
+<table>
+  <thead>
+    <tr>
+      <th style="text-align: center">日期</th>
+      <th style="text-align: center">教学周</th>
+      <th style="text-align: center">课程</th>
+      <th style="text-align: center">名称</th>
+      <th style="text-align: center">主题</th>
+      <th style="text-align: center">阅读材料</th>
+    </tr>
+  </thead>
+  <tbody>
+    <tr>
+      <td style="text-align: center">03.02</td>
+      <td style="text-align: center">1</td>
+      <td style="text-align: center">L01</td>
+      <td style="text-align: center">课程概览与介绍</td>
+      <td style="text-align: center">介绍</td>
+      <td style="text-align: center">N/A</td>
+    </tr>
+    <tr>
+      <td style="text-align: center">03.02</td>
+      <td style="text-align: center">1</td>
+      <td style="text-align: center">L02</td>
+      <td style="text-align: center">文本处理</td>
+      <td style="text-align: center">介绍</td>
+      <td style="text-align: center">JM3 第 2 章：正则化</td>
+    </tr>
+    <tr>
+      <td style="text-align: center">03.09</td>
+      <td style="text-align: center">2</td>
+      <td style="text-align: center">L03</td>
+      <td style="text-align: center">N-gram 语言模型</td>
+      <td style="text-align: center">单词 / 文档</td>
+      <td style="text-align: center">E18 第 6 章（跳过 6.3 节）</td>
+    </tr>
+    <tr>
+      <td style="text-align: center">03.09</td>
+      <td style="text-align: center">2</td>
+      <td style="text-align: center">L04</td>
+      <td style="text-align: center">文本分类</td>
+      <td style="text-align: center">单词 / 文档</td>
+      <td style="text-align: center">E18 第 1 &amp; 2 章</td>
+    </tr>
+    <tr>
+      <td style="text-align: center">03.16</td>
+      <td style="text-align: center">3</td>
+      <td style="text-align: center">L05</td>
+      <td style="text-align: center">语音标记</td>
+      <td style="text-align: center">序列标签</td>
+      <td style="text-align: center">JM3 第 8 章：8.1-8.3；8.5.1 节</td>
+    </tr>
+    <tr>
+      <td style="text-align: center">03.16</td>
+      <td style="text-align: center">3</td>
+      <td style="text-align: center">L06</td>
+      <td style="text-align: center">序列标记：隐马尔可夫模型</td>
+      <td style="text-align: center">序列标签</td>
+      <td style="text-align: center">JM3 第 8 章：8.1-8.3；8.5.1 节</td>
+    </tr>
+  </tbody>
+</table>
+
+<p>下节内容：</p>
+:ET

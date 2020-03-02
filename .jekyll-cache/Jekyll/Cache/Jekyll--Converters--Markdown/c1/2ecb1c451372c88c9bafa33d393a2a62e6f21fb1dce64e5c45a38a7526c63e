@@ -1,0 +1,461 @@
+I"}A<!-- 数学公式 -->
+<script src="https://cdn.mathjax.org/mathjax/latest/MathJax.js?config=TeX-AMS-MML_HTMLorMML" type="text/javascript"></script>
+
+<script type="text/x-mathjax-config">
+  MathJax.Hub.Config({
+    tex2jax: {
+      skipTags: ['script', 'noscript', 'style', 'textarea', 'pre'],
+      inlineMath: [['$','$']]
+    }
+  });
+</script>
+
+<h1 id="lecture-01-课程概览与介绍">Lecture 01 课程概览与介绍</h1>
+
+<h2 id="1-课程介绍">1. 课程介绍</h2>
+<h3 id="11-预备知识">1.1 预备知识</h3>
+<ul>
+  <li>本课程要求先修以下两门课程中的任意一门：
+    <ul>
+      <li><a href="https://handbook.unimelb.edu.au/2020/subjects/comp90049">COMP90049 机器学习导论</a></li>
+      <li><a href="https://handbook.unimelb.edu.au/2020/subjects/comp30027">COMP30027 机器学习</a></li>
+    </ul>
+  </li>
+  <li>阅读材料：<a href="https://canvas.lms.unimelb.edu.au/courses/17601/files/2586500/download"><strong><em>Natural Language Processing</em></strong></a> by Jacob Eisenstein
+    <ul>
+      <li>Probability: <a href="https://andy-tk.top/2020/02/28/COMP90042-00-01/">Appendix A</a></li>
+      <li>Optimisation: <a href="https://andy-tk.top/2020/02/28/COMP90042-00-02/">Appendix B</a></li>
+      <li>Linear classifiers: <a href="https://andy-tk.top/2020/02/29/COMP90042-00-03/">Chapter 2</a></li>
+      <li>Neural networks: Chapter 3</li>
+    </ul>
+  </li>
+  <li>Python 编程经验</li>
+  <li>不需要具备语言学或者高等数学知识</li>
+  <li>注意：本课程不属于 “普通” 计算机科学
+    <ul>
+      <li>涉及一些基本 <span style="color:red">语言学</span>，例如：句法和词法</li>
+      <li>需要 <span style="color:red">数学</span>，例如：代数、优化、线性代数、动态规划</li>
+    </ul>
+  </li>
+</ul>
+
+<h3 id="12-期望与结果">1.2 期望与结果</h3>
+<ul>
+  <li>期望
+    <ul>
+      <li>提高 Python 技能</li>
+      <li>保持阅读进度</li>
+      <li>课堂参与</li>
+    </ul>
+  </li>
+  <li>结果
+    <ul>
+      <li>从实践中熟悉各种文本分析技术</li>
+      <li>了解这些工具背后的理论模型</li>
+      <li>阅读相关研究文献的能力</li>
+    </ul>
+  </li>
+</ul>
+
+<h3 id="13-作业与考试">1.3 作业与考试</h3>
+<ul>
+  <li><strong>作业</strong>（占总成绩的 20%，每个作业占 6-7%）
+    <ul>
+      <li>基于研讨会的小型作业</li>
+      <li>每隔几周发布一次，每个作业会给 2-3 周时间完成</li>
+    </ul>
+  </li>
+  <li><strong>项目</strong>（占总成绩的 30%）
+    <ul>
+      <li>发布日期：复活节前后</li>
+      <li>截止日期：学期末</li>
+    </ul>
+  </li>
+  <li><strong>考试</strong>（占总成绩的 50%）
+    <ul>
+      <li>两个小时，闭卷考试</li>
+      <li>内容涉及讲义、研讨会和规定的阅读材料</li>
+    </ul>
+  </li>
+  <li><strong><span style="color:red">通过标准</span></strong>：考试分数 &gt; 50% ；作业 + 项目 &gt; 50%</li>
+</ul>
+
+<h3 id="14-教学人员">1.4 教学人员</h3>
+<ul>
+  <li><strong>讲师</strong>：Jey Han Lau</li>
+  <li><strong>主管助教</strong>：Zenan Zhai</li>
+  <li><strong>助教</strong>：
+    <ul>
+      <li>Aili Shen</li>
+      <li>Biaoyan Fang</li>
+      <li>Dalin Wang</li>
+      <li>Fajri</li>
+      <li>Haonan Li</li>
+      <li>Jun Wang</li>
+      <li>Nitika Mathur</li>
+    </ul>
+  </li>
+</ul>
+
+<h3 id="15-推荐教材"><a name="res1"><span style="color:#404040">1.5 推荐教材</span></a></h3>
+<ul>
+  <li>教材：
+    <ul>
+      <li><strong>JM3:</strong> <em>Jurafsky and Martin; <a href="https://web.stanford.edu/~jurafsky/slp3/">Speech and Language Processing</a></em>, 3<sup>rd</sup> ed., Prentice Hall. draft</li>
+      <li><strong>E18:</strong> <em>Eisenstein; <a href="https://canvas.lms.unimelb.edu.au/courses/17601/files/2586500/download">Natural Language Processing</a></em>, Draft 15/10/18</li>
+      <li><strong>G15:</strong> <em>Goldberg; <a href="https://canvas.lms.unimelb.edu.au/courses/17601/files/2586501/download">A Primer on Neural Network Models for Natural Language Processing</a></em></li>
+    </ul>
+  </li>
+  <li>推荐 Python 学习资料：
+    <ul>
+      <li><em>Steven Bird, Ewan Klein and Edward Loper; <a href="http://www.nltk.org/book/">Natural Language Processing with Python</a></em>, O’Reilly, 2009</li>
+    </ul>
+  </li>
+  <li>阅读材料的链接和课程讲义将发布在 Canvas</li>
+</ul>
+
+<h3 id="16-进度安排">1.6 进度安排</h3>
+
+<table>
+  <thead>
+    <tr>
+      <th style="text-align: center">日期</th>
+      <th style="text-align: center">教学周</th>
+      <th style="text-align: center">课程</th>
+      <th style="text-align: center">名称</th>
+      <th style="text-align: center">主题</th>
+      <th style="text-align: center">阅读材料</th>
+    </tr>
+  </thead>
+  <tbody>
+    <tr>
+      <td style="text-align: center">3月2日</td>
+      <td style="text-align: center">1</td>
+      <td style="text-align: center">L01</td>
+      <td style="text-align: center">课程概览与介绍</td>
+      <td style="text-align: center">介绍</td>
+      <td style="text-align: center">N/A</td>
+    </tr>
+    <tr>
+      <td style="text-align: center">3月2日</td>
+      <td style="text-align: center">1</td>
+      <td style="text-align: center">L02</td>
+      <td style="text-align: center">文本处理</td>
+      <td style="text-align: center">介绍</td>
+      <td style="text-align: center">JM3 第 2 章：<br /> 正则化</td>
+    </tr>
+    <tr>
+      <td style="text-align: center">3月9日</td>
+      <td style="text-align: center">2</td>
+      <td style="text-align: center">L03</td>
+      <td style="text-align: center">N-gram 语言模型</td>
+      <td style="text-align: center">单词 / 文档</td>
+      <td style="text-align: center">E18 第 6 章 <br />（跳过 6.3 节）</td>
+    </tr>
+    <tr>
+      <td style="text-align: center">3月9日</td>
+      <td style="text-align: center">2</td>
+      <td style="text-align: center">L04</td>
+      <td style="text-align: center">文本分类</td>
+      <td style="text-align: center">单词 / 文档</td>
+      <td style="text-align: center">E18 第 1 &amp; 2 章</td>
+    </tr>
+    <tr>
+      <td style="text-align: center">3月16日</td>
+      <td style="text-align: center">3</td>
+      <td style="text-align: center">L05</td>
+      <td style="text-align: center">词性标注</td>
+      <td style="text-align: center">序列标签</td>
+      <td style="text-align: center">JM3 第 8 章：<br /> 8.1-8.3；8.5.1 节</td>
+    </tr>
+    <tr>
+      <td style="text-align: center">3月16日</td>
+      <td style="text-align: center">3</td>
+      <td style="text-align: center">L06</td>
+      <td style="text-align: center">序列标注：隐马尔可夫模型</td>
+      <td style="text-align: center">序列标签</td>
+      <td style="text-align: center">JM3 附录 A</td>
+    </tr>
+    <tr>
+      <td style="text-align: center">3月23日</td>
+      <td style="text-align: center">4</td>
+      <td style="text-align: center">L07</td>
+      <td style="text-align: center">NLP 深度学习：前馈网络</td>
+      <td style="text-align: center">深度学习</td>
+      <td style="text-align: center">G15 第 4 章</td>
+    </tr>
+    <tr>
+      <td style="text-align: center">3月23日</td>
+      <td style="text-align: center">4</td>
+      <td style="text-align: center">L08</td>
+      <td style="text-align: center">NLP 深度学习：递归网络</td>
+      <td style="text-align: center">深度学习</td>
+      <td style="text-align: center">G15 第 10 章</td>
+    </tr>
+    <tr>
+      <td style="text-align: center">3月30日</td>
+      <td style="text-align: center">5</td>
+      <td style="text-align: center">L09</td>
+      <td style="text-align: center">词汇语义学</td>
+      <td style="text-align: center">语义学</td>
+      <td style="text-align: center">N/A</td>
+    </tr>
+    <tr>
+      <td style="text-align: center">3月30日</td>
+      <td style="text-align: center">5</td>
+      <td style="text-align: center">L10</td>
+      <td style="text-align: center">分布语义学</td>
+      <td style="text-align: center">语义学</td>
+      <td style="text-align: center">N/A</td>
+    </tr>
+    <tr>
+      <td style="text-align: center">4月6日</td>
+      <td style="text-align: center">6</td>
+      <td style="text-align: center">L11</td>
+      <td style="text-align: center">上下文表示</td>
+      <td style="text-align: center">语义学</td>
+      <td style="text-align: center">N/A</td>
+    </tr>
+    <tr>
+      <td style="text-align: center">4月6日</td>
+      <td style="text-align: center">6</td>
+      <td style="text-align: center">L12</td>
+      <td style="text-align: center">话语</td>
+      <td style="text-align: center">语义学</td>
+      <td style="text-align: center">N/A</td>
+    </tr>
+    <tr>
+      <td style="text-align: center"><strong>复活节假期</strong></td>
+      <td style="text-align: center">🏖</td>
+      <td style="text-align: center">🏖</td>
+      <td style="text-align: center">🏖</td>
+      <td style="text-align: center">🏖</td>
+      <td style="text-align: center">🏖</td>
+    </tr>
+    <tr>
+      <td style="text-align: center">4月20日</td>
+      <td style="text-align: center">7</td>
+      <td style="text-align: center">L13</td>
+      <td style="text-align: center">形式语言理论与有限状态自动机</td>
+      <td style="text-align: center">句法</td>
+      <td style="text-align: center">N/A</td>
+    </tr>
+    <tr>
+      <td style="text-align: center">4月20日</td>
+      <td style="text-align: center">7</td>
+      <td style="text-align: center">L14</td>
+      <td style="text-align: center">上下文无关语法</td>
+      <td style="text-align: center">句法</td>
+      <td style="text-align: center">N/A</td>
+    </tr>
+    <tr>
+      <td style="text-align: center">4月27日</td>
+      <td style="text-align: center">8</td>
+      <td style="text-align: center">L15</td>
+      <td style="text-align: center">成分句法分析</td>
+      <td style="text-align: center">句法</td>
+      <td style="text-align: center">N/A</td>
+    </tr>
+    <tr>
+      <td style="text-align: center">4月27日</td>
+      <td style="text-align: center">8</td>
+      <td style="text-align: center">L16</td>
+      <td style="text-align: center">依赖句法分析</td>
+      <td style="text-align: center">句法</td>
+      <td style="text-align: center">N/A</td>
+    </tr>
+    <tr>
+      <td style="text-align: center">5月4日</td>
+      <td style="text-align: center">9</td>
+      <td style="text-align: center">L17</td>
+      <td style="text-align: center">机器翻译</td>
+      <td style="text-align: center">应用</td>
+      <td style="text-align: center">N/A</td>
+    </tr>
+    <tr>
+      <td style="text-align: center">5月4日</td>
+      <td style="text-align: center">9</td>
+      <td style="text-align: center">L18</td>
+      <td style="text-align: center">信息提取</td>
+      <td style="text-align: center">应用</td>
+      <td style="text-align: center">N/A</td>
+    </tr>
+    <tr>
+      <td style="text-align: center">5月11日</td>
+      <td style="text-align: center">10</td>
+      <td style="text-align: center">L19</td>
+      <td style="text-align: center">问答系统</td>
+      <td style="text-align: center">应用</td>
+      <td style="text-align: center">N/A</td>
+    </tr>
+    <tr>
+      <td style="text-align: center">5月11日</td>
+      <td style="text-align: center">10</td>
+      <td style="text-align: center">L20</td>
+      <td style="text-align: center">主题模型</td>
+      <td style="text-align: center">应用</td>
+      <td style="text-align: center">N/A</td>
+    </tr>
+    <tr>
+      <td style="text-align: center">5月18日</td>
+      <td style="text-align: center">11</td>
+      <td style="text-align: center">L21</td>
+      <td style="text-align: center">概括</td>
+      <td style="text-align: center">应用</td>
+      <td style="text-align: center">N/A</td>
+    </tr>
+    <tr>
+      <td style="text-align: center">5月18日</td>
+      <td style="text-align: center">11</td>
+      <td style="text-align: center">L22</td>
+      <td style="text-align: center">生成</td>
+      <td style="text-align: center">应用</td>
+      <td style="text-align: center">N/A</td>
+    </tr>
+    <tr>
+      <td style="text-align: center">5月25日</td>
+      <td style="text-align: center">12</td>
+      <td style="text-align: center">L23</td>
+      <td style="text-align: center">客座演讲</td>
+      <td style="text-align: center">杂项</td>
+      <td style="text-align: center">N/A</td>
+    </tr>
+    <tr>
+      <td style="text-align: center">5月25日</td>
+      <td style="text-align: center">12</td>
+      <td style="text-align: center">L24</td>
+      <td style="text-align: center">课程回顾</td>
+      <td style="text-align: center">杂项</td>
+      <td style="text-align: center">N/A</td>
+    </tr>
+  </tbody>
+</table>
+
+<h3 id="17-时间安排">1.7 时间安排</h3>
+<ul>
+  <li>课程
+    <ul>
+      <li>周一 09:00-10:00 $\quad$ Glyn Davis (B117)</li>
+      <li>周一 16:15-17:15 $\quad$ Law GM15 (David P. Durham)</li>
+    </ul>
+  </li>
+  <li>研讨会：每周几次
+    <ul>
+      <li>可以向助教提出任何问题</li>
+      <li>如果需求人数很多，可能考虑安排办公室答疑时间</li>
+    </ul>
+  </li>
+  <li>推荐
+    <ul>
+      <li>通过 Canvas 上的讨论板块提问</li>
+    </ul>
+  </li>
+</ul>
+
+<h2 id="2-内容介绍">2. 内容介绍</h2>
+<h3 id="21-python">2.1 Python</h3>
+<ul>
+  <li>大量使用 Python
+    <ul>
+      <li>研讨会中会涉及大量编程</li>
+      <li>形式为交互式 Jupyter Notebook</li>
+      <li>用 Python 完成作业和项目</li>
+    </ul>
+  </li>
+  <li>推荐的 Python 库
+    <ul>
+      <li>NLTK（文本处理）</li>
+      <li>Numpy, Scipy, Matplotlib（数学、绘图）</li>
+      <li>Scikit-Learn（机器学习工具）</li>
+    </ul>
+  </li>
+  <li>Python 新手？
+    <ul>
+      <li>请在课程学习中自行安排时间学习 <a href="#res1">推荐的资源</a></li>
+    </ul>
+  </li>
+</ul>
+
+<h3 id="22-自然语言处理">2.2 自然语言处理</h3>
+<ul>
+  <li>涉及语言学、计算机科学和人工智能的跨学科研究。</li>
+  <li>该研究的目的是了解如何设计算法来处理和分析人类语言数据。</li>
+  <li>与 <strong>计算语言学</strong> 密切相关，但是计算语言学的目标是从计算角度研究语言，以验证语言学假设。</li>
+</ul>
+
+<h3 id="23-为什么要进行文本处理">2.3 为什么要进行文本处理？</h3>
+<ul>
+  <li>大量的信息都 “陷入” 在非结构化文本中
+    <ul>
+      <li>我们如何找到这些信息？</li>
+      <li>如何让计算机自动在这些数据上进行推理？</li>
+      <li>首先需要了解这些结构，找到重要的元素和关系等等……</li>
+      <li>现存的人类语言超过 1000 种</li>
+    </ul>
+  </li>
+  <li>挑战
+    <ul>
+      <li>搜索、显示结果</li>
+      <li>信息提取</li>
+      <li>翻译</li>
+      <li>问答</li>
+      <li>……</li>
+    </ul>
+  </li>
+</ul>
+
+<h3 id="24-激动人心的应用">2.4 激动人心的应用</h3>
+<ul>
+  <li>智能对话代理，例如 《星际穿越》中的TARS（2014）
+    <ul>
+      <li>https://www.youtube.com/watch?v=wVEfFHzUby0</li>
+      <li>语音识别</li>
+      <li>自然语言理解</li>
+      <li>语音合成</li>
+    </ul>
+  </li>
+  <li>IBM 的 “沃森” 问答系统
+    <ul>
+      <li>基于大型文本集的问答系统 —— 整合了信息提取和其他功能</li>
+      <li>https://www.youtube.com/watch?v=FC3IryWr4c8</li>
+      <li>https://www.youtube.com/watch?v=lI-M7O_bRNg （从 3:30 到 4:30）</li>
+    </ul>
+  </li>
+  <li>沃森背后的研究并非革命性的
+    <ul>
+      <li>但这是 AI 历史上的一个变革性的成果</li>
+      <li>将先进的文本处理组件与大型文本集合和高性能计算相结合</li>
+    </ul>
+  </li>
+  <li>还有很多其他方面的应用：机器翻译、搜索引擎、智能家居等等
+<img src="http://andy-blog.oss-cn-beijing.aliyuncs.com/blog/2020-03-02-WX20200302-150448%402x.png" /></li>
+</ul>
+
+<h2 id="3-主题概览">3. 主题概览</h2>
+<ul>
+  <li><strong>单词、序列和文档</strong>
+    <ul>
+      <li>文本预处理</li>
+      <li>语言模型</li>
+      <li>文本分类</li>
+    </ul>
+  </li>
+  <li><strong>结构学习</strong>
+    <ul>
+      <li>序列标注（例如：词性标注）</li>
+    </ul>
+  </li>
+  <li><strong>NLP 深度学习</strong>
+    <ul>
+      <li>前馈和循环模型</li>
+    </ul>
+  </li>
+  <li><strong>语义学</strong>
+    <ul>
+      <li></li>
+    </ul>
+  </li>
+</ul>
+
+<p>下节内容：</p>
+:ET
