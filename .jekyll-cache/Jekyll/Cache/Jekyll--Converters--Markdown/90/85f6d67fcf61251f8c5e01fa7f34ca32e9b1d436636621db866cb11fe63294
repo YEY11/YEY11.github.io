@@ -1,0 +1,27 @@
+I"�<!-- 数学公式 -->
+<script src="https://cdn.mathjax.org/mathjax/latest/MathJax.js?config=TeX-AMS-MML_HTMLorMML" type="text/javascript"></script>
+
+<script type="text/x-mathjax-config">
+  MathJax.Hub.Config({
+    tex2jax: {
+      skipTags: ['script', 'noscript', 'style', 'textarea', 'pre'],
+      inlineMath: [['$','$']]
+    }
+  });
+</script>
+
+<h1 id="lecture-01-课程概览与介绍">Lecture 01 课程概览与介绍</h1>
+
+<h2 id="1-课程介绍">1. 课程介绍</h2>
+<h3 id="11-预备知识">1.1 预备知识</h3>
+<ul>
+  <li>本课程要求先修以下两门课程中的任意一门：
+    <ul>
+      <li>COMP90049 机器学习导论</li>
+      <li>COMP30027 机器学习</li>
+    </ul>
+  </li>
+</ul>
+
+<p>下节内容：</p>
+:ET
