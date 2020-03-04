@@ -52,7 +52,7 @@ markdown: kramdown
 highlighter: rouge
 kramdown:
   input: GFM                            # use Github Flavored Markdown !important
-  hard_wrap: true  #支持代码粘贴保留换行符
+
 
 
 # 评论系统

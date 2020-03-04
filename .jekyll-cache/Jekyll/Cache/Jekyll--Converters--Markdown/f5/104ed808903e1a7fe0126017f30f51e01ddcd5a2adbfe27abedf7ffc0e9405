@@ -1,5 +1,4 @@
-I"
-<<!-- 数学公式 -->
+I"LG<!-- 数学公式 -->
 <script src="https://cdn.mathjax.org/mathjax/latest/MathJax.js?config=TeX-AMS-MML_HTMLorMML" type="text/javascript"></script>
 
 <script type="text/x-mathjax-config">
@@ -112,22 +111,117 @@ Y &= \mu+\varepsilon，\;\; 其中\;\; \mu=E(Y)=\beta_0+\beta_1 X_1+\cdots+\beta
 
 <h2 id="2-通过一个案例回顾线性模型">2. 通过一个案例回顾线性模型</h2>
 <p>对于本课程的所有章节，我们通常会以一个案例学习作为开始，通过结合真实数据的例子，我们可以对即将学习的那些线性模型扩展有一个更好的理解。</p>
-<h3 id="21-案例学习2000年总统大选时佐治亚州被低估的选票">2.1 案例学习：2000年总统大选时佐治亚州被低估的选票</h3>
+<h3 id="21-案例学习2000年总统大选时佐治亚州缺计的选票">2.1 案例学习：2000年总统大选时佐治亚州缺计的选票</h3>
 <ul>
   <li>2000 年的美国总统选举对当时的投票机制引起了很大争议。</li>
-  <li>佐治亚州的投票数据在 Meyer（2002）中进行了介绍和分析。</li>
+  <li>
+    <p>佐治亚州的投票数据在 Meyer（2002）中进行了介绍和分析。</p>
+
+    <div class="highlighter-rouge"><div class="highlight"><pre class="highlight"><code>&gt; library(faraway); data(gavote); help(gavote); dim(gavote); head(gavote)  
+[1] 159  10  
+         equip   econ perAA rural    atlanta gore bush other votes ballots  
+APPLING  LEVER   poor 0.182 rural notAtlanta 2093 3940    66  6099    6617  
+ATKINSON LEVER   poor 0.230 rural notAtlanta  821 1228    22  2071    2149  
+BACON    LEVER   poor 0.131 rural notAtlanta  956 2010    29  2995    3347  
+BAKER    OS-CC   poor 0.476 rural notAtlanta  893  615    11  1519    1607  
+BALDWIN  LEVER middle 0.359 rural notAtlanta 5893 6041   192 12126   12785  
+BANKS    LEVER middle 0.024 rural notAtlanta 1220 3202   111  4533    4773
+</code></pre></div>    </div>
+
+    <p>所以，在这个数据集中，我们的实验单元（experiment unit）是什么？  <br />
+答案是佐治亚州下辖的每个郡（county）：APPLING、ATKINSON、BACON 等等。</p>
+  </li>
+  <li>前往投票站的选民如果已经完成了登记，那么他 / 她将会获得一张 ballot（选票）。</li>
+  <li>但是，如果他 / 她没有投票选取总统，或者投票给一个以上的候选人，或者设备出现了故障，那么，不会产生 vote（投票）记录。</li>
+  <li>例如：在 Appling 郡，有 $6617-6099=518$ 张 ballot 没有进入总统选举的 votes。这被称为 <em>undercount（缺计）</em>。</li>
+  <li>我们的目标是通过线性模型和 R 分析出是什么因素影响了这种 undercount。</li>
 </ul>
 
-<div class="language-r highlighter-rouge"><div class="highlight"><pre class="highlight"><code><span class="o">&gt;</span><span class="w"> </span><span class="n">library</span><span class="p">(</span><span class="n">faraway</span><span class="p">);</span><span class="n">data</span><span class="p">(</span><span class="n">gavote</span><span class="p">);</span><span class="w"> </span><span class="n">help</span><span class="p">(</span><span class="n">gavote</span><span class="p">);</span><span class="nf">dim</span><span class="p">(</span><span class="n">gavote</span><span class="p">);</span><span class="w"> </span><span class="n">head</span><span class="p">(</span><span class="n">gavote</span><span class="p">)</span><span class="w">
-</span><span class="p">[</span><span class="m">1</span><span class="p">]</span><span class="w"> </span><span class="m">159</span><span class="w">  </span><span class="m">10</span><span class="w">
-         </span><span class="n">equip</span><span class="w">   </span><span class="n">econ</span><span class="w"> </span><span class="n">perAA</span><span class="w"> </span><span class="n">rural</span><span class="w">    </span><span class="n">atlanta</span><span class="w"> </span><span class="n">gore</span><span class="w"> </span><span class="n">bush</span><span class="w"> </span><span class="n">other</span><span class="w"> </span><span class="n">votes</span><span class="w"> </span><span class="n">ballots</span><span class="w">
-</span><span class="n">APPLING</span><span class="w">  </span><span class="n">LEVER</span><span class="w">   </span><span class="n">poor</span><span class="w"> </span><span class="m">0.182</span><span class="w"> </span><span class="n">rural</span><span class="w"> </span><span class="n">notAtlanta</span><span class="w"> </span><span class="m">2093</span><span class="w"> </span><span class="m">3940</span><span class="w">    </span><span class="m">66</span><span class="w">  </span><span class="m">6099</span><span class="w">    </span><span class="m">6617</span><span class="w">
-</span><span class="n">ATKINSON</span><span class="w"> </span><span class="n">LEVER</span><span class="w">   </span><span class="n">poor</span><span class="w"> </span><span class="m">0.230</span><span class="w"> </span><span class="n">rural</span><span class="w"> </span><span class="n">notAtlanta</span><span class="w">  </span><span class="m">821</span><span class="w"> </span><span class="m">1228</span><span class="w">    </span><span class="m">22</span><span class="w">  </span><span class="m">2071</span><span class="w">    </span><span class="m">2149</span><span class="w">
-</span><span class="n">BACON</span><span class="w">    </span><span class="n">LEVER</span><span class="w">   </span><span class="n">poor</span><span class="w"> </span><span class="m">0.131</span><span class="w"> </span><span class="n">rural</span><span class="w"> </span><span class="n">notAtlanta</span><span class="w">  </span><span class="m">956</span><span class="w"> </span><span class="m">2010</span><span class="w">    </span><span class="m">29</span><span class="w">  </span><span class="m">2995</span><span class="w">    </span><span class="m">3347</span><span class="w">
-</span><span class="n">BAKER</span><span class="w">    </span><span class="n">OS</span><span class="o">-</span><span class="n">CC</span><span class="w">   </span><span class="n">poor</span><span class="w"> </span><span class="m">0.476</span><span class="w"> </span><span class="n">rural</span><span class="w"> </span><span class="n">notAtlanta</span><span class="w">  </span><span class="m">893</span><span class="w">  </span><span class="m">615</span><span class="w">    </span><span class="m">11</span><span class="w">  </span><span class="m">1519</span><span class="w">    </span><span class="m">1607</span><span class="w">
-</span><span class="n">BALDWIN</span><span class="w">  </span><span class="n">LEVER</span><span class="w"> </span><span class="n">middle</span><span class="w"> </span><span class="m">0.359</span><span class="w"> </span><span class="n">rural</span><span class="w"> </span><span class="n">notAtlanta</span><span class="w"> </span><span class="m">5893</span><span class="w"> </span><span class="m">6041</span><span class="w">   </span><span class="m">192</span><span class="w"> </span><span class="m">12126</span><span class="w">   </span><span class="m">12785</span><span class="w">
-</span><span class="n">BANKS</span><span class="w">    </span><span class="n">LEVER</span><span class="w"> </span><span class="n">middle</span><span class="w"> </span><span class="m">0.024</span><span class="w"> </span><span class="n">rural</span><span class="w"> </span><span class="n">notAtlanta</span><span class="w"> </span><span class="m">1220</span><span class="w"> </span><span class="m">3202</span><span class="w">   </span><span class="m">111</span><span class="w">  </span><span class="m">4533</span><span class="w">    </span><span class="m">4773</span><span class="w">
-</span></code></pre></div></div>
+<h3 id="22-关于-gavote-数据的描述">2.2 关于 <code class="highlighter-rouge">gavote</code> 数据的描述</h3>
+<ul>
+  <li>
+    <p>一个数据框，包含了以下 10 个变量的 159 个观测值。每个案例代表佐治亚州的一个郡。<br /><br />
+<script type="math/tex">% <![CDATA[
+\begin{align}
+{\mathtt{equip:}} &\quad {\mathtt{采用的投票设备: LEVER, OS-CC, OS-PC, PAPER, PUNCH}}\\
+{\mathtt{econ:}} &\quad {\mathtt{本郡的经济状况: middle poor rich}}\\
+{\mathtt{perAA:}} &\quad {\mathtt{本郡非裔美国人的所占人口百分比}}\\
+{\mathtt{rural:}} &\quad {\mathtt{本郡属于\; rural\; (乡村)\;还是\; urban\;(城市)}}\\
+{\mathtt{atlanta:}} &\quad {\mathtt{本郡属于\;Atlanta\;地区还是\;notAtlanta\;地区}}\\
+{\mathtt{gore:}} &\quad {\mathtt{Gore\;的\;votes\;数量}}\\
+{\mathtt{bush:}} &\quad {\mathtt{Bush\;的\;votes\;数量}}\\
+{\mathtt{other:}} &\quad {\mathtt{其他候选人的\;votes\;数量}}\\
+{\mathtt{votes:}} &\quad {\mathtt{votes\;的总数}}\\
+{\mathtt{ballots:}} &\quad {\mathtt{ballots\;的总数}}\\
+\end{align} %]]></script></p>
+
+    <p><br /></p>
+  </li>
+  <li>
+    <p>Source: <em><span style="font-size:10pt"><a href="https://www.tandfonline.com/doi/abs/10.1080/09332480.2002.10554823">Meyer M. (2002) Uncounted Votes: Does Voting Equipment Matter? Chance, 15(4), 33-38</a></span></em></p>
+  </li>
+</ul>
+
+<h2 id="3-关于-gavote-的初步数据分析">3. 关于 <code class="highlighter-rouge">gavote</code> 的初步数据分析</h2>
+<h3 id="31-数值摘要">3.1 数值摘要</h3>
+
+<div class="highlighter-rouge"><div class="highlight"><pre class="highlight"><code>&gt; summary(gavote)
+   equip        econ        perAA          rural           atlanta         gore       
+ LEVER:74   middle:69   Min.   :0.0000   rural:117   Atlanta   : 15   Min.   :   249  
+ OS-CC:44   poor  :72   1st Qu.:0.1115   urban: 42   notAtlanta:144   1st Qu.:  1386  
+ OS-PC:22   rich  :18   Median :0.2330                                Median :  2326  
+ PAPER: 2               Mean   :0.2430                                Mean   :  7020  
+ PUNCH:17               3rd Qu.:0.3480                                3rd Qu.:  4430  
+                        Max.   :0.7650                                Max.   :154509  
+      bush            other            votes           ballots      
+ Min.   :   271   Min.   :   5.0   Min.   :   832   Min.   :   881  
+ 1st Qu.:  1804   1st Qu.:  30.0   1st Qu.:  3506   1st Qu.:  3694  
+ Median :  3597   Median :  86.0   Median :  6299   Median :  6712  
+ Mean   :  8929   Mean   : 381.7   Mean   : 16331   Mean   : 16926  
+ 3rd Qu.:  7468   3rd Qu.: 210.0   3rd Qu.: 11846   3rd Qu.: 12251  
+ Max.   :140494   Max.   :7920.0   Max.   :263211   Max.   :280975 
+</code></pre></div></div>
+
+<p>可以看到，有些变量属于分类变量（例如：equip），对于这类变量，我们在 summary 中统计的是数据中该变量的各个类别出现的频率。有些变量属于数值变量（例如：perAA），对于这类变量，我们统计的是其均值、中位数、四分位数和最大最小值。</p>
+
+<h3 id="32-定义变量">3.2 定义变量</h3>
+<p>我们感兴趣的是 undercount 是如何被影响的。但 undercount 并不在我们的观测数据中。因此，我们需要创造一个 undercount 的变量。我们观察到，不同的郡分配到的选票（ballots）数目差别很大，这表明为了更真实地反映出各郡的有效投票率，我们应当采用 <em>relative undercount（相对缺计）</em> 而不是 <em>absolute undercount（绝对缺计）</em>。我们可以定义一个代表 relative undercount 的变量 <code class="highlighter-rouge">undercount</code> 并将其添加到 <code class="highlighter-rouge">gavote</code> 数据框中。</p>
+
+<div class="highlighter-rouge"><div class="highlight"><pre class="highlight"><code># 方法 1
+&gt; gavote$undercount &lt;- (gavote$ballots-gavote$votes)/gavote$ballots
+&gt; summary(gavote$undercount)
+   Min. 1st Qu.  Median    Mean 3rd Qu.    Max.
+0.00000 0.02779 0.03983 0.04379 0.05647 0.18812
+
+# 方法 2
+&gt; with(gavote, sum(ballots-votes)/sum(ballots)) #overall percent of undercount
+[1] 0.03518021
+</code></pre></div></div>
+
+<p>上面给出了两种计算 relative undercount 的方法：</p>
+<ul>
+  <li>方法 1 计算的是每个 county 的 <em>relative undercount（相对缺计）</em>，具体方法是用其对应的 ballots 的数量减去 votes 的数量，然后除以 ballots 的数量。</li>
+  <li>方法 2 选择了直接在 ballots 和 votes 这两个向量上进行计算，然后求和，其结果我们称为 <em>overall percent of undercount（总体相对缺计）</em>，这种方法实际上忽略了 county 这个因素对于 undercount 的影响。</li>
+</ul>
+
+<p>明白这些区别很重要，这并不涉及到高深的数学知识，但却反映了我们对于一个问题的分析思路。在实际项目中，合理地定义变量非常重要，它决定了我们是能够从数据中挖掘出很多有用的信息，还是简单地将这些信息忽略掉了。</p>
+
+<h3 id="33-图表摘要">3.3 图表摘要</h3>
+<p>我们还可以利用 R 绘制各种图表摘要，例如：直方图、概率密度图、饼图等。</p>
+
+<div class="highlighter-rouge"><div class="highlight"><pre class="highlight"><code>&gt; hist(gavote$undercount,main="Undercount",xlab="Percent Undercount")
+&gt; plot(density(gavote$undercount),main="Undercount"); rug(gavote$undercount)
+&gt; pie(table(gavote$equip),col=gray(0:4/4))
+&gt; barplot(sort(table(gavote$equip),decreasing=TRUE),las=2)
+</code></pre></div></div>
+
+<p><img src="http://andy-blog.oss-cn-beijing.aliyuncs.com/blog/2020-03-04-WX20200305-005922%402x.png" /></p>
+
+<center><span style="font-size:10pt">图 1：左边是 undercount 的直方图；右边是</span></center>
+
+<p>我们的数据中一共有 195 个郡，所以一共产生了 195 个 undercount 的值，从左边的直方图可以看到，大部分郡的 undercount 的相对比重在 5% 附近，说明这些郡的大部分选民都投出的 ballots 都有效地计入了 votes；而极少数的郡的 undercount 的相对比重达到了 15% 甚至 20%，这说明这些郡的无效 ballots（即没有被计入 votes 的选票）占比很高。</p>
+
+<p><img src="http://andy-blog.oss-cn-beijing.aliyuncs.com/blog/2020-03-04-WX20200305-010048%402x.png" /></p>
 
 <p>下节内容：</p>
 
