@@ -1,4 +1,4 @@
-I"�x<!-- 数学公式 -->
+I"�w<!-- 数学公式 -->
 <script src="https://cdn.mathjax.org/mathjax/latest/MathJax.js?config=TeX-AMS-MML_HTMLorMML" type="text/javascript"></script>
 
 <script type="text/x-mathjax-config">
@@ -499,11 +499,12 @@ $une\;chatte$：一只（母）猫</li>
 <p>现在，我们来看一下具体的 <strong>规则</strong>，了解 Porter Stemmer 算法是如何工作的：</p>
 <ul>
   <li><strong>规则格式：（条件）S1 $\to$ S2</strong><br />
-规则很简单，我们有一个前置条件，然后将规则 S1 改写为 S2。</li>
+规则很简单，我们有一个前置条件，然后将规则 S1 改写为 S2。<br />
+注意：这里判断前置条件时只考虑原单词中 S1 之前的部分（即不包括 S1 部分）。</li>
   <li>例如，我们可以将规则设定为：（m &gt; 1）EMENT $\to$ null
     <ul>
-      <li>然后，在此规则下，以单词 REPLACEMENT 为例：<br />
-<span style="color:green">R</span><span style="color:red">E</span><span style="color:green">PL</span><span style="color:red">A</span><span style="color:green">C</span><span style="color:red">E</span><span style="color:green">M</span><span style="color:red">E</span><span style="color:green">NT</span> = <span style="color:green">C</span><span style="color:red">V</span><span style="color:green">C</span><span style="color:red">V</span><span style="color:green">C</span><span style="color:red">V</span><span style="color:green">C</span><span style="color:red">V</span><span style="color:green">C</span> = <span style="color:green">C</span> (<span style="color:red">V</span><span style="color:green">C</span>)<sup><span style="color:">4</span></sup> $\to$ m = 4 &gt; 1</li>
+      <li>以单词 REPLACEMENT 为例，在此规则下我们计算 RELPAC 部分的 m 值：<br />
+<span style="color:green">R</span><span style="color:red">E</span><span style="color:green">PL</span><span style="color:red">A</span><span style="color:green">C</span> = <span style="color:green">C</span><span style="color:red">V</span><span style="color:green">C</span><span style="color:red">V</span><span style="color:green">C</span> = <span style="color:green">C</span> (<span style="color:red">V</span><span style="color:green">C</span>)<sup>2</sup> $\to$ m = 2 &gt; 1</li>
       <li>满足规则重写的条件，我们最终得到的 stem 为：<br />
 REPLAC<span style="color:steelblue">EMENT</span> $\to$ REPLAC</li>
     </ul>

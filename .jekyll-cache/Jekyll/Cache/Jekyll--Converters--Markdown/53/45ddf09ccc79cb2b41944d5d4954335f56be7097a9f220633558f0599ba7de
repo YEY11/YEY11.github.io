@@ -1,4 +1,4 @@
-I"�n<!-- 数学公式 -->
+I"o<!-- 数学公式 -->
 <script src="https://cdn.mathjax.org/mathjax/latest/MathJax.js?config=TeX-AMS-MML_HTMLorMML" type="text/javascript"></script>
 
 <script type="text/x-mathjax-config">
@@ -140,7 +140,7 @@
       <td style="text-align: center">3月2日</td>
       <td style="text-align: center">1</td>
       <td style="text-align: center">L02</td>
-      <td style="text-align: center">文本预处理</td>
+      <td style="text-align: center"><a href="https://andy-tk.top/2020/03/02/COMP90042-02/">文本预处理</a></td>
       <td style="text-align: center">介绍</td>
       <td style="text-align: center">JM3 第 2 章：<br /> 正则化</td>
     </tr>
