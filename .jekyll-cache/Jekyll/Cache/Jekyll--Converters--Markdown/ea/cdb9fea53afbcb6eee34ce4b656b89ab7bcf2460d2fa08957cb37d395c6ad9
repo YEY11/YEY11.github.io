@@ -1,4 +1,4 @@
-I"�7<!-- 数学公式 -->
+I"�7<!-- 数学公式 -->
 <script src="https://cdn.mathjax.org/mathjax/latest/MathJax.js?config=TeX-AMS-MML_HTMLorMML" type="text/javascript"></script>
 
 <script type="text/x-mathjax-config">
@@ -78,7 +78,7 @@
     <ul>
       <li>特征 $\boldsymbol X_{.j}$ 是不相关的，如果</li>
       <li>
-        <p>$\boldsymbol X_{.j}$ 是其他列的一个线性组合：
+        <p>$\boldsymbol X_{.j}$ 是其他列的一个线性组合：<br />
 $\boldsymbol X_{.j}=\sum_{l\ne j}\alpha_l\boldsymbol X_{.l}$</p>
 
         <p>其中，$\boldsymbol X_{.j}$ 代表 $\boldsymbol X$ 的第 $j$ 列，$\alpha_l$ 代表某些标量，这也被称为多重共线性</p>
@@ -105,7 +105,7 @@ $\boldsymbol X_{.j}=\sum_{l\ne j}\alpha_l\boldsymbol X_{.l}$</p>
       <li>只有一个数据点</li>
     </ul>
   </li>
-  <li>欠定组
+  <li>欠定组<br />
 <br /><br /></li>
 </ul>
 
@@ -169,7 +169,7 @@ $\boldsymbol X_{.j}=\sum_{l\ne j}\alpha_l\boldsymbol X_{.l}$</p>
       <li>这里 $Y$ 和 $\varepsilon$ 是随机变量，其中 $\varepsilon$ 代表噪声</li>
     </ul>
   </li>
-  <li>现在假设 $\boldsymbol w$ 也是一个随机变量（记为 $\boldsymbol W$），服从一个正态先验分布：
+  <li>现在假设 $\boldsymbol w$ 也是一个随机变量（记为 $\boldsymbol W$），服从一个正态先验分布：<br />
 $\boldsymbol W\sim N(0,1/\lambda)$
     <ul>
       <li>我们期望较小的权重，没有一个特征占明显的主导地位</li>
@@ -182,14 +182,14 @@ $\boldsymbol W\sim N(0,1/\lambda)$
 <h3 id="25-利用贝叶斯规则计算后验">2.5 利用贝叶斯规则计算后验</h3>
 <ul>
   <li>
-    <p>先验在随后被用来计算后验：
+    <p>先验在随后被用来计算后验：<br />
 <img src="https://tva1.sinaimg.cn/large/006y8mN6ly1g8e2fqv0wvj31a60cudj5.jpg" width="80%" /></p>
   </li>
   <li>相比最大似然估计（MLE），这里我们采用最大后验估计（MAP）</li>
   <li>
     <p>采用 Log 技巧，可以得到：</p>
 
-    <p>$\log(posterior)=\log(likelihood)+\log(prior)-\color{red}{\require{cancel}\cancel{\log(marg)}}$<br />
+    <p>$\log(posterior)=\log(likelihood)+\log(prior)-\color{red}{\require{cancel}\cancel{\log(marg)}}$  <br />
 （注：该项对于优化没有影响）</p>
   </li>
   <li>
@@ -268,9 +268,9 @@ $\boldsymbol W\sim N(0,1/\lambda)$
 <ul>
   <li>9 阶多项式回归
     <ul>
-      <li>模型形式：
+      <li>模型形式：<br />
 $\hat f=w_0+w_1x+…+w_9x^9$</li>
-      <li>引入正则项 $\lambda\|\boldsymbol w\|_2^2$
+      <li>引入正则项 $\lambda\|\boldsymbol w\|_2^2$<br />
 <br /><br /></li>
     </ul>
   </li>
@@ -280,14 +280,14 @@ $\hat f=w_0+w_1x+…+w_9x^9$</li>
 
 <h3 id="34-正则项作为约束">3.4 正则项作为约束</h3>
 <ul>
-  <li>为了便于说明，考虑一个修正后的模型：
+  <li>为了便于说明，考虑一个修正后的模型：<br />
 最小化 $|\boldsymbol y-\boldsymbol{Xw}|_2^2$ 满足 $|\boldsymbol w|_2^2\le\lambda$（对于 $\lambda&gt;0$）</li>
 </ul>
 
 <p><img src="https://tva1.sinaimg.cn/large/006y8mN6ly1g8efdnka6wj31em0fkjvl.jpg" width="100%" /></p>
 
 <ul>
-  <li>Lasso（$L_1$ 正则化）促使最优解落在坐标轴上
+  <li>Lasso（$L_1$ 正则化）促使最优解落在坐标轴上<br />
 $\rightarrow$ 某些权重设为零 $\rightarrow$ 解是稀疏的</li>
 </ul>
 
@@ -315,10 +315,10 @@ $\rightarrow$ 某些权重设为零 $\rightarrow$ 解是稀疏的</li>
 
 <h3 id="43-另一种偏差-方差分解">4.3 （另一种）偏差-方差分解</h3>
 <ul>
-  <li>监督回归预测的平方损失函数为：
+  <li>监督回归预测的平方损失函数为：<br />
 $l\left(Y,\hat f(\boldsymbol X_0)\right)=\left(Y-\hat f(\boldsymbol X_0)\right)^2$</li>
-  <li>引理：偏差-方差分解<br />
-$\mathbb{E}\left[l\left(Y,\hat f(\boldsymbol X_0)\right)\right]=\left(\mathbb{E}[Y]-\mathbb{E}[\hat f]\right)^2+Var[\hat f]+Var[Y]$<br />
+  <li>引理：偏差-方差分解  <br />
+$\mathbb{E}\left[l\left(Y,\hat f(\boldsymbol X_0)\right)\right]=\left(\mathbb{E}[Y]-\mathbb{E}[\hat f]\right)^2+Var[\hat f]+Var[Y]$<br /><br />
 <strong>$\boldsymbol x_0$ 的风险 / 测试误差 $=$ (偏差)<sup> 2</sup> $+$ 方差 $+$ 无法减少的误差</strong></li>
 </ul>
 

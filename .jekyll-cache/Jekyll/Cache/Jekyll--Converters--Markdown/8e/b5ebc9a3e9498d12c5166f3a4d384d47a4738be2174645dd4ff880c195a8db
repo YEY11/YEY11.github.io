@@ -1,4 +1,4 @@
-I"i5<!-- 数学公式 -->
+I"�5<!-- 数学公式 -->
 <script src="https://cdn.mathjax.org/mathjax/latest/MathJax.js?config=TeX-AMS-MML_HTMLorMML" type="text/javascript"></script>
 
 <script type="text/x-mathjax-config">
@@ -38,7 +38,7 @@
   <li>这种类型的问题称为二分类问题</li>
   <li>一种方法是采用线性回归
     <ul>
-      <li>用数据拟合一条直线 / 超平面
+      <li>用数据拟合一条直线 / 超平面<br />
 (找到权重 $\boldsymbol w$)</li>
       <li>记为 $s\equiv \boldsymbol{x’w}$</li>
       <li>如果 $s\ge 0.5$，预测为 “是”</li>
@@ -55,7 +55,7 @@
   <li>这种方法容易受到异常值的影响</li>
   <li>总体而言，最小二乘标准在这种情况下看起来不自然</li>
   <li>有许多专门针对二分类问题而开发的方法</li>
-  <li>例如，Logistic 回归、感知器、支持向量机（SVM）
+  <li>例如，Logistic 回归、感知器、支持向量机（SVM）<br />
 <br /><br /></li>
 </ul>
 
@@ -200,7 +200,7 @@
 <ul>
   <li>交叉熵是一种比较两个分布的方法</li>
   <li>
-    <p>交叉熵是对参考分布 $g_{ref}(a)$ 和估计分布 $g_{est}(a)$ 之间散度的一种度量。
+    <p>交叉熵是对参考分布 $g_{ref}(a)$ 和估计分布 $g_{est}(a)$ 之间散度的一种度量。<br />
 对于离散分布：</p>
 
     <p>$H(g_{ref},g_{est})=-\sum\limits_{a\in A}g_{ref}(a)\log g_{est}(a)$</p>
@@ -263,7 +263,7 @@
 
     <p>如果 $\boldsymbol x$ 是原始特征集合，那么 $\varphi(\boldsymbol x)$ 表示新的特征集合</p>
   </li>
-  <li>例子：假设只有一个特征 $x$，数据点呈一条抛物线而非直线<br />
+  <li>例子：假设只有一个特征 $x$，数据点呈一条抛物线而非直线<br /><br />
 <img src="https://tva1.sinaimg.cn/large/006y8mN6ly1g8dfek4hy1j30d407uwej.jpg" width="20%" /></li>
 </ul>
 

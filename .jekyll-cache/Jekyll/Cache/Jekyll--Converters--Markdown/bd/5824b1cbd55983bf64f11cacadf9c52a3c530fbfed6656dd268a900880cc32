@@ -1,4 +1,4 @@
-I"�)<!-- 数学公式 -->
+I"�)<!-- 数学公式 -->
 <script src="https://cdn.mathjax.org/mathjax/latest/MathJax.js?config=TeX-AMS-MML_HTMLorMML" type="text/javascript"></script>
 
 <script type="text/x-mathjax-config">
@@ -132,7 +132,7 @@ p(q) &= \text{Beta}(q;\alpha,\beta) \\
 
 <h3 id="15-归一化的唯一性">1.5 归一化的唯一性</h3>
 <ul>
-  <li>我们多次用到了一种技巧：
+  <li>我们多次用到了一种技巧：<br />
 当一个非规范分布（unnormalized distribution）和某一已知分布成比例时，我们可以认为其就是该分布。</li>
   <li>如果 $f(\theta) \propto g(\theta)$，其中 $g$ 为某一已知分布，那么 $\dfrac{f(\theta)}{\int_{\boldsymbol \Theta} f(\theta)\,\text{d}\theta}=g(\theta)$</li>
   <li>
@@ -159,7 +159,7 @@ p(q) &= \text{Beta}(q;\alpha,\beta) \\
 <ul>
   <li>利用 Beta-Binomial 共轭，其中 $q$ 为太阳早上升起的概率 $\Pr($ <em>“太阳早上升起”</em> $)$
     <ul>
-      <li>后验
+      <li>后验<br />
 <script type="math/tex">p(q|k.n)=\text{Beta}(q;k+\alpha,n-k+\beta)</script></li>
       <li>$n=k=$ 观察者的年龄（按天数计算）</li>
       <li>令 $\alpha=\beta=1$（等同于均匀分布先验）</li>
@@ -234,7 +234,7 @@ p(\boldsymbol w|\boldsymbol X,\boldsymbol y) &\propto p(\boldsymbol w)p(\boldsym
 \end{align} %]]></script>
   </li>
   <li>
-    <p>通过近似求解<br />
+    <p>通过近似求解  <br />
 <strong><span style="color:steelblue">拉普拉斯近似：</span></strong></p>
     <ul>
       <li>假定众数的后验服从渐进正态</li>

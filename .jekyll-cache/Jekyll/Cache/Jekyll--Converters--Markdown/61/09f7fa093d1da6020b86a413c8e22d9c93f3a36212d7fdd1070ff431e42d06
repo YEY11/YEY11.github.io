@@ -1,4 +1,4 @@
-I"�4<!-- 数学公式 -->
+I"5<!-- 数学公式 -->
 <script src="https://cdn.mathjax.org/mathjax/latest/MathJax.js?config=TeX-AMS-MML_HTMLorMML" type="text/javascript"></script>
 
 <script type="text/x-mathjax-config">
@@ -79,7 +79,7 @@
   <li>已知数据来自参数未知的伯努利分布（例如偏向硬币），找出该分布的均值</li>
   <li>均值的 MLE 估计
     <ul>
-      <li>$p_\theta(x)=\begin{cases}\theta,\quad \text{if }x=0\\1-\theta,\quad \text{if }x=1\end{cases}=\theta^x (1-\theta)^{1-x}$
+      <li>$p_\theta(x)=\begin{cases}\theta,\quad \text{if }x=0\\1-\theta,\quad \text{if }x=1\end{cases}=\theta^x (1-\theta)^{1-x}$<br />
 (注意：对于所有其他的 $x$，$p_\theta(x)=0$)</li>
       <li>最大化似然函数得到：$\hat\theta=\dfrac{1}{n}\sum_{i=1}^n X_i$</li>
     </ul>
@@ -164,7 +164,7 @@
 <ul>
   <li>偏差：$B_\theta(\hat\theta)=E_\theta[\hat\theta(X_1,…,X_n)]-\theta$</li>
   <li>方差：$Var_\theta(\hat\theta)=E_\theta[(\hat\theta - E_\theta[\hat\theta])^2]$</li>
-  <li>平方损失风险的偏差-方差分解
+  <li>平方损失风险的偏差-方差分解<br />
 $E_\theta[(\theta - \hat \theta)^2]=[B(\hat \theta)]^2+Var_\theta (\hat \theta)$</li>
 </ul>
 
@@ -248,7 +248,7 @@ P(\theta|X=1) &= \dfrac{P(X=1| \theta)P(\theta)}{P(X=1)} \quad\quad\color{purple
     <ul>
       <li>后验均值： $E_{\theta\mid X}[\theta]=\int \theta P(\theta\mid X)d\theta$</li>
       <li>后验模式： $\mathop{\operatorname{arg\,max}}\limits_\theta P(\theta\mid X)$ (最大化后验概率 MAP)</li>
-      <li>这些是贝叶斯决策理论的解释 
+      <li>这些是贝叶斯决策理论的解释 <br />
 <img src="https://tva1.sinaimg.cn/large/006y8mN6ly1g8cvty5gc4j30li0b4my8.jpg" width="50%" /></li>
     </ul>
   </li>
@@ -256,10 +256,10 @@ P(\theta|X=1) &= \dfrac{P(X=1| \theta)P(\theta)}{P(X=1)} \quad\quad\color{purple
 
 <h3 id="34-贝叶斯上下文中的-mle">3.4 贝叶斯上下文中的 MLE</h3>
 <ul>
-  <li>MLE 公式：寻找对数据拟合最好的参数
+  <li>MLE 公式：寻找对数据拟合最好的参数<br />
 $\hat\theta\in\mathop{\operatorname{arg\,max}}\limits_\theta P(X=x\mid \theta)$</li>
   <li>
-    <p>在贝叶斯公式下，考虑 MAP<br />
+    <p>在贝叶斯公式下，考虑 MAP<br /><br />
 <script type="math/tex">% <![CDATA[
 \begin{eqnarray}
 \hat\theta &\in& \mathop{\operatorname{arg\,max}}\limits_\theta P(\theta\mid X=x)\\

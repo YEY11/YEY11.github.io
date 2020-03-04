@@ -1,4 +1,4 @@
-I"1{<!-- 数学公式 -->
+I"�{<!-- 数学公式 -->
 <script src="https://cdn.mathjax.org/mathjax/latest/MathJax.js?config=TeX-AMS-MML_HTMLorMML" type="text/javascript"></script>
 
 <script type="text/x-mathjax-config">
@@ -68,15 +68,15 @@
 </ul>
 
 <h3 id="14-回顾k-means-聚类">1.4 回顾：k-means 聚类</h3>
-<p><strong><span style="color:steelblue">k-means 算法描述：</span></strong><br />
-1.$\,$<strong>初始化：</strong> 随机选择 $k$ 个集群 <span style="color:red">中心</span><br />
-2.$\,$<strong>更新：</strong><br />
-$\qquad$a. <span style="color:red">分配数据点</span> 到最近的集群中心<br />
-$\qquad$b. 在当前的分配下，<span style="color:red">重新计算集群中心</span><br />
-3.$\,$<strong>终止：</strong> 如果集群中心没有发生变化，那么 <span style="color:purple">算法停止</span><br />
+<p><strong><span style="color:steelblue">k-means 算法描述：</span></strong>  <br />
+1.$\,$<strong>初始化：</strong> 随机选择 $k$ 个集群 <span style="color:red">中心</span>  <br />
+2.$\,$<strong>更新：</strong>  <br />
+$\qquad$a. <span style="color:red">分配数据点</span> 到最近的集群中心  <br />
+$\qquad$b. 在当前的分配下，<span style="color:red">重新计算集群中心</span>  <br />
+3.$\,$<strong>终止：</strong> 如果集群中心没有发生变化，那么 <span style="color:purple">算法停止</span>  <br />
 4.$\,$返回 <span style="color:purple">步骤 2</span></p>
 
-<p>选择典型的 $L_2$ 范数来表示距离。<br />
+<p>选择典型的 $L_2$ 范数来表示距离。  <br />
 K-means 仍然是最受欢迎的数据挖掘算法之一。</p>
 
 <p><img src="http://andy-blog.oss-cn-beijing.aliyuncs.com/blog/2020-02-25-WX20200225-164732%402x.png" /></p>
@@ -147,7 +147,7 @@ K-means 仍然是最受欢迎的数据挖掘算法之一。</p>
 
     <script type="math/tex; mode=display">p(\boldsymbol x)\equiv \sum_{j=1}^{k}w_j \mathcal N(\boldsymbol x|\boldsymbol{\mu}_j,\mathbf{\Sigma}_j)\equiv \sum_{j=1}^{k}p(\boldsymbol C_j)p(\boldsymbol x|\boldsymbol C_j)</script>
   </li>
-  <li><script type="math/tex">p(\boldsymbol x|\boldsymbol C_j)\equiv \mathcal N(\boldsymbol x|\boldsymbol{\mu}_j,\mathbf{\Sigma}_j)</script>
+  <li><script type="math/tex">p(\boldsymbol x|\boldsymbol C_j)\equiv \mathcal N(\boldsymbol x|\boldsymbol{\mu}_j,\mathbf{\Sigma}_j)</script><br />
 是类别 $j$ 的类别 / 组分条件密度（建模为高斯分布）</li>
   <li>这里，$p(\boldsymbol C_j)\ge 0$，并且 $\sum_{j=1}^{k}p(\boldsymbol C_j)=1$</li>
   <li>模型的参数为 $p(\boldsymbol C_j),\boldsymbol \mu_j,\mathbf{\Sigma}_j$，其中 $j=1,…,k$</li>
@@ -157,13 +157,13 @@ K-means 仍然是最受欢迎的数据挖掘算法之一。</p>
 
 <p><strong><center><span style="font-size:10pt">出于可视化的目的，混合与单独组分密度经过了缩放处理</span></center></strong></p>
 
-<p><strong><span style="color:steelblue">思考：</span></strong> 考虑一个 3D 数据的 GMM 模型，该模型包含 5 个组分。请问该模型有多少个独立的 <span style="color:red">标量参数</span>？<br />
-<br />
-请注意，这里要求独立的标量参数。<br />
-对于某个集群 <script type="math/tex">\boldsymbol C_j\;(j=1,...,5)</script> 而言：<br />
-首先，3D 数据的协方差矩阵 <script type="math/tex">\mathbf{\Sigma}_j</script> 是一个 <script type="math/tex">3\times 3</script> 的对称矩阵，所以有 6 个（对角线 + 某一侧的元素）不同的标量参数；<br />
-然后，均值 <script type="math/tex">\boldsymbol{\mu}_j</script> 是一个 <script type="math/tex">3 \times 1</script> 的向量，所以有 3 个不同的标量参数；<br />
-最后，每个集群 <script type="math/tex">\boldsymbol C_j\;(j=1,...,5)</script> 对应一个权重参数 $w_j$（即该集群对应的概率），但是由于存在归一化约束 <script type="math/tex">\sum_{j=1}^{5}w_j=1</script>，所以，权重的独立标量个数为 4 个（最后一个权重可以用 1 减去其余权重之和表示）；<br />
+<p><strong><span style="color:steelblue">思考：</span></strong> 考虑一个 3D 数据的 GMM 模型，该模型包含 5 个组分。请问该模型有多少个独立的 <span style="color:red">标量参数</span>？  <br />
+<br /><br />
+请注意，这里要求独立的标量参数。  <br />
+对于某个集群 <script type="math/tex">\boldsymbol C_j\;(j=1,...,5)</script> 而言：  <br />
+首先，3D 数据的协方差矩阵 <script type="math/tex">\mathbf{\Sigma}_j</script> 是一个 <script type="math/tex">3\times 3</script> 的对称矩阵，所以有 6 个（对角线 + 某一侧的元素）不同的标量参数；  <br />
+然后，均值 <script type="math/tex">\boldsymbol{\mu}_j</script> 是一个 <script type="math/tex">3 \times 1</script> 的向量，所以有 3 个不同的标量参数；  <br />
+最后，每个集群 <script type="math/tex">\boldsymbol C_j\;(j=1,...,5)</script> 对应一个权重参数 $w_j$（即该集群对应的概率），但是由于存在归一化约束 <script type="math/tex">\sum_{j=1}^{5}w_j=1</script>，所以，权重的独立标量个数为 4 个（最后一个权重可以用 1 减去其余权重之和表示）；  <br />
 因此，该模型独立的标量参数的个数为 <script type="math/tex">6 \times 5+3\times 5+1\times 4=49</script></p>
 
 <h3 id="25-聚类的模型估计">2.5 聚类的模型估计</h3>
@@ -184,7 +184,7 @@ K-means 仍然是最受欢迎的数据挖掘算法之一。</p>
 
     <script type="math/tex; mode=display">p(\boldsymbol x_1,...,\boldsymbol x_n)=\prod_{i=1}^{n}\sum_{j=1}^{k}p(\boldsymbol C_j)p(\boldsymbol x_i|\boldsymbol C_j)</script>
 
-    <p>其中，
+    <p>其中，<br />
 <script type="math/tex">p(\boldsymbol x|\boldsymbol C_j)\equiv \mathcal N(\boldsymbol x|\boldsymbol \mu_j,\mathbf \Sigma_j)</script></p>
 
     <p>我们可以对其解析求解吗？</p>
@@ -209,9 +209,9 @@ K-means 仍然是最受欢迎的数据挖掘算法之一。</p>
   </li>
   <li>然而，存在一些问题：
     <ol>
-      <li>有时我们 <span style="color:red">没有观测到</span> 其中一些计算对数似然所需的变量<br />
+      <li>有时我们 <span style="color:red">没有观测到</span> 其中一些计算对数似然所需的变量  <br />
  例如：我们并不能预先知道 GMM 集群归属</li>
-      <li>有时对数似然的形式处理起来不方便<br />
+      <li>有时对数似然的形式处理起来不方便  <br />
  例如：对一个 GMM 对数似然求导，会得到一个很麻烦的等式</li>
     </ol>
   </li>
@@ -234,12 +234,12 @@ K-means 仍然是最受欢迎的数据挖掘算法之一。</p>
 </ul>
 
 <h3 id="33-期望最大化em算法">3.3 期望最大化（EM）算法</h3>
-<p><strong><span style="color:steelblue">EM 算法描述：</span></strong><br />
-1.$\,$初始化步骤：<br />
-$\qquad$初始化 $K$ 个集群：$\boldsymbol C_1,…,\boldsymbol C_K$<br />
-$\qquad$对于每个集群 $j$，都有参数 $(\boldsymbol \mu_j,\mathbf \Sigma_j)$ 和 $p(\boldsymbol C_j)$<br />
-2.$\,$迭代步骤：<br />
-$\qquad$a. 估计每个数据点的所属集群 $p(\boldsymbol C_j|\boldsymbol x_i)$ $\qquad \color{blue}{\Longrightarrow} \qquad$ <span style="color:red">期望</span><br />
+<p><strong><span style="color:steelblue">EM 算法描述：</span></strong>  <br />
+1.$\,$初始化步骤：  <br />
+$\qquad$初始化 $K$ 个集群：$\boldsymbol C_1,…,\boldsymbol C_K$  <br />
+$\qquad$对于每个集群 $j$，都有参数 $(\boldsymbol \mu_j,\mathbf \Sigma_j)$ 和 $p(\boldsymbol C_j)$  <br />
+2.$\,$迭代步骤：  <br />
+$\qquad$a. 估计每个数据点的所属集群 $p(\boldsymbol C_j|\boldsymbol x_i)$ $\qquad \color{blue}{\Longrightarrow} \qquad$ <span style="color:red">期望</span>  <br />
 $\qquad$b. 重新估计每个集群 $j$ 的参数 $(\boldsymbol \mu_j,\mathbf \Sigma_j)$ 和 $p(\boldsymbol C_j)$ $\qquad \color{blue}{\Longrightarrow} \qquad$ <span style="color:red">最大化  </span></p>
 
 <h3 id="34-将-em-算法用于-gmm-和泛化">3.4 将 EM 算法用于 GMM 和泛化</h3>
@@ -251,7 +251,7 @@ $\qquad$b. 重新估计每个集群 $j$ 的参数 $(\boldsymbol \mu_j,\mathbf \S
   </li>
   <li>GMM 中的变量和参数分别是什么？
     <ul>
-      <li><strong>变量：</strong> 点的位置 $\boldsymbol X$ 和集群分配 $\boldsymbol Z$<br />
+      <li><strong>变量：</strong> 点的位置 $\boldsymbol X$ 和集群分配 $\boldsymbol Z$  <br />
 令 $z_i$ 表示每个数据点 $\boldsymbol x_i$ 的真实集群归属，在 $\boldsymbol z$ 已知的情况下，计算似然函数很简单</li>
       <li><strong>参数：</strong> $\boldsymbol \theta$ 表示集群的位置与大小</li>
     </ul>
@@ -302,7 +302,7 @@ $\qquad$b. 重新估计每个集群 $j$ 的参数 $(\boldsymbol \mu_j,\mathbf \S
 </ul>
 
 <h3 id="36-利用隐变量"><a name="anchor1"><span style="color:black">3.6 利用隐变量</span></a></h3>
-<p>我们希望最大化 $\log p(\boldsymbol X|\boldsymbol \theta)$，我们没有观测到 $\boldsymbol Z$（这里为离散），但我们仍然可以引入它。<br />
+<p>我们希望最大化 $\log p(\boldsymbol X|\boldsymbol \theta)$，我们没有观测到 $\boldsymbol Z$（这里为离散），但我们仍然可以引入它。  <br />
 <br /></p>
 
 <script type="math/tex; mode=display">% <![CDATA[
@@ -318,7 +318,7 @@ $\qquad$b. 重新估计每个集群 $j$ 的参数 $(\boldsymbol \mu_j,\mathbf \S
 
 <h3 id="37-最大化下界">3.7 最大化下界</h3>
 <ul>
-  <li>$\,$
+  <li>$\,$<br />
 <script type="math/tex">\log p(\boldsymbol X|\boldsymbol \theta)\ge \mathbb{E}_{\boldsymbol Z}\left[ \log p(\boldsymbol X,\boldsymbol Z|\boldsymbol \theta) \right] - \mathbb{E}_{\boldsymbol Z}\left[ \log p(\boldsymbol Z)\right]\\</script></li>
   <li>不等式右边的部分（Right Hand Side, RHS）是原始对数似然的一个 <span style="color:red">下界</span>
     <ul>
@@ -358,14 +358,14 @@ $\qquad$b. 重新估计每个集群 $j$ 的参数 $(\boldsymbol \mu_j,\mathbf \S
 <p><img src="http://andy-blog.oss-cn-beijing.aliyuncs.com/blog/2020-02-26-WX20200226-171022%402x.png" width="60%" /></p>
 
 <h3 id="39-em-作为迭代优化">3.9 EM 作为迭代优化</h3>
-<p><strong><span style="color:steelblue">EM 算法描述：</span></strong><br />
-1.$\,$<strong>初始化：</strong> 选择（随机）初始值 $\boldsymbol \theta^{(1)}$<br />
-2.$\,$<strong>更新：</strong><br />
-$\qquad$a. <span style="color:red">E 步骤：</span>计算 $Q\left(\boldsymbol \theta,\boldsymbol \theta^{(t)}\right)\equiv \mathbb E_{\boldsymbol Z|\boldsymbol X,\boldsymbol \theta^{(t)}}\left[\log p(\boldsymbol X,\boldsymbol Z| \boldsymbol \theta)\right]$<br />
-$\qquad$b. <span style="color:red">M 步骤：</span>$\boldsymbol \theta^{(t+1)}=\mathop{\operatorname{arg\,max}}\limits_{\boldsymbol \theta}Q\left(\boldsymbol \theta,\boldsymbol \theta^{(t)}\right)$<br />
-3.$\,$<strong>终止：</strong> 如果没有变化，那么 <span style="color:purple">算法停止</span><br />
-4.$\,$返回 <span style="color:purple">步骤 2</span><br />
-<br />
+<p><strong><span style="color:steelblue">EM 算法描述：</span></strong>  <br />
+1.$\,$<strong>初始化：</strong> 选择（随机）初始值 $\boldsymbol \theta^{(1)}$  <br />
+2.$\,$<strong>更新：</strong>  <br />
+$\qquad$a. <span style="color:red">E 步骤：</span>计算 $Q\left(\boldsymbol \theta,\boldsymbol \theta^{(t)}\right)\equiv \mathbb E_{\boldsymbol Z|\boldsymbol X,\boldsymbol \theta^{(t)}}\left[\log p(\boldsymbol X,\boldsymbol Z| \boldsymbol \theta)\right]$  <br />
+$\qquad$b. <span style="color:red">M 步骤：</span>$\boldsymbol \theta^{(t+1)}=\mathop{\operatorname{arg\,max}}\limits_{\boldsymbol \theta}Q\left(\boldsymbol \theta,\boldsymbol \theta^{(t)}\right)$  <br />
+3.$\,$<strong>终止：</strong> 如果没有变化，那么 <span style="color:purple">算法停止</span>  <br />
+4.$\,$返回 <span style="color:purple">步骤 2</span>  <br />
+<br /><br />
 <span style="color:red">该算法最终将会停止（收敛），但最终得到的估计值可能只是一个局部最大值</span></p>
 
 <h3 id="310-设定一个紧的下界">3.10 设定一个紧的下界</h3>

@@ -1,4 +1,4 @@
-I"5&<!-- 数学公式 -->
+I"M&<!-- 数学公式 -->
 <script src="https://cdn.mathjax.org/mathjax/latest/MathJax.js?config=TeX-AMS-MML_HTMLorMML" type="text/javascript"></script>
 
 <script type="text/x-mathjax-config">
@@ -37,11 +37,11 @@
 <h3 id="11-表示能力">1.1 表示能力</h3>
 <ul>
   <li>具有单个隐藏层的 ANN 是一个通用近似器</li>
-  <li>例如，这样的 ANN 可以表示任何布尔函数：<br /><br />
-$OR(x_1,x_2)\qquad \qquad u=g(x_1+x_2-0.5)$<br />
-$AND(x_1,x_2)\qquad \quad \; u=g(x_1+x_2-1.5)$<br />
-$NOT(x_1)\qquad \qquad\;\; u=g(-x_1)$<br />
-如果 $r\ge 0$，那么$g(r)=1$；否则，$g(r)=0$<br />
+  <li>例如，这样的 ANN 可以表示任何布尔函数：<br />  <br />
+$OR(x_1,x_2)\qquad \qquad u=g(x_1+x_2-0.5)$  <br />
+$AND(x_1,x_2)\qquad \quad \; u=g(x_1+x_2-1.5)$  <br />
+$NOT(x_1)\qquad \qquad\;\; u=g(-x_1)$  <br />
+如果 $r\ge 0$，那么$g(r)=1$；否则，$g(r)=0$  <br />
 <br /></li>
   <li>任何具有 $m$ 个变量的布尔函数都可以由一个最多包含 $2^m$ 个元素的隐藏层实现</li>
   <li>更有效的做法是将几个隐藏层堆叠起来</li>
@@ -57,8 +57,8 @@ $NOT(x_1)\qquad \qquad\;\; u=g(-x_1)$<br />
 <h3 id="13-深度-ann-作为表示学习">1.3 深度 ANN 作为表示学习</h3>
 <ul>
   <li>连续层构成了越来越复杂的输入的表示</li>
-  <li>ANN 可以具有简单的线性输出层，但可以使用复杂的非线性来表示<br /><br />
-$\boldsymbol z=\text{tanh}\left(\boldsymbol D’\left(\text{tanh}\left(\boldsymbol C’\left(\text{tanh}\left(\boldsymbol B’\left(\text{tanh}(\boldsymbol A’\boldsymbol x)\right)\right)\right)\right)\right)\right)$<br />
+  <li>ANN 可以具有简单的线性输出层，但可以使用复杂的非线性来表示<br />  <br />
+$\boldsymbol z=\text{tanh}\left(\boldsymbol D’\left(\text{tanh}\left(\boldsymbol C’\left(\text{tanh}\left(\boldsymbol B’\left(\text{tanh}(\boldsymbol A’\boldsymbol x)\right)\right)\right)\right)\right)\right)$  <br />
 <br /></li>
   <li>等效地，一个隐藏层可以被视为转换后的特征空间，例如：$\boldsymbol u=\varphi(\boldsymbol x)$</li>
   <li>这种转换的参数是从数据中学习到的</li>
@@ -76,7 +76,7 @@ $\boldsymbol z=\text{tanh}\left(\boldsymbol D’\left(\text{tanh}\left(\boldsymb
 <h3 id="15-深度-vs-宽度">1.5 深度 vs. 宽度</h3>
 <ul>
   <li>理论上，一个宽度无限的单层给出了一个通用近似器</li>
-  <li>然而，（从经验上看）深度可以产生更精确的模型<br />
+  <li>然而，（从经验上看）深度可以产生更精确的模型  <br />
 从眼睛上获得的生物学灵感：
     <ul>
       <li>首先检测小边缘和色块</li>
@@ -138,7 +138,7 @@ $\boldsymbol z=\text{tanh}\left(\boldsymbol D’\left(\text{tanh}\left(\boldsymb
 
 <h3 id="27-通过最大池化进行下采样">2.7 通过最大池化进行下采样</h3>
 <ul>
-  <li>特殊类型的处理层。对于一个 $m\times m$ 的块：<br />
+  <li>特殊类型的处理层。对于一个 $m\times m$ 的块：  <br />
 $v=\max(u_{11},u_{12},…,u_{mm})$</li>
   <li>严格来说，并非处处可微的。相反，梯度是根据 “子梯度” 定义的。
     <ul>
@@ -177,7 +177,7 @@ $v=\max(u_{11},u_{12},…,u_{mm})$</li>
 <h3 id="32-自动编码器的拓扑结构">3.2 自动编码器的拓扑结构</h3>
 <ul>
   <li>给定一些无标签数据 $\boldsymbol x_1,…,\boldsymbol x_n$，设置 $\boldsymbol y_i\equiv\boldsymbol x_i$，并且训练一个 ANN 来预测 $\boldsymbol z(\boldsymbol x_i)\approx\boldsymbol x_i$</li>
-  <li>设置 <strong>瓶颈层</strong> $\boldsymbol u$，使得中间比输入层 “窄”<br />
+  <li>设置 <strong>瓶颈层</strong> $\boldsymbol u$，使得中间比输入层 “窄”<br /><br />
 <img src="https://tva1.sinaimg.cn/large/006y8mN6ly1g8mftu0m2wj30sk0jywkj.jpg" width="65%" /></li>
 </ul>
 

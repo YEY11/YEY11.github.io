@@ -1,4 +1,5 @@
-I"�.<!-- 数学公式 -->
+I"
+/<!-- 数学公式 -->
 <script src="https://cdn.mathjax.org/mathjax/latest/MathJax.js?config=TeX-AMS-MML_HTMLorMML" type="text/javascript"></script>
 
 <script type="text/x-mathjax-config">
@@ -26,7 +27,7 @@
 
     <ul>
       <li>根据给定数据选择最有可能的类别</li>
-      <li>$\Pr(Y|X_1,…,X_d)=\dfrac{\Pr(Y,X_1,…,X_d)}{\Pr(X_1,…,X_d)}=\dfrac{\Pr(Y,X_1,…,X_d)}{\sum_y\Pr(Y=y,X_1,…,X_d)}$<br />
+      <li>$\Pr(Y|X_1,…,X_d)=\dfrac{\Pr(Y,X_1,…,X_d)}{\Pr(X_1,…,X_d)}=\dfrac{\Pr(Y,X_1,…,X_d)}{\sum_y\Pr(Y=y,X_1,…,X_d)}$  <br />
 <br /></li>
     </ul>
   </li>
@@ -37,7 +38,7 @@
 
     <ul>
       <li>给定观测 $X=x$，更新后验</li>
-      <li>$\Pr(\theta |X)=\dfrac{\Pr(\theta,X)}{\Pr(X)}=\dfrac{\Pr(\theta,X)}{\sum_{\theta}Pr(\theta,X)}$<br />
+      <li>$\Pr(\theta |X)=\dfrac{\Pr(\theta,X)}{\Pr(X)}=\dfrac{\Pr(\theta,X)}{\sum_{\theta}Pr(\theta,X)}$  <br />
 <br /></li>
     </ul>
   </li>
@@ -52,7 +53,7 @@
     <p><img src="http://andy-blog.oss-cn-beijing.aliyuncs.com/blog/2020-02-23-WX20200223-170414%402x.png" width="45%" /></p>
   </li>
   <li>
-    <p>需要求解的概率为<br />
+    <p>需要求解的概率为  <br />
 <script type="math/tex">% <![CDATA[
 \begin{align}
 \Pr(HT|AS=t) &= \dfrac{\Pr(HT,AS=t)}{\Pr(AS=t)} \\
@@ -60,7 +61,7 @@
 \end{align} %]]></script></p>
   </li>
   <li>
-    <p><span style="color:steelblue">分子部分</span>（分母部分类似）<br />
+    <p><span style="color:steelblue">分子部分</span>（分母部分类似）  <br />
 <script type="math/tex">% <![CDATA[
 \begin{align}
 & 展开累加求和项，联合 \,\color{red}{2^5 \,个表格的累加求和}\\
@@ -131,22 +132,22 @@
 
 <ul>
   <li>
-    <p><strong><span style="color:steelblue">算法：从联合分布中采样一次</span></strong><br />
-1.$\,$在子节点之前，先对父母节点排序（拓扑排序）<br />
-2.$\,$重复：<br />
-$\qquad$ a. 对于每个节点 $X_i$：<br />
-$\qquad \qquad$ I.$\;$ 用父母节点的值来索引到 $\Pr(X_i|parents(X_i))$<br />
-$\qquad \qquad$ II. 从该分布中采样 $X_i$<br />
-$\qquad$ b. 合并后的 $\boldsymbol X=(X_1,…,X_d)$ 是一个来自联合分布的样本
+    <p><strong><span style="color:steelblue">算法：从联合分布中采样一次</span></strong>  <br />
+1.$\,$在子节点之前，先对父母节点排序（拓扑排序）  <br />
+2.$\,$重复：  <br />
+$\qquad$ a. 对于每个节点 $X_i$：  <br />
+$\qquad \qquad$ I.$\;$ 用父母节点的值来索引到 $\Pr(X_i|parents(X_i))$  <br />
+$\qquad \qquad$ II. 从该分布中采样 $X_i$  <br />
+$\qquad$ b. 合并后的 $\boldsymbol X=(X_1,…,X_d)$ 是一个来自联合分布的样本<br />
 <br /></p>
   </li>
   <li>
-    <p><strong><span style="color:steelblue">算法：从 $\Pr(X_Q|X_E=x_E)$ 中采样</span></strong><br />
-1.$\,$在子节点之前，先对父母节点排序<br />
-2.$\,$初始化一个空集 $S$，重复：<br />
-$\qquad$ a. 从联合分布中采样 $\boldsymbol X$<br />
-$\qquad$ b. 如果 $X_E=x_E$，那么将 $X_Q$ 加进 $S$<br />
-3.$\,$返回：$S$ 的直方图，通过除以 $|S|$ 对数量进行归一化
+    <p><strong><span style="color:steelblue">算法：从 $\Pr(X_Q|X_E=x_E)$ 中采样</span></strong>  <br />
+1.$\,$在子节点之前，先对父母节点排序  <br />
+2.$\,$初始化一个空集 $S$，重复：  <br />
+$\qquad$ a. 从联合分布中采样 $\boldsymbol X$  <br />
+$\qquad$ b. 如果 $X_E=x_E$，那么将 $X_Q$ 加进 $S$  <br />
+3.$\,$返回：$S$ 的直方图，通过除以 $|S|$ 对数量进行归一化<br />
 <br /></p>
   </li>
   <li>
@@ -243,8 +244,8 @@ $\qquad$ b. 如果 $X_E=x_E$，那么将 $X_Q$ 加进 $S$<br />
     <ul>
       <li>只能最大化观测数据的似然函数</li>
       <li>通过边缘化完全联合分布来得到我们所期望的 “部分” 联合分布</li>
-      <li>$\,$<br />
-<script type="math/tex">\mathop{\operatorname{arg\,max}}\limits_{\theta \in \Theta}\prod_{i=1}^{n}\sum_{\text{latent } j}\prod_{j}p\left(X^j=x_i^j|X^{parents(j)}=x_i^{parents(j)}\right)</script><br />
+      <li>$\,$  <br />
+<script type="math/tex">\mathop{\operatorname{arg\,max}}\limits_{\theta \in \Theta}\prod_{i=1}^{n}\sum_{\text{latent } j}\prod_{j}p\left(X^j=x_i^j|X^{parents(j)}=x_i^{parents(j)}\right)</script>  <br />
 $\,$</li>
       <li>上面这个式子不能被分解</li>
     </ul>

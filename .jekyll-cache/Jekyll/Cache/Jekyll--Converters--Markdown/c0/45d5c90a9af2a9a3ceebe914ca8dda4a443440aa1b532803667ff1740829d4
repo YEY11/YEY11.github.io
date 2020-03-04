@@ -1,4 +1,4 @@
-I"�w<!-- 数学公式 -->
+I"Nx<!-- 数学公式 -->
 <script src="https://cdn.mathjax.org/mathjax/latest/MathJax.js?config=TeX-AMS-MML_HTMLorMML" type="text/javascript"></script>
 
 <script type="text/x-mathjax-config">
@@ -84,7 +84,7 @@
   <li>对于大多数 NLP 应用，我们的输入都是文档：
     <ul>
       <li>
-        <p>$“This\; movie\; is\; so\; great!!!\; U\; should\; definitely\; watch\; it\; in\; the\; theater!\; Best\; sci\text{-}fi$<br />
+        <p>$“This\; movie\; is\; so\; great!!!\; U\; should\; definitely\; watch\; it\; in\; the\; theater!\; Best\; sci\text{-}fi$  <br />
 $eva!”\to$ 😀</p>
 
         <p>在这个例子中，我们有一个情感预测任务：我们有一条用户评论，然后我们需要对其进行情感预测以便对电影进行评分。</p>
@@ -185,7 +185,7 @@ $eva!”\to$ 😀</p>
   <li>一些亚洲语言的文字之间没有空格</li>
   <li>在中文中，一个词通常对应多个字符</li>
   <li>
-    <p>例如：
+    <p>例如：<br />
 <img src="http://andy-blog.oss-cn-beijing.aliyuncs.com/blog/2020-03-03-WX20200303-135044%402x.png" width="52%" /></p>
   </li>
   <li>标准方法假设一个词是现有词汇</li>
@@ -211,9 +211,9 @@ $eva!”\to$ 😀</p>
 
 <h3 id="33-德语分词">3.3 德语分词</h3>
 <ul>
-  <li>德语中可能存在一些非常长的复合词（compound），例如：<br />
-$Lebensversicherungsgesellschaftsangestellter$<br />
-翻译过来的意思为：<br />
+  <li>德语中可能存在一些非常长的复合词（compound），例如：  <br />
+$Lebensversicherungsgesellschaftsangestellter$  <br />
+翻译过来的意思为：  <br />
 $life\; insurance\; company \;employee$<em>（人寿保险公司员工）</em></li>
   <li>所以，假如我们仅仅采用空格分词的话，将会导致我们的词汇表变得非常大，因此，我们需要一个 <strong>复合词分离器（compound splitter）</strong></li>
 </ul>
@@ -236,11 +236,11 @@ $life\; insurance\; company \;employee$<em>（人寿保险公司员工）</em></
 <p>Subword 分词在目前非常流行，原因有很多，其中之一是因为很多深度学习方法已经开始采用这种分词技术，并取得了很好的结果。另外，Subword 分词还具有以下这些优势：</p>
 
 <ul>
-  <li><strong>数据信息分词（Data-informed tokenisation）</strong><br />
+  <li><strong>数据信息分词（Data-informed tokenisation）</strong>  <br />
 Subword 分词是一种数据驱动的分词策略，它不需要使用者具备任何语言学知识，我们只需要一个大的语料库，然后在上面进行训练即可。</li>
-  <li><strong>适用于不同的语言</strong><br />
+  <li><strong>适用于不同的语言</strong>  <br />
 我们将在后面介绍一种用于 Subword 分词的流行算法：<strong>Byte-Pair Encoding（BPE）</strong>，正如它的名字一样，BPE 算法运行在 byte 级别上，与具体的语言种类无关。</li>
-  <li><strong>能够更好地处理未知词汇</strong><br />
+  <li><strong>能够更好地处理未知词汇</strong>  <br />
 当遇到未知词汇时，BPE 算法会将它们拆分为单个字符，所以我们不会因为未知词汇而困扰。</li>
 </ul>
 
@@ -269,7 +269,7 @@ Subword 分词是一种数据驱动的分词策略，它不需要使用者具备
   </li>
 </ul>
 
-<p>首先，找出字典中出现频率最高字符对，并且将它们合并后添加到词汇表中。<br />
+<p>首先，找出字典中出现频率最高字符对，并且将它们合并后添加到词汇表中。  <br />
 例如，示例中的 “r_” 字符对一共出现了 3 + 6 = 9 次，所以我们将其合并后加入词汇表中：</p>
 
 <ul>
@@ -289,7 +289,7 @@ Subword 分词是一种数据驱动的分词策略，它不需要使用者具备
   </li>
 </ul>
 
-<p>重复上面的过程。<br />
+<p>重复上面的过程。  <br />
 例如，示例中的 “er_” 字符对也出现了 9 次，将其合并后加入词汇表中：</p>
 
 <ul>
@@ -383,8 +383,8 @@ Subword 分词是一种数据驱动的分词策略，它不需要使用者具备
   </li>
   <li>很多其他语言中有着比英语更加丰富的屈折形态
     <ul>
-      <li>例如法语中，名词和冠词也会受到性别的影响：<br />
-$un \;chat$：一只（公）猫<br />
+      <li>例如法语中，名词和冠词也会受到性别的影响：  <br />
+$un \;chat$：一只（公）猫  <br />
 $une\;chatte$：一只（母）猫</li>
     </ul>
   </li>
@@ -433,16 +433,16 @@ $une\;chatte$：一只（母）猫</li>
   <li><strong>词干提取（Stemming）</strong> 会去除所有的后缀，只保留 <em>stem（主干）</em>。</li>
   <li>stem 和 lemma 很相似，但二者并不相同。<strong>stem 通常不是一个词汇项（lexical item）</strong>，事实上，通常你不会在词典中找到它。
     <ul>
-      <li>例如：$automate,\;automatic,\;automation\to automat$<br />
+      <li>例如：$automate,\;automatic,\;automation\to automat$  <br />
 可以看见，上面左边的 3 个词都属于派生形态，词形还原（Lemmatisation）并不会对它们进行处理，但是词干提取（Stemming）会将它们都转换成同一个 stem（$automat$，虽然这并不是一个合法的英文单词）。</li>
       <li>通常并不是实际的词汇项</li>
     </ul>
   </li>
-  <li><strong>词汇稀疏性（lexical sparsity）比 lemmatisation 还要低</strong><br />
+  <li><strong>词汇稀疏性（lexical sparsity）比 lemmatisation 还要低</strong>  <br />
 即经过 stemming 处理后，词汇表（Vocabullary）会进一步缩小。</li>
-  <li><strong>常用于信息检索（Information Retrieval）</strong><br />
+  <li><strong>常用于信息检索（Information Retrieval）</strong>  <br />
 因为在信息检索中，你永远不需要将这些 stem 呈现给用户，搜索引擎只需要返回相关性最高的文档（document）给用户即可。</li>
-  <li><strong>Stem 并不总是可翻译的</strong><br />
+  <li><strong>Stem 并不总是可翻译的</strong>  <br />
 在一些像机器翻译之类的应用中，输出是对用户可见的。因此，我们希望它们是有意义的，但是并不是所有的 stem 都是合法的单词。</li>
 </ul>
 
@@ -452,9 +452,9 @@ $une\;chatte$：一只（母）猫</li>
   <li>只适用于英文，实际上，词干提取任务是和语言种类密切相关的。</li>
   <li>分阶段应用 <em>重写规则（rewrite rules）</em>
     <ul>
-      <li>首先，去除 <em>屈折后缀（inflectional suffixes）</em><br />
+      <li>首先，去除 <em>屈折后缀（inflectional suffixes）</em>  <br />
 例如：$\text{-}ies \to \text{-}i$</li>
-      <li>然后，去除 <em>派生后缀（derivational suffixes）</em><br />
+      <li>然后，去除 <em>派生后缀（derivational suffixes）</em>  <br />
 例如：$\text{-}isation\to \text{-}ies \to \text{-}i$</li>
     </ul>
   </li>
@@ -498,37 +498,37 @@ $une\;chatte$：一只（母）猫</li>
 
 <p>现在，我们来看一下具体的 <strong>规则</strong>，了解 Porter Stemmer 算法是如何工作的：</p>
 <ul>
-  <li><strong>规则格式：（条件）S1 $\to$ S2</strong><br />
-规则很简单，我们有一个前置条件，然后将规则 S1 改写为 S2。<br />
+  <li><strong>规则格式：（条件）S1 $\to$ S2</strong>  <br />
+规则很简单，我们有一个前置条件，然后将规则 S1 改写为 S2。  <br />
 注意：这里判断前置条件时只考虑原单词中 S1 之前的部分（即不包括 S1 部分）。</li>
   <li>例如，我们可以将规则设定为：（m &gt; 1）EMENT $\to$ null
     <ul>
-      <li>以单词 REPLACEMENT 为例，在此规则下我们计算 RELPAC 部分的 m 值：<br />
+      <li>以单词 REPLACEMENT 为例，在此规则下我们计算 RELPAC 部分的 m 值：  <br />
 <span style="color:green">R</span><span style="color:red">E</span><span style="color:green">PL</span><span style="color:red">A</span><span style="color:green">C</span> = <span style="color:green">C</span><span style="color:red">V</span><span style="color:green">C</span><span style="color:red">V</span><span style="color:green">C</span> = <span style="color:green">C</span> (<span style="color:red">V</span><span style="color:green">C</span>)<sup>2</sup> $\to$ m = 2 &gt; 1</li>
-      <li>满足规则重写的条件，我们最终得到的 stem 为：<br />
+      <li>满足规则重写的条件，我们最终得到的 stem 为：  <br />
 REPLAC<span style="color:steelblue">EMENT</span> $\to$ REPLAC</li>
     </ul>
   </li>
   <li>总是使用能够匹配到的最长的 S1
     <ul>
-      <li>例如，制定如下规则：<br />
-SSES $\to$ SS<br />
-IES $\to$ I<br />
-SS $\to$ SS<br />
+      <li>例如，制定如下规则：  <br />
+SSES $\to$ SS  <br />
+IES $\to$ I  <br />
+SS $\to$ SS  <br />
 S $\to$ null</li>
-      <li>在此规则下的一些例子：<br />
-CARE<span style="color:steelblue">SSES</span> $\to$ CARE<span style="color:steelblue">SS</span><br />
-CARE<span style="color:steelblue">SS</span> $\to$ CARE<span style="color:steelblue">SS</span><br />
+      <li>在此规则下的一些例子：  <br />
+CARE<span style="color:steelblue">SSES</span> $\to$ CARE<span style="color:steelblue">SS</span>  <br />
+CARE<span style="color:steelblue">SS</span> $\to$ CARE<span style="color:steelblue">SS</span>  <br />
 CARE<span style="color:steelblue">S</span> $\to$ CARE</li>
     </ul>
   </li>
 </ul>
 
-<p><strong>Porter Stemmer 一共分为下面 5 个步骤：</strong><br />
+<p><strong>Porter Stemmer 一共分为下面 5 个步骤：</strong>  <br />
 表格中的正例（Positive Example）代表规则中的条件满足的情况；负例（Negative Example）代表规则中的条件不满足的情况。</p>
 <ul>
   <li>
-    <p><strong>步骤 1:</strong> 处理屈折形态变体（Inflectional Morphology Variants）<br />
+    <p><strong>步骤 1:</strong> 处理屈折形态变体（Inflectional Morphology Variants）  <br />
 例如：复数（plurals）和过去分词（past participles）</p>
 
     <p><img src="http://andy-blog.oss-cn-beijing.aliyuncs.com/blog/2020-03-03-WX20200304-000642%402x.png" width="80%" /></p>
@@ -564,9 +564,9 @@ CARE<span style="color:steelblue">S</span> $\to$ CARE</li>
 <ul>
   <li>为什么需要拼写纠错？
     <ul>
-      <li>拼写错误会创造新的、罕见的 types<br />
+      <li>拼写错误会创造新的、罕见的 types  <br />
 如果有很多拼写错误，将导致词汇表变得很大，并且里面很多罕见词汇，这种情况是我们不希望看到的。</li>
-      <li>拼写错误会破坏各种语言分析<br />
+      <li>拼写错误会破坏各种语言分析  <br />
 如今，纠正拼写错误正变得越来越重要，因为越来越多的人们将他们的内容或者数据上传到网络上（例如：维基百科），这些由人们书写的内容很可能会产生拼写错误，而一些编辑器并不会处理它们。</li>
       <li>在互联网语料库中非常常见</li>
       <li>在网络搜索中，对于查询语句（queries）的拼写纠错尤其重要</li>
@@ -574,11 +574,11 @@ CARE<span style="color:steelblue">S</span> $\to$ CARE</li>
   </li>
   <li>如何实现拼写纠错？
     <ul>
-      <li><strong>字符串距离</strong>（例如：Levenshtein 距离等等）<br />
+      <li><strong>字符串距离</strong>（例如：Levenshtein 距离等等）  <br />
 我们可以构建一个字典，计算错误单词与字典中单词的字符串距离，并将其替换为字典中距离最近的单词。</li>
-      <li><strong>对错误的 types 进行建模</strong>（例如：phonetic、typing 等等）<br />
+      <li><strong>对错误的 types 进行建模</strong>（例如：phonetic、typing 等等）  <br />
 如果你是一名语言学家，你可以做更多的事情。你可以对一些人们容易犯的拼写错误 types 进行建模从而实现纠错。</li>
-      <li><strong>采用 n-gram 语言模型</strong><br />
+      <li><strong>采用 n-gram 语言模型</strong>  <br />
 或者，如果你倾向于数据驱动的解决方案，可以尝试语言模型。通常，语言模型可以用于文本生成任务。此外，如果一个语言模型是在字符级别（character level）上训练的，那么它也可以用于拼写纠错。</li>
     </ul>
   </li>
@@ -606,15 +606,15 @@ CARE<span style="color:steelblue">S</span> $\to$ CARE</li>
 <ul>
   <li>定义：需要被从文档中移除的词组成的一个列表
     <ul>
-      <li>在词袋（bag-of-words, BOW）表示的任务中很典型<br />
+      <li>在词袋（bag-of-words, BOW）表示的任务中很典型  <br />
 例如：搜索引擎</li>
-      <li>不适用于单词序列很重要的情况<br />
+      <li>不适用于单词序列很重要的情况  <br />
 例如：语言模型</li>
     </ul>
   </li>
   <li>如何选择停用词？
     <ul>
-      <li>所有 <em>封闭类型的</em> 或 <em>功能性的</em> 词<br />
+      <li>所有 <em>封闭类型的</em> 或 <em>功能性的</em> 词  <br />
 例如：$the,\; a,\; of,\; for,\; he,\;…$</li>
       <li>任何高频词</li>
       <li>NLTK, spaCy NLP toolkits</li>
@@ -639,7 +639,7 @@ CARE<span style="color:steelblue">S</span> $\to$ CARE</li>
       <li>(包括关于正则表达式和 Levenshtien 编辑距离的回顾内容)</li>
     </ul>
   </li>
-  <li>关于 Porter Stemmer 算法的具体细节请参考下面的链接：<br />
+  <li>关于 Porter Stemmer 算法的具体细节请参考下面的链接：  <br />
 <a href="http://snowball.tartarus.org/algorithms/porter/stemmer.html">http://snowball.tartarus.org/algorithms/porter/stemmer.html</a></li>
 </ul>
 

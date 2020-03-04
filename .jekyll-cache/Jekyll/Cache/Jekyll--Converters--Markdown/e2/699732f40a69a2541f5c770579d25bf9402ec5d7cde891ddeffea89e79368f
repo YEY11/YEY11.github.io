@@ -1,4 +1,4 @@
-I"�+<!-- 数学公式 -->
+I",<!-- 数学公式 -->
 <script src="https://cdn.mathjax.org/mathjax/latest/MathJax.js?config=TeX-AMS-MML_HTMLorMML" type="text/javascript"></script>
 
 <script type="text/x-mathjax-config">
@@ -29,9 +29,9 @@
 <p>考虑 $\boldsymbol u=[ u_1, u_2]’$，思考 $\boldsymbol u$ 在本质上代表着什么？</p>
 <ul>
   <li>一组数字的有序集合 <script type="math/tex">\{u_1, u_2\}</script></li>
-  <li>一个点的笛卡尔坐标<br />
+  <li>一个点的笛卡尔坐标  <br />
 <img src="http://andy-blog.oss-cn-beijing.aliyuncs.com/blog/2020-02-15-WX20200215-133248%402x.png" width="15%" /></li>
-  <li>一个方向<br />
+  <li>一个方向  <br />
 <img src="http://andy-blog.oss-cn-beijing.aliyuncs.com/blog/2020-02-15-WX20200215-133533%402x.png" width="15%" /></li>
 </ul>
 
@@ -51,7 +51,7 @@
 
 <h3 id="13-点积几何定义">1.3 点积：几何定义</h3>
 <ul>
-  <li>给定两个 $m$ 维的欧几里得向量 $\boldsymbol u$ 和 $\boldsymbol v$，它们的点积是 <script type="math/tex">\boldsymbol u \cdot \boldsymbol v \equiv \boldsymbol u' \boldsymbol v \equiv \| \boldsymbol u \|  \| \boldsymbol v \| \cos{\theta}</script><br />
+  <li>给定两个 $m$ 维的欧几里得向量 $\boldsymbol u$ 和 $\boldsymbol v$，它们的点积是 <script type="math/tex">\boldsymbol u \cdot \boldsymbol v \equiv \boldsymbol u' \boldsymbol v \equiv \| \boldsymbol u \|  \| \boldsymbol v \| \cos{\theta}</script>  <br />
 <img src="http://andy-blog.oss-cn-beijing.aliyuncs.com/blog/2020-02-15-WX20200215-140621%402x.png" width="25%" align="right" />
     <ul>
       <li><script type="math/tex">\| \boldsymbol u \|, \| \boldsymbol v \|</script> 是 <script type="math/tex">\boldsymbol u, \boldsymbol v</script> 的 $L_2$ 范数</li>
@@ -83,7 +83,7 @@
 <ul>
   <li>一个 <strong>超平面</strong> 由参数 $\boldsymbol w$ 和 $b$ 定义，它是点 $\boldsymbol x$ 的一个集合，满足 $\boldsymbol x’ \boldsymbol w+b=0$</li>
   <li>
-    <p>在 2 维空间中，一个超平面就是一条直线：该直线是一个点集，满足 $w_1x_1+w_2x_2+b=0$<br />
+    <p>在 2 维空间中，一个超平面就是一条直线：该直线是一个点集，满足 $w_1x_1+w_2x_2+b=0$  <br />
 <img src="http://andy-blog.oss-cn-beijing.aliyuncs.com/blog/2020-02-15-WX20200215-145608%402x.png" width="40%" /></p>
 
     <p>一个超平面的 <strong>法向量</strong> 是一个与该超平面垂直的向量。</p>
@@ -106,7 +106,7 @@
   <li><strong>2 维空间中的例子</strong>
     <ul>
       <li>考虑一条由 $w_1, w_2$ 和 $b$ 定义的一条直线</li>
-      <li>向量 $\boldsymbol w=[ w_1, w_2]’$ 是一个法向量<br />
+      <li>向量 $\boldsymbol w=[ w_1, w_2]’$ 是一个法向量  <br />
 <img src="http://andy-blog.oss-cn-beijing.aliyuncs.com/blog/2020-02-15-WX20200215-152912%402x.png" width="40%" /></li>
     </ul>
   </li>
@@ -116,7 +116,7 @@
 <p><strong>在解释矩阵和某些算法（例如：PCA）时非常有用</strong></p>
 <h3 id="21-线性组合独立性">2.1 线性组合，独立性</h3>
 <ul>
-  <li>关于 <span style="color:red;">向量空间</span> 的正式定义，请参考：<br />
+  <li>关于 <span style="color:red;">向量空间</span> 的正式定义，请参考：  <br />
 <a href="https://en.wikipedia.org/wiki/Vector_space#Definition">https://en.wikipedia.org/wiki/Vector_space#Definition</a></li>
   <li>向量 $v_1,…,v_k\in V$（某向量空间）的一个 <span style="color:red;">线性组合</span>，是一个新的向量 $\sum_{i=1}^{k}a_iv_i$，其中，$a_1,…,a_k$ 是一些标量。</li>
   <li>
