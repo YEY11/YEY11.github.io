@@ -1,4 +1,4 @@
-I"8N<!-- 数学公式 -->
+I""N<!-- 数学公式 -->
 <script src="https://cdn.mathjax.org/mathjax/latest/MathJax.js?config=TeX-AMS-MML_HTMLorMML" type="text/javascript"></script>
 
 <script type="text/x-mathjax-config">
@@ -96,7 +96,7 @@
       <li>计算任何涉及这些随机变量的其他分布</li>
     </ul>
   </li>
-  <li>模式：已有联合分布，希望得到一个分布  <br />
+  <li>模式：已有联合分布，希望得到一个分布<br />
 利用：<span style="color:steelblue">贝叶斯规则</span> + <span style="color:red">边缘化</span></li>
   <li><strong>例子：朴素贝叶斯分类器</strong>
     <ul>
@@ -122,11 +122,11 @@
   <li><strong>丑陋：</strong> 模型复杂度
     <ul>
       <li>太过灵活</li>
-      <li>太多参数需要拟合  <br />
+      <li>太多参数需要拟合<br />
 $\to$ 需要大量数据，否则会过拟合</li>
     </ul>
   </li>
-  <li>对抗手段：假设独立  <br />
+  <li>对抗手段：假设独立<br />
 <br /></li>
 </ul>
 
@@ -152,7 +152,7 @@ $\to$ 需要大量数据，否则会过拟合</li>
   </li>
   <li>迟到不独立于天气和老师
     <ul>
-      <li>需要考虑 $\Pr(\color{purple}{L}| \color{red}{T=t},\color{steelblue}{S=s})$ 的所有组合  <br />
+      <li>需要考虑 $\Pr(\color{purple}{L}| \color{red}{T=t},\color{steelblue}{S=s})$ 的所有组合<br />
 <img src="http://andy-blog.oss-cn-beijing.aliyuncs.com/blog/2020-02-22-WX20200222-163733%402x.png" width="50%" /></li>
     </ul>
   </li>
@@ -398,8 +398,8 @@ $\to$ 需要大量数据，否则会过拟合</li>
 
 <h3 id="32-hmm-应用">3.2 HMM 应用</h3>
 <ul>
-  <li>NLP - <span style="color:red">部分语音标记</span>：给定句子中的词，推断语音中的隐藏部分  <br />
-<br /><br />
+  <li>NLP - <span style="color:red">部分语音标记</span>：给定句子中的词，推断语音中的隐藏部分<br />
+<br />
 “I love Machine Learning” $\to$ noun, verb, noun, noun</li>
   <li>
     <p><span style="color:red">语音识别</span>：给定波形，确定音素</p>
@@ -484,15 +484,15 @@ $\to$ 需要大量数据，否则会过拟合</li>
 
     <ul>
       <li>
-        <p>两个类别状态为布尔的  <br />
+        <p>两个类别状态为布尔的<br />
 <img src="http://andy-blog.oss-cn-beijing.aliyuncs.com/blog/2020-02-22-WX20200223-003046%402x.png" width="20%" /></p>
       </li>
       <li>
-        <p>多个类别状态为离散的  <br />
+        <p>多个类别状态为离散的<br />
 <img src="http://andy-blog.oss-cn-beijing.aliyuncs.com/blog/2020-02-22-WX20200223-003054%402x.png" width="20%" /></p>
       </li>
       <li>
-        <p>去噪任务则为连续的  <br />
+        <p>去噪任务则为连续的<br />
 <img src="http://andy-blog.oss-cn-beijing.aliyuncs.com/blog/2020-02-22-WX20200223-003101%402x.png" width="20%" /></p>
       </li>
     </ul>

@@ -1,4 +1,4 @@
-I"�_<!-- 数学公式 -->
+I"�_<!-- 数学公式 -->
 <script src="https://cdn.mathjax.org/mathjax/latest/MathJax.js?config=TeX-AMS-MML_HTMLorMML" type="text/javascript"></script>
 
 <script type="text/x-mathjax-config">
@@ -43,7 +43,7 @@
     <ul>
       <li>将数据映射到一个新的特征空间</li>
       <li>在新的特征空间中运行硬间隔或者软间隔 SVM</li>
-      <li>决策边界在原始特征空间中是非线性的  <br />
+      <li>决策边界在原始特征空间中是非线性的<br />
 <img src="http://andy-blog.oss-cn-beijing.aliyuncs.com/blog/2020-02-14-WX20200214-133247%402x.png" width="80%" /></li>
     </ul>
   </li>
@@ -54,12 +54,12 @@
   <li>考虑一个二分类问题</li>
   <li>每个样本点具有特征 $[x_1, x_2]$</li>
   <li>
-    <p>非线性可分  <br />
+    <p>非线性可分<br />
 <img src="http://andy-blog.oss-cn-beijing.aliyuncs.com/blog/2020-02-14-WX20200214-133923%402x.png" width="40%" /></p>
   </li>
   <li>现在“增加”一个特征 $x_3=x_1^2+x_2^2$</li>
   <li>每个样本点现在为 $[x_1, x_2, x_1^2+x_2^2]$</li>
-  <li>现在数据变成线性可分了  <br />
+  <li>现在数据变成线性可分了<br />
 <img src="http://andy-blog.oss-cn-beijing.aliyuncs.com/blog/2020-02-14-WX20200214-134026%402x.png" width="40%" /></li>
 </ul>
 
@@ -203,20 +203,20 @@
     </ul>
   </li>
   <li>
-    <p><strong><span style="color:SteelBlue;">思考：</span></strong>  <br />
-<strong>1. 所有的用到了特征空间变换 $\varphi(\boldsymbol x)$ 的方法都用到了核函数吗？</strong>  <br />
-不是的，虽然对于 SVM 是这样，但是回忆之前 <a href="https://andy-tk.top/2019/11/08/%E7%BB%9F%E8%AE%A1%E6%9C%BA%E5%99%A8%E5%AD%A6%E4%B9%A004/">Lecture 04</a> 的内容，我们还在更为一般的条件下讨论过基扩展和特征映射，同样在神经网络中我们也可以使用特征映射。我们总是可以在进行特征映射之后应用机器学习算法，而有些算法并不需要涉及到点积的计算，记住核函数是对应于点积的，我们并不一定需要在机器学习中使用核函数。  <br />
+    <p><strong><span style="color:SteelBlue;">思考：</span></strong><br />
+<strong>1. 所有的用到了特征空间变换 $\varphi(\boldsymbol x)$ 的方法都用到了核函数吗？</strong><br />
+不是的，虽然对于 SVM 是这样，但是回忆之前 <a href="https://andy-tk.top/2019/11/08/%E7%BB%9F%E8%AE%A1%E6%9C%BA%E5%99%A8%E5%AD%A6%E4%B9%A004/">Lecture 04</a> 的内容，我们还在更为一般的条件下讨论过基扩展和特征映射，同样在神经网络中我们也可以使用特征映射。我们总是可以在进行特征映射之后应用机器学习算法，而有些算法并不需要涉及到点积的计算，记住核函数是对应于点积的，我们并不一定需要在机器学习中使用核函数。<br />
 <br /></p>
 
-    <p><strong>2. 支持向量是来自于训练集中的点吗？</strong>  <br />
+    <p><strong>2. 支持向量是来自于训练集中的点吗？</strong><br />
 是的，支持向量是训练的样本，它们具有 <strong>非零对偶变量</strong>（即拉格朗日乘子 $\lambda_i\ne 0$）。所以当我们用 SVM 进行预测时（参考 <a href="#anchor1.9">“1.9 核函数硬间隔 SVM”</a>）：</p>
 
     <script type="math/tex; mode=display">s=b^*+\sum_{i=1}^{n}\lambda_i^* y_i \color{red}{\underbrace{\fbox{$\color{black}{K(\boldsymbol x_i, \boldsymbol x)}$}}_{\text{核函数}}}</script>
 
-    <p>如果我们用对偶方程训练 SVM，我们不会得到任何 $w$，我们会得到很多不同的 $\lambda_i$，其中每一个都对应于一个训练样本，所有的 $\lambda_i$ 都要求非负（当然，其中很多可能为 $0$，这取决于你的数据和你所采用的特征映射），而其中那些 $\lambda_i$ 为 $0$ 的训练样本是那些落在最大间隔之外的点，它们并不 “支持着” 决策边界，因为 $\lambda_i$ 为 $0$ 会使得原始问题中约束条件失效，它们并不涉及 $w$ 的计算（事实上，它们并不涉及有关预测值的计算）。通过观察上面的式子，可以发现不论核函数 $K(\boldsymbol x_i, \boldsymbol x)$ 等于多少，只要 $x_i$ 对应的 $\lambda_i=0$，那么在求和时该项就会被消掉，这就是为什么 <strong>支持向量</strong> 非常重要的原因。它们之所以重要不是因为有一个时髦的名称，它们从实质上来帮助 SVM 进行预测，它们实际上是一些对于 SVM 的训练非常重要的样本。所以，如果在非支持向量的训练样本中存在一些噪声，通常不会对结果有什么影响；只有那些属于支持向量的训练样本是至关重要的。  <br />
+    <p>如果我们用对偶方程训练 SVM，我们不会得到任何 $w$，我们会得到很多不同的 $\lambda_i$，其中每一个都对应于一个训练样本，所有的 $\lambda_i$ 都要求非负（当然，其中很多可能为 $0$，这取决于你的数据和你所采用的特征映射），而其中那些 $\lambda_i$ 为 $0$ 的训练样本是那些落在最大间隔之外的点，它们并不 “支持着” 决策边界，因为 $\lambda_i$ 为 $0$ 会使得原始问题中约束条件失效，它们并不涉及 $w$ 的计算（事实上，它们并不涉及有关预测值的计算）。通过观察上面的式子，可以发现不论核函数 $K(\boldsymbol x_i, \boldsymbol x)$ 等于多少，只要 $x_i$ 对应的 $\lambda_i=0$，那么在求和时该项就会被消掉，这就是为什么 <strong>支持向量</strong> 非常重要的原因。它们之所以重要不是因为有一个时髦的名称，它们从实质上来帮助 SVM 进行预测，它们实际上是一些对于 SVM 的训练非常重要的样本。所以，如果在非支持向量的训练样本中存在一些噪声，通常不会对结果有什么影响；只有那些属于支持向量的训练样本是至关重要的。<br />
 <br /></p>
 
-    <p><strong>3. 我们总是可以通过特征映射 $\varphi(\boldsymbol x)$ 使得数据完美线性可分吗？</strong>  <br />
+    <p><strong>3. 我们总是可以通过特征映射 $\varphi(\boldsymbol x)$ 使得数据完美线性可分吗？</strong><br />
 不是的，假如我不告诉你关于数据的任何信息，可能存在两个不同的样本 $\boldsymbol x_i$ 对应相同的 $y_i$ 的情况，这是有可能发生的，其原因可能不是由于测量数据的方法导致的，它有可能是由于存在隐变量，或者 $y$ 的噪声导致的。所以，问题中的说法并不准确，更恰当的说法是：通常情况下，我们都可以通过特征映射 $\varphi(\boldsymbol x)$ 使得数据 <strong>更加</strong> 线性可分。</p>
   </li>
 </ul>
@@ -235,11 +235,11 @@
   <li>当分类正确时，权重不会更新</li>
   <li>当分类错误时：$\boldsymbol w^{k+1}=-\eta(\pm \boldsymbol x)$（其中，$\eta&gt;0$ 被称为 <strong>学习率</strong>）
     <ul>
-      <li>如果 $y=1$，但是 $s&lt;0$  <br />
-$w_i\leftarrow w_i+\eta x_i$  <br />
+      <li>如果 $y=1$，但是 $s&lt;0$<br />
+$w_i\leftarrow w_i+\eta x_i$<br />
 $w_0\leftarrow w_0+\eta$</li>
-      <li>如果 $y=-1$，但是 $s\ge 0$  <br />
-$w_i\leftarrow w_i-\eta x_i$  <br />
+      <li>如果 $y=-1$，但是 $s\ge 0$<br />
+$w_i\leftarrow w_i-\eta x_i$<br />
 $w_0\leftarrow w_0-\eta$</li>
     </ul>
   </li>
@@ -247,9 +247,9 @@ $w_0\leftarrow w_0-\eta$</li>
 
 <p>假设所有权重的初始值都设为 $0$</p>
 
-<p>第一次更新：$\boldsymbol w=\eta y_{i_1}\boldsymbol x_{i_1}$  <br />
-第二次更新：$\boldsymbol w=\eta y_{i_1}\boldsymbol x_{i_1}+\eta y_{i_2}\boldsymbol x_{i_2}$  <br />
-第三次更新：$\boldsymbol w=\eta y_{i_1}\boldsymbol x_{i_1}+\eta y_{i_2}\boldsymbol x_{i_2}+\eta y_{i_3}\boldsymbol x_{i_3}$  <br />
+<p>第一次更新：$\boldsymbol w=\eta y_{i_1}\boldsymbol x_{i_1}$<br />
+第二次更新：$\boldsymbol w=\eta y_{i_1}\boldsymbol x_{i_1}+\eta y_{i_2}\boldsymbol x_{i_2}$<br />
+第三次更新：$\boldsymbol w=\eta y_{i_1}\boldsymbol x_{i_1}+\eta y_{i_2}\boldsymbol x_{i_2}+\eta y_{i_3}\boldsymbol x_{i_3}$<br />
 …</p>
 
 <ul>
@@ -260,12 +260,12 @@ $w_0\leftarrow w_0-\eta$</li>
   <li>点积 $\boldsymbol x_i’\boldsymbol x$ 可以被替换为一个 <span style="color:red;">核函数</span></li>
 </ul>
 
-<p><strong><span style="color:SteelBlue;">算法描述：</span></strong>  <br />
-选择初始权重 $\boldsymbol w^{(0)}, k=0$  <br />
-设定 $\boldsymbol \alpha=\boldsymbol 0$  <br />
-对于 $t$ 从 $1$ 到 $T$（轮）：  <br />
-$\qquad$ 对于每个训练样本 <script type="math/tex">\{\boldsymbol x_i,y_i\}</script>：  <br />
-$\qquad \qquad$ 基于 <script type="math/tex">w_0+\sum_{j=1}^{n}\alpha_j y_j \color{red}{\underbrace{\fbox{$\color{black}{\boldsymbol x_i' \boldsymbol x_j}$}}_{\text{核矩阵} k_{ij}}}</script>  <br />
+<p><strong><span style="color:SteelBlue;">算法描述：</span></strong><br />
+选择初始权重 $\boldsymbol w^{(0)}, k=0$<br />
+设定 $\boldsymbol \alpha=\boldsymbol 0$<br />
+对于 $t$ 从 $1$ 到 $T$（轮）：<br />
+$\qquad$ 对于每个训练样本 <script type="math/tex">\{\boldsymbol x_i,y_i\}</script>：<br />
+$\qquad \qquad$ 基于 <script type="math/tex">w_0+\sum_{j=1}^{n}\alpha_j y_j \color{red}{\underbrace{\fbox{$\color{black}{\boldsymbol x_i' \boldsymbol x_j}$}}_{\text{核矩阵} k_{ij}}}</script><br />
 $\qquad \qquad$ 如果分类错误，<strong>更新</strong> $\alpha_i \leftarrow \alpha_i+1$</p>
 
 <h3 id="23-表示定理">2.3 表示定理</h3>
@@ -310,7 +310,7 @@ $\qquad \qquad$ 如果分类错误，<strong>更新</strong> $\alpha_i \leftarro
       <li>如果并非如此，将 $\sqrt{c}$ 作为哑变量特征添加到 $\boldsymbol u$ 和 $\boldsymbol v$</li>
     </ul>
   </li>
-  <li>推导如下：  <br />
+  <li>推导如下：<br />
 <script type="math/tex">% <![CDATA[
 \begin{eqnarray}
 (\boldsymbol u'\boldsymbol v)^d &=& (u_1v_1+\cdots+u_mv_m)(u_1v_1+\cdots+u_mv_m)...(u_1v_1+\cdots+u_mv_m)\\
@@ -341,7 +341,7 @@ $\qquad \qquad$ 如果分类错误，<strong>更新</strong> $\alpha_i \leftarro
       <li>这里 $\gamma&gt;0$ 是 spread 参数</li>
     </ul>
   </li>
-  <li>推导如下：  <br />
+  <li>推导如下：<br />
 <script type="math/tex">% <![CDATA[
 \begin{eqnarray}
 \exp(-\gamma \| \boldsymbol u-\boldsymbol v\|^2) &=& \exp\left(-\gamma (\boldsymbol u-\boldsymbol v)'(\boldsymbol u-\boldsymbol v)\right)\\
@@ -357,7 +357,7 @@ $\qquad \qquad$ 如果分类错误，<strong>更新</strong> $\alpha_i \leftarro
 <ul>
   <li>问题：给定一个映射 $\varphi(\boldsymbol u)$，是否存在一个合法的核函数？</li>
   <li>
-    <p>逆问题：给定某个函数 $K(\boldsymbol u,\boldsymbol v)$，它是一个合法的核函数吗？换而言之，是否存在一个映射 $\varphi(\boldsymbol u)$ 是由这个核函数实现的？<br />
+    <p>逆问题：给定某个函数 $K(\boldsymbol u,\boldsymbol v)$，它是一个合法的核函数吗？换而言之，是否存在一个映射 $\varphi(\boldsymbol u)$ 是由这个核函数实现的？
 <br /></p>
   </li>
   <li><strong><span style="color:steelblue">Mercer 定理：</span></strong>
@@ -373,7 +373,7 @@ $\qquad \qquad$ 如果分类错误，<strong>更新</strong> $\alpha_i \leftarro
 <ul>
   <li>到目前为止，本课程 COMP90051 涉及的数据都是由数字组成的向量</li>
   <li>但是，如果我们想在不同类型的数据上应用机器学习该怎么办？</li>
-  <li>图  <br />
+  <li>图<br />
 <img src="http://andy-blog.oss-cn-beijing.aliyuncs.com/blog/2020-02-15-WX20200216-004030%402x.png" width="20%" />
     <ul>
       <li>Facebook, Twitter, …</li>
@@ -391,7 +391,7 @@ $\qquad \qquad$ 如果分类错误，<strong>更新</strong> $\alpha_i \leftarro
 <h3 id="36-处理任意数据结构">3.6 处理任意数据结构</h3>
 <ul>
   <li>核函数是一种强大的方法可以处理很多不同的数据类型</li>
-  <li>可以在可变长度的字符串上定义相似度函数：  <br />
+  <li>可以在可变长度的字符串上定义相似度函数：<br />
 $K($<em>“science is organized knowledge”, “wisdom is organized life”</em>$)$</li>
   <li>然而，不是所有的作用在两个对象上的函数都是一个合法的核函数</li>
   <li>记住，我们需要核函数 $K(\boldsymbol u,\boldsymbol v)$ 在某个特征空间实现点积的计算</li>

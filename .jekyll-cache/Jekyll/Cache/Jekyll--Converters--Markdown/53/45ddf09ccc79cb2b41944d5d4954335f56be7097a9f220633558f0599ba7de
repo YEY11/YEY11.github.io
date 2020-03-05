@@ -1,4 +1,4 @@
-I"'o<!-- 数学公式 -->
+I"o<!-- 数学公式 -->
 <script src="https://cdn.mathjax.org/mathjax/latest/MathJax.js?config=TeX-AMS-MML_HTMLorMML" type="text/javascript"></script>
 
 <script type="text/x-mathjax-config">
@@ -427,7 +427,7 @@
       <li>将先进的文本处理组件与大型文本集合和高性能计算相结合</li>
     </ul>
   </li>
-  <li>还有很多其他方面的应用：机器翻译、搜索引擎、智能家居等等<br />
+  <li>还有很多其他方面的应用：机器翻译、搜索引擎、智能家居等等
 <img src="http://andy-blog.oss-cn-beijing.aliyuncs.com/blog/2020-03-02-WX20200302-150448%402x.png" /></li>
 </ul>
 
@@ -473,7 +473,7 @@
 <ul>
   <li><strong>状态机</strong>
     <ul>
-      <li>由状态、状态之间的转换和输入组成的形式模型。  <br />
+      <li>由状态、状态之间的转换和输入组成的形式模型。<br />
 例如：有限状态自动机</li>
     </ul>
   </li>
@@ -495,19 +495,19 @@
 <ul>
   <li>$I\; made\; her\; duck.$ 这句话存在以下几种可能的含义:
     <ul>
-      <li>$I \;cooked\;\,  🦆 \,for\; her.$  <br />
+      <li>$I \;cooked\;\,  🦆 \,for\; her.$<br />
 <em>我为她煮了鸭子。</em></li>
-      <li>$I \;cooked\;\,  🦆 \,belonging\;to\; her.$  <br />
+      <li>$I \;cooked\;\,  🦆 \,belonging\;to\; her.$<br />
 <em>我把她的鸭子给煮了。</em></li>
-      <li>$I\; caused\; her\; to\; quickly\; lower\; her\; head\; or \;body.$  <br />
+      <li>$I\; caused\; her\; to\; quickly\; lower\; her\; head\; or \;body.$<br />
 <em>我使得她迅速把头低下了或弯下了腰。</em></li>
-      <li>$I\; waved\; my\; magic\; wand\; and\; turned\; her\; into\; a\;\, 🦆.$  <br />
-<em>我挥舞我的魔杖，然后将她变成了一只鸭子。</em>  <br />
+      <li>$I\; waved\; my\; magic\; wand\; and\; turned\; her\; into\; a\;\, 🦆.$<br />
+<em>我挥舞我的魔杖，然后将她变成了一只鸭子。</em><br />
 <br /></li>
     </ul>
   </li>
   <li>
-    <p>为什么存在如此多可能的解释？因为语言是很复杂的。  <br />
+    <p>为什么存在如此多可能的解释？因为语言是很复杂的。<br />
 <br /></p>
   </li>
   <li>$Duck$ 这个词可能存在如下含义：
@@ -531,7 +531,7 @@
   </li>
 </ul>
 
-<p><strong><span style="color:steelblue">思考：</span></strong> 这里之所以存在歧义是因为在这句话之前，我们没有足够的上下文。所以，只要有了足够的上下文信息，机器就可以分辨这种歧义吗？<br />
+<p><strong><span style="color:steelblue">思考：</span></strong> 这里之所以存在歧义是因为在这句话之前，我们没有足够的上下文。所以，只要有了足够的上下文信息，机器就可以分辨这种歧义吗？
 <br /></p>
 
 <p>显然，上下文信息总是越多越好的。但对于消除歧义来说，不仅仅是上下文的问题。因为即便可以得到所想要的全部上下文，对于机器来说可能还是无法轻易作出解释：这对人类来说很简单，但是对于机器来说很难。而且某些时候，上下文甚至不是文本类型的，它可以是非语言的，你可能没有接触过它，或者，有些时候这种上下文涉及的是一种文化层面的差异。所以，有时即便有了上下文，机器可能也无法真正去有效利用它。但通常来说，拥有更多的上下文信息总是更好的。</p>
@@ -634,7 +634,7 @@
     <ul>
       <li>Terry Winograd 教授 在 MIT 人工智能实验室创建的 SHRDLU（积木世界）系统</li>
       <li>嵌入玩具积木世界的机器人</li>
-      <li>程序采用自然语言命令，例如：  <br />
+      <li>程序采用自然语言命令，例如：<br />
 <em>move the red block to the left of the blue block（将红色块移动到蓝色块的左侧）</em></li>
       <li>激发了对 semantics（语义）和 discourse（话语）领域的研究</li>
     </ul>

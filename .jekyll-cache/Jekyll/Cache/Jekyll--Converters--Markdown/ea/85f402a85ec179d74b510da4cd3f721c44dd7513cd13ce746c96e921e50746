@@ -1,4 +1,4 @@
-I"�P<!-- 数学公式 -->
+I"�P<!-- 数学公式 -->
 <script src="https://cdn.mathjax.org/mathjax/latest/MathJax.js?config=TeX-AMS-MML_HTMLorMML" type="text/javascript"></script>
 
 <script type="text/x-mathjax-config">
@@ -134,7 +134,7 @@ B(\boldsymbol x) &= \dfrac{\left(\sum_{j=1}^{V}x_j\right)!}{\prod_{j=1}^{V}(x_j!
 
 <h3 id="21-types-和-tokens">2.1 Types 和 tokens</h3>
 
-<p><a href="#alg2">算法 2</a> 中展示了一个略微改进过的朴素贝叶斯生成式模型。相比生成一个 <strong>types</strong> 计数的向量 $\boldsymbol x$，该模型会生成一个 <strong>tokens</strong> 的序列 $\boldsymbol w=(w_1,w_2,…,w_M)$。Types 和 tokens 之间的区别很关键：<br />
+<p><a href="#alg2">算法 2</a> 中展示了一个略微改进过的朴素贝叶斯生成式模型。相比生成一个 <strong>types</strong> 计数的向量 $\boldsymbol x$，该模型会生成一个 <strong>tokens</strong> 的序列 $\boldsymbol w=(w_1,w_2,…,w_M)$。Types 和 tokens 之间的区别很关键：
 $x_j\in \{0,1,2,…,M\}$ 是单词 type $j$ 在词汇表中的计数，例如，单词 $cannibal$ 出现的次数；而 $w_m\in \mathcal V$ 是 token $m$ 在文档中的身份信息，例如，$w_m=cannibal$。</p>
 
 <p>序列 $\boldsymbol w$ 的概率是类别概率的乘积。<a href="#alg2">算法 2</a> 作出了一个条件独立假设：每个 token $w_m^{(i)}$ 都独立于所有其他 tokens $w_{n\ne m}^{(i)}$，以标签 $y^{(i)}$ 为条件。这与多项式分布中所暗含的 “朴素” 独立性假设相同，因此，该模型的最优参数与多项式朴素贝叶斯中的最优参数相同。对于任何实例，该模型给出的概率与多项式朴素贝叶斯下的概率成正比。这个比例常数就是多项式系数 $B(\boldsymbol x)$。因为 $B(\boldsymbol x)\ge 1$，计数向量 $\boldsymbol x$ 的概率至少与诱导相同计数的单词列表 $\boldsymbol w$ 的概率一样大：可能有许多个单词序列都对应于同一个计数向量。例如，$man\; bites\; dog$ 和 $dog\; bites\; man$ 对应于同一个计数向量 $\{bites:1,dog:1,man:1\}$，并且 $B(\boldsymbol x)$ 等于计数向量 $\boldsymbol x$ 可能的单词顺序的总数。</p>

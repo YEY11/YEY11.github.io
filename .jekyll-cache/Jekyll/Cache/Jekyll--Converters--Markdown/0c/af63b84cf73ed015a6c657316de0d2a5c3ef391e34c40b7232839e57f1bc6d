@@ -1,4 +1,4 @@
-I"�F<!-- 数学公式 -->
+I"�F<!-- 数学公式 -->
 <script src="https://cdn.mathjax.org/mathjax/latest/MathJax.js?config=TeX-AMS-MML_HTMLorMML" type="text/javascript"></script>
 
 <script type="text/x-mathjax-config">
@@ -61,13 +61,13 @@
 <p><img src="http://andy-blog.oss-cn-beijing.aliyuncs.com/blog/2020-02-27-WX20200227-160440%402x.png" /></p>
 
 <h3 id="22-朴素-pca-算法">2.2 朴素 PCA 算法</h3>
-<p><strong><span style="color:steelblue">朴素 PCA 算法描述：</span></strong>  <br />
-1.$\,$<span style="color:red">选择一个方向</span> 作为新的坐标轴，使得方差沿着该坐标轴是最大化的  <br />
-2.$\,$<span style="color:red">选择下一个方向</span> / 坐标轴垂直于当前所有的坐标轴，使得（余下的）方差着该坐标轴是最大化的  <br />
-3.$\,$重复步骤 2，直到你得到了和原始数据中同样数量的坐标轴（即，维度）  <br />
-4.$\,$将原始数据 <span style="color:red">投影</span> 到这些新的坐标轴上，从而得到新的坐标（“PCA 坐标”）  <br />
-5.$\,$对于每个数据点，仅保留 <span style="color:red">前 $l$ 个坐标</span>  <br />
-<br /><br />
+<p><strong><span style="color:steelblue">朴素 PCA 算法描述：</span></strong><br />
+1.$\,$<span style="color:red">选择一个方向</span> 作为新的坐标轴，使得方差沿着该坐标轴是最大化的<br />
+2.$\,$<span style="color:red">选择下一个方向</span> / 坐标轴垂直于当前所有的坐标轴，使得（余下的）方差着该坐标轴是最大化的<br />
+3.$\,$重复步骤 2，直到你得到了和原始数据中同样数量的坐标轴（即，维度）<br />
+4.$\,$将原始数据 <span style="color:red">投影</span> 到这些新的坐标轴上，从而得到新的坐标（“PCA 坐标”）<br />
+5.$\,$对于每个数据点，仅保留 <span style="color:red">前 $l$ 个坐标</span><br />
+<br />
 如果可以直接实现，那么该算法是有效的，但是，我们还有其他更好的解决方案</p>
 
 <h3 id="23-问题描述">2.3 问题描述</h3>
@@ -141,7 +141,7 @@
     <p>PCA 的目标是找到 $\boldsymbol p_1$ 使得 $\boldsymbol p_1’\mathbf \Sigma_{\boldsymbol X}\boldsymbol p_1$ 最大化，其中 $\|\boldsymbol p_1\|=\boldsymbol p_1’\boldsymbol p_1=1$</p>
   </li>
   <li>
-    <p>约束 $\to$ 拉格朗日乘子  <br />
+    <p>约束 $\to$ 拉格朗日乘子<br />
 引入拉格朗日乘子 $\lambda_1$，令拉格朗日函数的一阶导数为零，求解</p>
 
     <script type="math/tex; mode=display">L=\boldsymbol p_1'\mathbf \Sigma_{\boldsymbol X}\boldsymbol p_1-\lambda_1(\boldsymbol p_1'\boldsymbol p_1-1)</script>
@@ -161,9 +161,9 @@
 
 <ul>
   <li>
-    <p>给定一个方阵 $\boldsymbol A$，一个列向量 $\boldsymbol e$  <br />
-如果满足 $\boldsymbol {Ae}=\lambda \boldsymbol e$  <br />
-那么向量 $\boldsymbol e$ 被称为 方阵 $\boldsymbol A$ 的特征向量  <br />
+    <p>给定一个方阵 $\boldsymbol A$，一个列向量 $\boldsymbol e$<br />
+如果满足 $\boldsymbol {Ae}=\lambda \boldsymbol e$<br />
+那么向量 $\boldsymbol e$ 被称为 方阵 $\boldsymbol A$ 的特征向量<br />
 这里，$\lambda$ 是对应的特征值</p>
   </li>
   <li>
@@ -174,7 +174,7 @@
 <h3 id="29-复习特征值">2.9 复习：特征值</h3>
 <ul>
   <li>代数解释：如果 $\boldsymbol {Ae}=\lambda \boldsymbol e$，那么 $(\boldsymbol A-\lambda \boldsymbol I)\boldsymbol e=0$，其中 $\boldsymbol I$ 是单位矩阵</li>
-  <li>当且仅当行列式 $|\boldsymbol A-\lambda \boldsymbol I|=0$ 时，上面的等式具有非零解 $\boldsymbol e$  <br />
+  <li>当且仅当行列式 $|\boldsymbol A-\lambda \boldsymbol I|=0$ 时，上面的等式具有非零解 $\boldsymbol e$<br />
 而方程 $|\boldsymbol A-\lambda \boldsymbol I|=0$ 被称为特征方程，该方程的根 $\lambda$ 被称为特征值</li>
   <li>特征向量和特征值是线性代数中的重要概念，并出现在许多实际应用中</li>
   <li>矩阵的 <span style="color:red">谱（Spectrum）</span>是其特征值的集合</li>
@@ -187,7 +187,7 @@
   <li>被 $\boldsymbol p_1$ 所捕获的数据的方差：
     <ul>
       <li>注意，我们已经表明了 $\lambda_1=\boldsymbol p_1’\mathbf \Sigma_{\boldsymbol X}\boldsymbol p_1$</li>
-      <li>但是，$\boldsymbol p_1’\mathbf \Sigma_{\boldsymbol X}\boldsymbol p_1$ 是投影数据的方差  <br />
+      <li>但是，$\boldsymbol p_1’\mathbf \Sigma_{\boldsymbol X}\boldsymbol p_1$ 是投影数据的方差<br />
 $\to$ 第一 <span style="color:red">特征值</span> 是捕获到的 <span style="color:red">方差</span></li>
     </ul>
   </li>

@@ -1,4 +1,4 @@
-I"l9<!-- 数学公式 -->
+I"�8<!-- 数学公式 -->
 <script src="https://cdn.mathjax.org/mathjax/latest/MathJax.js?config=TeX-AMS-MML_HTMLorMML" type="text/javascript"></script>
 
 <script type="text/x-mathjax-config">
@@ -31,7 +31,7 @@
 <h3 id="12-svm-是一个线性二分类器">1.2 SVM 是一个线性二分类器</h3>
 <ul>
   <li>如果 $s\ge 0$，预测为 $A$</li>
-  <li>如果 $s&lt; 0$，预测为 $B$  <br />
+  <li>如果 $s&lt; 0$，预测为 $B$<br />
 其中 $s=b+\sum_{i=1}^{m}x_iw_i$</li>
 </ul>
 
@@ -53,7 +53,7 @@
 <h3 id="14-选择分类边界">1.4 选择分类边界</h3>
 <ul>
   <li>SVM 是一个线性二分类器：选择参数意味着选择一个分类边界（超平面）。</li>
-  <li>2D 情况下：<br /><br />
+  <li>2D 情况下：<br />
 <img src="https://tva1.sinaimg.cn/large/006y8mN6ly1g8o9b7lmmdj30n60gkjsc.jpg" width="40%" /></li>
 </ul>
 
@@ -61,17 +61,17 @@
 <ul>
   <li>假设数据集是线性可分的，那么感知器将找到一个可以完美分离各个类别的边界。这可以是任何这样的边界，例如图中的 A 或 B。</li>
   <li>
-    <p>对于感知器而言，所有这样的边界都一样好，因为对于每个感知器而言，其损失函数都为零。<br /><br />
+    <p>对于感知器而言，所有这样的边界都一样好，因为对于每个感知器而言，其损失函数都为零。<br />
 <img src="https://tva1.sinaimg.cn/large/006y8mN6ly1g8ogretihaj30o80gyt9i.jpg" width="40%" /></p>
   </li>
-  <li>但是它们对我们来说看起来并不一样好。A 边界似乎更可靠。当新数据点到达时，B 边界可能会对其分类错误。<br /><br />
+  <li>但是它们对我们来说看起来并不一样好。A 边界似乎更可靠。当新数据点到达时，B 边界可能会对其分类错误。<br />
 <img src="https://tva1.sinaimg.cn/large/006y8mN6ly1g8ogx13xstj30o40hc754.jpg" width="40%" /></li>
 </ul>
 
 <h4 id="目标是找到最安全的边界">目标是找到最安全的边界</h4>
 <ul>
   <li>从直觉上看，最可靠的边界应当位于两个类别之间，并且尽可能远离这两个类别。</li>
-  <li>SVM 的目标函数捕捉到了这一点，SVM 的目标是找到使得不同类别之间间隔最大化的分类边界。<br /><br />
+  <li>SVM 的目标函数捕捉到了这一点，SVM 的目标是找到使得不同类别之间间隔最大化的分类边界。<br />
 <img src="https://tva1.sinaimg.cn/large/006y8mN6ly1g8ohio3uvrj30oe0he0u0.jpg" width="40%" /></li>
 </ul>
 
@@ -89,7 +89,7 @@
 <ul>
   <li>尽管间隔可以被视为两条虚线之间的空间，但更方便的做法是，将间隔宽度定义为分类边界与最近数据点之间的距离。</li>
   <li>
-    <p>这个分类边界恰好在 “两个类别之间”：到最近的红色点和蓝色点的距离相同。<br /><br />
+    <p>这个分类边界恰好在 “两个类别之间”：到最近的红色点和蓝色点的距离相同。<br />
 <img src="https://tva1.sinaimg.cn/large/006y8mN6ly1g8oijcia75j30oc0hmgmw.jpg" width="40%" /></p>
   </li>
   <li><strong>问题：</strong> 为了达到最大间隔必须这样。为什么？</li>
@@ -103,7 +103,7 @@
 <ul>
   <li>考虑到任意一个点 $X$（可以来自任意一个类别，并且不需要是离分类边界最近的点），令 $X_p$ 表示点 $X$ 在分类边界上的投影。</li>
   <li>
-    <p>现在，令 $\boldsymbol r$ 表示向量 $X_p-X$。注意，$\boldsymbol r$ <strong>垂直</strong> 于分类边界，并且 $\|\boldsymbol r\|$ 就是要求的 <strong>距离</strong>。<br /><br />
+    <p>现在，令 $\boldsymbol r$ 表示向量 $X_p-X$。注意，$\boldsymbol r$ <strong>垂直</strong> 于分类边界，并且 $\|\boldsymbol r\|$ 就是要求的 <strong>距离</strong>。<br />
 <img src="https://tva1.sinaimg.cn/large/006y8mN6ly1g8ojd4yyxcj30pw0ic3zo.jpg" width="40%" /></p>
   </li>
   <li>分类边界由参数 $\boldsymbol w$ 和 $b$ 定义</li>
@@ -116,15 +116,15 @@
 <ul>
   <li>向量 $\boldsymbol r$ 和 $\boldsymbol w$ 平行，但是通常两者长度不同。简单来说，$\boldsymbol r=\boldsymbol w\dfrac{\|\boldsymbol r\|}{\|\boldsymbol w\|}$</li>
   <li>
-    <p>接下来，点 $X$ 和点 $X_p$ 可以被视为向量 $\boldsymbol x$ 和 $\boldsymbol x_p$。  <br />
-通过向量加法，我们可以得到 $\boldsymbol x+\boldsymbol r=\boldsymbol x_p$ 或者 $\boldsymbol x+\boldsymbol w\dfrac{\|\boldsymbol r\|}{\|\boldsymbol w\|}=\boldsymbol x_p$<br /><br />
+    <p>接下来，点 $X$ 和点 $X_p$ 可以被视为向量 $\boldsymbol x$ 和 $\boldsymbol x_p$。<br />
+通过向量加法，我们可以得到 $\boldsymbol x+\boldsymbol r=\boldsymbol x_p$ 或者 $\boldsymbol x+\boldsymbol w\dfrac{\|\boldsymbol r\|}{\|\boldsymbol w\|}=\boldsymbol x_p$<br />
 <img src="https://tva1.sinaimg.cn/large/006y8mN6ly1g8ok4zhq12j30py0icdhk.jpg" width="40%" /></p>
   </li>
-  <li>现在，我们将等式两边都乘上 $\boldsymbol w’$，然后加上 $b$，得到：  <br />
+  <li>现在，我们将等式两边都乘上 $\boldsymbol w’$，然后加上 $b$，得到：<br />
 $\boldsymbol w’\boldsymbol x+b+\boldsymbol w’\boldsymbol w\dfrac{\|\boldsymbol r\|}{\|\boldsymbol w\|}=\boldsymbol w’\boldsymbol x_p+b$</li>
-  <li>因为 $\boldsymbol x_p$ 落在分类边界上，我们可以得到：  <br />
+  <li>因为 $\boldsymbol x_p$ 落在分类边界上，我们可以得到：<br />
 $\boldsymbol w’\boldsymbol x+b+\|\boldsymbol w\|^2\dfrac{\|\boldsymbol r\|}{\|\boldsymbol w\|}=0$</li>
-  <li>化简即可得到点 $X$ 到分类边界的距离为：  <br />
+  <li>化简即可得到点 $X$ 到分类边界的距离为：<br />
 $\|\boldsymbol r\|=-\dfrac{\boldsymbol w’\boldsymbol x+b}{\|\boldsymbol w\|}$</li>
 </ul>
 
@@ -132,10 +132,10 @@ $\|\boldsymbol r\|=-\dfrac{\boldsymbol w’\boldsymbol x+b}{\|\boldsymbol w\|}$<
 <ul>
   <li>然而，如果我们将点取到分类边界的另一侧，向量 $\boldsymbol r$ 和 $\boldsymbol w$ 将会 <strong>反向平行</strong>，得到 $\boldsymbol r=-\boldsymbol w\dfrac{\|\boldsymbol r\|}{\|\boldsymbol w\|}$</li>
   <li>
-    <p>在这种情况下，距离为 $\|\boldsymbol r\|=\dfrac{\boldsymbol w’\boldsymbol x+b}{\|\boldsymbol w\|}$<br /><br />
+    <p>在这种情况下，距离为 $\|\boldsymbol r\|=\dfrac{\boldsymbol w’\boldsymbol x+b}{\|\boldsymbol w\|}$<br />
 <img src="https://tva1.sinaimg.cn/large/006y8mN6ly1g8okwti1rlj30py0icjt5.jpg" width="40%" /></p>
   </li>
-  <li>我们一会将再回到这里，现在我们可以将两种情况的结果结合起来：  <br />
+  <li>我们一会将再回到这里，现在我们可以将两种情况的结果结合起来：<br />
 距离为 $\|\boldsymbol r\|=\pm \dfrac{\boldsymbol w’\boldsymbol x+b}{\|\boldsymbol w\|}$</li>
 </ul>
 
@@ -185,26 +185,26 @@ $\|\boldsymbol r\|=-\dfrac{\boldsymbol w’\boldsymbol x+b}{\|\boldsymbol w\|}$<
 <h3 id="27-约束目标函数">2.7 约束目标函数</h3>
 <ul>
   <li>
-    <p>SVM 目标是最大化 $\left(\min\limits_{i=1,…,n}\dfrac{y_i(\boldsymbol w’\boldsymbol x_i+b)}{\|\boldsymbol w\|}\right)$<br />
+    <p>SVM 目标是最大化 $\left(\min\limits_{i=1,…,n}\dfrac{y_i(\boldsymbol w’\boldsymbol x_i+b)}{\|\boldsymbol w\|}\right)$
 <br /></p>
   </li>
-  <li>引入（任意）额外要求 $\dfrac{y_{i^*}(\boldsymbol w’\boldsymbol x_{i^*}+b)}{\|\boldsymbol w\|}=\dfrac{1}{\|\boldsymbol w\|}$<br />
+  <li>引入（任意）额外要求 $\dfrac{y_{i^*}(\boldsymbol w’\boldsymbol x_{i^*}+b)}{\|\boldsymbol w\|}=\dfrac{1}{\|\boldsymbol w\|}$
 <br />
     <ul>
-      <li>$i^*$ 表示距离分类边界最近的样本的索引<br />
+      <li>$i^*$ 表示距离分类边界最近的样本的索引
 <br /></li>
     </ul>
   </li>
-  <li>SVM 目标是找到：  <br />
+  <li>SVM 目标是找到：<br />
 <script type="math/tex">\begin{array}{cc}\mathop{\operatorname{arg\,min}}\limits_{\boldsymbol w}\|\boldsymbol w\| \\\; \text{s.t.}\quad y_i(\boldsymbol w'\boldsymbol x_i+b)\ge 1 \;\text{for}\;i=1,...,n\end{array}</script></li>
 </ul>
 
 <h3 id="28-硬间隔-svm-的目标函数">2.8 硬间隔 SVM 的目标函数</h3>
 <ul>
   <li>
-    <p>现在，我们有了一个主要的结果：SVM 目标是找到  <br />
-<script type="math/tex">\begin{array}{cc}\mathop{\operatorname{arg\,min}}\limits_{\boldsymbol w}\|\boldsymbol w\| \\\; \text{s.t.}\quad y_i(\boldsymbol w'\boldsymbol x_i+b)\ge 1 \;\text{for}\;i=1,...,n\end{array}</script>  <br />
-<img src="https://tva1.sinaimg.cn/large/006y8mN6ly1g8or1sx280j30oa0heta3.jpg" width="40%" /><br />
+    <p>现在，我们有了一个主要的结果：SVM 目标是找到<br />
+<script type="math/tex">\begin{array}{cc}\mathop{\operatorname{arg\,min}}\limits_{\boldsymbol w}\|\boldsymbol w\| \\\; \text{s.t.}\quad y_i(\boldsymbol w'\boldsymbol x_i+b)\ge 1 \;\text{for}\;i=1,...,n\end{array}</script><br />
+<img src="https://tva1.sinaimg.cn/large/006y8mN6ly1g8or1sx280j30oa0heta3.jpg" width="40%" />
 <br /></p>
   </li>
   <li>注意 1：参数 $b$ 是通过影响影响约束条件渐接优化的</li>
@@ -226,25 +226,25 @@ $\|\boldsymbol r\|=-\dfrac{\boldsymbol w’\boldsymbol x+b}{\|\boldsymbol w\|}$<
   <li><strong>训练误差</strong> 是在全部训练样本上的平均损失</li>
 </ul>
 
-<p>对于感知器和 ANN，我们定义了损失函数，目标是在训练中最小化损失<br />
+<p>对于感知器和 ANN，我们定义了损失函数，目标是在训练中最小化损失
 但是，SVM 应当怎样匹配这种模式呢？</p>
 
 <h3 id="32-svm-作为正则化的-erm">3.2 SVM 作为正则化的 ERM</h3>
 <ul>
-  <li>回忆岭回归的目标函数：<br />  <br />
-最小化 $\left(\sum_{i=1}^{n}(y_i-\boldsymbol w’\boldsymbol x_i)^2+\lambda\|\boldsymbol w\|^2\right)$  <br />
+  <li>回忆岭回归的目标函数：<br /><br />
+最小化 $\left(\sum_{i=1}^{n}(y_i-\boldsymbol w’\boldsymbol x_i)^2+\lambda\|\boldsymbol w\|^2\right)$<br />
 <br /></li>
-  <li>硬间隔 SVM 的目标函数：<br />  <br />
-<script type="math/tex">\begin{array}{cc}\mathop{\operatorname{arg\,min}}\limits_{\boldsymbol w}\|\boldsymbol w\| \\\; \text{s.t.}\quad y_i(\boldsymbol w'\boldsymbol x_i+b)\ge 1 \;\text{for}\;i=1,...,n\end{array}</script>  <br />
+  <li>硬间隔 SVM 的目标函数：<br /><br />
+<script type="math/tex">\begin{array}{cc}\mathop{\operatorname{arg\,min}}\limits_{\boldsymbol w}\|\boldsymbol w\| \\\; \text{s.t.}\quad y_i(\boldsymbol w'\boldsymbol x_i+b)\ge 1 \;\text{for}\;i=1,...,n\end{array}</script><br />
 <br /></li>
-  <li>约束条件可以理解为损失：  <br />
-$l_{\infty} =\begin{cases}0\quad\;\, 1-y_i(\boldsymbol w’\boldsymbol x_i+b)\le0 \\  <br />
+  <li>约束条件可以理解为损失：<br />
+$l_{\infty} =\begin{cases}0\quad\;\, 1-y_i(\boldsymbol w’\boldsymbol x_i+b)\le0 \\<br />
 \infty\quad 1-y_i(\boldsymbol w’\boldsymbol x_i+b)&gt;0\end{cases}$</li>
 </ul>
 
 <h3 id="33-硬间隔-svm-的损失函数">3.3 硬间隔 SVM 的损失函数</h3>
 <ul>
-  <li>约束条件可以理解为损失：  <br />
+  <li>约束条件可以理解为损失：<br />
 <script type="math/tex">l_{\infty} =\begin{cases}0\quad\;\, 1-y_i(\boldsymbol w'\boldsymbol x_i+b)\le0 \\
 \infty\quad 1-y_i(\boldsymbol w'\boldsymbol x_i+b)>0\end{cases}</script></li>
   <li>换而言之，对于每个数据点：

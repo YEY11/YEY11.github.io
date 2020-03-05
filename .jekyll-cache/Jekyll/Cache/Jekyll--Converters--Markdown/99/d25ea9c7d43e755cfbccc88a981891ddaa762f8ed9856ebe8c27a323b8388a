@@ -1,4 +1,4 @@
-I"><!-- 数学公式 -->
+I"><!-- 数学公式 -->
 <script src="https://cdn.mathjax.org/mathjax/latest/MathJax.js?config=TeX-AMS-MML_HTMLorMML" type="text/javascript"></script>
 
 <script type="text/x-mathjax-config">
@@ -38,8 +38,8 @@
 
 <h2 id="1-基于决策理论的线性回归">1. 基于决策理论的线性回归</h2>
 <h3 id="例子根据温度预测湿度">例子：根据温度预测湿度</h3>
-<p>在回归中，我们的任务是根据特征（即预测变量或自变量）预测数值响应（即因变量）。<br />
-假设现在有这样一个线性关系：$H=a+bT$<br />
+<p>在回归中，我们的任务是根据特征（即预测变量或自变量）预测数值响应（即因变量）。
+假设现在有这样一个线性关系：$H=a+bT$
 其中，$H$ 表示湿度，$T$ 表示温度，$a$ 和 $b$ 是参数。</p>
 
 <p><img src="https://tva1.sinaimg.cn/large/006y8mN6ly1g8czmrv58wj31g40patee.jpg" width="80%" /></p>
@@ -52,7 +52,7 @@
 </ul>
 
 <h4 id="最小化平方和误差">最小化平方和误差</h4>
-<p>寻找 $a$ 和 $b$，使得平方损失函数 $L=\sum_{i=1}^{10}(H_i-(a+bT_i))^2$ 最小化。<br />
+<p>寻找 $a$ 和 $b$，使得平方损失函数 $L=\sum_{i=1}^{10}(H_i-(a+bT_i))^2$ 最小化。
 令偏导数为零：</p>
 
 <p>$\dfrac{\partial L}{\partial a}=-2\sum_{i=1}^{10}(H_i-a-bT_i)=0$</p>
@@ -74,8 +74,8 @@
 <h4 id="解析求解方案">解析求解方案</h4>
 <ul>
   <li>我们有两个等式和两个未知参数 $a,b$</li>
-  <li>重写为线性方程组的形式：<br /><br />
-$\begin{pmatrix}10 &amp; \sum_{i=1}^{10}T_i \\ \sum_{i=1}^{10}T_i &amp;\sum_{i=1}^{10}T_i^2\end{pmatrix}\begin{pmatrix}a\\b\end{pmatrix}=\begin{pmatrix}\sum_{i=1}^{10}H_i \\ \sum_{i=1}^{10}T_i H_i\end{pmatrix}$  <br />
+  <li>重写为线性方程组的形式：<br />
+$\begin{pmatrix}10 &amp; \sum_{i=1}^{10}T_i \\ \sum_{i=1}^{10}T_i &amp;\sum_{i=1}^{10}T_i^2\end{pmatrix}\begin{pmatrix}a\\b\end{pmatrix}=\begin{pmatrix}\sum_{i=1}^{10}H_i \\ \sum_{i=1}^{10}T_i H_i\end{pmatrix}$<br />
 <br /></li>
   <li>解析求解方案：$a=25.3,b=0.77$</li>
   <li>利用 <code class="highlighter-rouge">numpy.linalg.solve</code> 或者 <code class="highlighter-rouge">SymPy</code> 求解。</li>
@@ -83,11 +83,11 @@ $\begin{pmatrix}10 &amp; \sum_{i=1}^{10}T_i \\ \sum_{i=1}^{10}T_i &amp;\sum_{i=1
 
 <h4 id="更通用的决策规则">更通用的决策规则</h4>
 <ul>
-  <li>在响应 $y\in\Bbb R$ 和具有特征 $x_1,…,x_m\in\Bbb R$ 的实例之间建立一个线性关系：<br /><br />
-$\hat y=w_0+\sum_{i=1}^{m}x_i w_i$ <br /><br />
-这里，$w_0,…,w_m$ 表示权重（即模型参数）。<br />
+  <li>在响应 $y\in\Bbb R$ 和具有特征 $x_1,…,x_m\in\Bbb R$ 的实例之间建立一个线性关系：<br />
+$\hat y=w_0+\sum_{i=1}^{m}x_i w_i$ <br />
+这里，$w_0,…,w_m$ 表示权重（即模型参数）。
 <br /></li>
-  <li>技巧：增加一个虚拟特征 $x_0=1$，采用向量表示<br /><br />
+  <li>技巧：增加一个虚拟特征 $x_0=1$，采用向量表示<br />
 $\hat y=\sum_{i=0}^{m}x_i w_i=\boldsymbol{x’w}$</li>
 </ul>
 
@@ -108,13 +108,13 @@ $\hat y=\sum_{i=0}^{m}x_i w_i=\boldsymbol{x’w}$</li>
   </li>
   <li>接下来，假设高斯噪声（独立于 $\boldsymbol{X}$）：$\varepsilon \sim N(0,\sigma^2)$</li>
   <li>回忆：$N(x;\mu,\sigma^2)\equiv \dfrac{1}{\sqrt{2\pi\sigma^2}}\exp\left(-\dfrac{(x-\mu)^2}{2\sigma^2}\right)$</li>
-  <li>因此，<br />
+  <li>因此，
 $p_{\boldsymbol{w},\sigma^2}(y|\boldsymbol{x})=\dfrac{1}{\sqrt{2\pi\sigma^2}}\exp\left(-\dfrac{(y-\boldsymbol{x’w})^2}{2\sigma^2}\right)$</li>
 </ul>
 
 <h4 id="参数概率模型">参数概率模型</h4>
 <ul>
-  <li>采用简化表示，判别式模型为：<br />
+  <li>采用简化表示，判别式模型为：
 $p(y|\boldsymbol{x})=\dfrac{1}{\sqrt{2\pi\sigma^2}}\exp\left(-\dfrac{(y-\boldsymbol{x’w})^2}{2\sigma^2}\right)$</li>
   <li>未知参数：$\boldsymbol{w}$</li>
   <li>给定观测数据 ${(\boldsymbol X_1,Y_1),…,(\boldsymbol X_n,Y_n)}$，我们希望找到能够 “最好地” 解释这些数据的参数值。</li>
@@ -123,14 +123,14 @@ $p(y|\boldsymbol{x})=\dfrac{1}{\sqrt{2\pi\sigma^2}}\exp\left(-\dfrac{(y-\boldsym
 
 <h4 id="最大似然估计">最大似然估计</h4>
 <ul>
-  <li>假设数据点之间互相独立，观测数据的概率为：<br />
-$p(y_1,…,y_n|\boldsymbol x_1,…,\boldsymbol x_n)=\prod_{i=1}^{n}p(y_i|\boldsymbol x_i)$<br />
+  <li>假设数据点之间互相独立，观测数据的概率为：
+$p(y_1,…,y_n|\boldsymbol x_1,…,\boldsymbol x_n)=\prod_{i=1}^{n}p(y_i|\boldsymbol x_i)$
 <br /></li>
-  <li>其中，$p(y_i|\boldsymbol x_i)=\dfrac{1}{\sqrt{2\pi\sigma^2}}\exp\left(-\dfrac{(y_i-\boldsymbol x_i’ \boldsymbol w)^2}{2\sigma^2}\right)$<br />
+  <li>其中，$p(y_i|\boldsymbol x_i)=\dfrac{1}{\sqrt{2\pi\sigma^2}}\exp\left(-\dfrac{(y_i-\boldsymbol x_i’ \boldsymbol w)^2}{2\sigma^2}\right)$
 <br /></li>
-  <li>“Log 技巧”：相比直接求上式的最大值，我们选择求上式的对数的最大值：<br /><br />
-$\sum_{i=1}^{n}\log p(y_i|\boldsymbol x_i)=-\dfrac{1}{2\sigma^2}\sum_{i=1}^{n}(y_i-\boldsymbol x_i’ \boldsymbol w)^2+C$  <br /><br />
-这里，$C$ 是一个常量，与 $\boldsymbol w$ 无关。<br />
+  <li>“Log 技巧”：相比直接求上式的最大值，我们选择求上式的对数的最大值：<br />
+$\sum_{i=1}^{n}\log p(y_i|\boldsymbol x_i)=-\dfrac{1}{2\sigma^2}\sum_{i=1}^{n}(y_i-\boldsymbol x_i’ \boldsymbol w)^2+C$  <br />
+这里，$C$ 是一个常量，与 $\boldsymbol w$ 无关。
 <br /></li>
   <li>在该模型下，最大化以 $\boldsymbol w$ 为变量的对数似然函数，等价于最小化平方和误差。</li>
 </ul>
@@ -140,7 +140,7 @@ $\sum_{i=1}^{n}\log p(y_i|\boldsymbol x_i)=-\dfrac{1}{2\sigma^2}\sum_{i=1}^{n}(y
 <h3 id="31-机器学习中的优化公式">3.1 机器学习中的优化公式</h3>
 <ul>
   <li>训练 = 拟合 = 参数估计</li>
-  <li>典型公式<br />
+  <li>典型公式
 $\hat{\boldsymbol\theta}\in\mathop{\operatorname{arg\,min}}\limits_{\boldsymbol\theta\in\boldsymbol\Theta} L(data,\boldsymbol\theta)$
     <ul>
       <li>$\mathop{\operatorname{arg\,min}}$ 是因为我们希望最小化而非最小值
@@ -165,7 +165,7 @@ $\hat{\boldsymbol\theta}\in\mathop{\operatorname{arg\,min}}\limits_{\boldsymbol\
     <ul>
       <li>仅在少数情况下可以得到</li>
       <li>
-        <p>假设无约束、$L$ 可微的情况下，令参数的一阶偏导为零：<br />
+        <p>假设无约束、$L$ 可微的情况下，令参数的一阶偏导为零：
 $\dfrac{\partial L}{\partial \theta_1}=…=\dfrac{\partial L}{\partial \theta_p}=0$</p>
 
         <p>注意：为了检查是否为局部最小值，需要二阶偏导大于 $0$（或者 Hessian 矩阵是正定的），这是在假定不受约束的前提下（通常还需要检查边界），另外请参考后面的拉格朗日方法。</p>
@@ -236,7 +236,7 @@ $\dfrac{\partial L}{\partial \theta_1}=…=\dfrac{\partial L}{\partial \theta_p}
   <li>假设 $L$ 是可微的
     <ol>
       <li>选择 $\boldsymbol\theta^{(1)}$ 和某个 $T$</li>
-      <li>对 $i$ 从 $1$ 到 $T$（也可以采用其他终止条件）：<br />
+      <li>对 $i$ 从 $1$ 到 $T$（也可以采用其他终止条件）：
 $\boldsymbol\theta^{(i+1)}\leftarrow\boldsymbol\theta^{(i)}-\eta\nabla L(\boldsymbol\theta^{(i)})$</li>
       <li>返回 $\hat{\boldsymbol\theta}\approx\boldsymbol\theta^{(i)}$</li>
     </ol>
