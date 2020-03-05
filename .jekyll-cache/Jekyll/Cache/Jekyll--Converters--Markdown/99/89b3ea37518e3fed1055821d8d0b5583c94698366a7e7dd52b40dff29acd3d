@@ -1,0 +1,18 @@
+I"_<!-- 数学公式 -->
+<script src="https://cdn.mathjax.org/mathjax/latest/MathJax.js?config=TeX-AMS-MML_HTMLorMML" type="text/javascript"></script>
+
+<script type="text/x-mathjax-config">
+  MathJax.Hub.Config({
+    tex2jax: {
+      skipTags: ['script', 'noscript', 'style', 'textarea', 'pre'],
+      inlineMath: [['$','$']]
+    }
+  });
+</script>
+
+<h1 id="lecture-02-导论-2">Lecture 02 导论 (2)</h1>
+<h2 id="4-拟合一个关于-gavote-的线性模型">4. 拟合一个关于 <code class="highlighter-rouge">gavote</code> 的线性模型</h2>
+<p>一个线性模型 $\mathbf y=X\boldsymbol \beta+\boldsymbol \varepsilon$ 可以利用 <strong>最小二乘法（Least Squares method，LS）</strong> 来拟合数据。据此得到的 $\boldsymbol \beta$ 的 <strong>最小二乘估计量（LS estimator）</strong> 为：</p>
+
+<p>下节内容：导论（续）</p>
+:ET
