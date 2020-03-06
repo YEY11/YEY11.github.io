@@ -1,0 +1,87 @@
+I"t<!-- 数学公式 -->
+<script src="https://cdn.mathjax.org/mathjax/latest/MathJax.js?config=TeX-AMS-MML_HTMLorMML" type="text/javascript"></script>
+
+<script type="text/x-mathjax-config">
+  MathJax.Hub.Config({
+    tex2jax: {
+      skipTags: ['script', 'noscript', 'style', 'textarea', 'pre'],
+      inlineMath: [['$','$']]
+    }
+  });
+</script>
+
+<h1 id="lecture-02-导论-2">Lecture 02 导论 (2)</h1>
+<h2 id="4-拟合一个关于-gavote-的线性模型">4. 拟合一个关于 <code class="highlighter-rouge">gavote</code> 的线性模型</h2>
+<h3 id="41-最小二乘估计">4.1 最小二乘估计</h3>
+<p>一个线性模型 $\mathbf y=X\boldsymbol \beta+\boldsymbol \varepsilon$ 可以利用 <strong>最小二乘法（Least Squares method，LS）</strong> 来拟合数据。据此得到的参数 $\boldsymbol \beta$ 的 <strong>最小二乘估计量（LS estimator）</strong> 为：</p>
+
+<script type="math/tex; mode=display">\hat{\boldsymbol \beta}=(X^{\mathrm{T}}X)^{-1}X^{\mathrm{T}}\mathbf y</script>
+
+<p>最小二乘法通过最小化残差和来对模型参数 $\boldsymbol \beta$ 进行估计，从而拟合数据：</p>
+
+<p><img src="http://andy-blog.oss-cn-beijing.aliyuncs.com/blog/2020-03-05-WX20200305-182742%402x.png" width="80%" /></p>
+
+<p>在 $\hat {\boldsymbol \beta}$ 的最小二乘估计量中，$X^{\mathrm{T}}X$ 的结果是一个 $p\times p$ 的矩阵，大多数情况下（即 $X$ 为一个满秩矩阵时），该矩阵是可逆的；而当 $X$ 为一个降秩矩阵时，$X^{\mathrm{T}}X$ 不可逆。</p>
+
+<p><br /></p>
+
+<p>假设我们在建模时将 <code class="highlighter-rouge">undercount</code> 作为响应变量（response variable），将支持 Gore 的选民占比 <code class="highlighter-rouge">pergore</code> 和非裔美国人占比 <code class="highlighter-rouge">perAA</code> 作为预测变量（predictor variables），则对应的回归方程为：</p>
+
+<script type="math/tex; mode=display">\mathsf{undercount}=\beta_0+\beta_1\mathsf{pergore}+\beta_2 \mathsf{perAA}+\varepsilon</script>
+
+<div class="highlighter-rouge"><div class="highlight"><pre class="highlight"><code>&gt; lmod &lt;- lm(undercount ~ pergore + perAA, gavote); coef(lmod)
+(Intercept)     pergore       perAA
+ 0.03237600  0.01097872  0.02853314
+</code></pre></div></div>
+
+<p>所以，在上面的例子中，三个参数的最小二乘估计分别为：</p>
+
+<script type="math/tex; mode=display">\hat \beta_0=0.03237600,\quad \hat \beta_1=0.01097872,\quad \hat \beta_0=0.02853314</script>
+
+<p>然而，最小二乘法说到底只是一种计算数学方法，它还不足以好到对所估计的参数给出评判。所以人们可能会问：为什么要采用最小二乘法进行参数估计呢？通过它所得到的参数估计的优度如何？要回答这个问题需要一些统计学方法作为支持。</p>
+
+<p><strong>高斯-马尔可夫定理（Gauss–Markov theorem）</strong> 表明一个线性回归模型的参数的最小二乘估计量 $\hat{\boldsymbol \beta}$ 是一个 <strong>最佳线性无偏估计量（best linear unbiased estimator, BLUE）</strong>。</p>
+
+<p>首先，最小二乘估计量是 <strong>无偏的（unbiased）</strong>，即它的期望等于真实参数的期望。其次，它是 <strong>最佳的（best）</strong>，即它的方差在所有的无偏估计量中是最小的。最后，它是 <strong>线性的（linear）</strong>。因此，高斯-马尔可夫定理为评价线性模型下的最小二乘估计的优度提供了理论支撑。注意，这里我们强调了是线性模型，对于后面即将扩展到的非线性模型而言，高斯-马尔可夫定理将不再适用。</p>
+
+<h3 id="42-最大似然估计">4.2 最大似然估计</h3>
+
+<p>对于非线性的情况，我们需要另外的理论来评价参数估计的优度。因此，我们将采用一种不同的方法，即纯粹的概率统计方法：最大似然估计。在线性模型中，响应变量 $Y$ 被假设为服从独立的正态分布，所以我们可以写出观测值 $\boldsymbol y$ 的联合概率密度函数，然后我们可以得到该线性模型的一个对数似然函数。这种情况下，参数的估计量应为能够使对数似然函数最大化的值。</p>
+
+<p>如果 $\varepsilon$ 被假设为正态，那么可以证明 $\boldsymbol \beta$ 的 <strong>最大似然估计量（maximum likelihood estimator, MLE）</strong> 等于其最小二乘估计量，即 $\hat{\boldsymbol \beta}=(X^{\mathrm{T}}X)^{-1}X^{\mathrm{T}}\mathbf y$。</p>
+
+<p>在线性模型下，我们得到的最大似然估计的结果将和最小二乘估计给出的结果一致。但是，最大似然估计的方法要更好一些，因为它建立在 $Y$ 的概率分布上；而最小二乘估计并不涉及任何关于 $Y$ 的分布，它只是一种纯粹从几何角度出发寻找能够穿过尽可能多的数据点的直线，所以它只能从几何上给出解释。而当 $Y$ 服从其他分布的时候，显然，这种数据点的几何关系会发生变化，所以最小二乘估计不适用于当 $Y$ 服从非正态分布的情况。而最大似然估计在这种情况下仍然适用，因为它只依赖对数似然函数，只要我们能写出模型的对数似然函数，我们就可以利用最大似然估计方法得到参数的 MLE 估计量。</p>
+
+<h3 id="43-相关概念">4.3 相关概念</h3>
+
+<p>模型的预测值或者 <strong>拟合值（fitted values）</strong> 为 $\hat{\mathbf y}=X\hat{\boldsymbol \beta}$</p>
+
+<div class="highlighter-rouge"><div class="highlight"><pre class="highlight"><code>&gt; predict(lmod)
+      APPLING      ATKINSON         BACON         BAKER       BALDWIN         BANKS  ...
+   0.04133661    0.04329088    0.03961823    0.05241202    0.04795484    0.03601558  ...
+</code></pre></div></div>
+
+<p>模型的 <strong>残差（residuals）</strong> 为 $\hat{\boldsymbol \varepsilon}=\mathbf y-X\hat{\boldsymbol \beta}=\mathbf y-\hat{\mathbf y}$</p>
+
+<div class="highlighter-rouge"><div class="highlight"><pre class="highlight"><code>&gt; residuals(lmod)
+      APPLING      ATKINSON         BACON         BAKER       BALDWIN         BANKS  ...
+ 3.694660e-02 -6.994927e-03  6.555058e-02  2.348407e-03  3.589940e-03  1.426726e-02  ...
+</code></pre></div></div>
+
+<p>模型的 <strong>残差平方和（residual sum of squares, RSS）</strong>，这里也可以称为为 <strong>异常（deviance）</strong>，为 $\mathsf{RSS}=\hat{\boldsymbol \varepsilon}^{\mathrm{T}}\hat{\boldsymbol \varepsilon}$，它衡量了模型对数据的拟合程度。</p>
+
+<div class="highlighter-rouge"><div class="highlight"><pre class="highlight"><code>&gt; deviance(lmod)
+[1] 0.09324918
+</code></pre></div></div>
+
+<p>残差的 <strong>自由度（degrees of freedom, df）</strong> 为 $n-p$</p>
+
+<div class="highlighter-rouge"><div class="highlight"><pre class="highlight"><code>&gt; df.residual(lmod)
+[1] 156
+
+&gt; nrow(gavote)-length(coef(lmod))
+[1] 156
+</code></pre></div></div>
+
+<p>下节内容：导论（续）</p>
+:ET
