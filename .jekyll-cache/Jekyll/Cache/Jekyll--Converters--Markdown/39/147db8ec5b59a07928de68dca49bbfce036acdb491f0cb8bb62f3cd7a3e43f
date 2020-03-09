@@ -1,0 +1,82 @@
+I"�<!-- 数学公式 -->
+<script src="https://cdn.mathjax.org/mathjax/latest/MathJax.js?config=TeX-AMS-MML_HTMLorMML" type="text/javascript"></script>
+
+<script type="text/x-mathjax-config">
+  MathJax.Hub.Config({
+    tex2jax: {
+      skipTags: ['script', 'noscript', 'style', 'textarea', 'pre'],
+      inlineMath: [['$','$']]
+    }
+  });
+</script>
+
+<h1 id="lecture-01-导论">Lecture 01 导论</h1>
+<h2 id="1-课程简介">1. 课程简介</h2>
+<h3 id="11-教学人员">1.1 教学人员</h3>
+<ul>
+  <li><strong>讲师</strong>
+    <ul>
+      <li><strong>Chris Ewin</strong><br />
+2018 年 PhD 毕业于墨尔本大学。主要研究兴趣为自动规划领域：
+        <ul>
+          <li>知识表示（Knowledge representation）</li>
+          <li>富域规划（Planning in rich domains）</li>
+          <li>情景演算（Situation Calculus）</li>
+        </ul>
+
+        <p>爱好：网球 🎾<br />
+办公室：DMD building, ofﬁce 9.23<br />
+邮箱：cewin@unimelb.edu.au</p>
+      </li>
+      <li><strong>Tim Miller</strong><br />
+2005 年 PhD 毕业于昆士兰大学。主要研究兴趣为人工智能领域：
+        <ul>
+          <li>多代理环境下的决策（Decision making in multi-agent environments）</li>
+          <li>动作与知识推理（Reasoning about action and knowledge）</li>
+          <li>自动规划（Automated planning）</li>
+          <li>人机交互与协作（Human-agent interaction and collaboration）</li>
+        </ul>
+
+        <p>爱好：咖啡 ☕️ 以及一切与 IT 相关的事物<br />
+办公室：DMD building, ofﬁce 6.09<br />
+邮箱：tmiller@unimelb.edu.au</p>
+      </li>
+    </ul>
+  </li>
+  <li><strong>助教团队</strong><br />
+来自一些以前在这门课程中拿到高分的学生，以及一些 PhD 和 Research 的学生：
+    <ul>
+      <li><strong>主管助教：Guang Hu</strong><br />
+办公室：DMD building, ofﬁce 6.13<br />
+邮箱：ghu1@student.unimelb.edu.au</li>
+      <li><strong>助教</strong><br />
+Prashan Mathugama, Anam Ahmad Khan, Anubhav Singh, Ruihan Zhang</li>
+    </ul>
+  </li>
+</ul>
+
+<h3 id="12-研讨会">1.2 研讨会</h3>
+<ul>
+  <li>Workshops 将从第 2 个教学周开始</li>
+  <li>由于 COVID-19 疫情影响，以下时间段的 workshops 将改为线上模式：
+    <ul>
+      <li>Mon, 16:15-17:15. Location: PAR-207-221 Bouverie St-B132</li>
+      <li>Mon, 17:15-18 :15. Location: PAR-Elec. Engineering-122</li>
+      <li>Tue, 18:15-19 :15. Location: PAR-Elec. Engineering-121</li>
+      <li>Fri, 12:00-13:00, Location: PAR-Engineering B-313</li>
+    </ul>
+  </li>
+  <li>注意：请仅在受到 COVID-19 疫情影响的情况下注册线上模式。</li>
+  <li>Zoom 链接将在 LMS 上提供。</li>
+</ul>
+
+<h3 id="13-课程大纲">1.3 课程大纲</h3>
+<ol>
+  <li>AI 与自动规划导论</li>
+  <li>经典规划：启发式搜索（Heuristic Search）和基于宽度搜索（Width-Based Search）</li>
+  <li>超越经典规划：无因子模型（Factored-Model-Free），非决定论（Non Determinism），不确定性（Uncertainty），软目标（Soft goals），规划识别（Plan Recognition），认知（社会）规划（Epistemic (social) Planning），路径计划（Path-Planning），控制（Control）</li>
+  <li></li>
+</ol>
+
+<p>下节内容：</p>
+:ET

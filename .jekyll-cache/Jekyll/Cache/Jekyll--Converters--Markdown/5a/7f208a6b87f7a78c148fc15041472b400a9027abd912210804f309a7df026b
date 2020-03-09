@@ -1,0 +1,50 @@
+I"�<!-- 数学公式 -->
+<script src="https://cdn.mathjax.org/mathjax/latest/MathJax.js?config=TeX-AMS-MML_HTMLorMML" type="text/javascript"></script>
+
+<script type="text/x-mathjax-config">
+  MathJax.Hub.Config({
+    tex2jax: {
+      skipTags: ['script', 'noscript', 'style', 'textarea', 'pre'],
+      inlineMath: [['$','$']]
+    }
+  });
+</script>
+
+<h1 id="lecture-01-导论">Lecture 01 导论</h1>
+<h2 id="1-课程简介">1. 课程简介</h2>
+<h3 id="11-教学人员">1.1 教学人员</h3>
+<ul>
+  <li><strong>讲师</strong>
+    <ul>
+      <li><strong>Chris Ewin</strong><br />
+2018 年 PhD 毕业于墨尔本大学。主要研究兴趣为自动规划领域：
+        <ul>
+          <li>知识表示（Knowledge representation）</li>
+          <li>富域规划（Planning in rich domains）</li>
+          <li>情景演算（Situation Calculus）</li>
+        </ul>
+
+        <p>爱好：网球 🎾<br />
+办公室：DMD building, ofﬁce 9.23<br />
+邮箱：cewin@unimelb.edu.au</p>
+      </li>
+      <li><strong>Tim Miller</strong><br />
+2005 年 PhD 毕业于昆士兰大学。主要研究兴趣为人工智能领域：
+        <ul>
+          <li>多代理环境下的决策（Decision making in multi-agent environments）</li>
+          <li>动作与知识推理（Reasoning about action and knowledge）</li>
+          <li>自动规划（Automated planning）</li>
+          <li>人机交互与协作（Human-agent interaction and collaboration）</li>
+        </ul>
+
+        <p>爱好：咖啡 ☕️ 以及一切与 IT 相关的事物<br />
+办公室：DMD building, ofﬁce 6.09<br />
+邮箱：tmiller@unimelb.edu.au</p>
+      </li>
+      <li></li>
+    </ul>
+  </li>
+</ul>
+
+<p>下节内容：</p>
+:ET
