@@ -1,0 +1,28 @@
+I"�<!-- 数学公式 -->
+<script src="https://cdn.mathjax.org/mathjax/latest/MathJax.js?config=TeX-AMS-MML_HTMLorMML" type="text/javascript"></script>
+
+<script type="text/x-mathjax-config">
+  MathJax.Hub.Config({
+    tex2jax: {
+      skipTags: ['script', 'noscript', 'style', 'textarea', 'pre'],
+      inlineMath: [['$','$']]
+    }
+  });
+</script>
+
+<h1 id="lecture-02-搜索算法">Lecture 02 搜索算法</h1>
+<h2 id="1-基本模型算法">1. 基本模型算法</h2>
+<h3 id="11-基本状态模型经典规划">1.1 基本状态模型：经典规划</h3>
+<p><strong>追求的目标</strong>：</p>
+<center><span style="color:red">写出一个能够解决所有经典搜索问题的程序。</span></center>
+
+<p><strong>状态模型 $S(P)$</strong>：</p>
+<ul>
+  <li>有限离散状态空间 $S$</li>
+  <li>一个 <span style="color:blue">已知的初始状态</span> $s_0\in S$</li>
+  <li>一个目标状态的集合 $S_G\subseteq S$</li>
+  <li></li>
+</ul>
+
+<p>下节内容：搜索算法</p>
+:ET

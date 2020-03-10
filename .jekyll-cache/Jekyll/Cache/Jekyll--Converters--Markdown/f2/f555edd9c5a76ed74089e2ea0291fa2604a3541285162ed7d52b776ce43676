@@ -1,0 +1,61 @@
+I"�<!-- 数学公式 -->
+<script src="https://cdn.mathjax.org/mathjax/latest/MathJax.js?config=TeX-AMS-MML_HTMLorMML" type="text/javascript"></script>
+
+<script type="text/x-mathjax-config">
+  MathJax.Hub.Config({
+    tex2jax: {
+      skipTags: ['script', 'noscript', 'style', 'textarea', 'pre'],
+      inlineMath: [['$','$']]
+    }
+  });
+</script>
+
+<h1 id="lecture-02-搜索算法">Lecture 02 搜索算法</h1>
+<h2 id="1-基本模型算法">1. 基本模型算法</h2>
+<h3 id="11-基本状态模型经典规划">1.1 基本状态模型：经典规划</h3>
+<p><strong>追求的目标</strong>：</p>
+<center><span style="color:red">写出一个能够解决所有经典搜索问题的程序。</span></center>
+
+<p><strong>状态模型 $S(P)$</strong>：</p>
+<ul>
+  <li>有限离散状态空间 $S$</li>
+  <li>一个 <span style="color:blue">已知的初始状态</span> $s_0\in S$</li>
+  <li>一个目标状态的集合 $S_G\subseteq S$</li>
+  <li>每个 $s\in S$ 中可以采取的行动 $A(s)\subseteq A$</li>
+  <li><span style="color:blue">确定性转移函数（deterministic transition function）</span> $s’=f(a,s) \;\;\text{for}\;\; a\in A(s)$</li>
+  <li>正的 <span style="color:blue">行动成本（action costs）</span> $c(a,s)$</li>
+</ul>
+
+<p>$\color{blue}{\to}$ 一个 <strong>解</strong> 是将 $s_0$ 映射到 $S_G$ 内部的一个可行的行动序列，如果它能够最小化 <strong>行动成本之和</strong>（例如：移动步数），我们称其为 <strong>最优解</strong>。</p>
+
+<p>$\color{blue}{\to}$ 通过放松 <span style="color:blue">蓝色</span> 部分的假设，我们可以得到不同的 <strong>模型</strong> 和 <strong>控制器</strong><br />
+$\quad$例如：假设我们的转移函数不是确定性的（deterministic），而是概率性的（probabilistic），所<br />
+$\quad$以基于某个变量，某种情况下可能发生一种转移，而其他情况下可能发生另一种转移。我们并不<br />
+$\quad$知道到底会发生哪种情况，这其中存在着一些概率。</p>
+
+<h3 id="12-求解状态模型图里面的寻路">1.2 求解状态模型：图里面的寻路</h3>
+<p>用于规划的 <strong>搜索算法</strong> 利用了（经典）状态模型 $S(P)$ 与有向图之间的对应关系：</p>
+<ul>
+  <li>图中的 <strong>节点</strong> 代表模型中的 <strong>状态</strong> $s$</li>
+  <li>图中的 <strong>边</strong> $(s,s’)$ 代表模型中对应的具有相同成本的 <strong>转移</strong></li>
+</ul>
+
+<p>在 <strong>启发式搜索规划</strong> 中，问题 $P$ 通过在与模型 $S(P)$ 关联的 <strong>图</strong> 上的 <strong>路径查找</strong> 算法得以解决。</p>
+
+<h3 id="13-搜索算法分类">1.3 搜索算法分类</h3>
+<p><strong><span style="color:red">盲目</span> 搜索 vs. <span style="color:red">启发式</span>（或者 <span style="color:red">有信息</span>）搜索</strong>：</p>
+<ul>
+  <li><span style="color:blue">盲目搜索算法</span>：在一般搜索算法中仅使用基本的原始信息。
+    <ul>
+      <li>例如：深度优先搜索（DFS）、广度优先搜索（BFS）、统一代价搜索（Uniform Cost Search, UCS，例如：Dijkstra）、迭代深化搜索（Iterative Deepening Search, IDS）</li>
+    </ul>
+  </li>
+  <li><span style="color:blue">启发式搜索算法</span>：额外使用 <span style="color:blue">启发式函数</span> 估计到目标的距离（或剩余成本）。
+    <ul>
+      <li>例如：$\rm A^*$、$\rm IDA^*$</li>
+    </ul>
+  </li>
+</ul>
+
+<p>下节内容：搜索算法</p>
+:ET
