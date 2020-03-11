@@ -1,0 +1,146 @@
+I"�7<!-- 数学公式 -->
+<script src="https://cdn.mathjax.org/mathjax/latest/MathJax.js?config=TeX-AMS-MML_HTMLorMML" type="text/javascript"></script>
+
+<script type="text/x-mathjax-config">
+  MathJax.Hub.Config({
+    tex2jax: {
+      skipTags: ['script', 'noscript', 'style', 'textarea', 'pre'],
+      inlineMath: [['$','$']]
+    }
+  });
+</script>
+
+<h1 id="workshop-01-利用-nltk-进行预处理">Workshop 01 利用 NLTK 进行预处理</h1>
+
+<p>首先，如果你从来没有使用过 iPython notebooks，为了能够在此工作册上运行代码，你可以选中一个 code cell 之后，点击 Cell 菜单里的运行命令，或者按一下键盘上的 <code class="highlighter-rouge">shift</code> + <code class="highlighter-rouge">enter</code>。通常，为了使代码能够正常工作，你需要按照程序的顺序运行 cells。一个给定的 cell 的输出（包括图表在内的任何结果）会在代码运行完毕之后显示在代码下方。为了确保一切顺利，请尝试运行下面的代码：</p>
+
+<div class="language-python highlighter-rouge"><div class="highlight"><pre class="highlight"><code><span class="k">print</span><span class="p">(</span><span class="s">"hello world"</span><span class="p">)</span>
+</code></pre></div></div>
+
+<div class="highlighter-rouge"><div class="highlight"><pre class="highlight"><code>hello world
+</code></pre></div></div>
+
+<p>好的，现在让我们对一段来自班级课程网站的 html 片段进行一些简单的预处理：</p>
+
+<div class="language-python highlighter-rouge"><div class="highlight"><pre class="highlight"><code><span class="n">text</span> <span class="o">=</span> <span class="s">'''
+&lt;body&gt;
+    &lt;!-- JavaScript plugins (requires jQuery) --&gt;
+    &lt;script src="http://code.jquery.com/jquery.js"&gt;&lt;/script&gt;
+    &lt;!-- Include all compiled plugins (below), or include individual files as needed --&gt;
+    &lt;script src="js/bootstrap.min.js"&gt;&lt;/script&gt;
+
+    &lt;div class="container"&gt;
+      &lt;div class="page-header"&gt;
+  &lt;h3&gt;COMP90042 Natural Language Processing&lt;/h3&gt;
+&lt;/div&gt;
+
+The aims for this subject is for students to develop an understanding of the main algorithms used in natural 
+language processing, for use in a diverse range of applications including text classification, machine 
+translation, and question answering. Topics to be covered include part-of-speech tagging, n-gram language 
+modelling, syntactic parsing and deep learning. The programming language used is Python, see 
+&lt;a href="python.html"&gt;the detailed configuration instructions&lt;/a&gt; for more information on its use in the 
+workshops, assignments and installation at home.
+&lt;/body&gt;
+'''</span>
+</code></pre></div></div>
+
+<p>首先，让我们利用正则表达式移除 html 标记：</p>
+
+<div class="language-python highlighter-rouge"><div class="highlight"><pre class="highlight"><code><span class="kn">import</span> <span class="nn">re</span>
+
+<span class="n">text</span> <span class="o">=</span> <span class="n">re</span><span class="o">.</span><span class="n">sub</span><span class="p">(</span><span class="s">"&lt;[^&gt;]+&gt;"</span><span class="p">,</span> <span class="s">""</span><span class="p">,</span> <span class="n">text</span><span class="p">)</span><span class="o">.</span><span class="n">strip</span><span class="p">()</span>
+<span class="k">print</span><span class="p">(</span><span class="n">text</span><span class="p">)</span>
+</code></pre></div></div>
+
+<div class="highlighter-rouge"><div class="highlight"><pre class="highlight"><code>COMP90042 Natural Language Processing
+
+
+The aims for this subject is for students to develop an understanding of the main algorithms used in natural 
+language processing, for use in a diverse range of applications including text classification, machine 
+translation, and question answering. Topics to be covered include part-of-speech tagging, n-gram language 
+modelling, syntactic parsing and deep learning. The programming language used is Python, see 
+the detailed configuration instructions for more information on its use in the 
+workshops, assignments and installation at home.
+</code></pre></div></div>
+
+<p>We can see more clearly now that there are three newline characters between the title and the main text, and also some newlines within the text. Our sentence tokenizer won’t be able to handle the title properly, so let’s remove it, and change the other newlines to spaces.</p>
+
+<div class="language-python highlighter-rouge"><div class="highlight"><pre class="highlight"><code><span class="n">text</span> <span class="o">=</span> <span class="n">text</span><span class="o">.</span><span class="n">split</span><span class="p">(</span><span class="s">"</span><span class="se">\n\n\n</span><span class="s">"</span><span class="p">)[</span><span class="mi">1</span><span class="p">]</span><span class="o">.</span><span class="n">replace</span><span class="p">(</span><span class="s">"</span><span class="se">\n</span><span class="s">"</span><span class="p">,</span> <span class="s">" "</span><span class="p">)</span>
+<span class="k">print</span><span class="p">(</span><span class="n">text</span><span class="p">)</span>
+</code></pre></div></div>
+
+<div class="highlighter-rouge"><div class="highlight"><pre class="highlight"><code>The aims for this subject is for students to develop an understanding of the main algorithms used in natural  language processing, for use in a diverse range of applications including text classification, machine  translation, and question answering. Topics to be covered include part-of-speech tagging, n-gram language  modelling, syntactic parsing and deep learning. The programming language used is Python, see  the detailed configuration instructions for more information on its use in the  workshops, assignments and installation at home.
+</code></pre></div></div>
+
+<p>Next let’s segment the text into sentences. Though a simple method like splitting on periods would work well enough in this case, let’s try a sentence segmenter from NLTK, which would be able to handle harder cases if they appeared in our text.</p>
+
+<p>接下来，让我们将文本分割成句子。虽然在这个例子中，像 “按照句号进行 split” 这种简单的方法已经完全够用了，但是，让我们尝试一下 <code class="highlighter-rouge">NLTK</code> 中的英文分句模块 <code class="highlighter-rouge">pickle</code>，它可以处理文本中可能出现的更加复杂的情况：</p>
+
+<div class="language-python highlighter-rouge"><div class="highlight"><pre class="highlight"><code><span class="kn">import</span> <span class="nn">nltk</span>
+<span class="n">nltk</span><span class="o">.</span><span class="n">download</span><span class="p">(</span><span class="s">'punkt'</span><span class="p">)</span>
+<span class="n">sent_segmenter</span> <span class="o">=</span> <span class="n">nltk</span><span class="o">.</span><span class="n">data</span><span class="o">.</span><span class="n">load</span><span class="p">(</span><span class="s">'tokenizers/punkt/english.pickle'</span><span class="p">)</span>
+
+<span class="n">sentences</span> <span class="o">=</span> <span class="n">sent_segmenter</span><span class="o">.</span><span class="n">tokenize</span><span class="p">(</span><span class="n">text</span><span class="p">)</span>
+<span class="k">print</span><span class="p">(</span><span class="n">sentences</span><span class="p">)</span>
+</code></pre></div></div>
+
+<div class="highlighter-rouge"><div class="highlight"><pre class="highlight"><code>['The aims for this subject is for students to develop an understanding of the main algorithms used in natural  language processing, for use in a diverse range of applications including text classification, machine  translation, and question answering.', 'Topics to be covered include part-of-speech tagging, n-gram language  modelling, syntactic parsing and deep learning.', 'The programming language used is Python, see  the detailed configuration instructions for more information on its use in the  workshops, assignments and installation at home.']
+
+
+[nltk_data] Downloading package punkt to /Users/laujh/nltk_data...
+[nltk_data]   Package punkt is already up-to-date!
+</code></pre></div></div>
+
+<p>NLTK also has a word tokenizer. For the first sentence, let’s compare a naive split using spaces and the NTLK regex tokenizer</p>
+
+<div class="language-python highlighter-rouge"><div class="highlight"><pre class="highlight"><code><span class="n">word_tokenizer</span> <span class="o">=</span> <span class="n">nltk</span><span class="o">.</span><span class="n">tokenize</span><span class="o">.</span><span class="n">regexp</span><span class="o">.</span><span class="n">WordPunctTokenizer</span><span class="p">()</span>
+
+<span class="n">tokenized_sentence</span> <span class="o">=</span> <span class="n">word_tokenizer</span><span class="o">.</span><span class="n">tokenize</span><span class="p">(</span><span class="n">sentences</span><span class="p">[</span><span class="mi">1</span><span class="p">])</span>
+<span class="k">print</span><span class="p">(</span><span class="n">tokenized_sentence</span><span class="p">)</span>
+<span class="k">print</span><span class="p">(</span><span class="n">sentences</span><span class="p">[</span><span class="mi">1</span><span class="p">]</span><span class="o">.</span><span class="n">split</span><span class="p">(</span><span class="s">" "</span><span class="p">))</span>
+</code></pre></div></div>
+
+<div class="highlighter-rouge"><div class="highlight"><pre class="highlight"><code>['Topics', 'to', 'be', 'covered', 'include', 'part', '-', 'of', '-', 'speech', 'tagging', ',', 'n', '-', 'gram', 'language', 'modelling', ',', 'syntactic', 'parsing', 'and', 'deep', 'learning', '.']
+['Topics', 'to', 'be', 'covered', 'include', 'part-of-speech', 'tagging,', 'n-gram', 'language', '', 'modelling,', 'syntactic', 'parsing', 'and', 'deep', 'learning.']
+</code></pre></div></div>
+
+<p>The NLTK tokenizer correctly splits off commas and periods from the ends of words. It also splits up the hyphenated word “part-of-speech”, which might be the right behavior for some applications, but not for others.</p>
+
+<p>Let’s try out lemmatization. NLTK has a lemmatizer, though using it requires that we know the part of speech of the word. In this case, we’ll just try verb lemmatization, and if doesn’t change the word, we’ll try noun.</p>
+
+<div class="language-python highlighter-rouge"><div class="highlight"><pre class="highlight"><code><span class="n">nltk</span><span class="o">.</span><span class="n">download</span><span class="p">(</span><span class="s">'wordnet'</span><span class="p">)</span>
+<span class="n">lemmatizer</span> <span class="o">=</span> <span class="n">nltk</span><span class="o">.</span><span class="n">stem</span><span class="o">.</span><span class="n">wordnet</span><span class="o">.</span><span class="n">WordNetLemmatizer</span><span class="p">()</span>
+
+<span class="k">def</span> <span class="nf">lemmatize</span><span class="p">(</span><span class="n">word</span><span class="p">):</span>
+    <span class="n">lemma</span> <span class="o">=</span> <span class="n">lemmatizer</span><span class="o">.</span><span class="n">lemmatize</span><span class="p">(</span><span class="n">word</span><span class="p">,</span><span class="s">'v'</span><span class="p">)</span>
+    <span class="k">if</span> <span class="n">lemma</span> <span class="o">==</span> <span class="n">word</span><span class="p">:</span>
+        <span class="n">lemma</span> <span class="o">=</span> <span class="n">lemmatizer</span><span class="o">.</span><span class="n">lemmatize</span><span class="p">(</span><span class="n">word</span><span class="p">,</span><span class="s">'n'</span><span class="p">)</span>
+    <span class="k">return</span> <span class="n">lemma</span>
+
+<span class="k">print</span><span class="p">([</span><span class="n">lemmatize</span><span class="p">(</span><span class="n">token</span><span class="p">)</span> <span class="k">for</span> <span class="n">token</span> <span class="ow">in</span> <span class="n">tokenized_sentence</span><span class="p">])</span>
+</code></pre></div></div>
+
+<div class="highlighter-rouge"><div class="highlight"><pre class="highlight"><code>[nltk_data] Downloading package wordnet to /Users/laujh/nltk_data...
+[nltk_data]   Package wordnet is already up-to-date!
+
+
+['Topics', 'to', 'be', 'cover', 'include', 'part', '-', 'of', '-', 'speech', 'tag', ',', 'n', '-', 'gram', 'language', 'model', ',', 'syntactic', 'parse', 'and', 'deep', 'learn', '.']
+</code></pre></div></div>
+
+<p>Compare this to the result of stemming using the Porter Stemmer:</p>
+
+<div class="language-python highlighter-rouge"><div class="highlight"><pre class="highlight"><code><span class="n">stemmer</span> <span class="o">=</span> <span class="n">nltk</span><span class="o">.</span><span class="n">stem</span><span class="o">.</span><span class="n">porter</span><span class="o">.</span><span class="n">PorterStemmer</span><span class="p">()</span>
+<span class="k">print</span><span class="p">([</span><span class="n">stemmer</span><span class="o">.</span><span class="n">stem</span><span class="p">(</span><span class="n">token</span><span class="p">)</span> <span class="k">for</span> <span class="n">token</span> <span class="ow">in</span> <span class="n">tokenized_sentence</span><span class="p">])</span>
+</code></pre></div></div>
+
+<div class="highlighter-rouge"><div class="highlight"><pre class="highlight"><code>['topic', 'to', 'be', 'cover', 'includ', 'vector', 'space', 'model', ',', 'part', '-', 'of', '-', 'speech', 'tag', ',', 'n', '-', 'gram', 'languag', 'model', ',', 'syntact', 'pars', 'and', 'neural', 'sequenc', 'model', '.']
+</code></pre></div></div>
+
+<div class="language-python highlighter-rouge"><div class="highlight"><pre class="highlight"><code>
+</code></pre></div></div>
+
+<video id="video" controls="" preload="none" poster="http://andy-blog.oss-cn-beijing.aliyuncs.com/blog/2020-03-11-WX20200311-140542%402x.png">
+<source id="mp4" src="http://andy-blog.oss-cn-beijing.aliyuncs.com/blog/2020-03-11-BFS.mp4" type="video/mp4" width="50%" />
+</video>
+
+:ET
