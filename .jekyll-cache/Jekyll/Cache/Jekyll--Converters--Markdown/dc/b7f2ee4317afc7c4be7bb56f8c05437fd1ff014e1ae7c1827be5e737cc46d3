@@ -1,0 +1,18 @@
+I"r<!-- 数学公式 -->
+<script src="https://cdn.mathjax.org/mathjax/latest/MathJax.js?config=TeX-AMS-MML_HTMLorMML" type="text/javascript"></script>
+
+<script type="text/x-mathjax-config">
+  MathJax.Hub.Config({
+    tex2jax: {
+      skipTags: ['script', 'noscript', 'style', 'textarea', 'pre'],
+      inlineMath: [['$','$']]
+    }
+  });
+</script>
+
+<h1 id="lecture-03-导论-3">Lecture 03 导论 (3)</h1>
+<h2 id="7-线性模型中的假设检验">7. 线性模型中的假设检验</h2>
+<p>假设检验可以用来决定一个线性模型中的预测变量 $X$ 的任何集合的显著性。</p>
+
+<p>下节内容：导论 (4)</p>
+:ET

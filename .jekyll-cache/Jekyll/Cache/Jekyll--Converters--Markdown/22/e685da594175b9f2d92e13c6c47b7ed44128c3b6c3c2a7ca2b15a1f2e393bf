@@ -1,0 +1,67 @@
+I"�<!-- 数学公式 -->
+<script src="https://cdn.mathjax.org/mathjax/latest/MathJax.js?config=TeX-AMS-MML_HTMLorMML" type="text/javascript"></script>
+
+<script type="text/x-mathjax-config">
+  MathJax.Hub.Config({
+    tex2jax: {
+      skipTags: ['script', 'noscript', 'style', 'textarea', 'pre'],
+      inlineMath: [['$','$']]
+    }
+  });
+</script>
+
+<h1 id="lecture-03-导论-3">Lecture 03 导论 (3)</h1>
+<p>我们将用两周来回顾之前在 MAST90104 中学习过的线性模型的相关内容，上周我们已经回顾了包括如何拟合线性模型、如何解释线性模型等在内的一部分内容，本周我们将继续回顾线性模型中余下的内容。</p>
+
+<p>在这节课中，我们将主要回顾以下内容：</p>
+<ul>
+  <li>线性模型中的假设检验</li>
+  <li>线性模型中的置信区间</li>
+  <li>模型诊断</li>
+</ul>
+
+<h2 id="7-线性模型中的假设检验">7. 线性模型中的假设检验</h2>
+<h3 id="71-假设检验">7.1 假设检验</h3>
+<p>假设检验可以用来决定一个线性模型中的预测变量 $X$ 组成的任何集合的显著性。</p>
+
+<p>假设误差项 $\varepsilon_i$ 之间服从 i.i.d. 正态分布。</p>
+
+<p>假设我们希望知道：在不损失较大的拟合优度的前提下，一个模型 $\Omega$ 是否可以用它的子模型 $\omega$ 来替代。而这可以通过假设检验来确认：</p>
+
+<script type="math/tex; mode=display">H_0: \boldsymbol \beta_{\Omega-\omega}=\mathbf 0 \quad \text{vs.}\quad H_1: \boldsymbol \beta_{\Omega-\omega}\ne\mathbf 0</script>
+
+<p>其中，$\boldsymbol \beta_{\Omega-\omega}$ 是参数 $\boldsymbol \beta$ 的一个子集，它存在于模型 $\Omega$ 中，但是不在其子模型 $\omega$ 中。</p>
+
+<p>在线性模型中，我们希望知道预测变量的某个特定集合的显著性，我们希望知道这个预测变量的特定集合对于响应变量的效应。这可以通过构建两个模型来进行验证：模型 $\Omega$ 及其子模型 $\omega$。如果 $H_0$ 成立，说明两个模型之间的预测变量的差异构成的集合对于响应变量没有显著效应（即这部分预测变量的系数均为 $0$），因此，模型 $\Omega$ 可以用其子模型 $\omega$ 来替代。反之，如果 $H_1$ 成立，说明两个模型之间的预测变量的差异构成的集合对于响应变量有显著效应，我们不能用模型 $\omega$ 代替模型 $\Omega$。</p>
+
+<p>假设样本数量为 $n$，模型 $\Omega$ 的自由度为 $\text{dim}(\boldsymbol \beta_{\Omega})=p$，模型 $\omega$ 的自由度为 $\text{dim}(\boldsymbol \beta_{\omega})=q$。那么当模型 $\omega$ 正确时（即 $H_0$ 为真），$F$ 统计量为：</p>
+
+<script type="math/tex; mode=display">F=\dfrac{(\textsf{RSS}_{\omega}-\textsf{RSS}_{\Omega})/(p-q)}{\textsf{RSS}_{\Omega}/(n-p)}\,\sim \, F_{p-q,n-p}</script>
+
+<p>如果 $F&gt;F_{p-q,n-p}^{(\alpha)}$，我们将在显著性水平 $\alpha$ 上拒绝 $H_0$ 假设。</p>
+
+<p>这也被称为 <strong>方差分析检验（ANOVA test）</strong>。当然，在这两个模型中，模型 $\omega$ 的残差平方和要更大一些，因为它包含的参数数量更少。$F$ 统计量是由 R.A. Fisher 提出的，它告诉了我们从模型 $\Omega$ 转换到模型 $\omega$ 的过程中，残差平方和 $\textsf{RSS}$ 的相对减少量，如果这个减少量非常显著，则意味着当我们将包含全部参数的模型缩减为包含参数子集的模型时，被移除的那部分预测变量对于响应变量的效应实际上是非常显著的，因此，我们不能将其移除。</p>
+
+<h3 id="72-假设检验的例子">7.2 假设检验的例子</h3>
+<p>回忆之前我们之前讨论过的 2000 年美国总统大选时佐治亚州选票的例子，现在我们比较之前拟合的两个模型：$\omega=$<code class="highlighter-rouge">lmod</code> 和 $\Omega=$<code class="highlighter-rouge">lmodi</code>。其中，模型 $\omega$ 只包含 <code class="highlighter-rouge">pergore</code> 和 <code class="highlighter-rouge">perAA</code> 两个预测变量，而模型 $\Omega$ 增加了 <code class="highlighter-rouge">usage</code> 和 <code class="highlighter-rouge">equip</code>，以及一些交互项。我们可以通过下面的代码完成 $F$ 检验：</p>
+
+<div class="highlighter-rouge"><div class="highlight"><pre class="highlight"><code>&gt; anova(lmod, lmodi)
+Analysis of Variance Table
+
+Model 1: undercount ~ pergore + perAA
+Model 2: undercount ~ cperAA + cpergore * usage + equip
+  Res.Df      RSS Df Sum of Sq      F   Pr(&gt;F)   
+1    156 0.093249                                
+2    150 0.081775  6  0.011474 3.5077 0.002823 **
+---
+Signif. codes:  0 ‘***’ 0.001 ‘**’ 0.01 ‘*’ 0.05 ‘.’ 0.1 ‘ ’ 1
+</code></pre></div></div>
+
+<p>$F$ 统计量为：</p>
+
+<script type="math/tex; mode=display">F=\dfrac{(0.093249-0.081775)/(156-150)}{0.081775/150}=3.5077 \,\sim\, F_{6,150}</script>
+
+<p>可以看到，p 值为 $0.002823$，小于 $0.05$,</p>
+
+<p>下节内容：导论 (4)</p>
+:ET
