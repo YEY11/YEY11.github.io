@@ -1,0 +1,327 @@
+I"�;<!-- 数学公式 -->
+<script src="https://cdn.mathjax.org/mathjax/latest/MathJax.js?config=TeX-AMS-MML_HTMLorMML" type="text/javascript"></script>
+
+<script type="text/x-mathjax-config">
+  MathJax.Hub.Config({
+    tex2jax: {
+      skipTags: ['script', 'noscript', 'style', 'textarea', 'pre'],
+      inlineMath: [['$','$']]
+    }
+  });
+</script>
+
+<h1 id="lecture-05-词性标注">Lecture 05 词性标注</h1>
+
+<p>本节课我们将学习 <strong>词性标注（part of speech tagging）</strong>。</p>
+
+<ul>
+  <li><strong>什么是词性（Part-of-Speech, POS）？</strong>
+    <ul>
+      <li><strong>词性（POS）</strong> 又称 <strong>词类（word classes）、形态类别（morphological classes）</strong> 或者 <strong>句法类别（syntactic categories）</strong>。</li>
+      <li>例如：名词（noun）、动词（verb）、形容词（adjective）等。</li>
+    </ul>
+  </li>
+  <li><strong>我们为什么关心词性？</strong><br />
+<strong>因为词性在很大程度上告诉了我们一个词的句法功能以及它周围可能出现的词</strong>：
+    <ul>
+      <li>名词（noun）通常出现在限定词（determiner，例如：$\textit{the}$、$\textit{a}$ ）后面。</li>
+      <li>动词（verb）通常出现在名词（noun）后面。</li>
+      <li>并且，一个词的发音可能会根据词性不同而改变。<br />
+例如：对于 $\textit{content}$ 这个单词，当其作为名词（noun）时，重音在前，读作 $\textit{CONtent}$；而当其作为形容词（adjective）时，重音在后，读作 $\textit{conTENT}$。</li>
+    </ul>
+  </li>
+</ul>
+
+<p>这里是一些典型的应用场景：</p>
+
+<ul>
+  <li><strong>作者身份重新审查（Authorship Attribution Revisited）</strong><br />
+在之前的文本分类中，我们介绍过 <strong>作者身份识别（Authorship attribution）</strong> 任务，其目的是试图找出某段文本的作者。假设现在我们有如下训练数据：
+    <ul>
+      <li>训练数据：
+        <ul>
+          <li>$\textit{“The lawyer convinced the jury.”}\to \textit{Sam}$</li>
+          <li>$\textit{“Ruby travelled around Australia.”}\to \textit{Sam}$</li>
+          <li>$\textit{“The hospital was cleaned by the janitor.”}\to \textit{Max}$</li>
+          <li>$\textit{“Lunch was served at 12pm.”}\to \textit{Max}$</li>
+        </ul>
+
+        <p>这里，我们有 $4$ 个句子，前两个作者是 $\textit{Sam}$，后两个来自 $\textit{Max}$。通过观察可以发现他们在使用句子时存在不同的模式，$\textit{Sam}$ 倾向于使用 <strong>主动语态（active voice）</strong>，$\textit{Max}$ 倾向于使用 <strong>被动语态（passive voice）</strong>。</p>
+      </li>
+      <li>测试数据：<br />
+$\textit{“The bookstore was opened by the manager.”}\to \text{?}$</li>
+      <li>我们可以很容易判断它很可能来自 $\textit{Max}$，因为它们具有相似的 <strong>结构</strong>（被动语态）
+        <ul>
+          <li>作为人类，我们可以很容易捕获这种句子模式。</li>
+          <li>但是，简单的 <strong>词袋表示（BOW representation）</strong> 无法捕获这种句子结构层面的差异。因为在词袋模型中，句子单词之间的顺序信息被直接丢弃掉了。</li>
+        </ul>
+      </li>
+      <li>如何确保计算机能够知道/学习这种结构层面的信息？词性信息可能会有帮助。</li>
+    </ul>
+  </li>
+  <li><strong>信息提取（Information Extraction）</strong><br />
+另一个涉及单词词性的场景是信息提取，其目的是试图从语料库中提取到关系信息。
+    <ul>
+      <li>给定如下的语料库：
+        <ul>
+          <li>$\textit{“Brasilia, the Brazilian capital, was founded in 1960.”}$</li>
+        </ul>
+      </li>
+      <li>我们希望从上面的句子中提取某些关系：
+        <ul>
+          <li>$\textit{capital (Brazil, Brasilia)}$</li>
+          <li>$\textit{founded (Brasilia, 1960)}$</li>
+        </ul>
+      </li>
+      <li>这其中涉及到很多步骤，但是首先我们需要知道词性信息，例如：
+        <ul>
+          <li><strong>名词</strong>：$\textit{Brasilia, capital}$</li>
+          <li><strong>形容词</strong>：$\textit{Brazilian}$</li>
+          <li><strong>动词</strong>：$\textit{founded}$</li>
+          <li><strong>数字</strong>：$\textit{1960}$</li>
+        </ul>
+      </li>
+    </ul>
+  </li>
+</ul>
+
+<p><strong>本节课程大纲</strong></p>
+<ul>
+  <li>词性</li>
+  <li>标注集</li>
+  <li>自动标注</li>
+</ul>
+
+<h2 id="1-词性">1. 词性</h2>
+
+<h3 id="11-词性的分类">1.1 词性的分类</h3>
+<p>通常来说，<strong>词性（POS）</strong>可以分为两类：<strong>开放类（open classes）</strong>和 <strong>封闭类（closed classes）</strong>。这种分类的衡量标准是接受新单词的可能性的大小。</p>
+
+<p>开放类包含名词、动词、形容词和副词这几种典型词性，通常这几种词性接受新单词的可能性较大：人们总是在创造新的名词、动词等等。这些词性的词汇表会随着时间而增长。<br />
+封闭类则相反，包含介词、连词、限定词等，它们通常不会随着时间而增长。</p>
+
+<h3 id="12-开放类英语">1.2 开放类（英语）</h3>
+<ul>
+  <li><strong>名词（Nouns）</strong>
+    <ul>
+      <li>专有名词（proper noun）vs. 一般名词（common noun）<br />
+例如：$\textit{Australia}$ <em>（澳大利亚）</em> vs. $\textit{wombat}$ <em>（毛鼻袋熊）</em></li>
+      <li>不可数名词（mass noun）vs. 可数名词（count noun）<br />
+例如：$\textit{rice}$ <em>（大米）</em> vs. $\textit{bowls}$ <em>（碗）</em></li>
+    </ul>
+  </li>
+  <li><strong>动词（Verbs）</strong>
+    <ul>
+      <li>丰富的形态变化（rich inflection）<br />
+例如：$\textit{go/goes/going/gone/went}$</li>
+      <li>助动词（auxiliary verbs）<br />
+例如：英语中的 $\textit{be, have, do}$</li>
+      <li>及物性（transitivity）<br />
+后面可以带不同数量的参数。
+例如：$\textit{wait }$ vs. $\textit{hit }$ vs. $\textit{give}$<br />
+$\textit{Alice waits.}$<br />
+$\textit{Alice hits Bob.}$<br />
+$\textit{Alice gives Bob a book.}$</li>
+    </ul>
+  </li>
+  <li><strong>形容词（Adjectives）</strong>
+    <ul>
+      <li>可分级的（gradable）：可以有不同的程度<br />
+例如：$\textit{happy}\to \textit{a bit happy, very happy, not very happy}$</li>
+      <li>不可分级的（non-gradable）：通常只有正反两种<br />
+例如：$\textit{computational}\quad$ vs.  $\quad\textit{noncomputational}$</li>
+    </ul>
+  </li>
+  <li><strong>副词（Adverbs）</strong>
+    <ul>
+      <li>表方式（manner）<br />
+例如：$\textit{slowly}$</li>
+      <li>表位置（locative）<br />
+例如：$\textit{here}$</li>
+      <li>表程度（degree）<br />
+例如：$\textit{really}$</li>
+      <li>表时态（temporal）<br />
+例如：$\textit{yesterday}$<br />
+注意，$\textit{yesterday}$ 是一个很有趣的例子，它的词性可以是名词或者副词，具体情况取决于其在句子中扮演的角色。</li>
+    </ul>
+  </li>
+</ul>
+
+<p>事实上，大部分单词都具有不止一种词性。另外，以上四种词性在英语以及很多其他语言中都很常见，但是不是所有的语言都具有全部这四种词性，有些语言中没有形容词，有些语言中没有副词。因此，词性并不存在一个适用于所有语言的统一标准，不同的语言具有不同的词性标准。</p>
+
+<h3 id="13-封闭类英语">1.3 封闭类（英语）</h3>
+<p>封闭类的词性通常不会随着时间而增长。但是，封闭类往往模糊性（Ambiguity）更强，它们有时根据不同的解释可以具有不同的词性。</p>
+<ul>
+  <li><strong>介词（Prepositions）</strong><br />
+通常用来在两个事物之间建立某种联系。
+    <ul>
+      <li>$\textit{in, on, with, for, of, over, \dots}$<br />
+例如：$\textit{an apple on the table}$</li>
+    </ul>
+  </li>
+  <li><strong>小品词（Particles）</strong><br />
+通常是介词里的一些单词，但是用法上存在一些区别，经常用在动词后面，构成一些词组。
+    <ul>
+      <li>例如：$\textit{brushed himself off}$<br />
+从表意上看，$\textit{brush}$<em>（刷）</em> 和 $\textit{brush off}$<em>（刷掉）</em> 有一些差别。在英语中，小品词与动词一起使用通常代表了一些约定俗成的规则用法。</li>
+    </ul>
+  </li>
+  <li><strong>限定词（Determiners）</strong>
+    <ul>
+      <li>冠词（articles）<br />
+例如：$\textit{a, an, the}$</li>
+      <li>指示代词（Demonstratives）<br />
+例如：$\textit{this, that, these, those}$</li>
+      <li>量词（Quantifiers）<br />
+例如：$\textit{each, every, some, two, \dots}$</li>
+    </ul>
+  </li>
+  <li><strong>代词（Pronouns）</strong>
+    <ul>
+      <li>人称（Personal）<br />
+例如：$\textit{I, me, she, \dots}$</li>
+      <li>所有格（Possessive）<br />
+例如：$\textit{my, our, \dots}$</li>
+      <li>疑问（Interrogative 或者 $\textit{Wh-}$）<br />
+例如：$\textit{who, what, \dots}$</li>
+    </ul>
+  </li>
+  <li><strong>连接词（Conjunctions）</strong><br />
+连接两个分句（clauses）。
+    <ul>
+      <li>并列（Coordinating）<br />
+例如：$\textit{and, or, but}$</li>
+      <li>从属（Subordinating）<br />
+例如：$\textit{if, although, that, \dots}$</li>
+    </ul>
+  </li>
+  <li><strong>情态动词（Modal verbs）</strong>
+    <ul>
+      <li>表能力（Ability）<br />
+例如：$\textit{can, could}$</li>
+      <li>表许可（Permission）<br />
+例如：$\textit{can, may}$</li>
+      <li>表可能性（Possibility）<br />
+例如：$\textit{may, might, could, will}$</li>
+      <li>表必要性（Necessity）<br />
+例如：$\textit{must}$</li>
+    </ul>
+  </li>
+  <li><strong>还有很多其他词性</strong>
+    <ul>
+      <li>否定（negatives）、礼貌标记语（politeness markers）等等。</li>
+    </ul>
+  </li>
+</ul>
+
+<h3 id="14-模糊性">1.4 模糊性</h3>
+<p>现在我们将讨论词性标记中的 <strong>模糊性（Ambiguity）</strong>：很多单词可以属于多种词性类别。</p>
+
+<ul>
+  <li>让我们来看一个例子，请比较下面两个句子：
+    <ul>
+      <li>$\textit{Time flies like an arrow}$ <em>（光阴似箭）</em></li>
+      <li>$\textit{Fruit flies like a banana}$ <em>（果蝇喜欢香蕉）</em></li>
+    </ul>
+
+    <table>
+      <thead>
+        <tr>
+          <th style="text-align: center">$\textit{Time}$</th>
+          <th style="text-align: center">$\textit{flies}$</th>
+          <th style="text-align: center">$\textit{like}$</th>
+          <th style="text-align: center">$\textit{an}$</th>
+          <th style="text-align: center">$\textit{arrow}$</th>
+        </tr>
+      </thead>
+      <tbody>
+        <tr>
+          <td style="text-align: center"><span style="color:red">noun</span></td>
+          <td style="text-align: center"><span style="color:red">verb</span></td>
+          <td style="text-align: center"><span style="color:red">preposition</span></td>
+          <td style="text-align: center"><span style="color:red">determiner</span></td>
+          <td style="text-align: center"><span style="color:red">noun</span></td>
+        </tr>
+        <tr>
+          <td style="text-align: center"> </td>
+          <td style="text-align: center"> </td>
+          <td style="text-align: center"> </td>
+          <td style="text-align: center"> </td>
+          <td style="text-align: center"> </td>
+        </tr>
+        <tr>
+          <td style="text-align: center">$\textit{Fruit}$</td>
+          <td style="text-align: center">$\textit{flies}$</td>
+          <td style="text-align: center">$\textit{like}$</td>
+          <td style="text-align: center">$\textit{a}$</td>
+          <td style="text-align: center">$\textit{banana}$</td>
+        </tr>
+        <tr>
+          <td style="text-align: center"><span style="color:red">noun</span></td>
+          <td style="text-align: center"><span style="color:red">noun</span></td>
+          <td style="text-align: center"><span style="color:red">verb</span></td>
+          <td style="text-align: center"><span style="color:red">determiner</span></td>
+          <td style="text-align: center"><span style="color:red">noun</span></td>
+        </tr>
+      </tbody>
+    </table>
+
+    <p><br /></p>
+  </li>
+  <li>接下来，让我们来看一下新闻标题中的词性模糊性：
+    <ul>
+      <li>
+        <p>$\textit{British Left Waffles on Falkland Islands}$<br />
+第一眼单纯从字面意思上来看，我们可能会理解为：<br />
+[$\textit{British}$] [$\textit{Left}$] [$\textit{Waffles}$] [$\textit{on}$] [$\textit{Falkland Islands}$]<br />
+<em>英国人在福克兰群岛上留下了一些华夫饼</em><br />
+但是如果你是英国人，你就会知道 “$\textit{waffle}$” 除了 <em>“华夫饼”</em> 之外，还可以表示 <em>“尚未决定”</em> 的含义，同时 “$\textit{left}$” 除了 <em>“留下来”</em> 之外，还有 <em>“左派”</em> 的含义。所以，结合语境，这个新闻标题实际想表达的含义是：<br />
+[$\textit{British Left}$] [$\textit{Waffles}$] [$\textit{on}$] [$\textit{Falkland Islands}$]<br />
+<em>英国左派党尚未确定（对于）福克兰群岛（的政策）</em>
+<br />
+<br /></p>
+      </li>
+      <li>
+        <p>$\textit{Juvenile Court to Try Shooting Defendant}$<br />
+同样，第一眼看标题，我们可能会理解为：<br />
+[$\textit{Juvenile Court}$] [$\textit{to}$] [$\textit{Try}$] [$\textit{Shooting}$] [$\textit{Defendant}$]<br />
+<em>少年法庭试图射杀被告</em><br />
+但事实上，这里唯一的动词只有 “$\textit{try}$”，它除了 <em>“尝试”</em> 之外，还有 <em>“审判”</em> 的意思。而后面的 “$\textit{shooting defendant}$” 整体作为一个宾语，表示 <em>“枪击案被告”</em>。所以，这个标题实际想表达的含义是：<br />
+[$\textit{Juvenile Court}$] [$\textit{to}$] [$\textit{Try}$] [$\textit{Shooting Defendant}$]<br />
+<em>少年法庭将审判枪击案被告</em>
+<br />
+<br /></p>
+      </li>
+      <li>
+        <p>$\textit{Teachers Strike Idle Kids}$</p>
+      </li>
+      <li>
+        <p>$\textit{Eye Drops Off Shelf}$</p>
+      </li>
+    </ul>
+  </li>
+</ul>
+
+<h2 id="5-总结">5. 总结</h2>
+<ul>
+  <li>
+    <p>对于感兴趣的任务，我们有很多算法可以尝试。（请参阅 <a href="https://scikit-learn.org/stable/">scikit-learn</a>）</p>
+  </li>
+  <li>
+    <p>但是，如果我们的目标是在新任务上取得良好的结果，那么一个标注好的、数据丰富的数据集和适当的特征通常比使用某种的特定算法更重要。</p>
+  </li>
+</ul>
+
+<h2 id="6-扩展阅读">6. 扩展阅读</h2>
+<ul>
+  <li><em><a href="https://canvas.lms.unimelb.edu.au/courses/17601/files/2586500/download">Natural Language Processing, Draft 15/10/18</a></em>, by Eisenstein
+    <ul>
+      <li>Chapter 4 (4.1, 4.3-4.4.1)</li>
+      <li>Chapter 2 &amp; 3：回顾线性核非线性分类算法</li>
+    </ul>
+  </li>
+</ul>
+
+<p>下节内容：词性标注</p>
+
+:ET
