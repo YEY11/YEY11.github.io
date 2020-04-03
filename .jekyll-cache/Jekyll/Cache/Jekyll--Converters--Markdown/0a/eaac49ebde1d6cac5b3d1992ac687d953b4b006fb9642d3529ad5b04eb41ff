@@ -1,0 +1,67 @@
+I"><!-- 数学公式 -->
+<script src="https://cdn.mathjax.org/mathjax/latest/MathJax.js?config=TeX-AMS-MML_HTMLorMML" type="text/javascript"></script>
+
+<script type="text/x-mathjax-config">
+  MathJax.Hub.Config({
+    tex2jax: {
+      skipTags: ['script', 'noscript', 'style', 'textarea', 'pre'],
+      inlineMath: [['$','$']]
+    }
+  });
+</script>
+
+<h1 id="lecture-04-导论-4">Lecture 04 导论 (4)</h1>
+<p>上节课中我们回顾了线性模型中的假设检验、置信区间和模型诊断的相关内容，这节课是导论中的最后一部分，我们将回顾线性模型中余下的内容。</p>
+
+<p>在这节课中，我们将主要回顾以下内容：</p>
+<ul>
+  <li>鲁棒性回归</li>
+  <li>加权最小二乘</li>
+  <li>变换</li>
+  <li>变量选择</li>
+</ul>
+
+<h2 id="10-鲁棒性回归">10. 鲁棒性回归</h2>
+<p>正常情况下，如果随机误差项服从正态分布，那么我们可以采用正态线性回归模型。但是有时，我们在数据集中会碰到一些具有高杠杆值的点或者影响点，这种情况下，正态线性回归模型可能没有办法很好地拟合数据。也就是说，普通最小二乘法对于长尾误差（lon g -tailed errors）的表现非常差。因此，这种情况下，我们可以采用一种更具鲁棒性的方法替代最小二乘法。</p>
+
+<p>普通最小二乘法的损失函数为平方损失函数：$\text{LS loss}=(\hat{\mathbf y}-\mathbf y)^2$</p>
+
+<p>在鲁棒性回归中，我们不会采用平方损失函数。对于鲁棒性回归，有很多不同的损失函数，其中使用最广泛的一种是 Huber 损失函数：</p>
+
+<script type="math/tex; mode=display">% <![CDATA[
+\text{Huber loss}=\begin{cases}c\cdot|\hat{\mathbf y}-\mathbf y|, &\quad \text{if}\;\;|\hat{\mathbf y}-\mathbf y|> a\\
+(\hat{\mathbf y}-\mathbf y)^2 , &\quad \text{if}\;\;|\hat{\mathbf y}-\mathbf y|< a \\
+-c\cdot|\hat{\mathbf y}-\mathbf y|, &\quad \text{if}\;\;|\hat{\mathbf y}-\mathbf y|< -a
+\end{cases} %]]></script>
+
+<p><img src="http://andy-blog.oss-cn-beijing.aliyuncs.com/blog/2020-04-03-Squared-error-and-Huber-loss-functions-For-small-error-th-squared-error-loss-and-Huber.png" width="40%" /></p>
+
+<p>可以看到，平方损失函数的图像是一条抛物线，而 Huber 损失函数的图像在 $[-a,a]$ 之间是抛物线，而在 $[-\infty,-a]$ 和 $[a,\infty]$ 之间为直线。</p>
+
+<div class="highlighter-rouge"><div class="highlight"><pre class="highlight"><code>&gt; library(MASS)
+&gt; rlmodi &lt;- rlm(undercount ~ cperAA+cpergore*usage+equip, gavote)
+&gt; summary(rlmodi)
+
+Call: rlm(formula = undercount ~ cperAA + cpergore * usage + equip, 
+    data = gavote)
+Residuals:
+       Min         1Q     Median         3Q        Max 
+-6.026e-02 -1.165e-02 -6.587e-06  1.100e-02  1.379e-01 
+
+Coefficients:
+                    Value   Std. Error t value
+(Intercept)          0.0414  0.0023    17.8662
+cperAA               0.0327  0.0254     1.2897
+cpergore            -0.0082  0.0418    -0.1972
+usageurban          -0.0167  0.0038    -4.4063
+equipOS-CC           0.0069  0.0038     1.8019
+equipOS-PC           0.0081  0.0048     1.6949
+equipPAPER          -0.0059  0.0138    -0.4269
+equipPUNCH           0.0170  0.0055     3.0720
+cpergore:usageurban  0.0073  0.0316     0.2298
+
+Residual standard error: 0.01722 on 150 degrees of freedom
+</code></pre></div></div>
+
+<p>下节内容：导论 (4)</p>
+:ET
