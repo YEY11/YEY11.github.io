@@ -1,0 +1,67 @@
+I"�<!-- 数学公式 -->
+<script src="https://cdn.mathjax.org/mathjax/latest/MathJax.js?config=TeX-AMS-MML_HTMLorMML" type="text/javascript"></script>
+
+<script type="text/x-mathjax-config">
+  MathJax.Hub.Config({
+    tex2jax: {
+      skipTags: ['script', 'noscript', 'style', 'textarea', 'pre'],
+      inlineMath: [['$','$']]
+    }
+  });
+</script>
+
+<h1 id="论文阅读-01-the-case-for-learned-index-structures">论文阅读 01 The Case for Learned Index Structures</h1>
+
+<p><strong>标题：</strong> The Case for Learned Index Structures<br />
+<strong>作者：</strong> Tim Kraska, Alex Beutel, Ed H. Chi, Jeffrey Dean, Neoklis Polyzotis<br />
+<strong>时间：</strong> 2018.04<br />
+<strong>地址：</strong> <a href="https://arxiv.org/abs/1712.01208">https://arxiv.org/abs/1712.01208</a></p>
+
+<h2 id="摘要">摘要</h2>
+<p><strong>传统的索引模型可以分为以下 3 类：</strong></p>
+<ul>
+  <li><strong>B 树（B-Trees）</strong>：可以视为一个模型，它将一个键值 Key 映射到一个有序数组中的一条记录的位置。通常用于范围查询（例如检索特定时间范围内的所有记录）。</li>
+  <li><strong>哈希映射（Hash-maps）</strong>：可以视为一个模型，它将一个键值 Key 映射到一个无序数组中的一条记录的位置。通常用于单键值查找。</li>
+  <li><strong>比特映射索引（BitMap-Index）</strong>：可以视为一个模型，用于检查一条数据记录是否存在。（例如：Bloom ﬁlters）</li>
+</ul>
+
+<p>在本文中，假设所有现存的索引结构都可以替换为其他类型的模型，包括深度学习模型，我们称之为 <strong>学习索引（learned index）</strong></p>
+
+<p><strong>关键思想</strong>：一个模型可以学习排序顺序或者查询键值的结构，并且利用这类信息来高效预测记录的位置或者判断记录是否存在。</p>
+
+<p>文章从理论上分析了在什么情况下，学习索引的表现优于传统索引，以及设计学习索引结构时的一些主要挑战。文章初步结果显示，在几个真实数据集上，基于神经网络的学习索引在速度上要比经过缓存优化的 B 树快 70%，并且在内存方面要节省一个数量级。更重要的是，作者认为这种利用学习模型替换数据管理系统中的核心组件的想法对于未来的系统设计具有潜在的长远影响。</p>
+
+<h2 id="1-导论">1. 导论</h2>
+<p><strong>传统索引结构的缺点</strong>：没有对数据本身的分布作出任何假设，并且也没有利用现实世界中普遍存在的一些更常见模式的优势。</p>
+
+<p>在知道确切的数据分布的前提下，我们几乎可以对任何索引结构进行高度优化。</p>
+
+<p>当然，在现实世界中大部分情况下，数据不会完美服从某个已知分布，而且针对每个用例构建特定的解决方案会导致巨大的工程量。但是，作者认为机器学习可以让我们以较低的工程成本自动合成所谓 <strong>“学习索引”</strong> 的特殊索引结构。</p>
+
+<p>本文作者探索了（包括神经网络在内的）学习索引可以用于提升、甚至替换传统索引（从 B 树到布隆过滤器）。</p>
+
+<p>在语义学方面，索引在很大程度上已经可以被视为 <strong>学习模型</strong> 了。这使得我们用其他机器学习模型对其进行替换时比预期的更容易。例如：B 树可以视为一个模型，输入为 key，预测为一个有序集合中的某条数据的位置；而布隆过滤器则可以视为一个二分类模型，预测一个集合中的某个 key 是否存在。但是，它们和真正的学习模型还存在一些微妙的但非常重要的差异，例如：一个布隆过滤器可以只有假阳例，而没有假阴例。</p>
+
+<p>在性能方面，由于每个CPU都具有强大的SIMD功能，可以合理推测越来越多的设备将拥有图形处理单元（GPU）或张量处理单元（TPU），并且功能将越来越强大。因为对于神经网络使用的（并行）数学运算受限集的扩展要比通用指令集的扩展容易得多。因此，执行神经网络的高成本在未来实际上可以忽略不计。</p>
+
+<p>很重要的一点是，作者并不主张使用学习索引来完全取代传统的索引结构。相反，本文主要贡献在于提出了一种建立索引的新方法，并对其进行了评估。它作为现有工作的补充，为这一领域开辟了一个新的研究方向。虽然本文专注于分析只读工作负载，但是作者也简单概述了如何将其扩展到涉及频繁写入工作负载的任务。此外，作者还简要概述如何使用相同的原则来替换数据库及其他组件的操作，包括排序和联表 (join)。这些可能会在未来引领一种全新的数据库的开发方式。</p>
+
+<h2 id="2-范围索引">2. 范围索引</h2>
+<p>范围索引结构（例如：B 树）可以视为一种模型：给定一个键（key），“预测” 一个基于 key 的有序集合中某个值的位置。如图 1 中的（a）所示，B 树提供了一种从查找键（keys） 到记录值（values）的有序数组内某个位置（position）的映射。</p>
+
+<p><img src="http://andy-blog.oss-cn-beijing.aliyuncs.com/blog/2020-04-12-WX20200412-161543%402x.png" width="80%" /></p>
+
+<p><strong><center><span style="font-size:10pt">图 1. 为什么 B 树可以视为模型</span></center></strong></p>
+
+<h2 id="8-扩展阅读">8. 扩展阅读</h2>
+<ul>
+  <li><em><a href="https://canvas.lms.unimelb.edu.au/courses/17601/files/2586500/download">Natural Language Processing, Draft 15/10/18</a></em>, by Eisenstein
+    <ul>
+      <li>Chapter 6 (skip 6.3)</li>
+    </ul>
+  </li>
+</ul>
+
+<p>下节内容：文本分类</p>
+
+:ET
