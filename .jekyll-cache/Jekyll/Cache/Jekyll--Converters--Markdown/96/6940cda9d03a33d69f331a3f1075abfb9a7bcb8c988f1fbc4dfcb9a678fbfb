@@ -1,0 +1,208 @@
+I"&'<!-- 数学公式 -->
+<script src="https://cdn.mathjax.org/mathjax/latest/MathJax.js?config=TeX-AMS-MML_HTMLorMML" type="text/javascript"></script>
+
+<script type="text/x-mathjax-config">
+  MathJax.Hub.Config({
+    tex2jax: {
+      skipTags: ['script', 'noscript', 'style', 'textarea', 'pre'],
+      inlineMath: [['$','$']]
+    }
+  });
+</script>
+
+<h1 id="lecture-07-nlp-深度学习前馈神经网络">Lecture 07 NLP 深度学习：前馈神经网络</h1>
+
+<p><strong>什么是深度学习？</strong></p>
+
+<ul>
+  <li>机器学习的一个分支。</li>
+  <li>它是神经网络的另一个名字。</li>
+  <li><strong>神经网络</strong>：灵感来源于大脑的工作机制，包含被称为 <strong>神经元</strong> 的计算单元。</li>
+  <li>为什么是 <strong>深度</strong>？因为在现代深度学习模型中，有很多连接在一起的层。</li>
+</ul>
+
+<h2 id="1-前馈神经网络">1. 前馈神经网络</h2>
+
+<h3 id="11-总体结构">1.1 总体结构</h3>
+
+<p><img src="http://andy-blog.oss-cn-beijing.aliyuncs.com/blog/2020-04-17-WX20200417-204406%402x.png" width="50%" /></p>
+
+<ul>
+  <li>又称 <strong>多层感知器（multilayer perceptrons）</strong></li>
+  <li>上图是一个包含两个隐藏层的前馈神经网络，图中的每个圆圈表示一个神经元，它实际上对应着某个函数，该函数通常是一个非线性函数（例如：Sigmoid 函数），其输入来自前一层的输出的线性加权组合，而每个神经元的输出的线性组合将作为下一层的输入。以此类推，直到输出层，输出层通常是根据实际问题定制的，例如：处理一个三分类问题时，通常可以将输出层神经元个数设为 3 个。</li>
+  <li>图中的每个箭头都携带一个权重，其大小取决于输入变量的重要程度。</li>
+  <li>Sigmoid 函数在这里引入了非线性。</li>
+</ul>
+
+<h3 id="12-神经元">1.2 神经元</h3>
+
+<p><img src="http://andy-blog.oss-cn-beijing.aliyuncs.com/blog/2020-04-17-WX20200417-205859%402x.png" width="40%" /></p>
+
+<p>每个 <strong>神经元</strong> 都是一个 <strong>函数</strong></p>
+<ul>
+  <li>
+    <p>给定输入（向量） $\mathbf x$，计算实值（标量）$h$</p>
+
+    <script type="math/tex; mode=display">h=\tanh \left(\sum_{j}w_jx_j+b\right)</script>
+  </li>
+  <li>对输入进行缩放（乘以权重，$\mathbf w$），并且加上偏移量（偏置，$b$）</li>
+  <li>采用 <strong>非线性函数</strong>，例如：logistic sigmoid, hyperbolic sigmoid（tanh），或者 ReLU</li>
+</ul>
+
+<h3 id="13-矩阵向量表示">1.3 矩阵向量表示</h3>
+
+<ul>
+  <li>
+    <p>通常会有很多个隐藏神经元，即</p>
+
+    <script type="math/tex; mode=display">h_i=\tanh \left(\sum_{j}w_{ij}x_{j}+b_i\right)</script>
+  </li>
+  <li>每个神经元都有属于自己的权重向量 $\mathbf w_i$ 和偏置项 $b_i$</li>
+  <li>
+    <p>某一层的计算结果可以用矩阵和向量操作表示</p>
+
+    <script type="math/tex; mode=display">\mathbf h=\tanh (W\mathbf x + \mathbf b)</script>
+
+    <p>其中，$W$ 是一个由权重向量 $\mathbf w_i$ 构成的矩阵，$\mathbf x$ 是输入向量，$\mathbf b$ 是所有偏置项组成的向量。</p>
+  </li>
+  <li>此时，非线性函数实际上作用在每个元素上。</li>
+</ul>
+
+<h3 id="14-输出层">1.4 输出层</h3>
+
+<ul>
+  <li>二分类问题（例如：对一条推文进行正面/负面情感分类）
+    <ul>
+      <li>使用 Sigmoid 激活函数（又称 Logistic 函数）</li>
+    </ul>
+  </li>
+  <li>多分类问题（例如：对一个文档的主题进行分类）
+    <ul>
+      <li>
+        <p>使用 Softmax 函数，确保概率大于 $0$，并且和为 $1$。</p>
+
+        <script type="math/tex; mode=display">\left[\dfrac{\exp(v_1)}{\sum_i\exp(v_i)},\dfrac{\exp(v_2)}{\sum_i\exp(v_i)},\dots,\dfrac{\exp(v_m)}{\sum_i\exp(v_i)} \right]</script>
+      </li>
+    </ul>
+  </li>
+</ul>
+
+<h3 id="15-前馈神经网络">1.5 前馈神经网络</h3>
+
+<p><img src="http://andy-blog.oss-cn-beijing.aliyuncs.com/blog/2020-04-17-WX20200417-204406%402x.png" width="50%" /></p>
+
+<p>让我们回到之前的例子，上图是一个包含 1 个输入层、2 个隐藏层和 1 个输出层的前馈神经网络。它可以表示为：</p>
+
+<script type="math/tex; mode=display">\mathbf h_1=\tanh (W_1\mathbf x + \mathbf b_1)</script>
+
+<script type="math/tex; mode=display">\mathbf h_2=\tanh (W_2\mathbf h_1 + \mathbf b_2)</script>
+
+<script type="math/tex; mode=display">\mathbf y=\text{softmax}(W_3\mathbf h_2)</script>
+
+<p>权重矩阵 $W$ 和偏置向量 $\mathbf b$ 就是该模型的所有参数，我们通过定义目标函数，利用梯度下降等方法对其进行训练。</p>
+
+<h3 id="16-从数据中学习">1.6 从数据中学习</h3>
+
+<p><strong>如何从数据中学习参数？</strong></p>
+
+<ul>
+  <li>
+    <p>本质上，模型试图尽可能地 “拟合” 训练数据，我们可以通过其分配给正确输出的概率来衡量：</p>
+
+    <script type="math/tex; mode=display">L=\prod_{i=0}^{m}P(y_i\mid x_i)</script>
+
+    <ul>
+      <li><strong>最大化</strong> 所有训练数据的总概率 $L$</li>
+      <li>等价于 <strong>最小化</strong> $\log L$，对于参数而言</li>
+    </ul>
+  </li>
+  <li>
+    <p>训练采用梯度下降</p>
+    <ul>
+      <li>很多工具，例如 tensorflow、pytorch、dynet 等，利用自动微分来自动计算梯度。</li>
+    </ul>
+  </li>
+</ul>
+
+<h2 id="2-应用">2. 应用</h2>
+<p>现在，我们来看一些如何为下游应用构建神经网络的例子。</p>
+
+<h3 id="21-主题分类">2.1 主题分类</h3>
+<p>给定一个文档，基于一个预定义的主题集合（例如：经济、政治、体育等）对其进行分类。</p>
+
+<p><strong>输入</strong>：词袋（bag-of-words）</p>
+
+<p><img src="http://andy-blog.oss-cn-beijing.aliyuncs.com/blog/2020-04-18-WX20200418-115639%402x.png" width="80%" /></p>
+
+<p><strong>模型</strong>：
+考虑之前的两层模型，假设输出的主题类别一共有 3 类：</p>
+
+<p><img src="http://andy-blog.oss-cn-beijing.aliyuncs.com/blog/2020-04-17-WX20200417-204406%402x.png" width="40%" /></p>
+
+<script type="math/tex; mode=display">\mathbf h_1=\tanh (W_1\mathbf x + \mathbf b_1)</script>
+
+<script type="math/tex; mode=display">\mathbf h_2=\tanh (W_2\mathbf h_1 + \mathbf b_2)</script>
+
+<script type="math/tex; mode=display">\mathbf y=\text{softmax}(W_3\mathbf h_2)</script>
+
+<p>对于第一个文档 <strong>doc 1</strong>：<br />
+输入向量 $\mathbf x=[0,2,3,0]$ 代表文档的词袋表示<br />
+输出向量 $\mathbf y=[0.1,0.6,0.3]$ 代表该文档在 3 个类别上的概率分布</p>
+
+<p><strong>训练过程</strong>：<br />
+得到模型输入后，向前传播拟合数据：依次计算第一个隐藏层、第二个隐藏层以及输出层，然后我们可以得到一个输出类别的概率分布，然后我们查看每个类别的正确标签，并计算当前概率分布下的类别交叉熵（例如：假设第一个文档的正确标签是类别 2，我们可以在其概率 $0.6$ 上计算 $\log$ 损失），我们试图告诉模型的是：对于每一个训练样本，我们希望模型对于该样本的正确标签类别分配的概率为 $1.0$。对于概率小于 $1.0$ 的情况，我们基于反向传播计算梯度并且更新模型参数。</p>
+
+<p><strong>预测过程</strong>：<br />
+当模型训练完成后，预测过程非常直接：仅涉及单向的向前传播过程。将测试文档转换为词袋表示作为输入向量，然后向前传播，计算得到输出类别的概率分布，并且将其中概率最大值对应的类别标签作为该文档的预测类别。</p>
+
+<p><strong>改进</strong>：</p>
+<ul>
+  <li>使用 bag-of-ngrams 作为输入。</li>
+  <li>文本预处理：词形还原、移除停用词等。</li>
+  <li>相比行计数，我们可以用 TF-IDF 或者指示器（$0$ 或 $1$，取决于该单词是否存在）来进行单词加权。</li>
+</ul>
+
+<h3 id="22-作者身份识别">2.2 作者身份识别</h3>
+<p>给定一段文本，识别其作者或者作者相关特点（例如：性别、年龄、母语等）。</p>
+
+<ul>
+  <li>在该任务中，文本的风格特征要比单词内容本身更重要。
+    <ul>
+      <li>POS tags 和功能词（例如：$\textit{on, of, the, and}$）</li>
+    </ul>
+  </li>
+  <li>
+    <p>关于功能词，我们可以从特定的词典获得（因为功能词通常是一个封闭集合）。或者，另一种关于功能词很好的近似方法是：挑选一个大的语料库中出现频率最高的 300 个单词。</p>
+  </li>
+  <li><strong>输入</strong>：bag of function words, bag of POS tags, bag of POS bigrams/trigrams</li>
+  <li><strong>单词权重</strong>：密度（例如：在一个文本窗口内，功能词和内容词之间的数量比例）</li>
+  <li><strong>其他特征</strong>：连续功能词之间距离的分布</li>
+</ul>
+
+<h2 id="3-语言模型">3. 语言模型</h2>
+<p>尽管存在很多不同的下游应用，但是它们对应的语言模型可以是通用的。</p>
+
+<h3 id="31-语言模型回顾">3.1 语言模型回顾</h3>
+
+<h2 id="3-总结">3. 总结</h2>
+<ul>
+  <li>对于序列标注任务，HMM 是一种简单高效的方法。</li>
+  <li>非常有竞争力，并且训练过程很快（利用维特比译码算法），可以作为其他序列标注任务的 natural baseline。</li>
+  <li>主要缺点：与 MEMMs 和 CRFs 这类判别式模型相比，HMM 在特征表示方面不是非常灵活。</li>
+</ul>
+
+<h2 id="4-扩展阅读">4. 扩展阅读</h2>
+<ul>
+  <li>JM3 Appendix A A.1-A.2, A.4</li>
+  <li>See also E18 Chapter 7.3</li>
+  <li>参考资料：
+    <ul>
+      <li>Rabiner’s HMM tutorial: <a href="http://tinyurl.com/2hqaf8">http://tinyurl.com/2hqaf8</a></li>
+      <li>Lafferty et al, Conditional random fields: Probabilistic models for segmenting and labeling sequence data (2001)</li>
+    </ul>
+  </li>
+</ul>
+
+<p>下节内容：NLP 深度学习：前馈网络</p>
+
+:ET

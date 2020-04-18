@@ -1,0 +1,54 @@
+I"�<!-- 数学公式 -->
+<script src="https://cdn.mathjax.org/mathjax/latest/MathJax.js?config=TeX-AMS-MML_HTMLorMML" type="text/javascript"></script>
+
+<script type="text/x-mathjax-config">
+  MathJax.Hub.Config({
+    tex2jax: {
+      skipTags: ['script', 'noscript', 'style', 'textarea', 'pre'],
+      inlineMath: [['$','$']]
+    }
+  });
+</script>
+
+<h1 id="lecture-07-nlp-深度学习前馈神经网络">Lecture 07 NLP 深度学习：前馈神经网络</h1>
+
+<p><strong>什么是深度学习？</strong></p>
+
+<ul>
+  <li>机器学习的一个分支。</li>
+  <li>它是神经网络的另一个名字。</li>
+  <li><strong>神经网络</strong>：灵感来源于大脑的工作机制，包含被称为 <strong>神经元</strong> 的计算单元。</li>
+  <li>为什么是 <strong>深度</strong>？因为在现代深度学习模型中，有很多连接在一起的层。</li>
+</ul>
+
+<h2 id="1-前馈神经网络">1. 前馈神经网络</h2>
+
+<p><img src="http://andy-blog.oss-cn-beijing.aliyuncs.com/blog/2020-04-17-WX20200417-204406%402x.png" width="40%" align="right" /></p>
+
+<ul>
+  <li>又称 <strong>多层感知器（multilayer perceptrons）</strong></li>
+  <li></li>
+</ul>
+
+<h2 id="3-总结">3. 总结</h2>
+<ul>
+  <li>对于序列标注任务，HMM 是一种简单高效的方法。</li>
+  <li>非常有竞争力，并且训练过程很快（利用维特比译码算法），可以作为其他序列标注任务的 natural baseline。</li>
+  <li>主要缺点：与 MEMMs 和 CRFs 这类判别式模型相比，HMM 在特征表示方面不是非常灵活。</li>
+</ul>
+
+<h2 id="4-扩展阅读">4. 扩展阅读</h2>
+<ul>
+  <li>JM3 Appendix A A.1-A.2, A.4</li>
+  <li>See also E18 Chapter 7.3</li>
+  <li>参考资料：
+    <ul>
+      <li>Rabiner’s HMM tutorial: <a href="http://tinyurl.com/2hqaf8">http://tinyurl.com/2hqaf8</a></li>
+      <li>Lafferty et al, Conditional random fields: Probabilistic models for segmenting and labeling sequence data (2001)</li>
+    </ul>
+  </li>
+</ul>
+
+<p>下节内容：NLP 深度学习：前馈网络</p>
+
+:ET
