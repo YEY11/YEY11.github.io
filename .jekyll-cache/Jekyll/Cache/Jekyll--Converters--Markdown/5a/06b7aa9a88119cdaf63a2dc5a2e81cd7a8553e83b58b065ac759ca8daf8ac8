@@ -1,0 +1,53 @@
+I"J<!-- 数学公式 -->
+<script src="https://cdn.mathjax.org/mathjax/latest/MathJax.js?config=TeX-AMS-MML_HTMLorMML" type="text/javascript"></script>
+
+<script type="text/x-mathjax-config">
+  MathJax.Hub.Config({
+    tex2jax: {
+      skipTags: ['script', 'noscript', 'style', 'textarea', 'pre'],
+      inlineMath: [['$','$']]
+    }
+  });
+</script>
+
+<h1 id="lecture-08-nlp-深度学习循环网络">Lecture 08 NLP 深度学习：循环网络</h1>
+
+<p>上节课我们介绍了前馈神经网络，本节课我们将学习循环神经网络。</p>
+
+<h2 id="1-n-gram-语言模型">1. N-gram 语言模型</h2>
+<p>让我们再次回到 n-gram 语言模型。</p>
+<ul>
+  <li>可以基于词频计数（以及平滑技术）实现 n-gram 语言模型。</li>
+  <li>可以基于前馈神经网络实现。</li>
+  <li>生成句子（例如：trigram 模型）：<br />
+$\textit{I saw a table is round and about}$</li>
+</ul>
+
+<h2 id="4-总结">4. 总结</h2>
+<ul>
+  <li>神经网络
+    <ul>
+      <li>鲁棒性（例如：单词变体、拼写错误等）。</li>
+      <li>优秀的泛化能力。</li>
+      <li>灵活性 —— 基于不同任务定制不同的神经网络架构。</li>
+    </ul>
+  </li>
+  <li>缺点
+    <ul>
+      <li>训练过程比传统机器学习方法要慢得多，但是可以通过 GPU 加速。</li>
+      <li>参数数量很多，主要受词汇表大小、嵌入、网络深度等因素影响。</li>
+      <li>对数据量需求很大（data hungry），在小型数据集上表现不是很好。</li>
+      <li>在大型语料库上的预训练模型（例如：BERT）可以缓解数据饥饿问题。</li>
+    </ul>
+  </li>
+</ul>
+
+<h2 id="5-扩展阅读">5. 扩展阅读</h2>
+<ul>
+  <li>Feed-forward network: G15, section 4</li>
+  <li>Convolutional network: G15, section 9</li>
+</ul>
+
+<p>下节内容：NLP 深度学习：循环网络</p>
+
+:ET

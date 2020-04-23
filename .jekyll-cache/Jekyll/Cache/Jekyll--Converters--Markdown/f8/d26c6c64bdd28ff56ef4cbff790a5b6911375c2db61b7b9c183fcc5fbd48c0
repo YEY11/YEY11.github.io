@@ -1,0 +1,108 @@
+I"�<!-- 数学公式 -->
+<script src="https://cdn.mathjax.org/mathjax/latest/MathJax.js?config=TeX-AMS-MML_HTMLorMML" type="text/javascript"></script>
+
+<script type="text/x-mathjax-config">
+  MathJax.Hub.Config({
+    tex2jax: {
+      skipTags: ['script', 'noscript', 'style', 'textarea', 'pre'],
+      inlineMath: [['$','$']]
+    }
+  });
+</script>
+
+<h1 id="lecture-08-nlp-深度学习循环网络">Lecture 08 NLP 深度学习：循环网络</h1>
+
+<p>上节课我们介绍了前馈神经网络，本节课我们将学习循环神经网络。</p>
+
+<h2 id="1-n-gram-语言模型">1. N-gram 语言模型</h2>
+<p>让我们再次回到 n-gram 语言模型。</p>
+<ul>
+  <li>可以基于词频计数（以及平滑技术）实现 n-gram 语言模型。<br />
+给定一个语料库，基于其中 bigram/trigram 的频数实现语言模型，并且利用平滑技术处理稀疏性问题和未知单词 gram 的问题。</li>
+  <li>可以基于前馈神经网络实现。<br />
+假设给定 $(n-1)$ 个上下文单词，任务是预测下一个单词。我们可以将其转换为一个分类问题：输出单词是整个词汇表中的某个单词。和一般的分类问题的不同之处在于，这里可能的输出集合非常大。但是除此之外，它和其他分类问题本质上没有区别，所以我们可以基于前馈神经网络实现它。</li>
+</ul>
+
+<p>让我们来看一个使用 trigram 模型生成句子的例子：</p>
+
+<script type="math/tex; mode=display">\textit{I saw a table is round and about}</script>
+
+<p>对于人类而言，上面生成的句子看上去语义不通。但是从 trigram 模型的角度来看，这个句子并没有什么奇怪的，因为如果我们逐个观察 trigram 模型的上下文，会发现每个 trigram 看上去都说得通：</p>
+
+<script type="math/tex; mode=display">\textit{I saw a / saw a table / a table is / table is round / is round and / round and about}</script>
+
+<p>那么，为什么最终我们得到的句子语义不通呢？问题在于：有限的 <strong>上下文</strong>。</p>
+
+<p>当我们试图生成下一个的单词时，只要我们是基于有限的固定大小的上下文单词，那么当生成长句子或者长段落时，最终的句子或者段落意思可能前后语义完全无关。这实际上不是模型本身的问题，而是关于模型假设的问题：即我们可以基于有限的几个单词生成文本。</p>
+
+<h2 id="2-循环神经网络rnn">2. 循环神经网络（RNN）</h2>
+
+<h3 id="21-循环神经网络">2.1 循环神经网络</h3>
+<ul>
+  <li>RNN 允许我们表示任意大小的输入。<br />
+不同于 n-gram 模型，RNN 不再限制于仅查看前 $(n-1)$ 个单词上下文。</li>
+  <li>核心思想：每次处理输入序列中的一个元素，应用一个循环方程。</li>
+  <li>为了捕获所有的上下文信息，用一个 <span style="color:red">状态向量（state vector）</span>表示前面已处理过的上下文。</li>
+</ul>
+
+<p><img src="http://andy-blog.oss-cn-beijing.aliyuncs.com/blog/2020-04-21-WX20200421-131451%402x.png" width="15%" align="right" /></p>
+
+<p>所以，RNN 实际上就是一个方程：</p>
+
+<script type="math/tex; mode=display">\mathbf s_i=f(\mathbf s_{i-1},\mathbf x_i)</script>
+
+<p>其中，$\mathbf s_{i-1}$ 表示之前的状态信息，$\mathbf x_i$ 表示当前输入，$f$ 是带参数的函数，$\mathbf s_i$ 表示生成的新状态。</p>
+
+<p>本质上，它试图查看之前的状态 $\mathbf s_{i-1}$，并且结合当前的输入 $\mathbf x_i$，生成新的状态 $\mathbf s_i$。所以，新的状态 $\mathbf s_i$ 中包含了处理过的 $\mathbf x_i$ 的信息。</p>
+
+<p>那么，我们如何实现这个 RNN 函数呢？</p>
+
+<script type="math/tex; mode=display">\mathbf s_i=\tanh(W_{\mathbf s} \mathbf s_{i-1} + W_{\mathbf x} \mathbf x_i + \mathbf b)</script>
+
+<p>本质上，我们这里用权重矩阵 $W_{\mathbf s}$ 和 $W_{\mathbf x}$ 分别对之前的状态信息 $\mathbf s_{i-1}$ 和当前输入 $\mathbf x_i$ 进行线性变换，然后将它们映射到相同的线性空间并相加，然后再加上一个偏置向量 $\mathbf b$，将结果作为 $\tanh$ 函数的输入，得到新的状态信息 $\mathbf s_i$。</p>
+
+<p>可以看到，这里其实和之前前馈神经网络中的隐藏层是一样的，唯一的区别是这里多了一个循环的过程，因为我们总是用到了前一个状态信息 $\mathbf s_{i-1}$。</p>
+
+<h3 id="22-rnn-展开">2.2 RNN 展开</h3>
+<p>现在，我们对 RNN 进行展开，以便观察它具体是如何工作的。</p>
+
+<p><img src="http://andy-blog.oss-cn-beijing.aliyuncs.com/blog/2020-04-21-WX20200421-171113%402x.png" width="80%" /></p>
+
+<p>可以看到，这里我们有一个展开的 RNN，它包含 4 个时间步（time step）：$\mathbf x_1, \mathbf x_2, \mathbf x_3, \mathbf x_4$。并且，随着时间序列进行，状态向量也在发生变化。然后，在每个时间步中，我们还会计算一个 $y_i$：用一个权重矩阵 $W_y$ 对当前时间步的输出状态 $\mathbf s_i$ 进行线性变换，然后输入激活函数 $\sigma$，用于拟合下游任务。如果我们的任务是一个二分类问题，那么激活函数 $\sigma$ 一般采用 $\text{sigmoid}$ 函数。</p>
+
+<p>例如：考虑一个二分类问题，我们需要根据一些天气信息（温度、湿度、风速等）来预测明天是否会下雨。</p>
+
+<p><strong>简单 RNN</strong>：</p>
+
+<script type="math/tex; mode=display">\mathbf s_i=\tanh(W_{\mathbf s} \mathbf s_{i-1} + W_{\mathbf x} \mathbf x_i + \mathbf b)</script>
+
+<script type="math/tex; mode=display">y_i=\sigma(W_y \mathbf s_i)</script>
+
+<h2 id="4-总结">4. 总结</h2>
+<ul>
+  <li>神经网络
+    <ul>
+      <li>鲁棒性（例如：单词变体、拼写错误等）。</li>
+      <li>优秀的泛化能力。</li>
+      <li>灵活性 —— 基于不同任务定制不同的神经网络架构。</li>
+    </ul>
+  </li>
+  <li>缺点
+    <ul>
+      <li>训练过程比传统机器学习方法要慢得多，但是可以通过 GPU 加速。</li>
+      <li>参数数量很多，主要受词汇表大小、嵌入、网络深度等因素影响。</li>
+      <li>对数据量需求很大（data hungry），在小型数据集上表现不是很好。</li>
+      <li>在大型语料库上的预训练模型（例如：BERT）可以缓解数据饥饿问题。</li>
+    </ul>
+  </li>
+</ul>
+
+<h2 id="5-扩展阅读">5. 扩展阅读</h2>
+<ul>
+  <li>Feed-forward network: G15, section 4</li>
+  <li>Convolutional network: G15, section 9</li>
+</ul>
+
+<p>下节内容：NLP 深度学习：循环网络</p>
+
+:ET
