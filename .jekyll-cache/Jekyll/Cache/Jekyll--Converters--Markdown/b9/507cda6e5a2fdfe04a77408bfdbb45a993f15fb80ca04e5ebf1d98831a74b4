@@ -1,0 +1,50 @@
+I"C<!-- 数学公式 -->
+<script src="https://cdn.mathjax.org/mathjax/latest/MathJax.js?config=TeX-AMS-MML_HTMLorMML" type="text/javascript"></script>
+
+<script type="text/x-mathjax-config">
+  MathJax.Hub.Config({
+    tex2jax: {
+      skipTags: ['script', 'noscript', 'style', 'textarea', 'pre'],
+      inlineMath: [['$','$']]
+    }
+  });
+</script>
+
+<h1 id="lecture-09-广义线性模型glm">Lecture 09 广义线性模型（GLM）</h1>
+<p>我们已经见过了广义线性模型的一些特例，其中，响应变量 $Y$ 服从伯努利分布。现在我们可以看一下更加广义的情况，响应变量 $Y$ 不再是正态的。本章将包含以下三部分：</p>
+
+<ul>
+  <li>介绍</li>
+  <li>估计</li>
+  <li>推断</li>
+</ul>
+
+<h2 id="1-介绍">1. 介绍</h2>
+<p>令 $Y_1,Y_2,\dots,Y_n$ 为随机变量 $Y$ 的独立观测，其关联的协变量向量为 $\mathbf x_1,\mathbf x_2,\dots,\mathbf x_n$。</p>
+
+<p>如果随机变量 $Y$ 的这些独立观测服从正态分布，那么我们可以采用线性模型来建立随机变量 $Y$ 和其关联的协变量之间的联系。对于 $i=1,\dots,n$，我们有</p>
+
+<script type="math/tex; mode=display">Y_i\overset{\mathrm{d}}{=}N(\mu_i,\sigma^2) \quad \text{彼此独立，并且} \quad \mu_i=\mathbf x_i^{\mathrm{T}}\boldsymbol \beta</script>
+
+<p>其中，响应变量 $Y_i$ 的期望 $\mu_i$ 是关于协变量 $\mathbf x_i$ 的线性函数。</p>
+
+<p>现在，我们试图将该模型从正态分布推广到 <strong>指数族（exponential famil y）</strong> 分布：我们假设</p>
+
+<script type="math/tex; mode=display">Y_i\overset{\mathrm{d}}{=}\mathcal {EF}(\mathrm{mean}=\mu_i)  \quad \text{彼此独立，并且} \quad g(\mu_i)=\eta_i=\mathbf x_i^{\mathrm{T}}\boldsymbol \beta</script>
+
+<p>其中，$\eta_i=\mathbf x_i^{\mathrm{T}}\boldsymbol \beta$ 是 <strong>线性预测变量（linear predictor）</strong>。</p>
+
+<p>函数 $g(.)$ 被称为 <strong>连接函数（link function）</strong>：它提供了线性预测变量和响应 $Y$ 的均值之间的连接。</p>
+
+<p>如果 $g(\mu_i)$ 被设置为等于指数族中的 <strong>典范参数（canonical parameter）</strong>，又称 <strong>自然参数（natural parameter）</strong>，那么，$g(.)$ 被称为 <strong>自然连接（natural link）</strong> 或者 <strong>典范连接（canonical link）</strong>。</p>
+
+<p><br /></p>
+
+<p>如果 $Y$ 的分布是 <strong>典范形式（canonical form）</strong>，那么，它的概率密度函数（pdf）$f(y\mid \theta,\phi)$ 满足</p>
+
+<script type="math/tex; mode=display">\ln f(y\mid \theta,\phi)=\dfrac{y\theta-b(\theta)}{a(\phi)}+c(y,\phi)</script>
+
+<p>其中，$\theta$ 被称为 <strong>典范参数（canonical parameter）</strong>或者 <strong>自然参数（natural parameter）</strong>，代表了 <strong>位置（location）</strong>；而 $\phi$ 被称为 <strong>散布参数（dispersion parameter）</strong>，代表了 <strong>尺度（scale）</strong>。我们可以通过指定函数 $a,b,c$ 来定义不同的指数族分布。通常，$a(\phi)=\phi/w$，其中，$w$ 是s’w</p>
+
+<p>下节内容：导论 (4)</p>
+:ET
