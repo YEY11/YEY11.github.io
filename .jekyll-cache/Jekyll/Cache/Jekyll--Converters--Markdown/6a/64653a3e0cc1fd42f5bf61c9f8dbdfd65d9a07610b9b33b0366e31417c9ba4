@@ -1,0 +1,26 @@
+I"�<!-- 数学公式 -->
+<script src="https://cdn.mathjax.org/mathjax/latest/MathJax.js?config=TeX-AMS-MML_HTMLorMML" type="text/javascript"></script>
+
+<script type="text/x-mathjax-config">
+  MathJax.Hub.Config({
+    tex2jax: {
+      skipTags: ['script', 'noscript', 'style', 'textarea', 'pre'],
+      inlineMath: [['$','$']]
+    }
+  });
+</script>
+
+<h1 id="lecture-07-马尔可夫决策过程mdps">Lecture 07 马尔可夫决策过程（MDPs）</h1>
+
+<p>从这</p>
+
+<ol>
+  <li>动机</li>
+  <li>马尔可夫决策过程（MDPs）：定义</li>
+  <li>计算：求解 MDPs</li>
+  <li>部分观测 MDPs</li>
+</ol>
+
+<p>下节内容：生成启发函数</p>
+
+:ET
