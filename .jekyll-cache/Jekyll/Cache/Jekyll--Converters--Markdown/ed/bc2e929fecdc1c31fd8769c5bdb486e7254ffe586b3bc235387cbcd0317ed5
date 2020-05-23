@@ -1,0 +1,99 @@
+I"<!-- 数学公式 -->
+<script src="https://cdn.mathjax.org/mathjax/latest/MathJax.js?config=TeX-AMS-MML_HTMLorMML" type="text/javascript"></script>
+
+<script type="text/x-mathjax-config">
+  MathJax.Hub.Config({
+    tex2jax: {
+      skipTags: ['script', 'noscript', 'style', 'textarea', 'pre'],
+      inlineMath: [['$','$']]
+    }
+  });
+</script>
+
+<h1 id="lecture-08-蒙特卡洛树搜索利用和探索的权衡">Lecture 08 蒙特卡洛树搜索：利用和探索的权衡</h1>
+
+<p>这节课我们将学习 <strong>蒙特卡洛树搜索（Monte Carlo Tree Search, MCTS）</strong>。蒙特卡洛树搜索是一种用于解决强化学习问题的新方法。</p>
+
+<p>MCTS 通常用于 <strong>在线决策（online decision）</strong> 或者 <strong>在线学习（online learning）</strong>。</p>
+
+<p>与之相对的被称为 <strong>离线学习（offline learning）</strong>，在离线学习中，我们提前完成所有的规划，当执行行动的时候，我们执行之前规划的所有行动，例如：在经典规划中，我们先规划好了一个行动序列，然后依次执行它们，我们也可能从中提取策略，并按照策略行动。</p>
+
+<p>相反，在在线学习中，行动和选择是交错进行的，例如：在 MCTS 中，我们在每一次规划都会用来选择下一个行动，然后在执行该行动后，我们将重新进行下一轮的规划。</p>
+
+<p>在实际解决规划问题时，我们可以自行选择采用在线学习或者离线学习的方式，有些技术基于在线学习，有些基于离线学习。例如：价值评估将提供一个完全收敛的策略，它更适用于离线规划；MCTS 则更倾向于在线规划；而经典规划中的启发式搜索既可用于在线学习，也可用于离线学习。在这里，我们将看到很多经典规划应用于我们的问题，我们可以选择忽略转移概率，直接选择行动直到目标状态；或者考虑转移概率，中途可能到达某个状态，然后将该状态作为初始状态重新规划。</p>
+
+<p><strong>本节课主要内容如下：</strong></p>
+<ol>
+  <li>问题</li>
+  <li>蒙特卡洛树搜索 —— 基础</li>
+  <li>多臂老虎机</li>
+  <li>蒙特卡洛树搜索和多臂老虎机</li>
+  <li>总结</li>
+</ol>
+
+<p><strong>学习成果：</strong></p>
+<ol>
+  <li>解释 MDP 的离线规划与在线规划之间的区别。</li>
+  <li>应用 MCTS 手动解决小规模 MDP 问题，并编写 MCTS 算法的代码来自动解决中等规模的 MDP 问题。</li>
+  <li>根据 MCTS 算法生成的 $Q$-函数来构造策略。</li>
+  <li>选择并应用多臂老虎机算法。</li>
+  <li>将多臂老虎机算法（包括 UCB）集成到 MCTS 算法。</li>
+  <li>将 MCTS 与价值/策略迭代进行比较和对比。</li>
+  <li>讨论 MCTS 系列算法的优缺点。</li>
+</ol>
+
+<p><strong>相关阅读：</strong></p>
+<ul>
+  <li>Chapters 2 and 5 of <em>Reinforcement Learning: An Introduction, second edition.</em> Freely downloadable at: <a href="http://www.incompleteideas.net/book/RLbook2020.pdf">http://www.incompleteideas.net/book/RLbook2020.pdf</a></li>
+  <li><em>A Survey of Monte Carlo Tree Search Methods</em> by Browne et al. <em>IEEE Transactions on Computational Intelligence and AI in Games</em>, 2012.<br />
+$\to$ 很好的入门资源，里面涵盖了大量的开创性的论文。</li>
+  <li><em>Regret Analysis of Stochastic and Nonstochastic Multi-armed Bandit Problems</em> by S. Bubeck and N. Cesa–Bianchi, 2012. Freely downloadable at: <a href="https://arxiv.org/pdf/1204.5721v2.pdf">https://arxiv.org/pdf/1204.5721v2.pdf</a><br />
+$\to$ 几乎涵盖了所有你想知道的关于后悔分析和多臂老虎机的相关研究。</li>
+</ul>
+
+<h2 id="1-问题">1. 问题</h2>
+<h3 id="11-mdp-上的离线规划与在线规划">1.1 MDP 上的离线规划与在线规划</h3>
+
+<p>在上一讲中，我们学习了价值迭代和策略迭代。它们都属于 <strong>离线规划</strong> 方法，我们对所有可能的状态进行离线求解问题，然后在线使用解决方案（策略）。这些离线规划策略 $\pi$ 使得：</p>
+
+<ul>
+  <li>我们可以方便地定义适用于任何状态的策略，</li>
+  <li>尽管通常会由于状态空间 $S$ 太大而无法精确地确定 $V(s)$ 或 $\pi$。</li>
+  <li>有一些方法可以通过降低 $S$ 的维度来近似 MDP，但是我们将暂时不对此进行讨论。</li>
+</ul>
+
+<p>在 <strong>在线规划</strong> 中，规划是在执行行动之前立即进行的。一旦执行了一个行动（或者可能是一个行动序列），我们便从当前状态开始规划。因此，规划和执行是交错进行的。</p>
+
+<ul>
+  <li>对于访问过的每个状态 $s$，将 <strong>评估</strong> 许多策略 $\pi$（部分地）。</li>
+  <li>每个 $\pi$ 的质量将通过重复模拟 $r(s,a,s’)$ 获得的 $S$ 上的轨迹的期望回报来近似估计。</li>
+  <li>选择策略 $\hat \pi$，并执行行动 $\hat \pi(s)$。</li>
+</ul>
+
+<p>问题是：我们如何进行重复模拟？蒙特卡洛方法是迄今为止使用最广泛的方法。</p>
+
+<h2 id="2-蒙特卡洛树搜索--基础">2. 蒙特卡洛树搜索 —— 基础</h2>
+<h3 id="21-蒙特卡洛">2.1 蒙特卡洛</h3>
+<p><strong>蒙特卡洛树搜索（MTCS）</strong>是一个算法集合的名称，其中的所有算法都基于同一思想。在这里，我们将重点介绍使用一种算法在线求解单个 agent 的 MDP 问题。</p>
+
+<p><strong>蒙特卡洛（Monte Carlo）</strong>是摩纳哥（法国里维埃拉的一个小公国）内的地区，以其 Extravagent 赌场而闻名。由于赌博和赌场在很大程度上与机率相关，因此在线求解 MDP 的方法通常被称为蒙特卡洛方法，因为它们使用 <strong>随机性（randomness）</strong>来搜索 <strong>行动空间（action space）</strong>。</p>
+
+<p><img src="http://andy-blog.oss-cn-beijing.aliyuncs.com/blog/2020-05-21-WX20200521-233140%402x.png" width="50%" /></p>
+
+<h3 id="22-基础mdp-作为-expectimax-树">2.2 基础：MDP 作为 ExpectiMax 树</h3>
+<p>为了理解 MCTS 的思想，我们注意到 MDP 可以被表示为树（或者图），称为 ExpectiMax 树：</p>
+
+<p><img src="http://andy-blog.oss-cn-beijing.aliyuncs.com/blog/2020-05-21-WX20200521-235036%402x.png" width="80%" /></p>
+
+<p>字母 $a$ 到 $e$ 表示行动，字母 $s$ 到 $x$ 表示状态。白色结点是状态结点，较小的黑色结点表示概率的不确定性：“环境” 基于转移函数从发生的行动中选择哪种结果。</p>
+
+<p>可以看到，在根结点 $s_0$ 处，我们有 2 种行动可以选择：$a$ 和 $b$。而当我们选择行动 $a$ 后，我们来到黑色结点，此时我们发现有 2 种可能的结果状态：$t$ 和 $t’$，其中，有 $P_a(t\mid s_0)$ 的概率到达状态 $t$，而有 $P_a(t’\mid s_0)$ 的概率到达状态 $t’$。</p>
+
+<p>所以，我们可以用这样一种树形结构表示 MDP。ExpectiMax 背后的思想是，当我们试图在 MDP 中寻找最优行动时，我们可以从叶子结点一层一层向上回溯来查看期望回报，并选择最优行动，所以，ExpectiMax 的结构和期望回报之间存在非常好的对应关系。在 MCTS 中，我们将学习如何增量式地构建这些树，以及如何探索这些树以得到最优规划。</p>
+
+<h3 id="23-蒙特卡洛树搜索--概览">2.3 蒙特卡洛树搜索 —— 概览</h3>
+<p>该算法是在线的，这意味着行动选择与行动执行交错。 因此，代理每次访问新状态时都会调用MCTS。 基本特征：</p>
+
+<p>下节内容：蒙特卡洛树搜索：利用和探索的权衡</p>
+
+:ET

@@ -1,0 +1,82 @@
+I"M
+<!-- 数学公式 -->
+<script src="https://cdn.mathjax.org/mathjax/latest/MathJax.js?config=TeX-AMS-MML_HTMLorMML" type="text/javascript"></script>
+
+<script type="text/x-mathjax-config">
+  MathJax.Hub.Config({
+    tex2jax: {
+      skipTags: ['script', 'noscript', 'style', 'textarea', 'pre'],
+      inlineMath: [['$','$']]
+    }
+  });
+</script>
+
+<h1 id="lecture-09-无模型强化学习q-learning-和-sarsa">Lecture 09 无模型强化学习：Q-Learning 和 SARSA</h1>
+
+<p><strong>主要内容：</strong></p>
+<ol>
+  <li>动机</li>
+  <li>强化学习</li>
+  <li>Q-Learning</li>
+  <li>SARSA</li>
+  <li>总结</li>
+</ol>
+
+<h2 id="1-动机">1. 动机</h2>
+<h3 id="11-学习成果">1.1 学习成果</h3>
+<ol>
+  <li>识别在哪些情况下，无模型强化学习适用于求解 MDP 问题。</li>
+  <li>解释无模型规划与基于模型规划之间的差异。</li>
+  <li>应用 Q-Learning 和 SARSA 手动解决小规模 MDP 问题，并编写 Q-Learning 和 SARSA 算法代码自动求解中等规模 MDP 问题。</li>
+  <li>比较和对比非策略强化学习与策略强化学习。</li>
+</ol>
+
+<h3 id="12-规划与学习">1.2 规划与学习</h3>
+
+<p>到目前为止，我们已经学习了盲目/启发式搜索和价值/策略迭代。</p>
+
+<ul>
+  <li>
+    <table>
+      <tbody>
+        <tr>
+          <td>搜索和价值/策略迭代都被称为的 <strong>基于模型的</strong> 技术。这意味着我们需要知道模型；具体来说，我们可以访问P a（s’</td>
+          <td>s）和r（s，a，s’）。</td>
+        </tr>
+      </tbody>
+    </table>
+  </li>
+</ul>
+
+<table>
+  <tbody>
+    <tr>
+      <td>Q学习和SARSA（在本讲座中讨论）是无模型技术。这意味着我们不知道P a（s’</td>
+      <td>s）和r（s，a，s’）。</td>
+    </tr>
+  </tbody>
+</table>
+
+<p>如果我们不知道过渡和奖励，我们如何计算政策？我们通过尝试行动并查看结果是什么来学习经验，从而使该机器学习成为问题。</p>
+
+<table>
+  <tbody>
+    <tr>
+      <td>重要的是，在无模型强化学习中，我们不会尝试学习P a（s’</td>
+      <td>s）或r（s，a，s’）—我们直接学习策略。</td>
+    </tr>
+  </tbody>
+</table>
+
+<table>
+  <tbody>
+    <tr>
+      <td>在基于模型的模型和没有模型的模型之间有一些东西：基于模拟的技术。在这种情况下，我们有一个模型作为模拟器，因此我们可以模拟P a（s’</td>
+      <td>s）和r（s，a，s’）并使用无模型技术学习策略。</td>
+    </tr>
+  </tbody>
+</table>
+
+<p>下节内容：蒙特卡洛树搜索：利用和探索的权衡</p>
+
+:ET
