@@ -1,0 +1,44 @@
+I"�<!-- 数学公式 -->
+<script src="https://cdn.mathjax.org/mathjax/latest/MathJax.js?config=TeX-AMS-MML_HTMLorMML" type="text/javascript"></script>
+
+<script type="text/x-mathjax-config">
+  MathJax.Hub.Config({
+    tex2jax: {
+      skipTags: ['script', 'noscript', 'style', 'textarea', 'pre'],
+      inlineMath: [['$','$']]
+    }
+  });
+</script>
+
+<h1 id="lecture-10-更高效的强化学习回报设计和-q-函数-逼近">Lecture 10 更高效的强化学习：回报设计和 $Q$-函数 逼近</h1>
+
+<p><strong>主要内容：</strong></p>
+<ol>
+  <li>动机</li>
+  <li>$Q$-函数 逼近</li>
+  <li>回报设计和初始化 $Q$-函数</li>
+  <li>总结</li>
+</ol>
+
+<h2 id="1-动机">1. 动机</h2>
+<h3 id="11-学习成果">1.1 学习成果</h3>
+<ol>
+  <li>给定一些已知特征，手动应用线性 $Q$-函数 逼近来解决小规模 MDP 问题。</li>
+  <li>选择合适的特征并设计和实现Q函数逼近，以实现无模型的强化学习技术，从而自动解决中等规模的MDP问题</li>
+</ol>
+
+<p>争论函数逼近方法的优缺点</p>
+
+<p>使用深度神经网络将线性函数逼近与函数逼近进行比较和对比</p>
+
+<p>说明如何使用奖励塑造来帮助无模型的强化学习方法收敛</p>
+
+<p>为给定的潜在功能手动应用奖励整形以解决小规模MDP问题</p>
+
+<p>设计和实施潜在功能以自动解决中等规模的MDP问题</p>
+
+<p>通过Q函数初始化比较和对比奖励塑造</p>
+
+<p>下节内容：更高效的强化学习：回报设计和 $Q$-函数 逼近</p>
+
+:ET
