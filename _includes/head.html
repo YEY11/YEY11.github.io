@@ -59,10 +59,13 @@
         2. 将两个单美元符号$中间的内容看作行内数学公式（若文本内容中美元符号出现频率较高，建议禁用这一脚本）
         3. 从mathjax官网挂载脚本。
         -->
-    
+
+    <!--
+    自动公式编号
     <script type="text/x-mathjax-config">
             MathJax.Hub.Config({ TeX: { equationNumbers: { autoNumber: "all" } } });
-        </script>
+        </script> 
+    -->
     <script type="text/x-mathjax-config">
             MathJax.Hub.Config({tex2jax: {
                  inlineMath: [ ['$','$'], ["\\(","\\)"] ],
