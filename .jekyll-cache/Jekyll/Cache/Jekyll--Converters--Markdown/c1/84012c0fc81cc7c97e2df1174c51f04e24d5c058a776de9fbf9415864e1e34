@@ -1,0 +1,362 @@
+I"K<h1 id="lecture-10-分布语义学">Lecture 10 分布语义学</h1>
+
+<p>这节课我继续学习语义学相关内容，这次我们不再关注单词层面的语义学，而是从语料库中直接学习单词含义，这个领域也被称为分布语义学。</p>
+
+<h2 id="1-分布语义学">1. 分布语义学</h2>
+<h3 id="11-词汇数据库的问题">1.1 词汇数据库的问题</h3>
+<ul>
+  <li>需要手工构建
+    <ul>
+      <li>成本高</li>
+      <li>人类的注解可能存在偏见和噪音</li>
+    </ul>
+  </li>
+  <li>语言是动态的
+    <ul>
+      <li>新的单词：俚语、专业术语等等</li>
+      <li>新的词义（senses）</li>
+    </ul>
+  </li>
+  <li>互联网为我们提供了大量的文本，我们可以利用它们获得单词含义吗？</li>
+</ul>
+
+<h3 id="12-分布假设">1.2 分布假设</h3>
+<ul>
+  <li>“<em>You shall know a word by the company it keeps（你可以通过其周围的上下文单词来了解一个目标单词）</em>” —— (Firth, 1957)</li>
+  <li>共现文档通常指示了主题（<strong>文档（document）</strong> 作为上下文）。
+    <ul>
+      <li>例如：$\textit{voting}$（投票）和 $\textit{politics}$（政治）<br />
+如果我们观察文档，会发现这两个单词经常出现在同一文档中。因此，不同单词的共现文档在一定程度上反映了这些单词在某种主题方面的关联。</li>
+    </ul>
+  </li>
+  <li>局部上下文反映了一个单词的语义类别（<strong>单词窗口（word window）</strong> 作为上下文）。
+    <ul>
+      <li>例如：$\textit{eat a pizza, eat a burger}$<br />
+可以看到，$“\textit{pizza}”$ 和 $“\textit{burger}”$ 这两个单词都具有共同的局部上下文 $“\textit{eat a}”$，由此我们可以知道这两个单词都具有和 $“\textit{eat a}”$ 相关的某种含义。</li>
+    </ul>
+  </li>
+</ul>
+
+<h3 id="13-根据上下文猜测单词含义">1.3 根据上下文猜测单词含义</h3>
+
+<ul>
+  <li>
+    <p>根据其用法来学习一个未知单词。</p>
+  </li>
+  <li>
+    <p>例如：现在我们有一个单词 $\textit{tezgüino}$，我们并不知道其含义，我们试图通过从该单词的一些用法中学习到其含义。<br />
+下面是该单词出现过的一些例句：</p>
+
+    <p><img src="http://andy-blog.oss-cn-beijing.aliyuncs.com/blog/2020-06-13-WX20200613-132004%402x.png" width="50%" /></p>
+
+    <p>作为人类，通过结合常识，我们可以大概猜测到 $\textit{tezgüino}$ 可能是某种含酒精饮品。</p>
+  </li>
+  <li>
+    <p>我们再查看一下在相同（或者类似）上下文中的其他单词的情况。</p>
+
+    <p><img src="http://andy-blog.oss-cn-beijing.aliyuncs.com/blog/2020-06-13-WX20200613-132156%402x.png" width="50%" /></p>
+
+    <p>可以看到，单词 $\textit{wine}$ 出现过的类似场景最多。因此，尽管我们并不知道 $\textit{tezgüino}$ 的具体含义，我们还是可以认为 $\textit{tezgüino}$ 和 $\textit{wine}$ 在单词含义方面非常相近。</p>
+  </li>
+</ul>
+
+<h3 id="14-词向量">1.4 词向量</h3>
+
+<p>在前面的例子中，我们可以将这些由 $0$ 和 $1$ 组成的行视为词向量，因为它们能够很好地代表这些用例。例如：给定 100 个非常好的例句，我们可以基于这些单词是否出现在这些例句中，将其转换为 100 维的向量。</p>
+
+<p><img src="http://andy-blog.oss-cn-beijing.aliyuncs.com/blog/2020-06-13-WX20200613-132156%402x.png" width="50%" /></p>
+
+<ul>
+  <li>每一行都可以视为一个 <strong>词向量（word vector）</strong>。</li>
+  <li>它描述了单词的分布特性（目标单词附近的上下文单词信息）。</li>
+  <li>捕获各种语义关系，例如：同义（synonymy）、类比（analogy）等。</li>
+</ul>
+
+<h3 id="15-词嵌入">1.5 词嵌入</h3>
+
+<p><img src="http://andy-blog.oss-cn-beijing.aliyuncs.com/blog/2020-06-13-WX20200613-133517%402x.png" width="40%" /></p>
+
+<ul>
+  <li>在之前的神经网络的章节中，我们已经见过另一种词向量：<strong>词嵌入（word embeddings）</strong>。
+    <ul>
+      <li>例如：在使用前馈神经网络进行文本分类时，第一层相当于是词嵌入层，该层的权重矩阵即词嵌入矩阵。</li>
+    </ul>
+  </li>
+  <li>这里，我们将学习通过其他方法产生词向量：
+    <ul>
+      <li>基于计数的方法</li>
+      <li>专为学习词向量而设计的更高效的神经网络方法</li>
+    </ul>
+  </li>
+</ul>
+
+<h2 id="2-基于计数的方法">2. 基于计数的方法</h2>
+<p>首先，我们将学习如何通过基于计数的方法学习词向量。</p>
+<h3 id="21-向量空间模型">2.1 向量空间模型</h3>
+<p>这里，我们学习的第一个模型是 <strong>向量空间模型（Vector Space Model，VSM）</strong>。</p>
+<ul>
+  <li>基本思想：将单词含义表示为一个向量。</li>
+  <li>通常，我们将 <strong>文档（documents）</strong>视为上下文。</li>
+  <li>一个矩阵，两种视角：
+    <ul>
+      <li>一个文档由其所包含的单词表示</li>
+      <li>一个单词由其出现过的文档表示</li>
+    </ul>
+
+    <p><img src="http://andy-blog.oss-cn-beijing.aliyuncs.com/blog/2020-06-13-WX20200613-143123%402x.png" width="60%" /></p>
+
+    <p>这里，每一行都表示语料库中的一个文档，每一列表示语料库的词汇表中的一个单词，单元格中的数字表示该单词在对应文档中出现的频率。例如：单词 $\textit{state}$ 没有在文档 $425$ 中出现过，所以对应的值为 $0$，但是它在文档 $426$ 中出现过 $3$ 次，所以对应值为 $3$。</p>
+
+    <p>当我们构建完成这样一个矩阵后，我们可以从两种视角来看待它：如果我们观察每一行，我们可以将其视为每个文档的词袋模型表示；如果我们观察每一列，我们可以将其视为每个单词的词向量表示。</p>
+  </li>
+</ul>
+
+<h3 id="22-操作-vsm">2.2 操作 VSM</h3>
+<p>一旦我们构建了一个向量空间模型，我们可以对其进行一些操作：</p>
+<ul>
+  <li>给值进行加权（不仅是频率）<br />
+我们可以对矩阵中的值进行一些除了词频之外的更好的加权方式。</li>
+  <li>创建低维的密集向量<br />
+假如我们有非常多的文档，例如 100 万个，那么我们的词向量的维度也将会是 100 万维，因为每个维度都代表一个文档。但是，这样的话词向量的维度过高了，并且非常稀疏，其中大部分维度的值都是 $0$。</li>
+  <li>一旦我们完成了这些，我们就可以比较不同的词向量，并计算彼此之间的相似度等等。</li>
+</ul>
+
+<h3 id="23-tf-idf">2.3 TF-IDF</h3>
+
+<p>首先，我们学习一种比单纯的词频更好的加权方法：<strong>TF-IDF (Term Frequency-Inverse Document Frequency)</strong>。它是 <strong>信息检索（information retrieval）</strong>领域的一种标准加权方案。</p>
+
+<p><img src="http://andy-blog.oss-cn-beijing.aliyuncs.com/blog/2020-06-13-WX20200613-145252%402x.png" width="40%" /></p>
+
+<p><strong><center><span style="font-size:10pt">TF 矩阵</span></center></strong></p>
+
+<p>我们首先可以得到一个 <strong>TF（term-frequency）矩阵</strong>，和之前一样，单元格中的数字表示该单词在对应文档中出现的频率。</p>
+
+<p>然后，我们将计算该单词对应的 <strong>IDF（inverse document frequency）</strong>值。</p>
+
+<script type="math/tex; mode=display">\textit{idf}_w=\log \dfrac{|D|}{\textit{df}_w}</script>
+
+<p>其中，$|D|$ 表示文档总数。$\textit{df}_w$ 表示单词 $w$ 的文档频率，即该单词在所有文档（即语料库）中出现的总次数（TF 矩阵中最后一行）。这里，$\log$ 的底数为 $2$。</p>
+
+<p>例如：假设一共有 $500$ 个文档，单词 “$\textit{the}$” 的 $\textit{df}$ 值为 $500$，那么这里单词 “$\textit{the}$” 的 IDF 值为：</p>
+
+<script type="math/tex; mode=display">\textit{idf}_\textit{the}=\log_2 \dfrac{500}{500}=\log_2 1=0</script>
+
+<p>分别计算每个单词的 IDF 值，并将其和对应单元格的 TF 值相乘，我们可以得到下面的 TF-IDF 矩阵</p>
+
+<p><img src="http://andy-blog.oss-cn-beijing.aliyuncs.com/blog/2020-06-13-WX20200613-145305%402x.png" width="40%" /></p>
+
+<p><strong><center><span style="font-size:10pt">TF-IDF 矩阵</span></center></strong></p>
+
+<p>可以看到，单词 “$\textit{the}$” 对应的列的值都为 $0$，这是因为其 IDF 值为 $0$，所以无论对应单元格的 TF 值为多少，相乘后得到的结果都是 $0$。</p>
+
+<p>TF-IDF 的核心思想在于：对于在大部分文档中都频繁出现的单词（例如：“$\textit{the}$”），我们给予更低的权重，因为它们包含的信息量很少。</p>
+
+<h3 id="24-降维">2.4 降维</h3>
+
+<ul>
+  <li>Term-document 矩阵过于 <strong>稀疏（sparse）</strong></li>
+  <li><strong>降维（Dimensionality reduction）</strong>：创建更短、更密集的向量。</li>
+  <li>更实用（特征更少）</li>
+  <li>消除噪声（更好地避免过拟合）</li>
+</ul>
+
+<h3 id="25-奇异值分解svd">2.5 奇异值分解（SVD）</h3>
+
+<p><strong>奇异值分解（Singular Value Decomposition，SVD）</strong>是一种流行的降维方法。</p>
+
+<p>SVD 的核心思想很简单：给定一个矩阵 $A$，我们可以将其分解为 3 个相乘的矩阵：$U$、$\Sigma$ 和 $V^{\mathrm T}$。</p>
+
+<script type="math/tex; mode=display">A=U\Sigma V^{\mathrm T}</script>
+
+<p><img src="http://andy-blog.oss-cn-beijing.aliyuncs.com/blog/2020-06-13-WX20200613-154720%402x.png" width="80%" /></p>
+
+<p>可以看到：</p>
+<ul>
+  <li>原始矩阵 $A$ 是 term-document 矩阵（出现为 $1$，没有出现为$0$），其行数为词汇表大小 $|V|$，列数为文档总数 $|D|$。</li>
+  <li>$U$ 是新的 term 矩阵，行数为词汇表大小 $|V|$，列数为 $m$。其中，$m$ 为矩阵 $A$ 的秩，即 $m=Rank(A)$。</li>
+  <li>$\Sigma$ 是大小为 $m\times m$ 的奇异值矩阵，它是一个对角矩阵。</li>
+  <li>$V^{\mathrm T}$ 是新的 document 矩阵，行数为 $m$，列数为文档总数 $|D|$。</li>
+</ul>
+
+<p>显然，经过 SVD，我们得到的新的 term 矩阵要比之前的 $A$ 矩阵维度更小，并且更密集。</p>
+
+<h3 id="26-截断潜在语义分析lsa">2.6 截断：潜在语义分析（LSA）</h3>
+
+<p>我们还可以在 SVD 的基础上更进一步，采用 <strong>截断（truncating）</strong>方法，也被称为 <strong>潜在语义分析 (Latent Semantic Analysis, LSA)</strong>。</p>
+
+<ul>
+  <li>将 $U$、$\Sigma$ 和 $V^{\mathrm T}$ 截断为 $k$ 个维度，从而生成原始矩阵的最佳 $k$ 阶近似。</li>
+  <li>因此，截断后的 $U_k$（或者 $V_k^{\mathrm T}$）是对应单词的一个新的低维表示。</li>
+  <li>通常，$k$ 的取值为 100-5000。</li>
+</ul>
+
+<p><img src="http://andy-blog.oss-cn-beijing.aliyuncs.com/blog/2020-06-13-WX20200613-162657%402x.png" width="80%" /></p>
+
+<p>可以看到，矩阵 $U_k$ 在矩阵 $U$ 的基础上进一步压缩了，通常 $k$ 取 100 或者 200 时已经足够很好地表示单词含义了。现在，矩阵 $U_k$ 中的每一行都可以视为一个词向量。</p>
+
+<h3 id="27-单词作为上下文">2.7 单词作为上下文</h3>
+
+<p>我们已经学习了将文档作为上下文，我们还可以将单词作为上下文。</p>
+<ul>
+  <li>构建一个矩阵，关于目标单词随着其他单词一起出现的频率。
+    <ul>
+      <li>
+        <p>在某些预定义的上下文中（通常是一个窗口）。<br />
+相比将文档作为上下文，我们可以选择目标单词附近固定范围内的某些单词作为上下文。</p>
+
+        <p>例如：我们可以选择窗口大小为 $5$，即目标单词前后长度为 $5$ 的范围内的单词作为上下文单词。</p>
+
+        <p><img src="http://andy-blog.oss-cn-beijing.aliyuncs.com/blog/2020-06-13-WX20200613-163651%402x.png" width="60%" /></p>
+
+        <p>可以看到，在上面的矩阵中，每一行都表示一个单词，每一列也表示一个单词。单元格中的数字表示目标单词和上下文单词在整个语料库中所有大小为 $5$ 的窗口内（即从语料库中提取所有的 five-grams）共同出现的频率。</p>
+      </li>
+    </ul>
+  </li>
+  <li>但是，行频率存在一个明显的问题：整个矩阵被常见单词所主导。
+    <ul>
+      <li>例如：我们可以看到，由于单词 “$\textit{the}$” 出现频率很高，使得对应单元格内的值非常大。之前，我们采用 TF-IDF 加权来给予常见单词的值一个折扣。但是这里，我们无法采用 TF-IDF，因为这里我们没有涉及到文档。相应地，这里我们可以采用点互信息（PMI）的方法来处理这个问题。</li>
+    </ul>
+  </li>
+</ul>
+
+<h3 id="28-点互信息pmi">2.8 点互信息（PMI）</h3>
+
+<p><strong>点互信息（Pointwise Mutual Information，PMI）</strong>的思想非常简单，对于两个事件 $x$ 和 $y$（即两个单词），PMI 计算二者的差异：</p>
+<ul>
+  <li>它们的联合概率分布</li>
+  <li>它们各自的概率分布（假设彼此之间互相独立）</li>
+</ul>
+
+<script type="math/tex; mode=display">\textit{PMI}(x,y)=\log_2 \dfrac{p(x,y)}{p(x)p(y)}</script>
+
+<h3 id="29-例子计算-pmi">2.9 例子：计算 PMI</h3>
+<p><img src="http://andy-blog.oss-cn-beijing.aliyuncs.com/blog/2020-06-13-WX20200613-171638%402x.png" width="65%" /></p>
+
+<script type="math/tex; mode=display">% <![CDATA[
+\begin{align}
+p(x,y) &= \text{count}(x,y)/\Sigma \\\\
+p(x) &= \Sigma_x/\Sigma \\\\
+p(y) &= \Sigma_y/\Sigma
+\end{align} %]]></script>
+
+<p>假设 $x=\textit{state},\,y=\textit{country}$，我们可以得到：</p>
+
+<script type="math/tex; mode=display">% <![CDATA[
+\begin{align}
+p(x,y) &= 10/15871304=6.3 \times 10^{-7} \\\\
+p(x) &= 12786/15871304=8.0 \times 10^{-4} \\\\
+p(y) &= 3617/15871304=2.3 \times 10^{-4}\\\\
+\textit{PMI}(x,y) &= \log_2 \dfrac{6.3 \times 10^{-7}}{8.0 \times 10^{-4}\times 2.3 \times 10^{-4}} = 1.78
+\end{align} %]]></script>
+
+<h3 id="210-pmi-矩阵">2.10 PMI 矩阵</h3>
+<p>我们可以按照前面的方法计算所有单元格的 PMI，从而得到 PMI 矩阵。</p>
+
+<p><img src="http://andy-blog.oss-cn-beijing.aliyuncs.com/blog/2020-06-13-WX20200613-173229%402x.png" width="50%" /></p>
+
+<p>对于从来没有共同出现过的单词对，其对应的 PMI 矩阵中的值为 $-\text{inf}$，因为在这种情况下，计算时分子 $p(x,y)$ 的值为 $0$，而 $\log_2 0=-\infty$。</p>
+
+<ul>
+  <li>可以看到，PMI 在捕获我们感兴趣的语义方面做得更好。
+    <ul>
+      <li>例如：单词 “\textit{the}” 和其他单词之间的 PMI 都很小，单词 “\textit{heaven}” 和 “\textit{hell}” 之间的 PMI 值较大，因为二者在语义上很接近。</li>
+    </ul>
+  </li>
+  <li>但是很明显，这种方法会偏向于给予低频单词较大的 PMI 值。
+    <ul>
+      <li>因为根据 PMI 计算公式，其分母部分为 $p(x)p(y)$。对于低频单词，其概率很小，这会导致计算 PMI 时分母变得非常小，从而导致很大的 PMI 值。</li>
+    </ul>
+  </li>
+  <li>并且，无法很好地处理频率为 $0$ 的情况（会得到 $-\infty$ 的 PMI 值）。</li>
+</ul>
+
+<h3 id="211-pmi-技巧">2.11 PMI 技巧</h3>
+<p>我们可以采取一些技巧来避免 PMI 的一些问题：</p>
+<ul>
+  <li>将所有负值取 $0$（PPMI）
+    <ul>
+      <li>避免了 $-\text{inf}$ 和不可靠的负值，该方法在实践中效果很好。</li>
+    </ul>
+  </li>
+  <li>处理罕见事件的偏见问题
+    <ul>
+      <li>方法类似之前 n-grams 中的平滑概率。</li>
+    </ul>
+  </li>
+</ul>
+
+<h3 id="212-svd">2.12 SVD</h3>
+
+<p><img src="http://andy-blog.oss-cn-beijing.aliyuncs.com/blog/2020-06-13-WX20200613-174957%402x.png" width="80%" /></p>
+
+<p>我们已经学习了将文档作为上下文的 TF-IDF 矩阵，以及将单词作为上下文的 PMI/PPMI 矩阵。很重要的一点是，无论我们采用文档还是单词作为上下文信息，我们都可以利用 SVD 来创建密集向量。但是，通过不同的上下文信息所捕获到的关系是不一样的，如果我们采用 TF-IDF，我们捕获到的语义学信息会更加宽泛，通常和某种主题关联；如果我们采用 PMI/PPMI，我们捕获到的词向量更多是关于局部单词上下文的语义学信息。</p>
+
+<h3 id="212-相似度">2.12 相似度</h3>
+<ul>
+  <li>词相似度（Word similarity）$=$ 词向量之间的比较（例如：cosine 相似度）。</li>
+  <li>根据向量空间中的 <strong>邻近度（proximity）</strong>查找 <strong>同义词（synonyms）</strong>。
+    <ul>
+      <li>自动构建词汇资源</li>
+    </ul>
+  </li>
+  <li>将词向量作为分类器中的特征：相比其他输入形式（例如词频等）更具鲁棒性。
+    <ul>
+      <li>例如：$\textit{movie}$ vs. $\textit{film}$ 二者的词向量距离实际上非常近。</li>
+    </ul>
+  </li>
+</ul>
+
+<h2 id="3-神经网络方法">3. 神经网络方法</h2>
+<p>我们已经介绍了利用 SVD 结合 TF-IDF 或者 PMI 等方法创建单词的密集向量，我们也可以利用神经网络完成同样的事情。</p>
+<h3 id="31-词嵌入">3.1 词嵌入</h3>
+<ul>
+  <li>在之前章节中，我们已经见过神经网络（前馈或循环）使用的 <strong>词嵌入 (word embeddings)</strong>。</li>
+  <li>但是这些模型是为其他任务设计的：
+    <ul>
+      <li>分类</li>
+      <li>语言模型</li>
+    </ul>
+  </li>
+  <li>词嵌入只是这些模型的一部分</li>
+</ul>
+
+<h3 id="32-用于嵌入的神经网络模型">3.2 用于嵌入的神经网络模型</h3>
+<ul>
+  <li>我们可以设计专用于学习词嵌入的神经网络吗？</li>
+  <li>理想模型：
+    <ul>
+      <li>无监督<br />
+我们希望该模型是无监督的，因为有监督模型需要标签信息，而标签信息需要依赖语言学专家进行手工标注。</li>
+      <li>高效<br />
+我们希望模型是高效的，因此，我们可以很容易地将其扩展到非常大的语料库上。</li>
+      <li>有用的表示<br />
+最重要的是，我们希望学习到的词嵌入能够用于各种下游任务中。</li>
+    </ul>
+  </li>
+</ul>
+
+<h3 id="33-word2vec">3.3 Word2Vec</h3>
+<ul>
+  <li>神经网络启发了一些方法，试图学习单词及其上下文的向量表示。</li>
+  <li>关键思想
+    <ul>
+      <li>目标单词的嵌入应与其 <strong>相邻单词</strong> 的嵌入 <strong>相似</strong></li>
+      <li>并且应当与不会出现在其附近的其他单词的嵌入 <strong>不相似</strong></li>
+    </ul>
+  </li>
+  <li>在训练阶段，将向量点积用于向量 “比较”
+    <ul>
+      <li>$\mathbf u\cdot \mathbf v=\Sigma_j \mathbf u_j \mathbf v_j$</li>
+      <li>在测试阶段，我们仍然采用 cosine 相似度进行比较</li>
+    </ul>
+  </li>
+  <li>Word2Vec 的框架是学习一个分类器，有 2 种算法
+    <ul>
+      <li><strong>Skip-gram</strong> ：在给定单词周围的本地上下文中预测单词</li>
+    </ul>
+  </li>
+</ul>
+
+<p>下节内容：</p>
+
+:ET
