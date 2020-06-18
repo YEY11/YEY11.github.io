@@ -1,0 +1,22 @@
+I"<h1 id="lecture-11-上下文表示">Lecture 11 上下文表示</h1>
+
+<p>这节课我们学习 <strong>上下文表示（Contextual Representation）</strong>，即单词在上下文中的含义。</p>
+
+<h2 id="1-上下文表示">1. 上下文表示</h2>
+<h3 id="11-词向量嵌入">1.1 词向量/嵌入</h3>
+<ul>
+  <li>每个单词 type 都有一个表示
+    <ul>
+      <li>Word2Vec</li>
+    </ul>
+  </li>
+</ul>
+
+<h2 id="4-扩展阅读">4. 扩展阅读</h2>
+<ul>
+  <li>JM3, Ch 6</li>
+</ul>
+
+<p>下节内容：上下文表示</p>
+
+:ET

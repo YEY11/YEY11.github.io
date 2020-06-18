@@ -1,0 +1,40 @@
+I"�<h1 id="lecture-11-上下文表示">Lecture 11 上下文表示</h1>
+
+<p>这节课我们学习 <strong>上下文表示（Contextual Representation）</strong>，即单词在上下文中的含义。</p>
+
+<h2 id="1-上下文表示">1. 上下文表示</h2>
+<h3 id="11-词向量嵌入">1.1 词向量/嵌入</h3>
+<p>在之前的章节中，我们已经学习过 <strong>词向量/嵌入（Word Vectors/Embeddings）</strong>，我们还学习了如何通过基于计数的方法来得到词向量。</p>
+
+<ul>
+  <li>每个单词 type 都有一个表示。
+    <ul>
+      <li>Word2Vec</li>
+    </ul>
+  </li>
+  <li>无论单词的上下文是什么，我们得到的单词表示都是相同的。
+    <ul>
+      <li>通过这种方式，无论这些单词在句子中是如何被使用的或者出现在句子中的哪个地方，以及它们的相邻单词是什么，模型学习到的每个单词 type 的词向量/嵌入都只有一种表示。我们称之为 <strong>上下文无关词向量/嵌入（Contextual Independent Word Vectors/Embeddings）</strong>。</li>
+    </ul>
+  </li>
+  <li>这种上下文无关词向量没有捕获到 <strong>单词的多义性（multiple senses of words）</strong>。
+    <ul>
+      <li>例如：对于单词 “$\textit{duck}$”，其既可以表示鸭子这种动物，也可以表示躲避这一动作。而我们之前的词向量没有办法捕获到这两种含义之间的差异，因为对于同一单词我们只有一种向量表示。</li>
+    </ul>
+  </li>
+  <li><strong>上下文表示（Contextual representation）$=$ 基于上下文的单词表示</strong>
+    <ul>
+      <li>如果一个单词在两个句子中的含义不同，那么我们将得到该单词的两种不同的上下文表示。</li>
+    </ul>
+  </li>
+  <li>但是，更重要的是，我们发现预训练的上下文表示在大部分下游任务中的表现都 <strong>相当出色</strong>。</li>
+</ul>
+
+<h2 id="4-扩展阅读">4. 扩展阅读</h2>
+<ul>
+  <li>JM3, Ch 6</li>
+</ul>
+
+<p>下节内容：上下文表示</p>
+
+:ET
