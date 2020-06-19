@@ -1,0 +1,190 @@
+I"X0<h1 id="lecture-12-语篇">Lecture 12 语篇</h1>
+
+<p>这节课我们学习 <strong>语篇（Discourse）</strong>，它是关于如何将文档中的句子组织成连贯的故事线。因此，我们将目光从理解单词和上下文含义上转移到一个更高的层次：理解文档含义以及句子是如何在文档中组织的。</p>
+
+<h2 id="1-语篇">1. 语篇</h2>
+<h3 id="11-语篇">1.1 语篇</h3>
+<ul>
+  <li>目前为止，我们学习的大部分任务/模型都是在 <strong>单词或者句子层面</strong> 操作的：
+    <ul>
+      <li><strong>词性标注</strong>：通常每次标注一个句子中所有单词的词性。</li>
+      <li><strong>语言模型</strong>：从 n-grams 语言模型到 RNN 语言模型，它们都是在句子层面操作的。</li>
+      <li><strong>词汇/分布语义学</strong>：当我们训练这些模型时通常也是以句子作为边界的。</li>
+    </ul>
+  </li>
+  <li>但是，NLP 也会经常需要处理 <strong>文档</strong>。</li>
+  <li><strong>语篇（Discourse）</strong>：理解文档中的句子之间是如何关联起来的。因此，当我们浏览一个文档时，语篇为我们提供了一个关于该文档的连贯的故事线。</li>
+</ul>
+
+<h3 id="12-三个关键的语篇任务">1.2 三个关键的语篇任务</h3>
+
+<p>这节课中，我们将主要讨论三个关键的语篇相关任务：</p>
+
+<ul>
+  <li>
+    <p><strong>语篇分段（Discourse segmentation）</strong><br />
+例如：我们有一篇文章，我们希望将它按照内容之间的连贯性分成一些独立的块（chunks）。例如，第一段是关于文章摘要（Abstract）的，第二段是关于文章内容介绍（Introduction）的，因此，我们希望在这两个段落之间插入一个分隔。</p>
+
+    <p><img src="http://andy-blog.oss-cn-beijing.aliyuncs.com/blog/2020-06-18-WX20200618-215927%402x.png" width="30%" /></p>
+
+    <p><br /></p>
+  </li>
+  <li>
+    <p><strong>语篇解析（Discourse parsing）</strong><br />
+语篇解析的核心思想是试图将文档组织为一种 <strong>层级结构（hierarchical structure）</strong>。例如：我们有一个包含 3 个句子的非常小的文档，语篇解析试图将这 3 个彼此关联的子句 (clauses) 组织为一个层级树形结构。可以看到，这段文本的中心句是第一个子句，后面的两个子句只是用来支持前面句子的观点的。因此，这三个子句被组织为下面的树形结构。</p>
+
+    <p><img src="http://andy-blog.oss-cn-beijing.aliyuncs.com/blog/2020-06-18-WX20200618-221722%402x.png" width="30%" /></p>
+
+    <p><br /></p>
+  </li>
+  <li>
+    <p><strong>指代消解（Anaphora resolution）</strong><br />
+指代消解的目的是关于消除文档中的指代词的歧义问题。例如：在下面的句子中，代词 “$\textit{He}$” 在不同上下文中的指代对象是谁。</p>
+
+    <p><img src="http://andy-blog.oss-cn-beijing.aliyuncs.com/blog/2020-06-18-WX20200618-222030%402x.png" width="30%" /></p>
+  </li>
+</ul>
+
+<h2 id="2-语篇分段">2. 语篇分段</h2>
+<h3 id="21-语篇分段">2.1 语篇分段</h3>
+
+<ul>
+  <li>一个 <strong>文档（document）</strong>可以被视为 <strong>一个由分段组成的序列（a sequence of segments）</strong>。</li>
+  <li><strong>分段（Segment）</strong>：一段连贯的文字。</li>
+  <li><strong>连贯性（Cohesion）</strong>：
+    <ul>
+      <li>连贯性意味着这段文字是围绕某个特定 <strong>主题（topic）</strong>或 <strong>功能（function）</strong>来组织的。
+        <ul>
+          <li>维基百科里的人物类传记：早年经历 (early years)、主要事件 (major events)、其他方面的影响 (impact on others)</li>
+          <li>科学性的文章：简介 (introduction)、相关工作 (related work)、实验 (experiments)</li>
+        </ul>
+      </li>
+    </ul>
+  </li>
+</ul>
+
+<h3 id="22-无监督方法">2.2 无监督方法</h3>
+
+<ul>
+  <li><strong>TextTiling 算法</strong>：寻找句子之间具有较低词汇连贯性的点。</li>
+  <li>对于每个句子间隙（sentence gap）：
+    <ul>
+      <li>创建两个 <strong>词袋向量（BOW vectors）</strong>，它们由间隙两侧的各自 $k$ 个句子中的单词组成。</li>
+      <li>计算两个向量的余弦相似度得分。</li>
+      <li>
+        <p>对于间隙 $i$，计算一个 <strong>深度分数（depth score）</strong>，当深度分数超过某个 <strong>阈值（threshold）</strong>$t$ 时，就在这个间隙处插入一个分界线。</p>
+
+        <script type="math/tex; mode=display">\text{depth}(gap_i)=(sim_{i-1}-sim_{i})+(sim_{i+1}-sim_{i})</script>
+      </li>
+    </ul>
+  </li>
+</ul>
+
+<h3 id="23-texttiling-的例子">2.3 TextTiling 的例子</h3>
+
+<p>这里，我们来看一个具体的使用 TextTiling 算法进行语篇分段的例子，这里我们将相关参数设为 $k=1,t=0.9$（即词袋向量来自间隙前后的各一个句子，深度分数的阈值为 $0.9$）：</p>
+
+<p><img src="http://andy-blog.oss-cn-beijing.aliyuncs.com/blog/2020-06-18-WX20200618-234220%402x.png" width="80%" /></p>
+
+<script type="math/tex; mode=display">\text{depth}(gap_i)=(sim_{i-1}-sim_{i})+(sim_{i+1}-sim_{i})</script>
+
+<p>我们将文档分成了 7 个单独的句子，另外，我们还用不同颜色标记了文本中的一些内容相关的高频关键词。首先，我们计算第一个间隙的相似度，由于 $k=1$，所以这里我们得到第 1 个和第 2 个句子的词袋向量，并计算两个向量的余弦相似度，结果为 $0.9$。同理，我们计算第二个间隙的相似度（即第 2 个句子和第 3 个句子的词袋向量的余弦相似度），得到结果为 $0.7$。按照相同方法，计算得到所有其余间隙的相似度。</p>
+
+<p>接下来，我们将计算每个间隙的深度分数。对于每个间隙 $i$，我们将前一个间隙 $i-1$ 和当前间隙 $i$ 的相似度差值 $(sim_{i-1}-sim_{i})$，与后一个间隙 $i+1$ 和当前间隙 $i$ 的相似度差值 $(sim_{i+1}-sim_{i})$ 进行求和，得到当前间隙 $i$ 的深度分数。注意，对于第一个间隙，由于其前面没有其他间隙，所以在计算深度分数时我们可以直接忽略前项。通过计算得到的第一个间隙的深度分数为 $-0.2&lt; t=0.9$，因此，我们不在这里插入分界线，而是继续往后看。我们发现，第三个间隙深度分数为 $1.0&gt; 0.9$，所以我们在第三个间隙处插入一个分界线。按照相同方法，计算得到所有其余间隙的深度分数。然后，我们发现没有其他分界线需要插入，因此最终我们将这段语篇以第三个句子间隙为界分为两段。</p>
+
+<p>如果我们观察一下两个语篇分段的内容，我们会发现第一个分段主要介绍了某人面临的一个问题（没有等到电车），第二个分段则主要讲述了对于该问题的应对措施（回家取自行车）。</p>
+
+<h3 id="24-有监督方法">2.4 有监督方法</h3>
+
+<p>我们也可以采用有监督方法来完成语篇分段任务。</p>
+
+<ul>
+  <li>我们可以从一些容易获得的渠道得到一些带标签数据：
+    <ul>
+      <li>科学出版物</li>
+      <li>维基百科的文章</li>
+    </ul>
+  </li>
+</ul>
+
+<p><img src="http://andy-blog.oss-cn-beijing.aliyuncs.com/blog/2020-06-19-WX20200619-121509%402x.png" width="60%" /></p>
+
+<p>例如，我们知道科学出版物一般会按照章节（sections）和子章节（subsections）等进行分段。假设现在我们希望创建一些分段（segments）来合并文章中的一些段落（paragraphs），所以现在我们不再以句子为边界，而是以段落为边界进行分段。</p>
+
+<p>首先，我们将所有的段落单独分开，例如，上面的文章包含了 6 个单独的段落。然后，我们尝试对这些段落间隙进行标注：如果前后两个段落之间涉及到章节之间的跳转（例如，第 1 段到第 2 段是从 Abstract 跳到了 Introduction），那么我们将这两个段落之间的间隙给予一个正标签，即我们将对这两个段落进行切分；否则，如果前后段落不涉及章节跳转（例如，第 2 段和第 3 段都属于 Introduction），我们将给予段落间隙一个负标签，即我们会不对这两个段落进行切分。然后，我们可以利用这些带标签数据来训练一个有监督分类器，再对测试集中的其他语篇数据进行分段。</p>
+
+<h3 id="25-有监督语篇分段器">2.5 有监督语篇分段器</h3>
+
+<p>那么，我们如何构建一个有监督语篇分段器（Supervised Discourse Segmenter）呢？</p>
+
+<ul>
+  <li>
+    <p>应用一个二分类器来识别边界。<br />
+就像前面提到的例子，我们可以采用一个基于正负标签数据的二分类器来决定是否需要对给定的两个段落进行切分。</p>
+
+    <p><br /></p>
+  </li>
+  <li>
+    <p>或者使用序列分类器。<br />
+我们也可以使用像 HMM 或者 RNN 这类序列模型进行分类。这种情况下，我们在分段时会考虑一些上下文信息，从而在分段时得到一个全局最优的决策结果。</p>
+
+    <p><br /></p>
+  </li>
+  <li>
+    <p>我们还可以潜在地包含分类的章节类型 (section type)，例如：Introduction, Conclusion 等。<br />
+假如我们使用维基百科或者科学文章，我们知道其中每个章节都有特定的主题/功能，我们可以原问题转换为一个多任务问题：我们不仅对语篇文本进行分段，并且我们还需要给出每个分段所对应的章节。</p>
+
+    <p><br /></p>
+  </li>
+  <li>
+    <p>我们还可以集成一些更宽泛的特征，包括：</p>
+    <ul>
+      <li>分布语义学</li>
+      <li>语篇标记（discourse markers），例如：$\textit{therefore, and, however}$ 等。<br />
+语篇标记在这里要更加重要一些，因为它们通常对于语篇分段前后的差异具有放大效应。</li>
+    </ul>
+  </li>
+</ul>
+
+<h2 id="3-语篇解析">3. 语篇解析</h2>
+
+<p>现在，我们将讨论第二个主要任务：<strong>语篇解析（Discourse Parsing）</strong>，其目标是将 <strong>语篇单元 (discourse units)</strong> 组织成层级结构中的故事线，例如：某段文本是否是对另一段文本的解释。</p>
+
+<h3 id="31-语篇解析">3.1 语篇解析</h3>
+<ul>
+  <li>识别 <strong>语篇单元 (discourse units)</strong>，以及它们之间所维系的 <strong>关系（relations）</strong>。</li>
+  <li><strong>修辞结构理论 (Rhetorical Structure Theory, RST)</strong> 是一个对文档中的语篇结构进行层级分析的框架。RST 在计算机科学中具有广泛应用，例如：总结 (Summarisation)、问答 (QA) 等。</li>
+</ul>
+
+<p>下面是之前提到过的一个例子，RST 可以将文档组织成语篇单元：</p>
+
+<p><img src="http://andy-blog.oss-cn-beijing.aliyuncs.com/blog/2020-06-19-WX20200619-131649%402x.png" width="40%" /></p>
+
+<p>在这个文档中，我们一共有 3 个语篇单元，RST 试图在给定这些语篇单元的情况下，发现它们之间所维系的关系。例如：第 2 个从句和第 3 个从句之间存在 <strong>让步（Concession）</strong>关系，而这两个语篇单元作为整体又和第一个主要句子之间存在 <strong>详述（Elaboration）</strong>关系。一旦我们构建完成这样一个层级树形结构，我们就可以知道根结点代表的核心语篇单元以及用于支持它的其他语篇单元。</p>
+
+<h3 id="32-rst">3.2 RST</h3>
+
+<ul>
+  <li>基本单元：<strong>基本语篇单元（elementary discourse units, EDUs）</strong>
+    <ul>
+      <li>通常是组成一个句子的 <strong>子句（clauses）</strong>。</li>
+      <li>
+        <p>EDUs 不会跨越句子边界。
+例如，RST 将下面的句子划分为两个 EDUs：</p>
+
+        <p><img src="http://andy-blog.oss-cn-beijing.aliyuncs.com/blog/2020-06-19-WX20200619-133910%402x.png" width="80%" /></p>
+      </li>
+    </ul>
+  </li>
+  <li><strong>RST</strong> 还定义了语篇单元之间的 <strong>关系（relations）</strong>:
+    <ul>
+      <li>连接 (conjuction)，论证 (justify)，让步 (concession)，详述 (elaboration）等。</li>
+    </ul>
+  </li>
+</ul>
+
+<h2 id="5-扩展阅读">5. 扩展阅读</h2>
+
+<p>下节内容：语篇</p>
+
+:ET
