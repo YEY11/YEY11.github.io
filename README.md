@@ -225,7 +225,7 @@ ga_domain: auto			# 默认的是 auto
 	本作品采用
 	<a rel="license" href="http://creativecommons.org/licenses/by-nc-sa/4.0/">
 		知识共享署名-非商业性使用-相同方式共享 4.0 国际许可协议
-	</a>进行许可。欢迎转载，并请注明来自：<a href="https://alberthg.github.io/">黄钢的博客</a>
+	</a>进行许可。欢迎转载，并请注明来自：<a href="https://Andy-TK.github.io/">Andy 的博客</a>
 	同时保持文章内容的完整和以上声明信息！
 </blockquote>
 ```
@@ -234,7 +234,7 @@ ga_domain: auto			# 默认的是 auto
 
 1. 原始模板来自 [Hux](https://github.com/Huxpro/huxpro.github.io), 感谢。
 2. 本站模板是从 [qiubaiying](https://github.com/qiubaiying/qiubaiying.github.io) folk 的，感谢。
-2. 感谢 Jekyll、Github Pages 和 Bootstrap!
+3. 感谢 Jekyll、Github Pages 和 Bootstrap!
 
 ## License
 
