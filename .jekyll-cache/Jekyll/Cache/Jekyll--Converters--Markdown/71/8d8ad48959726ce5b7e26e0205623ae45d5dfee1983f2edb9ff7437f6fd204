@@ -1,4 +1,4 @@
-I"x\<!-- 数学公式 -->
+I"y\<!-- 数学公式 -->
 <script src="https://cdn.mathjax.org/mathjax/latest/MathJax.js?config=TeX-AMS-MML_HTMLorMML" type="text/javascript"></script>
 
 <script type="text/x-mathjax-config">
@@ -254,7 +254,7 @@ W=\mathrm{diag}\{w_1,\dots,w_n\} \;,\qquad
 
 <script type="math/tex; mode=display">% <![CDATA[
 \begin{align}
-hat {\boldsymbol \beta}^{(k+1)} &= \hat {\boldsymbol \beta}^{(k)}+\phi\left[\hat {V}^{(k)} \right]^{-1}\mathbf u(\hat {\boldsymbol \beta}^{(k)}) \\\\
+\hat {\boldsymbol \beta}^{(k+1)} &= \hat {\boldsymbol \beta}^{(k)}+\phi\left[\hat {V}^{(k)} \right]^{-1}\mathbf u(\hat {\boldsymbol \beta}^{(k)}) \\\\
 \Longrightarrow \quad \hat \phi^{-1}{V}^{(k)}\hat {\boldsymbol \beta}^{(k+1)} &= \phi^{-1}\hat {V}^{(k)}\hat {\boldsymbol \beta}^{(k)}+\mathbf u(\hat {\boldsymbol \beta}^{(k)}) \\\\
 \Longrightarrow \quad X^{\mathrm T}W \hat{\Sigma}^{(k)}X \hat {\boldsymbol \beta}^{(k+1)} &= X^{\mathrm T}W \hat{\Sigma}^{(k)}X \hat {\boldsymbol \beta}^{(k)} + X^{\mathrm T}W \hat{\Sigma}^{(k)}\left[(\hat {\Sigma}^{(k)})^{-1} (\mathbf y-\hat {\boldsymbol \mu}^{(k)}) \right]\\\\
 \Longrightarrow \quad X^{\mathrm T}W \hat{\Sigma}^{(k)}X \hat {\boldsymbol \beta}^{(k+1)} &= X^{\mathrm T}W \hat{\Sigma}^{(k)}\hat{\mathbf z}^{(k)}

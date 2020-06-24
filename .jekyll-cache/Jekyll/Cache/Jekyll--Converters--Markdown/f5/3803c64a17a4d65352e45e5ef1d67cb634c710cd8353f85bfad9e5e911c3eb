@@ -1,4 +1,4 @@
-I"�c<h1 id="lecture-09-词汇语义学">Lecture 09 词汇语义学</h1>
+I"\f<h1 id="lecture-09-词汇语义学">Lecture 09 词汇语义学</h1>
 
 <p>这节课我们将学习词汇语义学。</p>
 
@@ -114,24 +114,30 @@ $\textbf{bank}^{\mathbf 2}$: $\dots \text{as agriculture burgeons on the east } 
 <ul>
   <li><strong>同义（Synonymy）</strong>：几乎相同的含义。
     <ul>
+      <li>两个词含义相同，则互为 <strong>同义词 (synonym)</strong>。</li>
       <li>$\textit{vomit}\,$ vs. $\textit{throw up}$</li>
       <li>$\textit{big}\,$ vs. $\textit{large}$</li>
     </ul>
   </li>
   <li><strong>反义（Antonymy）</strong>：相反的含义。
     <ul>
+      <li>两个词含义相反，则互为 <strong>反义词 (antonym)</strong>。</li>
       <li>$\textit{long}\,$ vs. $\textit{short}$</li>
       <li>$\textit{big}\,$ vs. $\textit{little}$</li>
     </ul>
   </li>
   <li><strong>上位关系（Hypernymy）</strong>：is-a 的关系。
     <ul>
+      <li>前者为 <strong>下位词 (hyponym)</strong>，表示后者的一个更加具体的实例，例如 $cat$。</li>
+      <li>后者为 <strong>上位词 (hypernym)</strong>，表示比前者更宽泛的一个类别，例如 $animal$。</li>
       <li>$\textit{cat } \text{is an } \textit{animal}$</li>
       <li>$\textit{mango } \text{is a } \textit{fruit}$</li>
     </ul>
   </li>
   <li><strong>部分整体关系（Meronymy）</strong>：part-whole 的关系。
     <ul>
+      <li>前者为 <strong>部件词 (meronym)</strong>，表示后者的一部分，例如 $leg$。</li>
+      <li>后者为 <strong>整体词 (holonym)</strong>，表示包含前者的一个整体，例如 $table$。</li>
       <li>$\textit{leg } \text{is part of a } \textit{chair}$</li>
       <li>$\textit{wheel } \text{is part of a } \textit{car}$</li>
     </ul>
