@@ -1,8 +1,0 @@
-I"3
-<div class="highlighter-rouge"><div class="highlight"><pre class="highlight"><code>{% codeblock Javascript Array Syntax lang:js http://j.mp/pPUUmW MDN Documentation %}
-var arr1 = new Array(arrayLength);
-var arr2 = new Array(element0, element1, ..., elementN);
-{% endcodeblock %}
-</code></pre></div></div>
-
-:ET
