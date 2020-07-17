@@ -1,0 +1,299 @@
+I"�@<h1 id="lecture-02-数据的访问存储和事务处理">Lecture 02 数据的访问、存储和事务处理</h1>
+
+<p><strong>参考教材</strong>：<em>Transaction Processing: Concepts and Techniques, Jim Gray and Andreas Reuter, Morgan Kaufmann, 1993</em></p>
+
+<h2 id="1-硬件系统">1. 硬件系统</h2>
+<h3 id="11-基础硬件">1.1 基础硬件</h3>
+<p><strong>内存（Memory）</strong></p>
+<ul>
+  <li>
+    <p><strong>摩尔定律 (Moore’s law)</strong>：内存芯片容量 (memory chip capacity) 以一定速度增长（自 1970 年以来每 18 个月翻一番）</p>
+
+    <script type="math/tex; mode=display">=2^{(\text{year}-1970)\times2 / 3} \text{ Kb}/\text{chip}</script>
+
+    <p><img src="http://andy-blog.oss-cn-beijing.aliyuncs.com/blog/2020-07-14-WX20200714-172400%402x.png" width="60%" /></p>
+  </li>
+  <li>
+    <p>在2012年，每芯片 32 GB 是可行的。</p>
+  </li>
+</ul>
+
+<p><strong>处理器（Processors）</strong></p>
+
+<ul>
+  <li>
+    <p><strong>乔伊定律 (Joy’s law)</strong>：处理器性能以一定速度增长（自 1984 年以来，每两年翻一番）</p>
+
+    <script type="math/tex; mode=display">=2^{(\text{year}-1970) / 2} \text{ mips}</script>
+  </li>
+  <li>IBM 的超级计算机 Blue Gene/P 每秒可以进行 1 PB（$2^{50}=10^{15}$ 个字节）的浮点运算，它使用了大约 300,000 个 CPU。</li>
+  <li>IBM 的超级计算机 Summit 的峰值性能达到 200 petaflop，即每秒 20 万亿次计算，Summit 的最高速度是 TaihuLight (神威·太湖之光) 的两倍以上。</li>
+  <li>很快，我们将根据单个 CPU 性能达到其最大极限时的内核数来衡量性能。英特尔目前在售的有支持 36 个线程的 18 核芯片。</li>
+</ul>
+
+<p><strong>字节大小的单位</strong></p>
+
+<p><img src="http://andy-blog.oss-cn-beijing.aliyuncs.com/blog/2020-07-14-WX20200714-172640%402x.png" width="90%" /></p>
+
+<h3 id="12-内存等级">1.2 内存等级</h3>
+
+<p><img src="http://andy-blog.oss-cn-beijing.aliyuncs.com/blog/2020-07-14-WX20200714-161619%402x.png" width="80%" /></p>
+
+<p><img src="http://andy-blog.oss-cn-beijing.aliyuncs.com/blog/2020-07-14-WX20200714-173146%402x.png" width="80%" /></p>
+
+<p>对于一般传统的单核系统，处理器和 L1 缓存属于片上 (on-chip) 存储器，即在 CPU 芯片上具有存储功能，目的是减少关键/常用数据的等待时间；而 L2 缓存、主存以及磁盘则属于片外 (off-chip) 存储器。</p>
+
+<h3 id="13-多核系统">1.3 多核系统</h3>
+
+<p><img src="http://andy-blog.oss-cn-beijing.aliyuncs.com/blog/2020-07-14-WX20200714-174240%402x.png" width="40%" /></p>
+
+<p>在 <strong>多核系统 (Multi-Core System)</strong> 中，有多个 CPU，其中，每个 CPU 都有各自的寄存器和 L1 缓存，并且通过总线接口 (Bus Interface) 连接到其他级别的共享缓存（如 L2、L3 缓存），然后再连接到主存等。</p>
+
+<p>当然，具体情况取决于 CPU 类型，多核芯片并不是必须共享 L2 缓存，它们也可以具有各自专用的 L2 缓存。</p>
+
+<p>目前，L1、L2、L3 缓存通常都在片上 (on-chip)。</p>
+
+<p><img src="http://andy-blog.oss-cn-beijing.aliyuncs.com/blog/2020-07-14-WX20200714-175538%402x.png" width="60%" /></p>
+
+<p>可以看到，L1 缓存距离 CPU 最近，其速度最快，但是容量最小 (32KB)；其次是 L2，其容量和速度都属于中等水平；L3 缓存由于距离 CPU 最远，其速度最慢，但是其容量是三者中最大的 (8MB)。在三级缓存之后，连接到内存，然后再到磁盘。</p>
+
+<h2 id="2-数据访问">2. 数据访问</h2>
+<h3 id="21-访问内存数据">2.1 访问内存数据</h3>
+<p><strong>命中率 (Hit Ratio)</strong>：对于需要访问的数据，已经存在于缓存中的字节数占需要访问的总字节数的比重。我们可以基于缓存命中率来估计访问这些数据所需要的时间。</p>
+
+<script type="math/tex; mode=display">\text{Hit ratio}=\dfrac{\text{references satisfied by cache}}{\text{total references}}</script>
+
+<ul>
+  <li>命中：直接从缓存中读取到想要的数据。</li>
+  <li>不命中：缓存中没有想要的数据，还需要到数据库进行一次查询才能读取到想要的数据。</li>
+</ul>
+
+<p>命中率越高，数据库查询的次数就越少。读取缓存的速度远比数据库查询的速度高得多。所以命中率越高，性能越高。</p>
+
+<p><strong>有效内存访问时间 (Effective Memory Access Time)</strong> 为：</p>
+
+<script type="math/tex; mode=display">\textit{EA} =H\cdot C+(1-H)\cdot S</script>
+
+<ul>
+  <li>$H$ 为缓存命中率</li>
+  <li>$C$ 为缓存访问时间 (cache access time)</li>
+  <li>$S$ 为内存访问时间 (memory access time)</li>
+</ul>
+
+<p><img src="http://andy-blog.oss-cn-beijing.aliyuncs.com/blog/2020-07-14-WX20200714-195258%402x.png" width="50%" /></p>
+
+<p><img src="http://andy-blog.oss-cn-beijing.aliyuncs.com/blog/2020-07-14-WX20200714-200333%402x.png" width="70%" /></p>
+
+<p>如果我们可以保证很高的缓存命中率，那么这些数据的内存访问时间将非常小。可以看到，当命中率从 99.90% 下降到 90.00% 时，访问时间增加了 10 倍；当命中率从 90.00% 下降到 50.00% 时，访问时间继续增加了 5 倍，因此，二者之间并非线性关系。</p>
+
+<p>对于不同的系统，时间消耗方面会存在一些差异，上面的结果是 $S=100 C$ 的情况下得到的。另外，我们还可以通过一些策略来保证高缓存命中率，但是这里不再展开讨论。</p>
+
+<h3 id="22-访问磁盘数据">2.2 访问磁盘数据</h3>
+<p>有时，我们需要访问的信息并不在缓存或者主存，而是在磁盘中，这种情况下，我们需要访问磁盘。我们先来看一下磁盘的结构：</p>
+
+<p><img src="http://andy-blog.oss-cn-beijing.aliyuncs.com/blog/2020-07-14-WX20200714-211700%402x.png" width="80%" /></p>
+
+<p><img src="http://andy-blog.oss-cn-beijing.aliyuncs.com/blog/2020-07-14-WX20200714-202955%402x.png" width="40%" /></p>
+
+<ul>
+  <li><strong>磁头 (Head)</strong>：
+    <ul>
+      <li>驱动臂 (Actuator Arm) 的头部部分，用于读/写数据</li>
+      <li>磁盘盘面 (Platter) 上的磁头</li>
+      <li>磁头数量 $=$ 盘面数量</li>
+    </ul>
+  </li>
+  <li><strong>磁道 (Track)</strong>：
+    <ul>
+      <li>磁盘上的圆环区域</li>
+      <li>数据首先写入最外圈的磁道</li>
+      <li>一个磁盘上的磁道数量一般在 1000 个以上</li>
+    </ul>
+  </li>
+  <li><strong>扇区 (Sector)</strong>：
+    <ul>
+      <li>划分磁道上的区域</li>
+      <li>扇区是一个磁盘上的最小物理存储单位</li>
+      <li>每个扇区存储 512 个字节的数据</li>
+    </ul>
+  </li>
+  <li><strong>柱面 (Cylinder)</strong>：
+    <ul>
+      <li>磁盘单元中每个磁盘表面上相同磁道的逻辑分组</li>
+      <li>磁道在硬盘内产生了柱面</li>
+      <li>柱面数量 $=$ 单个盘面上的磁道数量</li>
+    </ul>
+  </li>
+  <li><strong>簇/块 (Cluster/Block)</strong>：
+    <ul>
+      <li>操作系统所使用的扇区组：由于扇区的空间比较小且数目众多，在寻址时比较困难，所以操作系统就将多个的扇区组合在一起，形成一个更大的单位，再对这个单位进行整体的操作。Windows 下的 FAT，FAT32 和 NTFS 文件系统中称为簇（cluster），Linux 下的 Ext4 等文件系统中称为块（block）。</li>
+      <li>每个簇或者块可以包含 $2^{n}$ 个扇区（例如：64 个扇区）</li>
+    </ul>
+  </li>
+</ul>
+
+<p>我们先看一下数据是如何从磁盘中读取的：</p>
+
+<p>当磁头接触扇区时，表示该扇区上正在读/写数据。在磁盘上访问数据的过程可以分为两部分：</p>
+
+<p><img src="http://andy-blog.oss-cn-beijing.aliyuncs.com/blog/2020-07-14-WX20200714-213349%402x.png" width="40%" /></p>
+
+<ul>
+  <li><strong>寻道时间 (seek time)</strong><br />
+首先，读写头沿径向移动，移到要读取的扇区所在磁道的上方，这段时间称为寻道时间 (seek time)。</li>
+  <li><strong>旋转时间 (rotational time)</strong><br />
+然后，通过盘片的旋转，使得要读取的扇区转到读写头的下方，这段时间称为旋转延迟时间 (rotational latency time)。</li>
+</ul>
+
+<p><strong>磁盘访问时间 (Disk Access Time)</strong> 为：</p>
+
+<script type="math/tex; mode=display">\text{Disk access time} =\text{seek time}+\text{rotational time}+\dfrac{\text{transferlength}}{\text{bandwidth}}</script>
+
+<p>它可以分为两部分：</p>
+<ul>
+  <li><strong>访问时间 (access time)</strong>：包含寻道时间和旋转时间。</li>
+  <li><strong>数据传输时间 (data transfer time)</strong>：需要传输的数据总量除以带宽，即数据读/写时间。</li>
+</ul>
+
+<p><strong>有效磁盘缓冲区高速缓存访问时间 (Effective Disk Buffer Cache Access Time)</strong> 为：</p>
+
+<script type="math/tex; mode=display">\textit{EA} =H\cdot C+(1-H)\cdot S</script>
+
+<ul>
+  <li>$H$ 为缓存命中率</li>
+  <li>$C$ 为缓冲区访问时间 (buffer access time)</li>
+  <li>$S$ 为磁盘访问时间 (disk access time)</li>
+</ul>
+
+<p><img src="http://andy-blog.oss-cn-beijing.aliyuncs.com/blog/2020-07-14-WX20200714-215835%402x.png" width="70%" /></p>
+
+<p>上面的结果是 $S=1000 C$ 的情况下得到的。可以看到，当缓存命中率从 99.00% 增加到 99.99% 时，访问时间缩短了大约 100 倍，而当缓存命中率从 50.00% 增加到 99.00% 时，访问时间缩短了大约 5 倍，所以，二者之间的关系同样是非线性的。</p>
+
+<p>通常，磁盘容量要比高速缓存的容量大得多。为了获得良好的性能，我们需要非常大的缓冲区高速缓存（数百兆位），但是对于大多数应用程序而言，这会带来很高的成本，同时，在 CPU 上布置大量的片上高速缓存也不现实，因此，很多企业在设计商用芯片时会在高速缓存容量和成本之间进行权衡。另外，可以采取一些策略将需要频繁访问的信息保存在高速缓存中，而将访问频率较低的信息存储在磁盘中。</p>
+
+<h3 id="23-例子seagate-桌面硬盘规格参数">2.3 例子：Seagate 桌面硬盘规格参数</h3>
+
+<p><strong>Seagate Desktop HDD Specifications：</strong></p>
+
+<p><img src="http://andy-blog.oss-cn-beijing.aliyuncs.com/blog/2020-07-14-WX20200714-223731%402x.png" width="30%" align="right" /></p>
+
+<ul>
+  <li>Capacity: 4TB
+    <ul>
+      <li>4TB (ST4000DM000)</li>
+      <li>8 heads, 4 disks</li>
+    </ul>
+  </li>
+  <li>Interface: SATA 6Gb/s</li>
+  <li>Spindle: 5,900 RPM</li>
+  <li>Cache: 64MB</li>
+  <li>Throughput Max: 180 MBs = 1.440Gbs</li>
+  <li>Average Data Rate: 146MB/s</li>
+  <li>Average Latency: 5.16ms</li>
+  <li>Power:
+    <ul>
+      <li>Typical Idle Operating: 5W</li>
+      <li>Average Operating: 7.5W</li>
+    </ul>
+  </li>
+  <li>Environmental:
+    <ul>
+      <li>Operating Temperature: 0 to 60℃</li>
+      <li>Non-operating Temperature: -40 to 70℃</li>
+    </ul>
+  </li>
+  <li>Dimensions (LxWxH): 146.99mm × 101.60mm × 26.11mm</li>
+  <li>Weight: 1.345lb (610g)</li>
+  <li>Warranty: 2 years</li>
+  <li>HDD Hard Drive USB 3.0 Powered ~ $169 (2018)</li>
+</ul>
+
+<h3 id="24-固态硬盘-solid-state-drivesolid-state-disk-ssd">2.4 固态硬盘 (Solid-State Drive/Solid-State Disk, SSD)</h3>
+
+<ul>
+  <li>没有像 HDD（硬盘驱动器）中那种活动部件</li>
+  <li>内存是基于硅而非磁性材料，并且重量大约在 55 克（要比 5 枚 20 美分硬币还轻）</li>
+  <li>没有寻道时间或者旋转延迟的概念（没有移动部件）</li>
+  <li>2019 年，SSD 最大容量接近 4TB，价格约为 800 美元，而同样容量的 HDD 价格为 169 美元</li>
+  <li>没有类似 HDD 的启动时间</li>
+  <li>对于随机访问时间，SSD 通常在 100 微秒内，而 HDD 则需要 2000-3000 微秒</li>
+  <li>价格相当贵</li>
+</ul>
+
+<h3 id="25-固态硬盘的规格参数">2.5 固态硬盘的规格参数</h3>
+<ul>
+  <li>容量：4TB SSD（现在甚至有 60TB 的，即 15 × 4TB 打包）</li>
+  <li>组件：NAND Flash Memory Multi Level Cell (MLC)</li>
+  <li>重量：&lt; 10 grams</li>
+  <li>带宽性能（SATA 标准串行）
+    <ul>
+      <li>连续顺序读取：高达 550MB/s ( $=$ 4.4Gb/s)</li>
+      <li>连续顺序写入：高达 520MB/s ( $=$ 4.16 Gb/s)</li>
+    </ul>
+  </li>
+  <li>读写 IOPS (Input/Output Per Second)
+    <ul>
+      <li>随机 4KB 读取：高达 9,608,000 IOPS</li>
+      <li>随机 4KB 写入：高达 9,000,000 IOPS</li>
+    </ul>
+  </li>
+</ul>
+
+<h2 id="3-数据存储">3. 数据存储</h2>
+<h3 id="31-存储系统">3.1 存储系统</h3>
+<p><strong>存储系统 (Storage systems)</strong> 可以决定数据库系统的性能和可靠性，我们将讨论以下类型的存储系统：</p>
+<ul>
+  <li><strong>RAID</strong>：独立磁盘冗余阵列（Redundant Array of Independent Disks），曾经非常廉价</li>
+  <li><strong>SAN</strong>：存储区域网络（Storage Area Networks）</li>
+</ul>
+
+<h3 id="32-平均故障间隔时间">3.2 平均故障间隔时间</h3>
+
+<p><img src="http://andy-blog.oss-cn-beijing.aliyuncs.com/blog/2020-07-16-WX20200716-162523%402x.png" /></p>
+
+<p>起初，系统开始运行，一段时间后，由于崩溃或者组件故障，系统将宕机，然后需要一段时间进行系统恢复，之后重启。然后，在运行一段时间后，系统再次出现故障宕机，再次进行系统恢复，重启运行。</p>
+
+<p>由于系统宕机时间可能很长，对于某些应用程序可能是无法接受的，因此，我们需要使用诸如 RAID 和 SAN 这样的存储系统来保证即使系统出现故障，存储系统仍然可以使用并提供服务。</p>
+
+<h3 id="33-raid-0块级分条">3.3 RAID 0（块级分条）</h3>
+
+<p>RAID 意为独立磁盘冗余阵列，即我们有很多磁盘来存储信息，因此，即使某块磁盘出现故障，其他磁盘仍然可以正常提供数据访问服务。另外，根据采取的不同顺序或者策略，RAID 又可以进一步细分为 RAID 0 到 RAID 5。其中，RAID 0 是最简单的策略。</p>
+
+<ul>
+  <li>A 表示块（Block）（4K 或者 8K 的存储字节）</li>
+  <li>B 表示字节（Byte）（1Byte $=$ 8bits）</li>
+  <li>b 表示位（bit）</li>
+  <li>P 表示奇偶校验位（parity）</li>
+  <li>MTTF 表示平均失效前时间（mean time to failure），即在故障出现之前，系统正常运行的平均时间。</li>
+</ul>
+
+<p><img src="http://andy-blog.oss-cn-beijing.aliyuncs.com/blog/2020-07-16-WX20200716-164053%402x.png" width="30%" /></p>
+
+<p>A0, A1, A2, A3, … 是一个文件中的连续数据块。</p>
+
+<ul>
+  <li>提供平衡的磁盘驱动器 I/O —— 吞吐量大约翻倍。</li>
+  <li>任何一个磁盘故障都可能是灾难性的，MTTF 将减少为单个磁盘存储的一半。</li>
+</ul>
+
+<p>RAID 0 通常并不用于数据恢复，而是为了提高数据的吞吐量。在 RAID 0 策略中，我们使用两个磁盘 Disk 1 和 Disk 2。假设某个文件包含很多数据块，我们将其中第一个块 A0 存储在 Disk 1 上，将第二个块 A1 存储在 Disk 2 上，再将第三个块 A2 存储在 Disk 1 上，将第四个块 A3 存储在 Disk 2 上，以此类推。因此通过这种分布式方法，一个文件的数据块被分开存储在多个磁盘上。</p>
+
+<p>当我们从磁盘中读取文件数据时，可以让两个磁盘并行读取数据，这使得读取一个文件的时间将大大减少，大约可以将吞吐量提高到单个磁盘存储的两倍。</p>
+
+<h3 id="34-raid-1镜像">3.4 RAID 1（镜像）</h3>
+
+<p><img src="http://andy-blog.oss-cn-beijing.aliyuncs.com/blog/2020-07-16-WX20200716-195837%402x.png" width="30%" /></p>
+
+<p>A0, A1, A2, A3, … 是一个文件中在逻辑上连续的数据块。</p>
+<ul>
+  <li>提升了读取吞吐量，但是降低了写入吞吐量（写入速度大约是单个磁盘存储方案的一半），并且在存储利用率方面同样会减半。</li>
+  <li>MTTF 增长相当可观（相比单磁盘存储，呈二次方增长，即 MTTF <sup>2</sup>）</li>
+</ul>
+
+<p>RAID 1 的策略是使用两个磁盘存储相同的信息，这种方式也被称为 <strong>镜像 (mirroring)</strong>。同样，RAID 1 也可以通过并行方式提升读取吞吐量，例如：在 Disk 1 上读取 A0 和 A1 的同时，在 Disk 2 上读取 A2 和 A3。但是对于写入操作，吞吐量会减小一半，因为我们需要在两个的磁盘上写入相同的信息。</p>
+
+<h3 id="35-raid">3.5 RAID</h3>
+
+<p>下节内容：</p>
+
+:ET
