@@ -1,0 +1,75 @@
+I"?<h1 id="lecture-04-事务">Lecture 04 事务</h1>
+
+<p><strong>参考教材</strong>：<em>Transaction Processing: Concepts and Techniques, Jim Gray and Andreas Reuter, Morgan Kaufmann, 1993</em></p>
+
+<p>本节课中，我们将介绍 <strong>事务 (Transactions)</strong> 及其相关概念。</p>
+
+<h2 id="1-事务模型">1. 事务模型</h2>
+
+<h3 id="11-acid-特性">1.1 ACID 特性</h3>
+
+<p><strong>事务 (Transactions)</strong> 是数据库系统中的一个行动或者操作单元。一个事务需要满足 <strong>ACID</strong> 特性：</p>
+
+<ul>
+  <li>
+    <p><strong>原子性 (Atomicity)</strong></p>
+
+    <p>对于数据的所有更改都当作单个操作一样执行。也就是说，要么一次性执行所有更改，要么所有更改都不执行。</p>
+
+    <ul>
+      <li>应用程序将无法直接找到失败原因。</li>
+      <li>也许可以通过其他方式找到失败原因，例如：通过查看系统日志或伪造成功。</li>
+    </ul>
+  </li>
+  <li>
+    <p><strong>一致性 (Consistency)</strong></p>
+
+    <p>当一个事务开始和结束时，数据应当处于一致状态。(例如：银行转帐)</p>
+
+    <ul>
+      <li>通常无法计算。</li>
+      <li>即使可以使用某种受限语言进行计算，也可能是不切实际的，因为这意味着巨大的计算需求。</li>
+      <li>只能保证受限的一致性类型，例如：后面将要讨论的可序列化交易。</li>
+    </ul>
+  </li>
+  <li>
+    <p><strong>隔离性 (Isolation)</strong></p>
+
+    <p>事务的执行就好像它是系统上唯一的事务一样。</p>
+
+    <ul>
+      <li>例如：在某个应用程序中，将资金从一个帐户转移到另一个帐户，隔离性可以确保另一个事务只能在其中一个或另一个帐户中看到转移后的资金，但不会同时在两个帐户中看到，也不会在两个帐户中都看不到。</li>
+    </ul>
+  </li>
+  <li>
+    <p><strong>持久性 (Durability)</strong></p>
+
+    <p>系统应该能够容忍系统故障，并且任何 <strong>已提交的更新</strong> 都不应丢失。</p>
+  </li>
+</ul>
+
+<h3 id="12-磁盘更新">1.2 磁盘更新</h3>
+
+<p><strong>磁盘写入为原子操作</strong>：</p>
+
+<p>要么整个数据块都已正确写入磁盘，要么数据块内容未更改。为了实现原子磁盘写入，我们可以进行：</p>
+
+<ul>
+  <li><strong>Duplex 写入</strong>
+    <ul>
+      <li>每个数据块都被顺序写入两个位置。</li>
+      <li>我们可以通过其 <strong>CRC</strong> 来确定磁盘块的错误。</li>
+      <li>每个块都与一个版本号关联。具有最新版本号的块包含了最新数据。</li>
+      <li>如果其中一个写入失败，则系统可以发出另一个写入。</li>
+      <li>它始终保证至少一个块上具有一致的数据。</li>
+    </ul>
+  </li>
+  <li>
+    <p><strong>Logged 写入</strong></p>
+
+    <p>与双工写类似，不同之处在于写操作之一进入日志。 如果对块的更改很小，则此方法非常有效。 我们将在本主题的后面讨论一种有效的方法。</p>
+  </li>
+</ul>
+
+<p>下节内容：事务</p>
+:ET

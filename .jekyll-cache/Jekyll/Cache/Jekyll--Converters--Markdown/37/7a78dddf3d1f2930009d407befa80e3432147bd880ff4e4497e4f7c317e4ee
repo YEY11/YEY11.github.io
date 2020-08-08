@@ -1,0 +1,340 @@
+I"�G<h1 id="lecture-04-事务">Lecture 04 事务</h1>
+
+<p><strong>参考教材</strong>：<em>Transaction Processing: Concepts and Techniques, Jim Gray and Andreas Reuter, Morgan Kaufmann, 1993</em></p>
+
+<p>本节课中，我们将介绍 <strong>事务 (Transactions)</strong> 及其相关概念。</p>
+
+<h2 id="1-事务模型">1. 事务模型</h2>
+
+<h3 id="11-acid-特性">1.1 ACID 特性</h3>
+
+<p><strong>事务 (Transactions)</strong> 是数据库系统中的一个行动或者操作单元。一个事务需要满足 <strong>ACID</strong> 特性：</p>
+
+<ul>
+  <li>
+    <p><strong>原子性 (Atomicity)</strong></p>
+
+    <p>对于数据的所有更改都当作单个操作一样执行。也就是说，要么一次性执行所有更改，要么所有更改都不执行。</p>
+
+    <ul>
+      <li>应用程序将无法直接找到失败原因。</li>
+      <li>也许可以通过其他方式找到失败原因，例如：通过查看系统日志或伪造成功。</li>
+    </ul>
+  </li>
+  <li>
+    <p><strong>一致性 (Consistency)</strong></p>
+
+    <p>当一个事务开始和结束时，数据应当处于一致状态。(例如：银行转帐)</p>
+
+    <ul>
+      <li>通常无法计算。</li>
+      <li>即使可以使用某种受限语言进行计算，也可能是不切实际的，因为这意味着巨大的计算需求。</li>
+      <li>只能保证受限的一致性类型，例如：后面将要讨论的可序列化交易。</li>
+      <li>当原子性无法满足时将出现不一致性问题，另外，当存在并发 (同时有多个事务对同一数据进行操作) 时也可能出现不一致性问题。</li>
+    </ul>
+  </li>
+  <li>
+    <p><strong>隔离性 (Isolation)</strong></p>
+
+    <p>事务的执行就好像它是系统上唯一的事务一样。</p>
+
+    <ul>
+      <li>例如：在某个应用程序中，将资金从一个帐户转移到另一个帐户，隔离性可以确保另一个事务只能在其中一个或另一个帐户中看到转移后的资金，但不会同时在两个帐户中看到，也不会在两个帐户中都看不到。</li>
+    </ul>
+  </li>
+  <li>
+    <p><strong>持久性 (Durability)</strong></p>
+
+    <p>系统应该能够容忍系统故障，并且任何 <strong>已提交的更新</strong> 都不应丢失。</p>
+  </li>
+</ul>
+
+<h3 id="12-磁盘更新">1.2 磁盘更新</h3>
+
+<p><strong>磁盘写 (Disk writes) 为原子操作</strong>：</p>
+
+<p>要么整个数据块都已正确写入磁盘，要么数据块内容未更改。为了实现原子磁盘写入，通常有两种策略：</p>
+
+<ul>
+  <li><strong>双工写 (Duplex write)</strong>
+    <ul>
+      <li>每个数据块都被 <strong>顺序</strong> 写入两个位置 (即第一个位置写入成功后，才会在第二个位置写入)。</li>
+      <li>我们可以通过其 <strong>CRC</strong> 来确定磁盘块的错误。</li>
+      <li>每个块都与一个版本号关联。具有最新版本号的块包含了最新数据。</li>
+      <li>如果其中一个写入失败，则系统可以发出另一个写入。</li>
+      <li>它始终保证至少一个块上具有一致的数据。</li>
+    </ul>
+  </li>
+  <li>
+    <p><strong>日志写 (Logged write)</strong></p>
+
+    <p>与双工写类似，不同之处在于其中一个写操作会进入日志。如果对块的更改很小，则此方法将非常高效。我们将在本课程的后面讨论另一种高效方法。</p>
+  </li>
+</ul>
+
+<p>下面是一个基于双工写更新磁盘块的例子，磁盘上 ID 为 123 的块上存在一些数据信息，其版本号为 v#7，我们希望对其进行一些修改：</p>
+
+<p><img src="http://andy-blog.oss-cn-beijing.aliyuncs.com/blog/2020-08-07-WX20200807-223113%402x.png" width="60%" /></p>
+
+<p>首先，我们将数据从磁盘上读取到主存中：</p>
+
+<p><img src="http://andy-blog.oss-cn-beijing.aliyuncs.com/blog/2020-08-07-WX20200807-223200%402x.png" width="60%" /></p>
+
+<p>然后，我们需要对其中某些信息进行更改，例如将 100 改为 200：</p>
+
+<p><img src="http://andy-blog.oss-cn-beijing.aliyuncs.com/blog/2020-08-07-WX20200807-231909%402x.png" width="60%" /></p>
+
+<p>数据已经在内存中更改完成：</p>
+
+<p><img src="http://andy-blog.oss-cn-beijing.aliyuncs.com/blog/2020-08-07-WX20200807-223305%402x.png" width="60%" /></p>
+
+<p>更改后的数据需要被写回磁盘中：</p>
+
+<p><img src="http://andy-blog.oss-cn-beijing.aliyuncs.com/blog/2020-08-07-WX20200807-223401%402x.png" width="60%" /></p>
+
+<p>但是，我们并不会立即将更改后的数据直接写入之前数据所在的块，而是先将其写入一个新的块里 (理想情况下，可以选择在另一块磁盘上写入)：</p>
+
+<p><img src="http://andy-blog.oss-cn-beijing.aliyuncs.com/blog/2020-08-07-WX20200807-230547%402x.png" width="60%" /></p>
+
+<p>在新的数据块 (ID 为 475) 写入完成后，它会得到一个新的版本号 v#8，由于它比原始版本号 (v#7) 要大，因此，磁盘系统会将其视为最新数据。接下来，将对原始数据块 123 中的数据进行更新，并且将其版本号升级为 v#9：</p>
+
+<p><img src="http://andy-blog.oss-cn-beijing.aliyuncs.com/blog/2020-08-07-WX20200807-230750%402x.png" width="60%" /></p>
+
+<p>这样做的目的是：当我们在磁盘上的数据块 123 进行第二次更改写入时，即使出现故障导致更新失败，在数据块 475 上仍然保留有正确的更新之后的数据信息。</p>
+
+<p>我们甚至可以利用这仅有的两个块进行交叉校验：如果最新的两个版本 v#8 和 v#9 包含相同的数据信息，说明两次写入更新都是成功的，并且数据信息都是正确的。而假如其中某个失败了，导致我们只有一个数据块信息，这种情况下，我们仍然可以采用另一种被称为 <strong>循环冗余校验 (CRC)</strong> 的技术来判断该磁盘上是否存在数据错误。</p>
+
+<h3 id="13-循环冗余校验-crc">1.3 循环冗余校验 (CRC)</h3>
+
+<p><strong>循环冗余校验 (Cyclic Redundancy Check, CRC)</strong> 也称为 <strong>多项式编码 (polynomial code)</strong>，其基本思想是：将位串看作系数为 $0$ 或 $1$ 的多项式。</p>
+
+<p>一个 $k$ 位的二进制串可以视为一个 $k-1$ 阶多项式的系数列表，该多项式有 $k$ 项，从 $x^{k-1}$ 到 $x^0$。对于一个 $k$ 位的二进制串，其最高 (最左边) 位对应的是 $x^{k-1}$ 项的系数，接下来的位对应的是 $x^{k-2}$ 项的系数，以此类推。</p>
+
+<p>例如，对于一个 $6$ 位的二进制串 $110001$，其代表了一个 $5$ 阶多项式，其各项系数从左至右依次为：$1,1,0,0,0,1$，即 $1x^5+1x^4+0x^3+0x^2+0x^1+1x^0$。</p>
+
+<p>多项式的算术运算遵守代数域理论规则，以 $2$ 为模来完成。加法没有进位，减法没有借位，加法和减法都等同于 <strong>异或 (XOR)</strong>。例如：</p>
+
+<p><img src="http://andy-blog.oss-cn-beijing.aliyuncs.com/blog/2020-08-08-WX20200808-114748%402x.png" width="60%" /></p>
+
+<p>长除法与二进制中的除法运算一样，只不过减法按照模 2 进行。如果被除数与除数有一样多的位，则该除数要 “进入到” 被除数中，即两者位数相同则商为 $1$，否则为 $0$。</p>
+
+<p>使用 CRC 时，消息发送方和接收方必须先商定一个 <strong>生成多项式 (generator polynomial)</strong> $G(x)$，其最高位和最低位系数必须为 $1$。假定一个二进制消息串有 $m$ 位，对应于多项式 $M(x)$，为了计算它的 CRC，$M(x)$ 的长度必须大于 $G(x)$。基本思想是在原二进制消息串的尾部附加一个校验和，使得新的二进制串能够被 $G(x)$ 除尽。当接收方收到了带校验和的消息串后，将尝试用 $G(x)$ 去除它。如果有余数，则说明消息传输过程中发生了错误。</p>
+
+<p>CRC 计算过程如下：</p>
+
+<ol>
+  <li>假设 $G(x)$ 的阶数为 $r$。在消息串低位端添加 $r$ 个 $0$，新的消息串为 $m+r$ 位，对应多项式 $x^r M(x)$。</li>
+  <li>利用模 2 除法，用 $G(x)$ 对应的位串去除 $x^r M(x)$ 对应的位串。</li>
+  <li>利用模 2 减法 (即 XOR)，从 $x^r M(x)$ 对应位串中减去余数 (总是小于等于 $r$ 位)，其结果即为带校验和的消息串，其对应的多项式记为 $T(x)$。</li>
+</ol>
+
+<p>下面是采用生成多项式 $G(x)=x^4+x+1$ 计算消息串 $1101011111$ 校验和的例子：</p>
+
+<p><img src="http://andy-blog.oss-cn-beijing.aliyuncs.com/blog/2020-08-08-WX20200808-121440%402x.png" width="80%" /></p>
+
+<p><strong>验证 CRC 的有效性</strong>：再次执行上述计算，可以很容易地验证收到消息的有效性，只不过这次在原消息尾部添加的是上面计算出的校验和而非之前的 $r$ 个 $0$ (当然，余数不足 $r$ 位则在前面补上对应数量的 $0$)。如果没有可检测的错误，则余数应等于 $0$。</p>
+
+<p>通信或磁盘上的大多数错误都是连续发生的，其本质上是突发性的。<strong>带 $r$ 个校验位的多项式编码可以检测到所有长度小于或等于 $r$ 的突发错误</strong>。</p>
+
+<p>例如，给定生成多项式 $G(x)=x^{32}+x^{23}+x^7+1$，它可以检测所有长度小于或等于 $32$ 位的突发错误；在长度为 $33$ 的 $100$ 亿个突发错误中，有 $5$ 个不会被检测到；在长度为 $34$ 或更大的 $100$ 亿个突发错误中，有 3 个不会被检测到。当然，如果需要检测更多位的错误，可以使用更高阶的生成多项式，代价就是计算量会增加。</p>
+
+<h3 id="14-其他相关术语">1.4 其他相关术语</h3>
+
+<p><strong>操作类型</strong>：</p>
+<ul>
+  <li><strong>无保护操作 (Unprotected actions)</strong>：没有 ACID 属性</li>
+  <li><strong>受保护操作 (Protected actions)</strong>：这些操作在完成之前 <strong>不会被外部化</strong>。这些操作受到控制，并且可以根据需要回滚。它们具有 ACID 属性。</li>
+  <li><strong>真实操作 (Real actions)</strong>：这些是真实的物理操作，一旦执行就无法撤消。在许多情况下，真实操作无法实现原子性 (例如：将发射两枚火箭作为单个原子操作）。</li>
+</ul>
+
+<h2 id="2-事务类型">2. 事务类型</h2>
+
+<h3 id="21-c-语言中的嵌入式-sql-示例-开放数据库连接">2.1 C 语言中的嵌入式 SQL 示例 (开放数据库连接)</h3>
+
+<p>现在，我们将通过一个简单例子来理解不同类型的事务。下面是一个在 C 语言中嵌入 SQL 的例子：</p>
+
+<pre><code class="language-C">int main(){
+    exec sql INCLUDE SQLCA; /*SQL Communication Area*/
+
+    exec sql BEGIN DECLARE SECTION;
+    /* The following variables are used for communicating between SQL and C */
+    int OrderID; /* Employee ID (from user) */
+    int CustID; /* Retrieved customer ID */
+    char SalesPerson[10] /* Retrieved salesperson name */
+    char Status[6] /* Retrieved order status */
+    exec sql END DECLARE SECTION;
+
+    /* Set up error processing */
+    exec sql WHENEVER SQLERROR GOTO query_error;
+    exec sql WHENEVER NOT FOUND GOTO bad_number;
+
+    /* Prompt the user for order number */
+    printf ("Enter order number: ");
+    scanf_s("%d", &amp;OrderID);
+
+    /* Execute the SQL query */
+    exec sql SELECT CustID, SalesPerson, Status
+        FROM Orders
+        WHERE OrderID = :OrderID // ”:” indicates to refer to C variable
+        INTO :CustID, :SalesPerson, :Status;
+
+    /* Display the results */
+    printf ("Customer number: %d\n", CustID);
+    printf ("Salesperson: %s\n", SalesPerson);
+    printf ("Status: %s\n", Status);
+    exit();
+    query_error:
+        printf ("SQL error: %ld\n", sqlca-&gt;sqlcode); exit();
+    bad_number:
+        printf ("Invalid order number.\n"); exit();}
+</code></pre>
+
+<h3 id="22-相关概念">2.2 相关概念</h3>
+
+<ul>
+  <li>
+    <p><strong>主机变量</strong></p>
+
+    <p>在 <code class="highlighter-rouge">BEGIN DECLARE SECTION</code> 和 <code class="highlighter-rouge">END DECLARE SECTION</code> 之间所包含的部分中所声明的变量被称为 <strong>主机变量 (Host Variables)</strong>。访问这些变量时，它们以冒号 <code class="highlighter-rouge">:</code> 作为前缀。冒号对于区分主机变量和数据库对象 (例如表和列) 至关重要。</p>
+  </li>
+  <li>
+    <p><strong>数据类型</strong></p>
+
+    <p>DBMS 支持的数据类型和主机语言可以完全不同。主机变量具有以下两个作用：</p>
+    <ul>
+      <li>主机变量是程序变量，通过主机语言的语句进行声明和操作</li>
+      <li>在嵌入式 SQL 中使用它们来检索数据库数据</li>
+    </ul>
+
+    <p>如果没有与 DBMS 数据类型相对应的主机语言类型，则 DBMS 会自动转换数据。但是，由于每种 DBMS 在转换过程中都有其自己的规则和偏好，因此必须谨慎选择主机变量类型。</p>
+  </li>
+  <li>
+    <p><strong>错误处理</strong></p>
+
+    <p>DBMS 使用语句 <code class="highlighter-rouge">INCLUDE SQLCA</code>，通过一个 <strong>SQL 通信区 (SQL Communications Area, SQLCA)</strong> 向应用程序报告运行时错误。而 <code class="highlighter-rouge">WHENEVER...GOTO</code> 语句则告诉预处理器为程序生成错误处理代码，以处理 DBMS 所返回的错误。</p>
+  </li>
+  <li>
+    <p><strong>单例 SELECT</strong></p>
+
+    <p>用于返回数据的语句是一个 <strong>单例 (singleton) SELECT</strong> 语句；也就是说，<strong>它仅返回一行数据</strong>。因此，上面的代码示例中并没有声明或使用 <strong>游标 (cursors)</strong>。</p>
+  </li>
+</ul>
+
+<p>接下来，我们将看一下两种不同的事务类型：<strong>扁平事务 (Flat Transaction)</strong> 和 <strong>嵌套事务 (Nested Transaction)</strong>。</p>
+
+<h3 id="23-扁平事务">2.3 扁平事务</h3>
+
+<p>扁平事务的思想很简单：<code class="highlighter-rouge">BEGIN WORK</code> 和 <code class="highlighter-rouge">COMMIT WORK</code> 内部的所有内容都处于同一级别； 也就是说，该交易将与其他所有事务一起保留 (提交)，或者与其他所有事务一起回滚 (中止)。</p>
+
+<p>下面是一个银行转账的例子：</p>
+
+<pre><code class="language-C">exec sql CREATE Table accounts(
+    AccId NUMERIC(9),
+    BranchId NUMERIC(9),
+    FOREIGN KEY REFERENCES branches,
+    AccBalance NUMERIC(10),
+    PRIMARY KEY(AccId));
+
+exec sql BEGIN DECLARE SECTION;
+long AccId, BranchId, TellerId, delta, AccBalance;
+exec sql END DELCLARATION;
+
+/* Debit/Credit Transaction*/
+DCApplication(){
+    read input msg;
+    exec sql BEGIN WORK;
+    AccBalance = DodebitCredit(BranchId, TellerId, AccId, delta);
+    send output msg;
+    exec sql COMMIT WORK;
+}
+
+/* Withdraw money -- bank debits; Deposit money – bank credits */
+Long DoDebitCredit(long BranchId, long TellerId, long AccId, long AccBalance, long delta){
+    exec sql UPDATE accounts
+    SET AccBalance = AccBalance + :delta
+    WHERE AccId = :AccId;
+
+    exec sql SELECT AccBalance INTO :AccBalance
+    FROM accounts WHERE AccId = :AccId;
+
+    exec sql UPDATE tellers
+    SET TellerBalance = TellerBalance + :delta
+    WHERE TellerId = :TellerId;
+
+    exec sql UPDATE branches
+    SET BranchBalance = BranchBalance + :delta
+    WHERE BranchId = :BranchId;
+
+    exec sql INSERT INTO history(TellerId, BranchId, AccId, delta, time)
+    VALUES( :TellerId, :BranchId, :AccId, :delta, CURRENT);
+    return(AccBalance);
+}
+</code></pre>
+
+<p>让我们检查一下帐户余额，并拒绝任何透支帐户的借记。</p>
+
+<pre><code class="language-C">DCApplication(){
+    read input msg;
+    exec sql BEGIN WORK;
+    AccBalance = DodebitCredit(BranchId, TellerId, AccId, delta);
+    if (AccBalance &lt; 0 &amp;&amp; delta &lt; 0){
+        exec sql ROLLBACK WORK;
+    }
+    else{
+        send output msg;
+        exec sql COMMIT WORK;
+    }
+}
+</code></pre>
+
+<h3 id="24-扁平事务的局限性">2.4 扁平事务的局限性</h3>
+
+<p>尽管扁平事务非常简单，但是它无法对很多实际应用场景建模。</p>
+
+<p>例如，机票预订：</p>
+
+<pre><code class="language-C">BEGIN WORK
+    S1: book flight from Melbourne to Singapore
+    S2: book flight from Singapore to London
+    S3: book flight from London to Dublin
+END WORK
+</code></pre>
+
+<p><strong>问题</strong>：如果我们无法从都柏林到达最终目的地，我们希望从新加坡飞往巴黎，然后到达我们的最终目的地。</p>
+
+<p>如果选择回滚，那么我们需要重新预订从墨尔本到新加坡的预订，这将造成 <strong>时间和资源的浪费</strong>。</p>
+
+<p>又例如，雇员加薪：</p>
+
+<pre><code class="language-C">IncreaseSalary(){
+    real percentRaise;
+    receive(percentRaise);
+    exec SQL BEGIN WORK;
+        exec SQL UPDATE employee
+        set salary = salary*(1+ :percentRaise)
+        send(done);
+    exec sql COMMIT WORK;
+    return
+}
+</code></pre>
+
+<p>这可能是一个非常长时间的事务，<strong>任何事务失败都需要大量不必要的计算</strong>。</p>
+
+<h3 id="25-带保存点的扁平事务">2.5 带保存点的扁平事务</h3>
+
+<p>前面提到，对于一个很长的语句列表，其执行过程中耗时会更长，同时也更容易发生错误，而任何错误都将导致回滚所有操作，这将耗费大量时间。</p>
+
+<p>一种策略是采用 <strong>带保存点 (save points) 的扁平事务</strong>：</p>
+
+<p><img src="http://andy-blog.oss-cn-beijing.aliyuncs.com/blog/2020-08-08-WX20200808-154610%402x.png" width="80%" /></p>
+
+<p>通过在待执行语句中插入一些保存点，它们可以保留之前已经完成的操作。一旦发生错误，我们可以选择直接回滚到之前的某个保存点状态，而不必完全从头开始。例如，在执行操作 7 后，我们希望回滚到保存点 2，这种情况下，操作 3-7 会被丢弃，系统将从保存点 2 的状态开始 (即已经执行过操作 1 和 2)，直接执行操作 8。</p>
+
+<p>例如，假如我们需要为一次长途旅行预订机票：</p>
+
+<p><strong>伦敦 $\to$ 纽约 $\qquad$ 纽约 $\to$ 芝加哥 $\qquad$ 芝加哥 $\to$ 得梅因</strong></p>
+
+<p>我们可能希望分别在 <strong>伦敦 $\to$ 纽约</strong> 和 <strong>纽约 $\to$ 芝加哥</strong> 的预订代码之后插入保存点，如果我们订不到 <em>**</em></p>
+
+<p>下节内容：事务</p>
+:ET
