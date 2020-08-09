@@ -1,0 +1,18 @@
+I"�<h1 id="lecture-05-并发控制">Lecture 05 并发控制</h1>
+
+<p><strong>参考教材</strong>：<em>Transaction Processing: Concepts and Techniques, Jim Gray and Andreas Reuter, Morgan Kaufmann, 1993</em></p>
+
+<h2 id="1-并发问题">1. 并发问题</h2>
+
+<p>本节课中，我们将讨论当多个事务同时访问某个共享数据资源时的一个常见问题：<strong>并发问题 (Concurrency Problems)</strong>。</p>
+
+<p>这里，共享资源可以是一个变量、一些数据，或者一个磁盘块。</p>
+
+<p>下面是一个相关例子，其中共享资源是一个名为 <code class="highlighter-rouge">counter</code> 的变量，其初始值为 $100$。</p>
+
+<p><img src="http://andy-blog.oss-cn-beijing.aliyuncs.com/blog/2020-08-08-WX20200808-230358%402x.png" width="70%" /></p>
+
+<p>第一个事务 Task1 在 <code class="highlighter-rouge">counter</code> 上加了 $10$,</p>
+
+<p>下节内容：并发控制</p>
+:ET
