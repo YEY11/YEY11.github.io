@@ -1,4 +1,4 @@
-I"y\<!-- 数学公式 -->
+I"s`<!-- 数学公式 -->
 <script src="https://cdn.mathjax.org/mathjax/latest/MathJax.js?config=TeX-AMS-MML_HTMLorMML" type="text/javascript"></script>
 
 <script type="text/x-mathjax-config">
@@ -186,23 +186,55 @@
 
 <p>在广义线性模型中，我们总是可以将记分法中的迭代步像这样表示为加权回归：该过程称为 <strong>迭代重新加权最小二乘法（iteratively re-weighted least squares，IRWLS）</strong>。</p>
 
-<p>在 R 语言中，函数 <code class="highlighter-rouge">glm()</code> 中实现了 IRWLS 方法：</p>
+<p>在 R 语言中，函数 <code class="language-plaintext highlighter-rouge">glm()</code> 中实现了 IRWLS 方法：</p>
 
-<div class="highlighter-rouge"><div class="highlight"><pre class="highlight"><code>&gt; glm(formula, family = poisson, data, weights, subset, 
+<div class="language-plaintext highlighter-rouge"><div class="highlight"><pre class="highlight"><code><table class="rouge-table"><tbody><tr><td class="rouge-gutter gl"><pre class="lineno">1
+2
+3
+4
+</pre></td><td class="rouge-code"><pre>&gt; glm(formula, family = poisson, data, weights, subset, 
       na.action, start = NULL, etastart, mustart, offset, 
       control = list(...), model = TRUE, method = "glm.fit", 
       x = FALSE, y = TRUE, singular.ok = TRUE, contrasts = NULL, ...)
-</code></pre></div></div>
+</pre></td></tr></tbody></table></code></pre></div></div>
 
 <p><a name="eg1"><strong>例子</strong></a>：拟合模型 $Y_i\overset{\mathrm d}{=}\mathrm{Poi}(\lambda_i)$，其中 $\ln \lambda_i=\beta_0+\beta_1x_i$，数据如下：</p>
 
-<div class="highlighter-rouge"><div class="highlight"><pre class="highlight"><code>x :  -1   -1   0   0   0   0   1   1   1
+<div class="language-plaintext highlighter-rouge"><div class="highlight"><pre class="highlight"><code><table class="rouge-table"><tbody><tr><td class="rouge-gutter gl"><pre class="lineno">1
+2
+</pre></td><td class="rouge-code"><pre>x :  -1   -1   0   0   0   0   1   1   1
 y :   2    3   6   7   8   9  10  12  15
-</code></pre></div></div>
+</pre></td></tr></tbody></table></code></pre></div></div>
 
 <p>R 代码：</p>
 
-<div class="highlighter-rouge"><div class="highlight"><pre class="highlight"><code>&gt; x &lt;- c(-1, -1, 0, 0, 0, 0, 1, 1, 1)
+<div class="language-plaintext highlighter-rouge"><div class="highlight"><pre class="highlight"><code><table class="rouge-table"><tbody><tr><td class="rouge-gutter gl"><pre class="lineno">1
+2
+3
+4
+5
+6
+7
+8
+9
+10
+11
+12
+13
+14
+15
+16
+17
+18
+19
+20
+21
+22
+23
+24
+25
+26
+</pre></td><td class="rouge-code"><pre>&gt; x &lt;- c(-1, -1, 0, 0, 0, 0, 1, 1, 1)
 &gt; y &lt;- c(2, 3, 6, 7, 8, 9, 10, 12, 15)
 &gt; pr.1 &lt;- glm(y ~ x, family = poisson)
 &gt; summary(pr.1)
@@ -228,7 +260,7 @@ Residual deviance:  2.9387  on 7  degrees of freedom
 AIC: 41.052
 
 Number of Fisher Scoring iterations: 4
-</code></pre></div></div>
+</pre></td></tr></tbody></table></code></pre></div></div>
 
 <h3 id="23-具有自然连接的-glm-估计">2.3 具有自然连接的 GLM 估计</h3>
 <p>具有自然连接函数的广义指数族分布和上面的泊松分布的推导过程略有不同。</p>
@@ -330,8 +362,9 @@ W=\mathrm{diag}\{w_1,\dots,w_n\} \;,\qquad
 
 <p>回忆前面 <a href="#eg1">泊松分布的例子</a>，现在，我们对 R 代码输出中剩余偏差的意义更清楚了：</p>
 
-<div class="highlighter-rouge"><div class="highlight"><pre class="highlight"><code>Residual deviance:  2.9387  on 7  degrees of freedom
-</code></pre></div></div>
+<div class="language-plaintext highlighter-rouge"><div class="highlight"><pre class="highlight"><code><table class="rouge-table"><tbody><tr><td class="rouge-gutter gl"><pre class="lineno">1
+</pre></td><td class="rouge-code"><pre>Residual deviance:  2.9387  on 7  degrees of freedom
+</pre></td></tr></tbody></table></code></pre></div></div>
 
 <p>它表明 $D=2.9387$，并且 $n-q=7$（因为 $n=9,\;q=2$），因此，我们拟合的模型是相当可以接受的：$\chi_{0.95}^{2}(7)=14.07&gt;D$。</p>
 
@@ -371,7 +404,22 @@ W=\mathrm{diag}\{w_1,\dots,w_n\} \;,\qquad
 
 <p>R 代码：</p>
 
-<div class="highlighter-rouge"><div class="highlight"><pre class="highlight"><code>&gt; anova(pr.1, test = "Chi")
+<div class="language-plaintext highlighter-rouge"><div class="highlight"><pre class="highlight"><code><table class="rouge-table"><tbody><tr><td class="rouge-gutter gl"><pre class="lineno">1
+2
+3
+4
+5
+6
+7
+8
+9
+10
+11
+12
+13
+14
+15
+</pre></td><td class="rouge-code"><pre>&gt; anova(pr.1, test = "Chi")
 Analysis of Deviance Table
 
 Model: poisson, link: log
@@ -386,7 +434,7 @@ NULL                     8    18.4206
 x     1   15.482         7     2.9387 8.33e-05 ***
 ---
 Signif. codes:  0 ‘***’ 0.001 ‘**’ 0.01 ‘*’ 0.05 ‘.’ 0.1 ‘ ’ 1
-</code></pre></div></div>
+</pre></td></tr></tbody></table></code></pre></div></div>
 
 <p>结果显示，$D_0=18.4206$，$D_1=2.9387$，所以</p>
 

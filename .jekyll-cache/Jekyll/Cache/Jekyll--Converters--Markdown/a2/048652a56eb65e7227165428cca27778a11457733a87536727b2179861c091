@@ -1,4 +1,4 @@
-I"�w<h1 id="lecture-04-面向事务的计算">Lecture 04 面向事务的计算</h1>
+I"Fx<h1 id="lecture-04-面向事务的计算">Lecture 04 面向事务的计算</h1>
 
 <p><strong>参考教材</strong>：<em>Transaction Processing: Concepts and Techniques, Jim Gray and Andreas Reuter, Morgan Kaufmann, 1993</em></p>
 
@@ -195,7 +195,7 @@
   <li>
     <p><strong>主机变量</strong></p>
 
-    <p>在 <code class="highlighter-rouge">BEGIN DECLARE SECTION</code> 和 <code class="highlighter-rouge">END DECLARE SECTION</code> 之间所包含的部分中所声明的变量被称为 <strong>主机变量 (Host Variables)</strong>。访问这些变量时，它们以冒号 <code class="highlighter-rouge">:</code> 作为前缀。冒号对于区分主机变量和数据库对象 (例如表和列) 至关重要。</p>
+    <p>在 <code class="language-plaintext highlighter-rouge">BEGIN DECLARE SECTION</code> 和 <code class="language-plaintext highlighter-rouge">END DECLARE SECTION</code> 之间所包含的部分中所声明的变量被称为 <strong>主机变量 (Host Variables)</strong>。访问这些变量时，它们以冒号 <code class="language-plaintext highlighter-rouge">:</code> 作为前缀。冒号对于区分主机变量和数据库对象 (例如表和列) 至关重要。</p>
   </li>
   <li>
     <p><strong>数据类型</strong></p>
@@ -211,7 +211,7 @@
   <li>
     <p><strong>错误处理</strong></p>
 
-    <p>DBMS 使用语句 <code class="highlighter-rouge">INCLUDE SQLCA</code>，通过一个 <strong>SQL 通信区 (SQL Communications Area, SQLCA)</strong> 向应用程序报告运行时错误。而 <code class="highlighter-rouge">WHENEVER...GOTO</code> 语句则告诉预处理器为程序生成错误处理代码，以处理 DBMS 所返回的错误。</p>
+    <p>DBMS 使用语句 <code class="language-plaintext highlighter-rouge">INCLUDE SQLCA</code>，通过一个 <strong>SQL 通信区 (SQL Communications Area, SQLCA)</strong> 向应用程序报告运行时错误。而 <code class="language-plaintext highlighter-rouge">WHENEVER...GOTO</code> 语句则告诉预处理器为程序生成错误处理代码，以处理 DBMS 所返回的错误。</p>
   </li>
   <li>
     <p><strong>单例 SELECT</strong></p>
@@ -224,7 +224,7 @@
 
 <h3 id="23-扁平事务">2.3 扁平事务</h3>
 
-<p>扁平事务的思想很简单：<code class="highlighter-rouge">BEGIN WORK</code> 和 <code class="highlighter-rouge">COMMIT WORK</code> 内部的所有内容都处于同一级别； 也就是说，该交易将与其他所有事务一起保留 (提交)，或者与其他所有事务一起回滚 (中止)。</p>
+<p>扁平事务的思想很简单：<code class="language-plaintext highlighter-rouge">BEGIN WORK</code> 和 <code class="language-plaintext highlighter-rouge">COMMIT WORK</code> 内部的所有内容都处于同一级别； 也就是说，该交易将与其他所有事务一起保留 (提交)，或者与其他所有事务一起回滚 (中止)。</p>
 
 <p>下面是一个银行转账的例子：</p>
 
@@ -345,7 +345,7 @@ END WORK
 
 <p><img src="http://andy-blog.oss-cn-beijing.aliyuncs.com/blog/2020-08-08-WX20200808-162521%402x.png" width="70%" /></p>
 
-<p>对于嵌套事务，我们可以从逻辑上将一个事务的操作集合划分为不同的子事务。在父事务内部，我们按照所需顺序依次调用所有子事务。在子事务内部，我们用 <code class="highlighter-rouge">BEGIN WORK</code> 和 <code class="highlighter-rouge">END WORK</code> 包裹所有需要执行的操作或者下一层子事务。</p>
+<p>对于嵌套事务，我们可以从逻辑上将一个事务的操作集合划分为不同的子事务。在父事务内部，我们按照所需顺序依次调用所有子事务。在子事务内部，我们用 <code class="language-plaintext highlighter-rouge">BEGIN WORK</code> 和 <code class="language-plaintext highlighter-rouge">END WORK</code> 包裹所有需要执行的操作或者下一层子事务。</p>
 
 <h3 id="27-嵌套事务规则">2.7 嵌套事务规则</h3>
 

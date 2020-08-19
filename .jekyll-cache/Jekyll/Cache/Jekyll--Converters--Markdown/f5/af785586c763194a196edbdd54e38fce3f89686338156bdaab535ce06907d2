@@ -1,0 +1,38 @@
+I"�<h1 id="lecture-01-导论">Lecture 01 导论</h1>
+
+<p><strong>参考教材</strong>：</p>
+
+<ul>
+  <li><em>Gareth, J., Daniela, W., Trevor, H., &amp; Robert, T. (2013). An intruduction to statistical learning: with applications in R. Spinger.</em></li>
+  <li><em>Hastie, T., Tibshirani, R., &amp; Friedman, J. (2009). The elements of statistical learning: data mining, inference, and prediction. Spinger Science &amp; Business Media.</em></li>
+</ul>
+
+<h2 id="1-导论">1. 导论</h2>
+
+<h3 id="11-内容安排">1.1 内容安排</h3>
+
+<p>本课程中，我们将尝试覆盖以下 6 个主题：</p>
+
+<ul>
+  <li><strong>回归与分类</strong></li>
+  <li><strong>重采样和模型选择</strong></li>
+  <li><strong>样条 (Splines) 和 广义加性模型 (GAMs)</strong></li>
+  <li><strong>基于树的方法和 SVMs</strong></li>
+  <li><strong>无监督学习</strong></li>
+  <li><strong>神经网络</strong></li>
+</ul>
+
+<h3 id="12-统计学习概览">1.2 统计学习概览</h3>
+
+<p><strong>统计学习 (Statistical Learning)</strong> 是一套以 <strong>理解数据 (understanding data)</strong> 为目的的庞大工具集。</p>
+
+<p>统计学习的工具可以分为两大类：<strong>有监督的 (supervised)</strong> 和 <strong>无监督的 (unsupervised)</strong>。</p>
+
+<p>有监督的统计学习涉及基于一个或多个输入来构建用于预测或估计输出的统计模型。</p>
+
+<p><strong>有监督统计学习</strong> 主要有两种用途：1. 构建统计模型用于预测；2.</p>
+
+<p>在无监督统计学习的情况下，有输入但无监督输出； 但是，我们可以从这些数据中学习关系和结构。</p>
+
+<p>下节内容：隔离性</p>
+:ET

@@ -1,4 +1,4 @@
-I"\f<h1 id="lecture-09-词汇语义学">Lecture 09 词汇语义学</h1>
+I"0g<h1 id="lecture-09-词汇语义学">Lecture 09 词汇语义学</h1>
 
 <p>这节课我们将学习词汇语义学。</p>
 
@@ -201,7 +201,22 @@ $\textbf{bank}^{\mathbf 2}$: $\dots \text{as agriculture burgeons on the east } 
   </li>
 </ul>
 
-<div class="highlighter-rouge"><div class="highlight"><pre class="highlight"><code># 查看某个单词所有的同义词集
+<div class="language-plaintext highlighter-rouge"><div class="highlight"><pre class="highlight"><code><table class="rouge-table"><tbody><tr><td class="rouge-gutter gl"><pre class="lineno">1
+2
+3
+4
+5
+6
+7
+8
+9
+10
+11
+12
+13
+14
+15
+</pre></td><td class="rouge-code"><pre># 查看某个单词所有的同义词集
 &gt;&gt;&gt; nltk.corpus.wordnet.synsets(‘bank’)
 [Synset('bank.n.01'), Synset('depository_financial_institution.n.01'), Synset('bank.n.03'),
 Synset('bank.n.04'), Synset('bank.n.05'), Synset('bank.n.06'), Synset('bank.n.07'),
@@ -216,7 +231,7 @@ u'sloping land (especially the slope beside a body of water)‘
 # 查看某个单词的某个同义词集中的所有相关词目
 &gt;&gt;&gt; nltk.corpus.wordnet.synsets(‘bank’)[1].lemma_names()
 [u'depository_financial_institution', u'bank', u'banking_concern', u'banking_company']
-</code></pre></div></div>
+</pre></td></tr></tbody></table></code></pre></div></div>
 
 <h3 id="19-wordnet-中的词汇关系">1.9 WordNet 中的词汇关系</h3>
 

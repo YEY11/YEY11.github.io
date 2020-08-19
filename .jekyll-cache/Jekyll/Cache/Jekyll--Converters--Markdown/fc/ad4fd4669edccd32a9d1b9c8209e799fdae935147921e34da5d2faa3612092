@@ -1,5 +1,4 @@
-I"
-}<!-- 数学公式 -->
+I"�}<!-- 数学公式 -->
 <script src="https://cdn.mathjax.org/mathjax/latest/MathJax.js?config=TeX-AMS-MML_HTMLorMML" type="text/javascript"></script>
 
 <script type="text/x-mathjax-config">
@@ -261,7 +260,22 @@ $O(T^2N)$，其中 $T$ 是 tagset 的大小（即所有可能 tag 类别的数�
 
 <p>下面是维特比算法的伪代码：</p>
 
-<div class="language-python highlighter-rouge"><div class="highlight"><pre class="highlight"><code><span class="n">alpha</span> <span class="o">=</span> <span class="n">np</span><span class="o">.</span><span class="n">zeros</span><span class="p">(</span><span class="n">M</span><span class="p">,</span> <span class="n">T</span><span class="p">)</span>
+<div class="language-python highlighter-rouge"><div class="highlight"><pre class="highlight"><code><table class="rouge-table"><tbody><tr><td class="rouge-gutter gl"><pre class="lineno">1
+2
+3
+4
+5
+6
+7
+8
+9
+10
+11
+12
+13
+14
+15
+</pre></td><td class="rouge-code"><pre><span class="n">alpha</span> <span class="o">=</span> <span class="n">np</span><span class="p">.</span><span class="n">zeros</span><span class="p">(</span><span class="n">M</span><span class="p">,</span> <span class="n">T</span><span class="p">)</span>
 <span class="k">for</span> <span class="n">t</span> <span class="ow">in</span> <span class="nb">range</span><span class="p">(</span><span class="n">T</span><span class="p">):</span>
     <span class="n">alpha</span><span class="p">[</span><span class="mi">1</span><span class="p">,</span> <span class="n">t</span><span class="p">]</span> <span class="o">=</span> <span class="n">pi</span><span class="p">[</span><span class="n">t</span><span class="p">]</span> <span class="o">*</span> <span class="n">O</span><span class="p">[</span><span class="n">w</span><span class="p">[</span><span class="mi">1</span><span class="p">],</span> <span class="n">t</span><span class="p">]</span>
 
@@ -274,9 +288,9 @@ $O(T^2N)$，其中 $T$ 是 tagset 的大小（即所有可能 tag 类别的数�
                 <span class="n">alpha</span><span class="p">[</span><span class="n">i</span><span class="p">,</span> <span class="n">t_i</span><span class="p">]</span> <span class="o">=</span> <span class="n">s</span>
                 <span class="n">back</span><span class="p">[</span><span class="n">i</span><span class="p">,</span> <span class="n">t_i</span><span class="p">]</span> <span class="o">=</span> <span class="n">t_last</span>
 
-<span class="n">best</span> <span class="o">=</span> <span class="n">np</span><span class="o">.</span><span class="nb">max</span><span class="p">(</span><span class="n">alpha</span><span class="p">[</span><span class="n">M</span><span class="o">-</span><span class="mi">1</span><span class="p">,:])</span>
+<span class="n">best</span> <span class="o">=</span> <span class="n">np</span><span class="p">.</span><span class="nb">max</span><span class="p">(</span><span class="n">alpha</span><span class="p">[</span><span class="n">M</span><span class="o">-</span><span class="mi">1</span><span class="p">,:])</span>
 <span class="k">return</span> <span class="n">backtrace</span><span class="p">(</span><span class="n">best</span><span class="p">,</span> <span class="n">back</span><span class="p">)</span>
-</code></pre></div></div>
+</pre></td></tr></tbody></table></code></pre></div></div>
 
 <ul>
   <li>在实践中，我们通常计算的是 <strong>log</strong> 概率以避免数值下溢（将乘积转换成累加），因为直接计算概率乘积可能会导致最后结果非常接近于 $0$。</li>

@@ -1,4 +1,4 @@
-I"f<!-- 数学公式 -->
+I"o<!-- 数学公式 -->
 <script src="https://cdn.mathjax.org/mathjax/latest/MathJax.js?config=TeX-AMS-MML_HTMLorMML" type="text/javascript"></script>
 
 <script type="text/x-mathjax-config">
@@ -106,7 +106,7 @@ Y &= \mu+\varepsilon，\;\; 其中\;\; \mu=E(Y)=\beta_0+\beta_1 X_1+\cdots+\beta
     <p><br /></p>
   </li>
   <li>本课程推荐参考教材为：<a href="https://book.douban.com/subject/2854606/"><em>Extending the Linear Model with R</em></a> by Faraway, Julian<br />
-另外，本课程需要使用统计软件 R 以及基于参考教材的 R package <code class="highlighter-rouge">faraway</code></li>
+另外，本课程需要使用统计软件 R 以及基于参考教材的 R package <code class="language-plaintext highlighter-rouge">faraway</code></li>
 </ul>
 
 <h2 id="2-通过一个案例回顾线性模型">2. 通过一个案例回顾线性模型</h2>
@@ -117,7 +117,16 @@ Y &= \mu+\varepsilon，\;\; 其中\;\; \mu=E(Y)=\beta_0+\beta_1 X_1+\cdots+\beta
   <li>
     <p>佐治亚州的投票数据在 Meyer（2002）中进行了介绍和分析。</p>
 
-    <div class="highlighter-rouge"><div class="highlight"><pre class="highlight"><code>&gt; library(faraway); data(gavote); help(gavote); dim(gavote); head(gavote)  
+    <div class="language-plaintext highlighter-rouge"><div class="highlight"><pre class="highlight"><code><table class="rouge-table"><tbody><tr><td class="rouge-gutter gl"><pre class="lineno">1
+2
+3
+4
+5
+6
+7
+8
+9
+</pre></td><td class="rouge-code"><pre>&gt; library(faraway); data(gavote); help(gavote); dim(gavote); head(gavote)  
 [1] 159  10  
          equip   econ perAA rural    atlanta gore bush other votes ballots  
 APPLING  LEVER   poor 0.182 rural notAtlanta 2093 3940    66  6099    6617  
@@ -126,10 +135,10 @@ BACON    LEVER   poor 0.131 rural notAtlanta  956 2010    29  2995    3347
 BAKER    OS-CC   poor 0.476 rural notAtlanta  893  615    11  1519    1607  
 BALDWIN  LEVER middle 0.359 rural notAtlanta 5893 6041   192 12126   12785  
 BANKS    LEVER middle 0.024 rural notAtlanta 1220 3202   111  4533    4773
-</code></pre></div>    </div>
+</pre></td></tr></tbody></table></code></pre></div>    </div>
 
     <p>所以，在这个数据集中，我们的实验单元（experiment unit）是什么？<br />
-答案是佐治亚州下辖的每个郡（county）：<code class="highlighter-rouge">APPLING</code>、<code class="highlighter-rouge">ATKINSON</code>、<code class="highlighter-rouge">BACON</code> 等等。</p>
+答案是佐治亚州下辖的每个郡（county）：<code class="language-plaintext highlighter-rouge">APPLING</code>、<code class="language-plaintext highlighter-rouge">ATKINSON</code>、<code class="language-plaintext highlighter-rouge">BACON</code> 等等。</p>
   </li>
   <li>前往投票站的选民如果已经完成了登记，那么他 / 她将会获得一张 ballot（选票）。</li>
   <li>但是，如果他 / 她没有投票选取总统，或者投票给一个以上的候选人，或者设备出现了故障，那么，不会产生 vote（投票）记录。</li>
@@ -137,7 +146,7 @@ BANKS    LEVER middle 0.024 rural notAtlanta 1220 3202   111  4533    4773
   <li>我们的目标是通过线性模型和 R 分析出是什么因素影响了这种 undercount。</li>
 </ul>
 
-<h3 id="22-关于-gavote-数据的描述">2.2 关于 <code class="highlighter-rouge">gavote</code> 数据的描述</h3>
+<h3 id="22-关于-gavote-数据的描述">2.2 关于 <code class="language-plaintext highlighter-rouge">gavote</code> 数据的描述</h3>
 <ul>
   <li>
     <p>一个数据框，包含了以下 10 个变量的 159 个观测值。每个案例代表佐治亚州的一个郡。</p>
@@ -163,10 +172,25 @@ BANKS    LEVER middle 0.024 rural notAtlanta 1220 3202   111  4533    4773
   </li>
 </ul>
 
-<h2 id="3-关于-gavote-的初步数据分析">3. 关于 <code class="highlighter-rouge">gavote</code> 的初步数据分析</h2>
+<h2 id="3-关于-gavote-的初步数据分析">3. 关于 <code class="language-plaintext highlighter-rouge">gavote</code> 的初步数据分析</h2>
 <h3 id="31-数值摘要">3.1 数值摘要</h3>
 
-<div class="highlighter-rouge"><div class="highlight"><pre class="highlight"><code>&gt; summary(gavote)
+<div class="language-plaintext highlighter-rouge"><div class="highlight"><pre class="highlight"><code><table class="rouge-table"><tbody><tr><td class="rouge-gutter gl"><pre class="lineno">1
+2
+3
+4
+5
+6
+7
+8
+9
+10
+11
+12
+13
+14
+15
+</pre></td><td class="rouge-code"><pre>&gt; summary(gavote)
    equip        econ        perAA          rural           atlanta         gore       
  LEVER:74   middle:69   Min.   :0.0000   rural:117   Atlanta   : 15   Min.   :   249  
  OS-CC:44   poor  :72   1st Qu.:0.1115   urban: 42   notAtlanta:144   1st Qu.:  1386  
@@ -181,14 +205,23 @@ BANKS    LEVER middle 0.024 rural notAtlanta 1220 3202   111  4533    4773
  Mean   :  8929   Mean   : 381.7   Mean   : 16331   Mean   : 16926  
  3rd Qu.:  7468   3rd Qu.: 210.0   3rd Qu.: 11846   3rd Qu.: 12251  
  Max.   :140494   Max.   :7920.0   Max.   :263211   Max.   :280975 
-</code></pre></div></div>
+</pre></td></tr></tbody></table></code></pre></div></div>
 
-<p>可以看到，有些变量属于分类变量（例如：<code class="highlighter-rouge">equip</code>），对于这类变量，我们在 summary 中统计的是数据中该变量的各个类别出现的频率。有些变量属于数值变量（例如：<code class="highlighter-rouge">perAA</code>），对于这类变量，我们统计的是其均值、中位数、四分位数和最大最小值。</p>
+<p>可以看到，有些变量属于分类变量（例如：<code class="language-plaintext highlighter-rouge">equip</code>），对于这类变量，我们在 summary 中统计的是数据中该变量的各个类别出现的频率。有些变量属于数值变量（例如：<code class="language-plaintext highlighter-rouge">perAA</code>），对于这类变量，我们统计的是其均值、中位数、四分位数和最大最小值。</p>
 
 <h3 id="32-定义变量">3.2 定义变量</h3>
-<p>我们感兴趣的是 undercount 是如何被影响的。但 undercount 并不在我们的观测数据中。因此，我们需要创造一个 undercount 的变量。我们观察到，不同的郡分配到的选票（<code class="highlighter-rouge">ballots</code>）数目差别很大，这表明为了更真实地反映出各郡的有效投票率，我们应当采用 <em>relative undercount（相对缺计）</em> 而不是 <em>absolute undercount（绝对缺计）</em>。我们可以定义一个代表 relative undercount 的变量 <code class="highlighter-rouge">undercount</code> 并将其添加到 <code class="highlighter-rouge">gavote</code> 数据框中。</p>
+<p>我们感兴趣的是 undercount 是如何被影响的。但 undercount 并不在我们的观测数据中。因此，我们需要创造一个 undercount 的变量。我们观察到，不同的郡分配到的选票（<code class="language-plaintext highlighter-rouge">ballots</code>）数目差别很大，这表明为了更真实地反映出各郡的有效投票率，我们应当采用 <em>relative undercount（相对缺计）</em> 而不是 <em>absolute undercount（绝对缺计）</em>。我们可以定义一个代表 relative undercount 的变量 <code class="language-plaintext highlighter-rouge">undercount</code> 并将其添加到 <code class="language-plaintext highlighter-rouge">gavote</code> 数据框中。</p>
 
-<div class="highlighter-rouge"><div class="highlight"><pre class="highlight"><code># 方法 1
+<div class="language-plaintext highlighter-rouge"><div class="highlight"><pre class="highlight"><code><table class="rouge-table"><tbody><tr><td class="rouge-gutter gl"><pre class="lineno">1
+2
+3
+4
+5
+6
+7
+8
+9
+</pre></td><td class="rouge-code"><pre># 方法 1
 &gt; gavote$undercount &lt;- (gavote$ballots-gavote$votes)/gavote$ballots
 &gt; summary(gavote$undercount)
    Min. 1st Qu.  Median    Mean 3rd Qu.    Max.
@@ -197,15 +230,15 @@ BANKS    LEVER middle 0.024 rural notAtlanta 1220 3202   111  4533    4773
 # 方法 2
 &gt; with(gavote, sum(ballots-votes)/sum(ballots)) #overall percent of undercount
 [1] 0.03518021
-</code></pre></div></div>
+</pre></td></tr></tbody></table></code></pre></div></div>
 
 <p>上面给出了两种计算 relative undercount 的方法：</p>
 <ul>
-  <li>方法 1 计算的是每个 county（郡）的 <em>relative undercount（相对缺计）</em>，具体方法是用其对应的 <code class="highlighter-rouge">ballots</code> 的数量减去 <code class="highlighter-rouge">votes</code> 的数量，然后除以 <code class="highlighter-rouge">ballots</code> 的数量。</li>
-  <li>方法 2 选择了直接在 <code class="highlighter-rouge">ballots</code> 和 <code class="highlighter-rouge">votes</code> 这两个向量上进行计算，对结果进行求和，然后再除以 <code class="highlighter-rouge">ballots</code> 向量中所有元素之和，其结果我们称为 <em>overall percent of undercount（总体相对缺计）</em>，这种方法实际上忽略了 county（郡）这个因素对于 undercount 的影响。</li>
+  <li>方法 1 计算的是每个 county（郡）的 <em>relative undercount（相对缺计）</em>，具体方法是用其对应的 <code class="language-plaintext highlighter-rouge">ballots</code> 的数量减去 <code class="language-plaintext highlighter-rouge">votes</code> 的数量，然后除以 <code class="language-plaintext highlighter-rouge">ballots</code> 的数量。</li>
+  <li>方法 2 选择了直接在 <code class="language-plaintext highlighter-rouge">ballots</code> 和 <code class="language-plaintext highlighter-rouge">votes</code> 这两个向量上进行计算，对结果进行求和，然后再除以 <code class="language-plaintext highlighter-rouge">ballots</code> 向量中所有元素之和，其结果我们称为 <em>overall percent of undercount（总体相对缺计）</em>，这种方法实际上忽略了 county（郡）这个因素对于 undercount 的影响。</li>
 </ul>
 
-<p>我们对变量 <code class="highlighter-rouge">undercount</code> 很感兴趣，因此可以将其作为响应变量，其中每个郡对应的 <code class="highlighter-rouge">undercount</code> 计算公式如下（这里我们采用 方法 1）：</p>
+<p>我们对变量 <code class="language-plaintext highlighter-rouge">undercount</code> 很感兴趣，因此可以将其作为响应变量，其中每个郡对应的 <code class="language-plaintext highlighter-rouge">undercount</code> 计算公式如下（这里我们采用 方法 1）：</p>
 
 <script type="math/tex; mode=display">\text{undercount}=\dfrac{\text{number of ballots }-\text{ number of votes}}{\text{number of ballots}}</script>
 
@@ -214,44 +247,61 @@ BANKS    LEVER middle 0.024 rural notAtlanta 1220 3202   111  4533    4773
 <h3 id="33-统计图摘要">3.3 统计图摘要</h3>
 <p>我们还可以利用 R 绘制各种图表摘要，例如：直方图、概率密度图、饼图等。</p>
 
-<div class="highlighter-rouge"><div class="highlight"><pre class="highlight"><code>&gt; hist(gavote$undercount,main="Undercount",xlab="Percent Undercount")
+<div class="language-plaintext highlighter-rouge"><div class="highlight"><pre class="highlight"><code><table class="rouge-table"><tbody><tr><td class="rouge-gutter gl"><pre class="lineno">1
+2
+3
+4
+</pre></td><td class="rouge-code"><pre>&gt; hist(gavote$undercount,main="Undercount",xlab="Percent Undercount")
 &gt; plot(density(gavote$undercount),main="Undercount"); rug(gavote$undercount)
 &gt; pie(table(gavote$equip),col=gray(0:4/4))
 &gt; barplot(sort(table(gavote$equip),decreasing=TRUE),las=2)
-</code></pre></div></div>
+</pre></td></tr></tbody></table></code></pre></div></div>
 
 <p><a name="fig1"><img src="http://andy-blog.oss-cn-beijing.aliyuncs.com/blog/2020-03-04-WX20200305-005922%402x.png" /></a></p>
 
 <p><strong><center><span style="font-size:10pt">图 1：左边是 undercount 的直方图；右边是带数据地毯的估计密度图。变量 undercount 是数值型的。</span></center></strong></p>
 
-<p>我们的数据中一共有 195 个郡，所以一共产生了 195 个 <code class="highlighter-rouge">undercount</code> 的值。从 <a href="#fig1">图 1</a> 左边的直方图可以看到，大部分郡的 undercount 的相对比重在 5% 附近，说明这些郡的大部分选民都投出的 <code class="highlighter-rouge">ballots</code> 都有效地计入了 <code class="highlighter-rouge">votes</code>；而极少数的郡的 <code class="highlighter-rouge">undercount</code> 的相对比重达到了 15% 甚至 20%，这说明这些郡的无效 <code class="highlighter-rouge">ballots</code>（即没有被计入 <code class="highlighter-rouge">votes</code> 的选票）占比很高。右边是密度图，形状和左边的直方图很像，但是更平滑。</p>
+<p>我们的数据中一共有 195 个郡，所以一共产生了 195 个 <code class="language-plaintext highlighter-rouge">undercount</code> 的值。从 <a href="#fig1">图 1</a> 左边的直方图可以看到，大部分郡的 undercount 的相对比重在 5% 附近，说明这些郡的大部分选民都投出的 <code class="language-plaintext highlighter-rouge">ballots</code> 都有效地计入了 <code class="language-plaintext highlighter-rouge">votes</code>；而极少数的郡的 <code class="language-plaintext highlighter-rouge">undercount</code> 的相对比重达到了 15% 甚至 20%，这说明这些郡的无效 <code class="language-plaintext highlighter-rouge">ballots</code>（即没有被计入 <code class="language-plaintext highlighter-rouge">votes</code> 的选票）占比很高。右边是密度图，形状和左边的直方图很像，但是更平滑。</p>
 
 <p><a name="fig2"><img src="http://andy-blog.oss-cn-beijing.aliyuncs.com/blog/2020-03-04-WX20200305-010048%402x.png" /></a></p>
 
 <p><strong><center><span style="font-size:10pt">图 2：左边是 equip（投票设备）的频率饼图；右边是 Pareto 图。变量 equip 是类别型的。</span></center></strong></p>
 
-<p>从 <a href="#fig2">图 2</a> 左边的饼图可以看到在这次选举中，<code class="highlighter-rouge">LEVER</code> 是最受欢迎的投票设备，而 <code class="highlighter-rouge">PAPER</code> 几乎没有什么郡采用。或者，我们可以将其转换为右边的柱状图，我们称之为 Pareto 图。</p>
+<p>从 <a href="#fig2">图 2</a> 左边的饼图可以看到在这次选举中，<code class="language-plaintext highlighter-rouge">LEVER</code> 是最受欢迎的投票设备，而 <code class="language-plaintext highlighter-rouge">PAPER</code> 几乎没有什么郡采用。或者，我们可以将其转换为右边的柱状图，我们称之为 Pareto 图。</p>
 
-<p>接下来，让我们看一下 “支持 Gore 的选民占比” 和 “非裔美国人占比” <code class="highlighter-rouge">perAA</code> 之间的关系。定义一个新的变量 <code class="highlighter-rouge">pergore</code> 代表支持 Gore 的选民占比，我们可以画出关于 <code class="highlighter-rouge">pergore</code> 和 <code class="highlighter-rouge">perAA</code> 二者的散点图。另外，并排箱型图提供了一种用于展示 <em>定性变量（qualitative variables，例如：equip）</em> 和 <em>定量变量（quantitative variables，例如：undercount）</em> 之间关系的方法。</p>
+<p>接下来，让我们看一下 “支持 Gore 的选民占比” 和 “非裔美国人占比” <code class="language-plaintext highlighter-rouge">perAA</code> 之间的关系。定义一个新的变量 <code class="language-plaintext highlighter-rouge">pergore</code> 代表支持 Gore 的选民占比，我们可以画出关于 <code class="language-plaintext highlighter-rouge">pergore</code> 和 <code class="language-plaintext highlighter-rouge">perAA</code> 二者的散点图。另外，并排箱型图提供了一种用于展示 <em>定性变量（qualitative variables，例如：equip）</em> 和 <em>定量变量（quantitative variables，例如：undercount）</em> 之间关系的方法。</p>
 
-<div class="highlighter-rouge"><div class="highlight"><pre class="highlight"><code>&gt; gavote$pergore &lt;- gavote$gore/gavote$votes
+<div class="language-plaintext highlighter-rouge"><div class="highlight"><pre class="highlight"><code><table class="rouge-table"><tbody><tr><td class="rouge-gutter gl"><pre class="lineno">1
+2
+3
+4
+</pre></td><td class="rouge-code"><pre>&gt; gavote$pergore &lt;- gavote$gore/gavote$votes
 &gt; plot(pergore ~ perAA, gavote, xlab="Proportion African American", 
        ylab="Proportion for Gore")
 &gt; plot(undercount ~ equip, gavote, xlab="", las=3)
-</code></pre></div></div>
+</pre></td></tr></tbody></table></code></pre></div></div>
 
 <p><a name="fig3"><img src="http://andy-blog.oss-cn-beijing.aliyuncs.com/blog/2020-03-04-WX20200305-013642%402x.png" /></a></p>
 
 <p><strong><span style="font-size:10pt">图 3：左边是每个郡内支持 Gore 的选民和非裔美国人比例的散点图。右边的箱型图显示了投票设备的 undercount 分布情况。</span></strong></p>
 
-<p>从 <a href="#fig3">图 3</a> 左边的散点图的趋势似乎可以得出某种结论：对于那些非裔美国人占比更高的郡，支持 Gore 的选民占比 <code class="highlighter-rouge">pergore</code> 也更有可能比较高。但这种结论也有可能并没有反映出真实情况，可能存在所谓的 <em>虚假效应（spurious effect）</em> 或者 <em>混杂效应（confounding effect）</em>。所以，虽然我们需要这些初步的数据分析来为我们提供一些信息，但是我们并不能简单地将所看到的信息直接作为最终结论。我们可以继续利用线性模型来分析 “非裔美国人占比” 和 “支持 Gore 的选民占比” 二者之间的关系。另外，我们希望根据右边的箱型图弄清楚 <code class="highlighter-rouge">undercount</code> 与每个郡所采用的投票设备 <code class="highlighter-rouge">equip</code> 之间的关系。从图上看，除了 <code class="highlighter-rouge">OS-PC</code> 存在两个比较高的异常值之外，几种 <code class="highlighter-rouge">equip</code> 对应的 <code class="highlighter-rouge">undercount</code> 分布之间没有特别明显的差异。所以，接下来我们可能会进一步去了解这两个异常点所代表的两个郡的情况，看看到底发生了什么。</p>
+<p>从 <a href="#fig3">图 3</a> 左边的散点图的趋势似乎可以得出某种结论：对于那些非裔美国人占比更高的郡，支持 Gore 的选民占比 <code class="language-plaintext highlighter-rouge">pergore</code> 也更有可能比较高。但这种结论也有可能并没有反映出真实情况，可能存在所谓的 <em>虚假效应（spurious effect）</em> 或者 <em>混杂效应（confounding effect）</em>。所以，虽然我们需要这些初步的数据分析来为我们提供一些信息，但是我们并不能简单地将所看到的信息直接作为最终结论。我们可以继续利用线性模型来分析 “非裔美国人占比” 和 “支持 Gore 的选民占比” 二者之间的关系。另外，我们希望根据右边的箱型图弄清楚 <code class="language-plaintext highlighter-rouge">undercount</code> 与每个郡所采用的投票设备 <code class="language-plaintext highlighter-rouge">equip</code> 之间的关系。从图上看，除了 <code class="language-plaintext highlighter-rouge">OS-PC</code> 存在两个比较高的异常值之外，几种 <code class="language-plaintext highlighter-rouge">equip</code> 对应的 <code class="language-plaintext highlighter-rouge">undercount</code> 分布之间没有特别明显的差异。所以，接下来我们可能会进一步去了解这两个异常点所代表的两个郡的情况，看看到底发生了什么。</p>
 
 <p>如果我们想找出两个数值变量之间的关系，散点图会很有用；如果我们希望弄清楚一个数值变量和一个分类变量之间的关系，那么并列箱型图会很有帮助；而如果我们想知道两个分类变量之间的关系，统计图可能不会提供太多帮助，这种情况下，我们可以利用表格。</p>
 
 <h3 id="34-表格摘要">3.4 表格摘要</h3>
-<p><code class="highlighter-rouge">xtabs</code> 函数可用于定性变量（qualitative variables，即 categorical variables）的交叉列表（cross-tabulations）。在此之前，我们需要将第 4 个变量的名称替换一下，“rural” 这个名称容易让人混淆因为它实际上包含 <code class="highlighter-rouge">rural</code> 和 <code class="highlighter-rouge">urban</code> 两个等级（levels），所以我们将其替换为 “usage”。接下来，我们基于 <code class="highlighter-rouge">atlanta</code> 和 <code class="highlighter-rouge">usage</code> 这两个变量对 <code class="highlighter-rouge">undercount</code> 进行交叉分类（cross classification）。这两个变量都各有 2 个等级，所以我们会得到一个 2 $\times$ 2 的表格。</p>
+<p><code class="language-plaintext highlighter-rouge">xtabs</code> 函数可用于定性变量（qualitative variables，即 categorical variables）的交叉列表（cross-tabulations）。在此之前，我们需要将第 4 个变量的名称替换一下，“rural” 这个名称容易让人混淆因为它实际上包含 <code class="language-plaintext highlighter-rouge">rural</code> 和 <code class="language-plaintext highlighter-rouge">urban</code> 两个等级（levels），所以我们将其替换为 “usage”。接下来，我们基于 <code class="language-plaintext highlighter-rouge">atlanta</code> 和 <code class="language-plaintext highlighter-rouge">usage</code> 这两个变量对 <code class="language-plaintext highlighter-rouge">undercount</code> 进行交叉分类（cross classification）。这两个变量都各有 2 个等级，所以我们会得到一个 2 $\times$ 2 的表格。</p>
 
-<div class="highlighter-rouge"><div class="highlight"><pre class="highlight"><code>&gt; names(gavote); names(gavote)[4] &lt;- "usage"
+<div class="language-plaintext highlighter-rouge"><div class="highlight"><pre class="highlight"><code><table class="rouge-table"><tbody><tr><td class="rouge-gutter gl"><pre class="lineno">1
+2
+3
+4
+5
+6
+7
+8
+9
+</pre></td><td class="rouge-code"><pre>&gt; names(gavote); names(gavote)[4] &lt;- "usage"
  [1] "equip"   "econ"    "perAA"     "rural"      "atlanta"    "gore"   "bush"      
  [8] "other"   "votes"   "ballots"   "undercount" "pergore"
 
@@ -260,20 +310,27 @@ BANKS    LEVER middle 0.024 rural notAtlanta 1220 3202   111  4533    4773
 atlanta      rural urban
   Atlanta        1    14
   notAtlanta   116    28
-</code></pre></div></div>
+</pre></td></tr></tbody></table></code></pre></div></div>
 
-<p><strong>相关性（Correlations）</strong> 是对定性变量之间的关系进行数值化概括的标准方法。接下来我们将探寻 <code class="highlighter-rouge">gavote</code> 中的 3 号变量（<code class="highlighter-rouge">perAA</code>）、10 号变量（<code class="highlighter-rouge">ballots</code>）、11 号变量（<code class="highlighter-rouge">undercount</code>）和 12 号变量（<code class="highlighter-rouge">pergore</code>）之间的相关性。</p>
+<p><strong>相关性（Correlations）</strong> 是对定性变量之间的关系进行数值化概括的标准方法。接下来我们将探寻 <code class="language-plaintext highlighter-rouge">gavote</code> 中的 3 号变量（<code class="language-plaintext highlighter-rouge">perAA</code>）、10 号变量（<code class="language-plaintext highlighter-rouge">ballots</code>）、11 号变量（<code class="language-plaintext highlighter-rouge">undercount</code>）和 12 号变量（<code class="language-plaintext highlighter-rouge">pergore</code>）之间的相关性。</p>
 
-<div class="highlighter-rouge"><div class="highlight"><pre class="highlight"><code>&gt; nix &lt;- c(3,10,11,12)
+<div class="language-plaintext highlighter-rouge"><div class="highlight"><pre class="highlight"><code><table class="rouge-table"><tbody><tr><td class="rouge-gutter gl"><pre class="lineno">1
+2
+3
+4
+5
+6
+7
+</pre></td><td class="rouge-code"><pre>&gt; nix &lt;- c(3,10,11,12)
 &gt; cor(gavote[,nix])
                perAA     ballots undercount    pergore
 perAA      1.0000000  0.02773230  0.2296874 0.92165247
 ballots    0.0277323  1.00000000 -0.1551724 0.09561688
 undercount 0.2296874 -0.15517245  1.0000000 0.21876519
 pergore    0.9216525  0.09561688  0.2187652 1.00000000
-</code></pre></div></div>
+</pre></td></tr></tbody></table></code></pre></div></div>
 
-<p>上面我们得到了一个 4 $\times$ 4 的相关系数矩阵。可以看到，大部分变量之间的相关系数都比较小。此外，<code class="highlighter-rouge">pergore</code> 与 <code class="highlighter-rouge">perAA</code> 的之间相关系数很大（正如我们在前面的散点图中所看到的），这说明这两个变量之间高度相关，而这可能会在解释线性（回归）模型的结果时带来一些麻烦。</p>
+<p>上面我们得到了一个 4 $\times$ 4 的相关系数矩阵。可以看到，大部分变量之间的相关系数都比较小。此外，<code class="language-plaintext highlighter-rouge">pergore</code> 与 <code class="language-plaintext highlighter-rouge">perAA</code> 的之间相关系数很大（正如我们在前面的散点图中所看到的），这说明这两个变量之间高度相关，而这可能会在解释线性（回归）模型的结果时带来一些麻烦。</p>
 
 <p>下节内容：导论 (2)</p>
 :ET

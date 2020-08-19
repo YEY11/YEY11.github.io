@@ -1,0 +1,71 @@
+I"�<h1 id="lecture-01-导论">Lecture 01 导论</h1>
+
+<p><strong>参考教材</strong>：</p>
+
+<ul>
+  <li><em>Gareth, J., Daniela, W., Trevor, H., &amp; Robert, T. (2013). An intruduction to statistical learning: with applications in R. Spinger.</em></li>
+  <li><em>Hastie, T., Tibshirani, R., &amp; Friedman, J. (2009). The elements of statistical learning: data mining, inference, and prediction. Spinger Science &amp; Business Media.</em></li>
+</ul>
+
+<h2 id="1-导论">1. 导论</h2>
+
+<h3 id="11-内容安排">1.1 内容安排</h3>
+
+<p>本课程中，我们将尝试覆盖以下 6 个主题：</p>
+
+<ul>
+  <li><strong>回归与分类</strong></li>
+  <li><strong>重采样和模型选择</strong></li>
+  <li><strong>样条 (Splines) 和 广义加性模型 (GAMs)</strong></li>
+  <li><strong>基于树的方法和 SVMs</strong></li>
+  <li><strong>无监督学习</strong></li>
+  <li><strong>神经网络</strong></li>
+</ul>
+
+<h3 id="12-统计学习概览">1.2 统计学习概览</h3>
+
+<p><strong>统计学习 (Statistical Learning)</strong> 是一套以 <strong>理解数据 (understanding data)</strong> 为目的的庞大工具集。</p>
+
+<p>统计学习的工具可以分为两大类：<strong>有监督的 (supervised)</strong> 和 <strong>无监督的 (unsupervised)</strong>。</p>
+
+<p><strong>有监督统计学习</strong> 主要有两种用途：1. 构建统计模型用于预测；2. 对一个或多个给定的 <strong>输入 (input)</strong> 估计某个 <strong>输出 (output)</strong>。</p>
+
+<p>在 <strong>无监督统计学习</strong> 中，有输入但无监督输出；但是，我们可以从这些数据中学习 <strong>关系和结构</strong>。</p>
+
+<h3 id="13-有监督学习回归与分类">1.3 有监督学习：回归与分类</h3>
+
+<ul>
+  <li>像工资数据这类涉及预测连续或定量的输出值。这通常称为 <strong>回归 (regression)</strong> 问题。</li>
+  <li>但是，在某些情况下，我们可能希望预测的是一个非数值的值，即一个类别或定性输出。这称为 <strong>分类 (classification)</strong> 问题。例如：股市数据。</li>
+</ul>
+
+<p><strong>回归的例子：工资预测</strong></p>
+
+<ul>
+  <li><strong>输入 (特征)</strong>：<code class="language-plaintext highlighter-rouge">age</code>, <code class="language-plaintext highlighter-rouge">year</code> 和 <code class="language-plaintext highlighter-rouge">education</code></li>
+  <li><strong>输出 (标签)</strong>：<code class="language-plaintext highlighter-rouge">wage</code></li>
+</ul>
+
+<p><img src="http://andy-blog.oss-cn-beijing.aliyuncs.com/blog/2020-08-13-WX20200813-161423%402x.png" width="90%" /></p>
+
+<p><span style="font-size:10pt"> <strong><span style="color:steelblue">图 1-1</span></strong>：<code class="language-plaintext highlighter-rouge">Wage</code> 数据，其中包含美国大西洋中部地区男性收入调查信息。<strong>左图</strong>：<code class="language-plaintext highlighter-rouge">wage</code> 与 <code class="language-plaintext highlighter-rouge">age</code> 的函数关系，平均来看，随着 <code class="language-plaintext highlighter-rouge">age</code> 的增长 <code class="language-plaintext highlighter-rouge">wage</code> 是增加的，这种趋势在 60 岁左右终止，之后 <code class="language-plaintext highlighter-rouge">wage</code> 开始下降。<strong>中图</strong>：<code class="language-plaintext highlighter-rouge">wage</code> 与 <code class="language-plaintext highlighter-rouge">year</code> 的函数关系，呈现出缓慢而稳定的增长，2003 ~ 2009 年平均 <code class="language-plaintext highlighter-rouge">wage</code> 约增加了 10,000 美元。<strong>右图</strong>：箱型图反映了 <code class="language-plaintext highlighter-rouge">wage</code> 与 <code class="language-plaintext highlighter-rouge">education</code> 的函数关系，其中最低的教育水平取值 1 (没有高中文凭) ，最高的教育水平取值 5 (高级研究生学位) ，平均来说，<code class="language-plaintext highlighter-rouge">wage</code> 随受教育水平呈现递增关系。</span></p>
+
+<p><strong>分类的例子：股市数据</strong></p>
+
+<ul>
+  <li><strong>输入 (特征)</strong>：过去几天的标准普尔指数 (S&amp;P Index) 的变动比例</li>
+  <li><strong>输出 (标签)</strong>：<code class="language-plaintext highlighter-rouge">Up</code> (上涨) 或者 <code class="language-plaintext highlighter-rouge">Down</code> (下跌)</li>
+</ul>
+
+<p><img src="http://andy-blog.oss-cn-beijing.aliyuncs.com/blog/2020-08-13-WX20200813-165739%402x.png" width="90%" /></p>
+
+<p><span style="font-size:10pt"> <strong><span style="color:steelblue">图 1-2</span></strong>：<strong>左图</strong>：前一天标准普尔股指百分比变化，箱线图表示由 <code class="language-plaintext highlighter-rouge">Smarket</code> 数据所得到的市场上涨和下跌的情况。<strong>中图和右图</strong>：内容与左图类似，分别显示的是 2 天和 3 天前标准普尔股指百分比变化情况。</span></p>
+
+<h3 id="14-无监督学习聚类">1.4 无监督学习：聚类</h3>
+
+<p>前面两个应用的数据集中既有输入变量也有输出变量。然而，还有另一类不同的重要问题，即观察到的只有输入变量却没有相应的输出变量。例如，在营销领域中，可以采集到现有客户或潜在客户的人口信息。建模的目标是希望理解哪些类型的客户在他们所被观察到的属性上彼此相似，并形成一个族群。这就是一个 <strong>聚类(clustering)</strong> 问题。不同于之前的例子，这里我们并不打算预测输出变量。</p>
+
+<p>基因表达数据…（对64个癌细胞系的每一个进行6,830个基因表达测量）</p>
+
+<p>下节内容：隔离性</p>
+:ET

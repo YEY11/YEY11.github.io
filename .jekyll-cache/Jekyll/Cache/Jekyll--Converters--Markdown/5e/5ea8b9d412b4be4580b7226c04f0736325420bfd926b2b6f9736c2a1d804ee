@@ -1,5 +1,4 @@
-I"
-<!-- 数学公式 -->
+I"�<!-- 数学公式 -->
 <script src="https://cdn.mathjax.org/mathjax/latest/MathJax.js?config=TeX-AMS-MML_HTMLorMML" type="text/javascript"></script>
 
 <script type="text/x-mathjax-config">
@@ -42,9 +41,36 @@
 
 <p>可以看到，平方损失函数的图像是一条抛物线，而 Huber 损失函数的图像在 $[-a,a]$ 之间是抛物线，而在 $[-\infty,-a]$ 和 $[a,\infty]$ 之间为直线。</p>
 
-<p>我们先回顾一下之前的普通最小二乘法拟合的线性模型 <code class="highlighter-rouge">lmodi</code>：</p>
+<p>我们先回顾一下之前的普通最小二乘法拟合的线性模型 <code class="language-plaintext highlighter-rouge">lmodi</code>：</p>
 
-<div class="highlighter-rouge"><div class="highlight"><pre class="highlight"><code>&gt; summary(lmodi)
+<div class="language-plaintext highlighter-rouge"><div class="highlight"><pre class="highlight"><code><table class="rouge-table"><tbody><tr><td class="rouge-gutter gl"><pre class="lineno">1
+2
+3
+4
+5
+6
+7
+8
+9
+10
+11
+12
+13
+14
+15
+16
+17
+18
+19
+20
+21
+22
+23
+24
+25
+26
+27
+</pre></td><td class="rouge-code"><pre>&gt; summary(lmodi)
 
 Call:
 lm(formula = undercount ~ cperAA + cpergore * usage + equip, 
@@ -71,11 +97,34 @@ Signif. codes:  0 ‘***’ 0.001 ‘**’ 0.01 ‘*’ 0.05 ‘.’ 0.1 ‘ ’
 Residual standard error: 0.02335 on 150 degrees of freedom
 Multiple R-squared:  0.1696,	Adjusted R-squared:  0.1253 
 F-statistic: 3.829 on 8 and 150 DF,  p-value: 0.0004001
-</code></pre></div></div>
+</pre></td></tr></tbody></table></code></pre></div></div>
 
-<p>在 R 中，我们可以使用 <code class="highlighter-rouge">MASS</code> package 中的 <code class="highlighter-rouge">rlm()</code> 命令来构建鲁棒线性模型。</p>
+<p>在 R 中，我们可以使用 <code class="language-plaintext highlighter-rouge">MASS</code> package 中的 <code class="language-plaintext highlighter-rouge">rlm()</code> 命令来构建鲁棒线性模型。</p>
 
-<div class="highlighter-rouge"><div class="highlight"><pre class="highlight"><code>&gt; library(MASS)
+<div class="language-plaintext highlighter-rouge"><div class="highlight"><pre class="highlight"><code><table class="rouge-table"><tbody><tr><td class="rouge-gutter gl"><pre class="lineno">1
+2
+3
+4
+5
+6
+7
+8
+9
+10
+11
+12
+13
+14
+15
+16
+17
+18
+19
+20
+21
+22
+23
+</pre></td><td class="rouge-code"><pre>&gt; library(MASS)
 &gt; rlmodi &lt;- rlm(undercount ~ cperAA+cpergore*usage+equip, gavote)
 &gt; summary(rlmodi)
 
@@ -98,11 +147,11 @@ equipPUNCH           0.0170  0.0055     3.0720
 cpergore:usageurban  0.0073  0.0316     0.2298
 
 Residual standard error: 0.01722 on 150 degrees of freedom
-</code></pre></div></div>
+</pre></td></tr></tbody></table></code></pre></div></div>
 
-<p>对比之前的模型 <code class="highlighter-rouge">lmodi</code>，我们可以发现预测变量 <code class="highlighter-rouge">equipOS-PC</code> 的系数从之前的 $0.015640$ 下降到了 $0.0081$，几乎减小了一半。回忆上节课中 <a href="https://andy-tk.top/2020/03/11/MAST90139-03/#fig3" target="_blank">库克距离的诊断图</a>，我们知道图中两个高影响点 BEN.HILL 和 RANDOLPH 都采用了 <code class="highlighter-rouge">OS-PC</code> 作为投票设备。因此，在鲁棒回归中，我们减小了该项的系数。</p>
+<p>对比之前的模型 <code class="language-plaintext highlighter-rouge">lmodi</code>，我们可以发现预测变量 <code class="language-plaintext highlighter-rouge">equipOS-PC</code> 的系数从之前的 $0.015640$ 下降到了 $0.0081$，几乎减小了一半。回忆上节课中 <a href="https://andy-tk.top/2020/03/11/MAST90139-03/#fig3" target="_blank">库克距离的诊断图</a>，我们知道图中两个高影响点 BEN.HILL 和 RANDOLPH 都采用了 <code class="language-plaintext highlighter-rouge">OS-PC</code> 作为投票设备。因此，在鲁棒回归中，我们减小了该项的系数。</p>
 
-<p>当我们使用鲁棒评估方法时，推断方法的应用将更加困难。因此，与之前对应的 <code class="highlighter-rouge">lmodi</code> 模型的输出结果相比，上面的 <code class="highlighter-rouge">rlmodi</code> 模型的输出信息要更少一些。最有趣的变化是，<code class="highlighter-rouge">OS-PC</code> 的系数现在只有原先的一半。回想一下，我们使用 <code class="highlighter-rouge">treatment</code> 编码了不同类别的设备，而这种变化代表了 <code class="highlighter-rouge">OS-PC</code> 设备和作为参考 <code class="highlighter-rouge">level</code> 的设备之间的差异。其他项的系数也有一些小的波动，但不足以改变我们对于重要效应的印象。这里，鲁棒拟合降低了两个离群点所代表的郡对于模型的影响。</p>
+<p>当我们使用鲁棒评估方法时，推断方法的应用将更加困难。因此，与之前对应的 <code class="language-plaintext highlighter-rouge">lmodi</code> 模型的输出结果相比，上面的 <code class="language-plaintext highlighter-rouge">rlmodi</code> 模型的输出信息要更少一些。最有趣的变化是，<code class="language-plaintext highlighter-rouge">OS-PC</code> 的系数现在只有原先的一半。回想一下，我们使用 <code class="language-plaintext highlighter-rouge">treatment</code> 编码了不同类别的设备，而这种变化代表了 <code class="language-plaintext highlighter-rouge">OS-PC</code> 设备和作为参考 <code class="language-plaintext highlighter-rouge">level</code> 的设备之间的差异。其他项的系数也有一些小的波动，但不足以改变我们对于重要效应的印象。这里，鲁棒拟合降低了两个离群点所代表的郡对于模型的影响。</p>
 
 <p>下节内容：导论 (4)</p>
 :ET

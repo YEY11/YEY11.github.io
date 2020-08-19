@@ -1,4 +1,4 @@
-I"><!-- 数学公式 -->
+I"1><!-- 数学公式 -->
 <script src="https://cdn.mathjax.org/mathjax/latest/MathJax.js?config=TeX-AMS-MML_HTMLorMML" type="text/javascript"></script>
 
 <script type="text/x-mathjax-config">
@@ -78,7 +78,7 @@
 $\begin{pmatrix}10 &amp; \sum_{i=1}^{10}T_i \\ \sum_{i=1}^{10}T_i &amp;\sum_{i=1}^{10}T_i^2\end{pmatrix}\begin{pmatrix}a\\b\end{pmatrix}=\begin{pmatrix}\sum_{i=1}^{10}H_i \\ \sum_{i=1}^{10}T_i H_i\end{pmatrix}$<br />
 <br /></li>
   <li>解析求解方案：$a=25.3,b=0.77$</li>
-  <li>利用 <code class="highlighter-rouge">numpy.linalg.solve</code> 或者 <code class="highlighter-rouge">SymPy</code> 求解。</li>
+  <li>利用 <code class="language-plaintext highlighter-rouge">numpy.linalg.solve</code> 或者 <code class="language-plaintext highlighter-rouge">SymPy</code> 求解。</li>
 </ul>
 
 <h4 id="更通用的决策规则">更通用的决策规则</h4>

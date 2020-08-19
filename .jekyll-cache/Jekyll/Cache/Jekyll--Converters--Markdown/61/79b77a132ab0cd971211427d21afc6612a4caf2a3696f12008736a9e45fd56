@@ -1,4 +1,4 @@
-I"��<h1 id="lecture-02-数据的访问存储和事务处理基础">Lecture 02 数据的访问、存储和事务处理基础</h1>
+I"��<h1 id="lecture-02-数据的访问存储和事务处理基础">Lecture 02 数据的访问、存储和事务处理基础</h1>
 
 <p><strong>参考教材</strong>：<em>Transaction Processing: Concepts and Techniques, Jim Gray and Andreas Reuter, Morgan Kaufmann, 1993</em></p>
 
@@ -505,13 +505,19 @@
 
 <p>下面是一个一般的事务结构：</p>
 
-<div class="language-javascript highlighter-rouge"><div class="highlight"><pre class="highlight"><code><span class="nx">begin_Transaction</span><span class="p">()</span>
+<div class="language-javascript highlighter-rouge"><div class="highlight"><pre class="highlight"><code><table class="rouge-table"><tbody><tr><td class="rouge-gutter gl"><pre class="lineno">1
+2
+3
+4
+5
+6
+</pre></td><td class="rouge-code"><pre><span class="nx">begin_Transaction</span><span class="p">()</span>
        <span class="o">&lt;</span><span class="nx">Sequence</span> <span class="k">of</span> <span class="nx">operations</span> <span class="nx">to</span> <span class="nx">be</span> <span class="nx">performed</span><span class="o">&gt;</span>
     <span class="k">if</span> <span class="p">(</span><span class="nx">successful</span><span class="p">)</span>
         <span class="nx">commit_Trans</span><span class="p">()</span>  <span class="o">%</span> <span class="nx">Any</span> <span class="nx">changes</span> <span class="nx">made</span> <span class="nx">durable</span><span class="p">.</span>
     <span class="k">else</span> <span class="nx">rollback</span><span class="p">()</span>     <span class="o">%</span> <span class="nx">Any</span> <span class="nx">changes</span> <span class="nx">made</span> <span class="nx">are</span> <span class="nx">all</span> <span class="nx">undone</span>
 <span class="nx">end_Transaction</span><span class="p">()</span>
-</code></pre></div></div>
+</pre></td></tr></tbody></table></code></pre></div></div>
 
 <p>当一个操作序列成功完成时，会生成一个提交声明 (commit)，表示所有的更改都将持久生效。如果任何更改需要返回到硬盘中或者其他一些地方，那么所有这些更改都将是永久的，即使在该事务结束之后，或者系统崩溃时，所有这些持久生效的事务将仍然可用。</p>
 

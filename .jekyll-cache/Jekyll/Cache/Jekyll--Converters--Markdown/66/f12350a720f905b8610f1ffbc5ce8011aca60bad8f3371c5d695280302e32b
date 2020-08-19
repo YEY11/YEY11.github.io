@@ -1,0 +1,59 @@
+I"�<h1 id="lecture-02-统计学习">Lecture 02 统计学习</h1>
+
+<p><strong>参考教材</strong>：</p>
+
+<ul>
+  <li><em>Gareth, J., Daniela, W., Trevor, H., &amp; Robert, T. (2013). An intruduction to statistical learning: with applications in R. Spinger.</em></li>
+  <li><em>Hastie, T., Tibshirani, R., &amp; Friedman, J. (2009). The elements of statistical learning: data mining, inference, and prediction. Spinger Science &amp; Business Media.</em></li>
+</ul>
+
+<h2 id="1-什么是统计学习">1. 什么是统计学习</h2>
+
+<h3 id="11-案例学习">1.1 案例学习</h3>
+
+<p><strong>例子1：广告预算与产品销量</strong></p>
+
+<p>我们先来看一个简单的例子，比如受客户委托做统计咨询，为某产品的销量提升提供策略咨询建议。<code class="language-plaintext highlighter-rouge">Advertising</code> (广告) 数据集记录了该产品在 200 个不同市场的销售情况及该产品在每个市场中 3 类广告媒体的预算，这 3 类媒体分别为: <code class="language-plaintext highlighter-rouge">TV</code> (电视)、<code class="language-plaintext highlighter-rouge">radio</code> (广播) 和 <code class="language-plaintext highlighter-rouge">newspaper</code> (报纸)。</p>
+
+<p><img src="http://andy-blog.oss-cn-beijing.aliyuncs.com/blog/2020-08-15-WX20200815-221610%402x.png" width="90%" /></p>
+
+<p><span style="font-size:10pt"> <strong><span style="color:steelblue">图 1</span></strong>：<code class="language-plaintext highlighter-rouge">Advertising</code> (广告) 数据集。这个散点图绘制了 200 个不同市场的 <code class="language-plaintext highlighter-rouge">sales</code> (单位: 千) 关于 <code class="language-plaintext highlighter-rouge">TV</code>、<code class="language-plaintext highlighter-rouge">radio</code> 和 <code class="language-plaintext highlighter-rouge">newspager</code> 三种媒体广告预算 (单位: 千美元) 的函数。每个散点图我们都给出了 <code class="language-plaintext highlighter-rouge">sales</code> 这个变量通过普通最小二乘法的拟合线，拟合的这个结果将在下节课详解。换句话说，在每个图中的蓝线代表一个简单的模型，这条线可以用来预测 <code class="language-plaintext highlighter-rouge">TV</code>、<code class="language-plaintext highlighter-rouge">radio</code> 和 <code class="language-plaintext highlighter-rouge">newspager</code>  的 <code class="language-plaintext highlighter-rouge">sales</code>。</span></p>
+
+<p>一般情况，假设观察到一个定量的响应变量 $Y$，以及 $p$ 个不同的预测变量 $X_1,X_2,\dots,X_p$。假设 $Y$ 和 $X=(X_1,X_2,\dots,X_p)$ 之间存在某种关系，可以用下面的一般形式表示:</p>
+
+<script type="math/tex; mode=display">Y=f(X)+\epsilon</script>
+
+<p>这里，$f$ 是某个关于 $X_1,X_2,\dots,X_p$ 的固定的未知函数，并且 $\epsilon$ 是一个独立于 $X$ 且均值为零的随机 <strong>误差项 (error term)</strong>。这种形式下，$f$ 代表了由 $X$ 提供的关于 $Y$ 的 <strong>系统 (systematic)</strong> 信息。</p>
+
+<p><strong>例子2：个人收入与受教育年限</strong></p>
+
+<p>我们再来看另一个例子，图 2 表示了 <code class="language-plaintext highlighter-rouge">Income</code> (收入) 数据集中 30 个人的 <code class="language-plaintext highlighter-rouge">Income</code> (收入) 与各自 <code class="language-plaintext highlighter-rouge">years of education</code> (受教育年限) 的关系。</p>
+
+<p><img src="http://andy-blog.oss-cn-beijing.aliyuncs.com/blog/2020-08-15-WX20200815-232925%402x.png" width="80%" /></p>
+
+<p><span style="font-size:10pt"> <strong><span style="color:steelblue">图 2</span></strong>：<code class="language-plaintext highlighter-rouge">Income</code> 数据集。<strong>左图</strong>：图中的点为 <code class="language-plaintext highlighter-rouge">income</code> 观测值 (单位: 千美元) 和 30 个人 的 <code class="language-plaintext highlighter-rouge">years of education</code>。<strong>右图</strong>：曲线代表真实的 <code class="language-plaintext highlighter-rouge">income</code> 和 <code class="language-plaintext highlighter-rouge">years of education</code> 的关系，一般情况下该线是未知的 (但这里是己知的，因为收入数据是模拟的)。竖线表示与每个观测值有关的误差。若观测点落在曲线上方，则误差为正，若观测点落在曲线的下方，则误差为负。总体来看，误差的均值接近于 0。</span></p>
+
+<p>一般而言，估计函数 $f$ 会涉及多个输入变量，如图 3 所示，作 <code class="language-plaintext highlighter-rouge">income</code> 对 <code class="language-plaintext highlighter-rouge">years of education</code> 和 <code class="language-plaintext highlighter-rouge">seniority</code> (专业资质) 的函数 $f$。这里 $f$ 是一个基于观测值估计的二维曲面。</p>
+
+<p><img src="http://andy-blog.oss-cn-beijing.aliyuncs.com/blog/2020-08-16-WX20200816-142600%402x.png" width="60%" /></p>
+
+<p><span style="font-size:10pt"> <strong><span style="color:steelblue">图 3</span></strong>：该图表示的是 <code class="language-plaintext highlighter-rouge">Income</code> 数据集中 <code class="language-plaintext highlighter-rouge">income</code> 关于 <code class="language-plaintext highlighter-rouge">years of education</code> 和 <code class="language-plaintext highlighter-rouge">seniority</code> 的函数，曲面代表实际的 <code class="language-plaintext highlighter-rouge">income</code> 与 <code class="language-plaintext highlighter-rouge">years of education</code> 和 <code class="language-plaintext highlighter-rouge">seniority</code> 的关系，它是己知的，这是因为这个数据是模拟得到的。其中，图中的点表示 30 个人的模拟观测值。</span></p>
+
+<p>实际上，<strong>统计学习是关于估计 $f$ 的一系列方法</strong>。在节课中我们将集中介绍几个在估计 $f$ 时所需要的关键理论概念，这些概念将用于估计 $f$，同时这些概念也用于对所得估计进行评价。</p>
+
+<h3 id="12-为什么需要估计-f">1.2 为什么需要估计 $f$</h3>
+
+<p>估计 $f$ 的主要原因有两个：<strong>预测 (prediction)</strong> 和 <strong>推断 (inference)</strong>。</p>
+
+<p><strong>预测</strong></p>
+
+<p>许多情形下，输入集 $X$ 是现成的，但输出 $Y$ 是不易获得的。这时，由于误差项的均值是 $0$ ，那么可通过下式预测 $Y$：</p>
+
+<script type="math/tex; mode=display">\hat Y=\hat f(X)</script>
+
+<p>这里 $\hat f$ 表示 $f$ 的估计，$\hat Y$ 表示 $Y$ 的预测值。在这种设定下，$\hat f$ 通常被视为一个 <strong>黑箱 (black box)</strong>，这表示一般意义下，如果该黑箱能提供准确的关于 $Y$ 的预测，则并不十分追求 $\hat f$ 的确切形式。</p>
+
+<p>$\hat Y$ 作为响应变量 $Y$ 的预测，其精确性依赖于两个量：<strong>可减小误差 (reducible error)</strong> 和 <strong>不可减小误差 (irreducible error)</strong>。通常，$\hat f$ 并不是 $f$ 的一个完美估计，这种不准确性也会引入一些误差，但这类误差是 <strong>可减小的</strong>，因为我们实际上有能力提高 $f$ 的准确性，只要选择更合适的统计学习技术去估计 $f$ 就可能降低这种误差。然而，即使有可能构造出一个 $f$ 的完美估计，对响应变量的估计来自于表达式 Y=只剖，预测仍然存在误差。这是因为 Y 还是 一个关于 s 的函数。按照定义 ， B 是不能用 X 去预测的。因此，与 s 有关的变量也影响到预测 的准确性。这部分误差就被称为不可约误差，因为无论我们对f 估计的多么准确，我们都不能 减少 s 引起的误差。</p>
+
+<p>下节内容：统计学习</p>
+:ET

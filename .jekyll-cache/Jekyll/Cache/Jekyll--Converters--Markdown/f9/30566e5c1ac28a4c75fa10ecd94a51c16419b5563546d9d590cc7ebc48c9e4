@@ -1,4 +1,4 @@
-I"m�<!-- 数学公式 -->
+I"S�<!-- 数学公式 -->
 <script src="https://cdn.mathjax.org/mathjax/latest/MathJax.js?config=TeX-AMS-MML_HTMLorMML" type="text/javascript"></script>
 
 <script type="text/x-mathjax-config">
@@ -420,7 +420,17 @@ $\color{blue}{\to}$ 那么，什么叫做一个 “问题”？怎样定义 “�
 
 <p><strong>域文件：</strong></p>
 
-<div class="highlighter-rouge"><div class="highlight"><pre class="highlight"><code>(deﬁne (domain blocksworld)
+<div class="language-plaintext highlighter-rouge"><div class="highlight"><pre class="highlight"><code><table class="rouge-table"><tbody><tr><td class="rouge-gutter gl"><pre class="lineno">1
+2
+3
+4
+5
+6
+7
+8
+9
+10
+</pre></td><td class="rouge-code"><pre>(deﬁne (domain blocksworld)
 (:predicates (clear ?x) (holding ?x) (on ?x ?y)
              (on-table ?x) (arm-empty))
 (:action stack
@@ -430,13 +440,22 @@ $\color{blue}{\to}$ 那么，什么叫做一个 “问题”？怎样定义 “�
               (not (clear ?y)) (not (holding ?x)))
 )
 ...
-</code></pre></div></div>
+</pre></td></tr></tbody></table></code></pre></div></div>
 
-<p>在上面的域文件中，我们在 predicates 中定义了 5 种基本命题：$clear(x)$、$holding(x)$、$on(x,y)$、$onTable(x)$ 和 $armEmpty()$。其中冒号 <code class="highlighter-rouge">:</code> 表示定义，问号 <code class="highlighter-rouge">?</code> 表示参数。然后，我们定义了行动 $stack(x,y)$：参数为 $x$ 和 $y$；前置条件为 <script type="math/tex">\{clear(y),holding(x)\}</script>，其中 <code class="highlighter-rouge">and</code> 表示后面的所有命题同时满足；在 PDDL 中，添加列表和删除列表一并用 <code class="highlighter-rouge">effect</code> 表示，其中命题前加 <code class="highlighter-rouge">not</code> 表示删除。我们可以通过这种方式定义域中的所有规则。</p>
+<p>在上面的域文件中，我们在 predicates 中定义了 5 种基本命题：$clear(x)$、$holding(x)$、$on(x,y)$、$onTable(x)$ 和 $armEmpty()$。其中冒号 <code class="language-plaintext highlighter-rouge">:</code> 表示定义，问号 <code class="language-plaintext highlighter-rouge">?</code> 表示参数。然后，我们定义了行动 $stack(x,y)$：参数为 $x$ 和 $y$；前置条件为 <script type="math/tex">\{clear(y),holding(x)\}</script>，其中 <code class="language-plaintext highlighter-rouge">and</code> 表示后面的所有命题同时满足；在 PDDL 中，添加列表和删除列表一并用 <code class="language-plaintext highlighter-rouge">effect</code> 表示，其中命题前加 <code class="language-plaintext highlighter-rouge">not</code> 表示删除。我们可以通过这种方式定义域中的所有规则。</p>
 
 <p><strong>问题文件：</strong></p>
 
-<div class="highlighter-rouge"><div class="highlight"><pre class="highlight"><code>(deﬁne (problem bw-abcde)
+<div class="language-plaintext highlighter-rouge"><div class="highlight"><pre class="highlight"><code><table class="rouge-table"><tbody><tr><td class="rouge-gutter gl"><pre class="lineno">1
+2
+3
+4
+5
+6
+7
+8
+9
+</pre></td><td class="rouge-code"><pre>(deﬁne (problem bw-abcde)
 (:domain blocksworld)
 (:objects a b c d e)
 (:init (on-table a) (clear a)
@@ -445,7 +464,7 @@ $\color{blue}{\to}$ 那么，什么叫做一个 “问题”？怎样定义 “�
        (on-table c) (on d c) (clear d)
        (arm-empty))
 (:goal (and (on e c) (on c a) (on b d))))
-</code></pre></div></div>
+</pre></td></tr></tbody></table></code></pre></div></div>
 
 <p>在问题文件中，我们定义了所有对象变量：砖块 $a$、$b$、$c$、$d$、$e$。然后我们还分别定义了初始状态和目标状态。</p>
 

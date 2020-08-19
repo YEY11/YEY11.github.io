@@ -1,4 +1,4 @@
-I"��<!-- 数学公式 -->
+I"��<!-- 数学公式 -->
 <script src="https://cdn.mathjax.org/mathjax/latest/MathJax.js?config=TeX-AMS-MML_HTMLorMML" type="text/javascript"></script>
 
 <script type="text/x-mathjax-config">
@@ -34,7 +34,7 @@
   <li>在此基础上，一旦你构建了一个语言模型，你还可以用它来 <strong>生成（generation）</strong> 语言。</li>
 </ul>
 
-<p>如果你还有印象，我们之前提到过这个名为 <a href="https://talktotransformer.com/">Talk to Transformer</a> 的网站。现在，我们尝试通过这个小的语言模型来完成一个段落。我们在用户输入提示框中输入一句话：“<em>Today we have a lecture on Natural Language Processing.</em>” 然后点击 <code class="highlighter-rouge">GENERATE ANOTHER</code> 按钮，我们将看到这个在线语言模型自动生成了一些看上去相当不错的相关段落：</p>
+<p>如果你还有印象，我们之前提到过这个名为 <a href="https://talktotransformer.com/">Talk to Transformer</a> 的网站。现在，我们尝试通过这个小的语言模型来完成一个段落。我们在用户输入提示框中输入一句话：“<em>Today we have a lecture on Natural Language Processing.</em>” 然后点击 <code class="language-plaintext highlighter-rouge">GENERATE ANOTHER</code> 按钮，我们将看到这个在线语言模型自动生成了一些看上去相当不错的相关段落：</p>
 
 <video width="705" controls="">
   <source src="http://andy-blog.oss-cn-beijing.aliyuncs.com/blog/2020-03-11-LanguageModel.mp4" type="video/mp4" />
