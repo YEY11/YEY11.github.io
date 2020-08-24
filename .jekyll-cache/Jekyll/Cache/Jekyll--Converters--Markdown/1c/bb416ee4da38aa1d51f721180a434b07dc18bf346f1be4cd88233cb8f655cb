@@ -1,0 +1,474 @@
+I"�G<h1 id="lecture-01-导论">Lecture 01 导论</h1>
+
+<p><strong>参考教材</strong>：</p>
+
+<ul>
+  <li><em>Hardle, W. and Simar, L (2015). Applied multivariate statistical analysis, 4th edition.</em></li>
+  <li><em>Hastie, T. Tibshirani, R. and Friedman, J. (2009). The elements of statistical learning, 2nd edition</em></li>
+</ul>
+
+<h2 id="1-导论">1. 导论</h2>
+
+<p><strong>课程目标</strong>：描述、理解和发现维度 $p &gt; 1$ 的数据的属性。</p>
+
+<p>我们想要分析一个样本，它包含 $n$ 个随机向量 $X_1,\dots,X_n$，也可以表示为 $X_i (i=1,\dots,n)$，其中，$X_1,X_2$ 等都属于 $\mathbb R^p$：</p>
+
+<script type="math/tex; mode=display">% <![CDATA[
+\begin{align}
+X_1 &= (X_{11},\dots,X_{1p}) \in \mathbb R^p \\
+X_2 &= (X_{21},\dots,X_{2p}) \in \mathbb R^p \\
+\vdots \\
+X_n &= (X_{n1},\dots,X_{np}) \in \mathbb R^p
+\end{align} %]]></script>
+
+<p>这意味着我们有一个包含 $n$ 个个体的样本，对于每个个体，我们观测到 $p$ 个变量 (有时称为特征)。</p>
+
+<p><strong>例子：</strong></p>
+
+<ul>
+  <li>我们考虑一项涉及 $n = 100$ 名患者的健康研究。</li>
+  <li>我们对每个患者测量 $p = 4$ 个量：年龄、体重、体重指数、收缩压。</li>
+  <li>
+    <p>对于第 $i$ 个个体，其中 $i=1,\dots,100$，我们观测到：</p>
+
+    <script type="math/tex; mode=display">X_{i}=(X_{i1},X_{i2},X_{i3},X_{i4})</script>
+  </li>
+  <li>$X_{i1}=$ 第 $i$ 个患者的年龄<br />
+$X_{i2}=$ 第 $i$ 个患者的体重<br />
+$X_{i3}=$ 第 $i$ 个患者的体重指数<br />
+$X_{i4}=$ 第 $i$ 个患者的收缩压</li>
+</ul>
+
+<p>通常，我们会将所有观测都收集到一个 $n×p$ 的矩阵中：</p>
+
+<script type="math/tex; mode=display">% <![CDATA[
+\mathcal X=\begin{pmatrix}
+X_{11} & \cdots & X_{1p} \\
+X_{21} & \cdots & X_{2p} \\
+& \vdots & \\
+X_{n1} & \cdots & X_{np}
+\end{pmatrix} %]]></script>
+
+<ul>
+  <li>每个 $X_{ij} \; (i=1,\dots,n\;;\; j=1,\dots,p)$ 都是一个随机变量</li>
+  <li>$\mathcal X$ 有 $n$ 行 $p$ 列</li>
+  <li>第 $i$ 行代表第 $i$ 个个体对应的 $p$ 个变量</li>
+  <li>第 $j$ 列代表所有 $n$ 个个体的第 $j$ 个变量</li>
+</ul>
+
+<p>我们将随机向量 $X_i=(X_{i1},\dots,X_{ip})$ 的取值称为 <strong>观测值 (observed value)</strong> 或 <strong>实现 (realization)</strong>。</p>
+
+<p>通常，我们使用小写字母表示观测值，即 $x_i=(x_{i1},\dots,x_{ip})$ 是随机向量 $X_i$ 的实现。</p>
+
+<p>我们在本课程中将要做的事情：</p>
+
+<ul>
+  <li>在基础统计学课程中学习的技术并没有专注于多元数据。</li>
+  <li>例如，我们如何在超过 $p=2$ 的维度上绘制散点图？如何用图形表示多元数据？</li>
+  <li>在本课程中，我们将学习专门为多元数据设计的技术。</li>
+</ul>
+
+<p>课程涵盖的主要内容：</p>
+
+<ul>
+  <li>回顾本课程所需的基本矩阵结果</li>
+  <li>回顾有关多元数据和多元正态分布的基本结果</li>
+  <li>主成分分析、因子分析和其他降维技术</li>
+  <li>聚类技术</li>
+  <li>分类技术</li>
+  <li>如果时间允许，将涵盖以下一些主题：回归、对应分析</li>
+</ul>
+
+<h2 id="2-矩阵性质回顾">2. 矩阵性质回顾</h2>
+
+<p>参考教材 <em>Hardle and Simar(2015)</em> 中的 2.1、2.2、2.3、2.4 和 2.6 章节</p>
+
+<h3 id="21-基础运算">2.1 基础运算</h3>
+
+<p>一个矩阵 $\mathcal A$ 是一个 $n$ 行 $p$ 列的数字系统：</p>
+
+<script type="math/tex; mode=display">% <![CDATA[
+\mathcal A=\begin{pmatrix}
+a_{11} & a_{12} & \cdots & a_{1p} \\
+a_{21} & a_{22} & \cdots & a_{2p} \\
+& \vdots & \\
+a_{n1} & a_{n2} & \cdots & a_{np} \\
+\end{pmatrix} %]]></script>
+
+<p>我们可以将 $\mathcal A$ 表示为 $(a_{ij})$ 或者 $(a_{ij})_{1\le i\le n,1\le j\le p}$。</p>
+
+<p>该矩阵的维度记为 $n\times p$，其中 $n$ 是行数，$p$ 是列数。</p>
+
+<p>我们使用 $\mathcal A^{\mathrm T}$ 来表示矩阵 $\mathcal A$ 的转置：</p>
+
+<script type="math/tex; mode=display">% <![CDATA[
+\mathcal A^{\mathrm T}=\begin{pmatrix}
+a_{11} & a_{21} & \cdots & a_{n1} \\
+a_{12} & a_{22} & \cdots & a_{n2} \\
+& \vdots & \\
+a_{1p} & a_{2p} & \cdots & a_{np} \\
+\end{pmatrix} %]]></script>
+
+<h4 id="特殊矩阵">特殊矩阵</h4>
+
+<table>
+  <thead>
+    <tr>
+      <th>名称</th>
+      <th>定义</th>
+      <th>符号</th>
+      <th>示例</th>
+    </tr>
+  </thead>
+  <tbody>
+    <tr>
+      <td>标量</td>
+      <td>$p=n=1$</td>
+      <td>$a$</td>
+      <td>$3$</td>
+    </tr>
+    <tr>
+      <td>列向量</td>
+      <td>$p=1$</td>
+      <td>$a$</td>
+      <td>$\begin{pmatrix}1 \\ 3 \end{pmatrix}$</td>
+    </tr>
+    <tr>
+      <td>行向量</td>
+      <td>$n=1$</td>
+      <td>$a^{\mathrm T}$</td>
+      <td>$\begin{pmatrix}1 &amp; 3 \end{pmatrix}$</td>
+    </tr>
+    <tr>
+      <td>全 $1$ 向量</td>
+      <td>$(\underbrace{1,\dots,1}_n)^{\mathrm T}$</td>
+      <td>$1_n$</td>
+      <td>$\begin{pmatrix}1 \\ 1 \end{pmatrix}$</td>
+    </tr>
+    <tr>
+      <td>零向量</td>
+      <td>$(\underbrace{0,\dots,0}_n)^{\mathrm T}$</td>
+      <td>$0_n$</td>
+      <td>$\begin{pmatrix}0 \\ 0 \end{pmatrix}$</td>
+    </tr>
+    <tr>
+      <td>方阵</td>
+      <td>$n=p$</td>
+      <td>$\mathcal A(p \times p)$</td>
+      <td>$\begin{pmatrix}2 &amp; 0 \\ 0 &amp; 2 \end{pmatrix}$</td>
+    </tr>
+    <tr>
+      <td>对角矩阵</td>
+      <td>$a_{ij}=0,i\ne j,n=p$</td>
+      <td>$\mathrm{diag}(a_{ii})$</td>
+      <td>$\begin{pmatrix}1 &amp; 0 \\ 0 &amp; 2 \end{pmatrix}$</td>
+    </tr>
+    <tr>
+      <td>单位矩阵</td>
+      <td>$\mathrm{diag}(\underbrace{1,\dots,1}_p)$</td>
+      <td>$\mathcal I_p$</td>
+      <td>$\begin{pmatrix}1 &amp; 0 \\ 0 &amp; 1 \end{pmatrix}$</td>
+    </tr>
+    <tr>
+      <td>全 $1$ 方阵</td>
+      <td>$a_{ij}=1,n=p$</td>
+      <td>$1_n 1_n^{\mathrm T}$</td>
+      <td>$\begin{pmatrix}1 &amp; 1 \\ 1 &amp; 1 \end{pmatrix}$</td>
+    </tr>
+    <tr>
+      <td>对称矩阵</td>
+      <td>$a_{ij}=a_{ji}$</td>
+      <td> </td>
+      <td>$\begin{pmatrix}1 &amp; 2 \\ 2 &amp; 3 \end{pmatrix}$</td>
+    </tr>
+    <tr>
+      <td>零矩阵</td>
+      <td>$a_{ij}=0$</td>
+      <td>$0$</td>
+      <td>$\begin{pmatrix}0 &amp; 0 \\ 0 &amp; 0 \end{pmatrix}$</td>
+    </tr>
+    <tr>
+      <td>上三角矩阵</td>
+      <td>$a_{ij=0},i&lt; j$</td>
+      <td> </td>
+      <td>$\begin{pmatrix}1 &amp; 2 &amp; 4 \\ 0 &amp; 1 &amp; 3 \\ 0 &amp; 0 &amp; 1 \end{pmatrix}$</td>
+    </tr>
+    <tr>
+      <td>幂等矩阵</td>
+      <td>$\mathcal A \mathcal A = \mathcal A$</td>
+      <td> </td>
+      <td>$\begin{pmatrix}1 &amp; 0 &amp; 0 \\ 0 &amp; \frac{1}{2} &amp; \frac{1}{2} \\ 0 &amp; \frac{1}{2} &amp; \frac{1}{2} \end{pmatrix}$</td>
+    </tr>
+    <tr>
+      <td>正交矩阵</td>
+      <td>$\mathcal A^{\mathrm T}\mathcal A=\mathcal I=\mathcal A \mathcal A^{\mathrm T}$</td>
+      <td> </td>
+      <td>$\begin{pmatrix}\frac{1}{\sqrt 2} &amp; \frac{1}{\sqrt 2} \\ \frac{1}{\sqrt 2} &amp; -\frac{1}{\sqrt 2} \end{pmatrix}$</td>
+    </tr>
+  </tbody>
+</table>
+
+<center><span style="font-size:10pt"> <span style="color:steelblue;font-weight:bold">表 1</span>：特殊矩阵和向量</span></center>
+
+<h4 id="矩阵运算">矩阵运算</h4>
+
+<ul>
+  <li>
+    <p>对两个 $n\times p$ 的矩阵 $\mathcal A=(a_{ij})$ 和 $\mathcal B=(b_{ij})$ 求和：</p>
+
+    <script type="math/tex; mode=display">% <![CDATA[
+\mathcal D=\mathcal A+\mathcal B=\begin{pmatrix}
+a_{11}+b_{11} & a_{12}+b_{12} & \cdots & a_{1p}+b_{1p} \\
+a_{21}+b_{21} & a_{22}+b_{22} & \cdots & a_{2p}+b_{2p} \\
+& \vdots & \\
+a_{n1}+b_{n1} & a_{n2}+b_{n2} & \cdots & a_{np}+b_{np} \\
+\end{pmatrix} %]]></script>
+
+    <p>因此，$\mathcal D$ 中的第 $(i,j)$ 个元素 $d_{ij}$ 等于 $a_{ij}+b_{ij}$，即 $\mathcal A$ 和 $\mathcal B$ 中对应元素之和。</p>
+
+    <p>$\mathcal D$ 也是一个 $n\times p$ 的矩阵。</p>
+
+    <p><br /></p>
+  </li>
+  <li>
+    <p>同理，</p>
+
+    <script type="math/tex; mode=display">% <![CDATA[
+\mathcal A-\mathcal B=\begin{pmatrix}
+a_{11}-b_{11} & a_{12}-b_{12} & \cdots & a_{1p}-b_{1p} \\
+a_{21}-b_{21} & a_{22}-b_{22} & \cdots & a_{2p}-b_{2p} \\
+& \vdots & \\
+a_{n1}-b_{n1} & a_{n2}-b_{n2} & \cdots & a_{np}-b_{np} \\
+\end{pmatrix} %]]></script>
+
+    <p><br /></p>
+  </li>
+  <li>
+    <p>一个常数 $c$ 乘以一个 $n\times p$ 矩阵 $\mathcal A=(a_{ij})$ 将得到一个 $n\times p$ 的矩阵：</p>
+
+    <script type="math/tex; mode=display">% <![CDATA[
+c \mathcal A=\begin{pmatrix}
+c a_{11} & c a_{12} & \cdots & c a_{1p} \\
+c a_{21} & c a_{22} & \cdots & c a_{2p} \\
+& \vdots & \\
+c a_{n1} & c a_{n2} & \cdots & c a_{np} \\
+\end{pmatrix} %]]></script>
+
+    <p><br /></p>
+  </li>
+  <li>
+    <p>一个 $n\times p$ 的矩阵 $\mathcal A$ 和一个 $p\times m$ 的矩阵 $\mathcal B$ 的乘积为：</p>
+
+    <script type="math/tex; mode=display">\mathcal A \mathcal B = \mathcal C</script>
+
+    <p>其中，$\mathcal C$ 是一个 $n\times m$ 的矩阵，它的第 $(i,j)$ 个元素为：</p>
+
+    <script type="math/tex; mode=display">c_{ij}=\sum_{k=1}^{p}a_{ik}b_{kj} \quad (i=1,\dots,n\;;\;j=1,\dots,m)</script>
+
+    <p><br /></p>
+  </li>
+  <li>
+    <p>两个 $p$ 维向量 $x=(x_1,\dots,x_p)^{\mathrm T}$ 和 $y=(y_1,\dots,y_p)^{\mathrm T}$ 的标量积 (或者点积) 为：</p>
+
+    <script type="math/tex; mode=display">x^{\mathrm T}y=\sum_{j=1}^{p}x_j y_j</script>
+
+    <p>这是一个实数，而非向量。</p>
+  </li>
+</ul>
+
+<h4 id="矩阵运算性质">矩阵运算性质</h4>
+
+<script type="math/tex; mode=display">% <![CDATA[
+\begin{align}
+\mathcal A + \mathcal B &= \mathcal B + \mathcal A \\[2ex]
+\mathcal A (\mathcal B + \mathcal C) &= \mathcal{AB} + \mathcal{AC} \\[2ex]
+\mathcal A (\mathcal {BC}) &= (\mathcal {AB}) \mathcal C \\[2ex]
+(\mathcal A^{\mathrm T})^{\mathrm T} &= \mathcal A \\[2ex]
+(\mathcal{AB})^{\mathrm T} &= \mathcal B^{\mathrm T} \mathcal A^{\mathrm T} \\[2ex]
+\mathcal {AC} &\color{red}{\ne} \mathcal{CA}
+\end{align} %]]></script>
+
+<h4 id="矩阵特征">矩阵特征</h4>
+
+<ul>
+  <li>
+    <p><strong>秩 (Rank)</strong>：一个 $n\times p$ 的矩阵 $\mathcal A$ 的秩被定义为 $\mathcal A$ 中线性独立的行 (或列) 的最大数目，记为 $\mathrm{rank}(\mathcal A)$。</p>
+
+    <p><br /></p>
+
+    <p>$\mathcal A$ 中的 $k$ 行 (或列) 的一个集合 $a_1,\dots,a_k$ 被认为是 <strong>线性独立的</strong>，如果它们中的任何一个都无法表示为其他 $k-1$ 行 (或列) 的一个非平凡线性组合。即 <strong>无法被写为</strong>：</p>
+
+    <script type="math/tex; mode=display">a_j = \sum_{i\ne j}c_i a_i</script>
+
+    <p>其中，所有的 $c_i$ 均为非零值。或者等价于：</p>
+
+    <script type="math/tex; mode=display">\sum_{i=1}^{k}c_i a_i =0 \quad \Longrightarrow \quad c_1,\dots,c_k=0</script>
+
+    <p>我们总是有：</p>
+
+    <script type="math/tex; mode=display">\mathrm{rank}(\mathcal A)\le \min(n,p)</script>
+
+    <p><br /></p>
+  </li>
+  <li>
+    <p><strong>迹 (Trace)</strong>：一个 $p\times p$ 的方阵 $\mathcal A$ 的迹被定义为其对角线上的元素之和，记为 $\mathrm{tr}(\mathcal A)$：</p>
+
+    <script type="math/tex; mode=display">\mathrm{tr}(\mathcal A)=\sum_{i=1}^{p}a_{ii}</script>
+
+    <p><br /></p>
+  </li>
+  <li>
+    <p><strong>行列式 (Determinant)</strong>：一个 $p\times p$ 的方阵 $\mathcal A$ 的行列式是通过该矩阵计算出的一个数字，记为 $\mathrm{det}(\mathcal A)$ 或 $|\mathcal A|$，它是矩阵代数中一个重要的概念。对于一个 $2\times 2$ 的方阵：</p>
+
+    <script type="math/tex; mode=display">% <![CDATA[
+\mathcal A=\begin{pmatrix}a_{11} & a_{12} \\ a_{21} & a_{22} \end{pmatrix} %]]></script>
+
+    <p>其行列式为：</p>
+
+    <script type="math/tex; mode=display">|\mathcal A|=a_{11}a_{22}-a_{12}a_{21}</script>
+
+    <p>对于较大的矩阵，我们以递归方式进行计算，参考 <a href="https://en.wikipedia.org/wiki/Determinant">https://en.wikipedia.org/wiki/Determinant</a></p>
+
+    <p><br /></p>
+  </li>
+  <li>
+    <p><strong>逆 (Inverse)</strong>：对于一个 $p\times p$ 的方阵 $\mathcal A$，如果 $|\mathcal A| \ne 0$，那么 $\mathcal A$ 的逆存在，记为 $\mathcal A^{-1}$，并且其满足：</p>
+
+    <script type="math/tex; mode=display">\mathcal A \mathcal A^{-1}=\mathcal A^{-1}\mathcal A = \mathcal I_p</script>
+
+    <p>其中，$\mathcal I_p$ 为 $p\times p$ 的单位矩阵。</p>
+
+    <p><br /></p>
+
+    <p>对于较小的矩阵，$\mathcal A=(a_{ij})$ 的逆可以通过如下公式计算：</p>
+
+    <script type="math/tex; mode=display">\mathcal A^{-1}=\dfrac{\mathcal C}{|\mathcal A|}</script>
+
+    <p>其中，$\mathcal C=(c_{ij})$ 是 $\mathcal A$ 的 <strong>伴随矩阵 (adjoint matrix)</strong>。$\mathcal C^{\mathrm T}$ 中的元素 $c_{ji}$ 是 $\mathcal A$ 的 <strong>余子式 (co-factors)</strong>：</p>
+
+    <script type="math/tex; mode=display">% <![CDATA[
+c_{ji}=(-1)^{i+j}\begin{vmatrix}
+a_{11} & \cdots & a_{1(j-1)} & a_{1(j+1)} & \cdots & a_{1p} \\
+\vdots \\
+a_{(i-1)1} & \cdots & a_{(i-1)(j-1)} & a_{(i-1)(j+1)} & \cdots & a_{(i-1)p} \\
+a_{(i+1)1} & \cdots & a_{(i+1)(j-1)} & a_{(i+1)(j+1)} & \cdots & a_{(i+1)p} \\
+\vdots \\
+a_{p1} & \cdots & a_{p(j-1)} & a_{p(j+1)} & \cdots & a_{pp} \\
+\end{vmatrix} %]]></script>
+
+    <p>另外，我们有：</p>
+
+    <script type="math/tex; mode=display">|\mathcal A^{-1}|=\dfrac{1}{|\mathcal A|}</script>
+
+    <p><br /></p>
+  </li>
+  <li>
+    <p><strong>特征值 (Eigenvalues) 和特征向量 (Eigenvectors)</strong>：考虑一个 $p\times p$ 的方阵 $\mathcal A$。若存在一个标量 $\lambda$ 和一个 $p\times 1$ 的 (非零) 向量 $\gamma$，使得：</p>
+
+    <script type="math/tex; mode=display">\mathcal A \gamma = \lambda \gamma</script>
+
+    <p>我们称 $\lambda$ 为特征值，$\gamma$ 为特征向量。</p>
+
+    <ul>
+      <li>如果 $\mathcal A$ 是对称矩阵，那么它有 $p$ 个特征值和特征向量。</li>
+      <li>这些特征值不必彼此都不同。</li>
+      <li>
+        <p>所有的特征值都满足：</p>
+
+        <script type="math/tex; mode=display">|\mathcal A-\lambda \mathcal I_p|=0</script>
+
+        <p>它们是上面这个关于 $\lambda$ 的 $p$ 阶多项式的 $p$ 个根。</p>
+      </li>
+      <li>在实践中，我们使用相关软件 (例如 R) 计算它们。</li>
+      <li>具有特征值 $\lambda$ 的特征向量 $\gamma$ 的常数倍仍然是具有特征值 $\lambda$ 的特征向量。</li>
+      <li>
+        <p>因此，我们通常将特征向量定义为可缩放的，以使它们具有范数 $1$：</p>
+
+        <script type="math/tex; mode=display">\|\gamma\|=\sqrt{\gamma^{\mathrm T}\gamma}=1</script>
+      </li>
+      <li>
+        <p>假设一个 $p\times p$ 的方阵 $\mathcal A$ 具有特征值 $\lambda_1,\dots,\lambda_p$。令 $\Lambda$ 为对角矩阵 $\Lambda=\mathrm{diag}(\lambda_1,\dots,\lambda_p)$，其中 $\lambda_i$ 是对角线上的元素，其余元素为 $0$。那么，我们有：</p>
+
+        <script type="math/tex; mode=display">\mathrm{det}(\mathcal A)=|\mathcal A|=|\Lambda|=\prod_{i=1}^{p}\lambda_i</script>
+
+        <p>以及：</p>
+
+        <script type="math/tex; mode=display">\mathrm{tr}(\mathcal A)=\mathrm{tr}(\Lambda)=\sum_{i=1}^{p}\lambda_i</script>
+      </li>
+    </ul>
+  </li>
+</ul>
+
+<h4 id="矩阵特征的性质">矩阵特征的性质</h4>
+
+<p>$\mathcal A(n\times n),\mathcal B(n\times n),c\in \mathbb R$</p>
+
+<script type="math/tex; mode=display">% <![CDATA[
+\begin{align}
+\mathrm{tr}(\mathcal A+\mathcal B) &= \mathrm{tr} \mathcal A+\mathrm{tr} \mathcal B \\[2ex]
+\mathrm{tr}(c \mathcal A) &= c \mathrm{tr}\mathcal A \\[2ex]
+|c \mathcal A| &= c^n|\mathcal A| \\[2ex]
+|\mathcal {AB}| &= |\mathcal {BA}| = |\mathcal {A}||\mathcal {B}|
+\end{align} %]]></script>
+
+<p>$\mathcal A(n\times p),\mathcal B(p\times n)$</p>
+
+<script type="math/tex; mode=display">% <![CDATA[
+\begin{align}
+\mathrm{tr}(\mathcal A \cdot \mathcal B) &= \mathrm{tr}(\mathcal B \cdot \mathcal A) \\[2ex]
+\mathrm{rank}(\mathcal A) &\le \min(n,p) \\[2ex]
+\mathrm{rank}(\mathcal A) &\ge 0 \\[2ex]
+\mathrm{rank}(\mathcal A) &= \mathrm{rank}(\mathcal A^{\mathrm T}) \\[2ex]
+\mathrm{rank}(\mathcal A^{\mathrm T}\mathcal A) &= \mathrm{rank}(\mathcal A) \\[2ex]
+\mathrm{rank}(\mathcal A + \mathcal B) &\le \mathrm{rank}(\mathcal A)+ \mathrm{rank}(\mathcal B) \\[2ex]
+\mathrm{rank}(\mathcal A \mathcal B) &\le \min\{\mathrm{rank}(\mathcal A),\mathrm{rank}(\mathcal B)\}
+\end{align} %]]></script>
+
+<p>$\mathcal A(n\times p),\mathcal B(p\times q),\mathcal C(q\times n)$</p>
+
+<script type="math/tex; mode=display">% <![CDATA[
+\begin{align}
+\mathrm{tr}(\mathcal A \mathcal B \mathcal C) &= \mathrm{tr}(\mathcal B \mathcal C \mathcal A) = \mathrm{tr}(\mathcal C \mathcal A \mathcal B)  \\[2ex]
+\mathrm{rank}(\mathcal A \mathcal B \mathcal C) &= \mathrm{rank}(\mathcal B) \quad \text{for nonsingular } \mathcal A \text{ and } \mathcal C
+\end{align} %]]></script>
+
+<p>$\mathcal A(p\times p)$</p>
+
+<script type="math/tex; mode=display">% <![CDATA[
+\begin{align}
+|\mathcal A^{-1}| &= |\mathcal A|^{-1} \\[2ex]
+\mathrm{rank}(\mathcal A) &= p \quad \text{if and only if } \mathcal A \text{ is nonsingular}
+\end{align} %]]></script>
+
+<h3 id="22-谱分解">2.2 谱分解</h3>
+
+<ul>
+  <li>
+    <p><strong>谱分解 (Spectral decomposition)</strong>：假设 $\mathcal A$ 是一个 $p\times p$ 的对称方阵，令 $\lambda_1,\dots,\lambda_p$ 表示其 $p$ 个特征值，$\gamma_1,\dots,\gamma_p$ 表示范数 $1$ 的 $p\times 1$ 相关特征向量，并且彼此正交。</p>
+
+    <p><br /></p>
+
+    <p>(注意：两个 $p\times 1$ 的向量 $v$ 和 $w$ 是正交的，如果 $v^{\mathrm T}w=\sum_{i=1}^{p}v_iw_i=0$。)</p>
+
+    <p><br /></p>
+
+    <p>那么，我们总是可以将 $\mathcal A$ 表示为以下形式，我们称之为 $\mathcal A$ 的谱分解：</p>
+
+    <script type="math/tex; mode=display">\mathcal A=\sum_{j=1}^{p}\lambda_j \gamma_j \gamma_j^{\mathrm T}</script>
+
+    <p>上式也可以写成矩阵形式：</p>
+
+    <script type="math/tex; mode=display">\mathcal A=\Gamma \Lambda \Gamma^{\mathrm T}</script>
+
+    <p>其中，</p>
+
+    <script type="math/tex; mode=display">\Lambda=\mathrm{diag}(\lambda_1,\dots,\lambda_p)</script>
+
+    <p>以及</p>
+
+    <p>$$\Gamma=(\gamma_1,\dots,\gamma_p)$，那么上式也可以写成矩阵形式</p>
+  </li>
+</ul>
+
+<p>下节内容：统计学习</p>
+:ET

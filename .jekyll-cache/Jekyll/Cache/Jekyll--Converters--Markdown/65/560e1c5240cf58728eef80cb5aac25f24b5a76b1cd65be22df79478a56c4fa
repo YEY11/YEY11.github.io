@@ -1,0 +1,17 @@
+I"�<h1 id="lecture-01-导论">Lecture 01 导论</h1>
+
+<p><strong>参考教材</strong>：</p>
+
+<ul>
+  <li><em>Hardle, W. and Simar, L (2015). Applied multivariate statistical analysis, 4th edition.</em></li>
+  <li><em>Hastie, T. Tibshirani, R. and Friedman, J. (2009). The elements of statistical learning, 2nd edition</em></li>
+</ul>
+
+<h2 id="1-导论">1. 导论</h2>
+
+<p><strong>课程目标</strong>：描述、理解和发现维度 $p &gt; 1$ 的数据的属性。</p>
+
+<p>我们想要分析一个样本，它包含 $n$ 个随机向量 $X_1,\dots,X_n$，也可以表示为 $X_i (i=1,\dots,n)$，其中，$X_1,X_2$ 等都属于 $$。</p>
+
+<p>下节内容：统计学习</p>
+:ET
