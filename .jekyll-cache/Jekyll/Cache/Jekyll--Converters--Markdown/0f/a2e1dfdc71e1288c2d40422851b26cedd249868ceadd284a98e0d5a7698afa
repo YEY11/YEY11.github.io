@@ -1,0 +1,89 @@
+I"P<h1 id="lecture-02-几何观点和高维数据">Lecture 02 几何观点和高维数据</h1>
+
+<p><strong>参考教材</strong>：</p>
+
+<ul>
+  <li><em>Hardle, W. and Simar, L (2015). Applied multivariate statistical analysis, 4th edition.</em></li>
+  <li><em>Hastie, T. Tibshirani, R. and Friedman, J. (2009). The elements of statistical learning, 2nd edition</em></li>
+</ul>
+
+<h2 id="1-几何观点">1. 几何观点</h2>
+<h3 id="11-距离">1.1 距离</h3>
+
+<ul>
+  <li>
+    <p>两个向量 $x,y\in \mathbb R^p$ 之间的 <strong>欧几里得距离 (Euclidian distance)</strong> $d(x,y)$ 被定义为：</p>
+
+    <script type="math/tex; mode=display">d(x,y)=\sqrt{\sum_{i=1}^{p}(x_i-y_i)^2}=\sqrt{(x-y)^{\mathrm T}(x-y)}</script>
+
+    <p>二维空间 $\mathbb R^2$ 中的例子，其中 $x=(x_1,x_2)$，$y=(y_1,y_2)$：</p>
+
+    <p><img src="http://andy-blog.oss-cn-beijing.aliyuncs.com/blog/2020-08-25-WX20200825-142548%402x.png" width="50%" /></p>
+
+    <p><span><center> <span style="font-size:10pt"> <span style="color:steelblue;font-weight:bold">图 1</span>：距离 $d$</span></center></span></p>
+
+    <p><br /></p>
+  </li>
+  <li>
+    <p>该距离的一个 <strong>加权版本</strong> 可以被定义为：</p>
+
+    <script type="math/tex; mode=display">d(x,y)=\sqrt{\sum_{i=1}^{p}w_i(x_i-y_i)^2}=\sqrt{(x-y)^{\mathrm T}\mathcal W(x-y)}</script>
+
+    <p>其中，每个 $w_i&gt;0$，并且 $\mathcal W=\mathrm{diag}(w_1,\dots,w_p)$。</p>
+
+    <p><br /></p>
+  </li>
+  <li>
+    <p>这可以被进一步推广到下面的距离：</p>
+
+    <script type="math/tex; mode=display">d(x,y)=\sqrt{(x-y)^{\mathrm T}\mathcal A(x-y)}</script>
+
+    <p>其中，$\mathcal A$ 是一个 <strong>正定</strong> 矩阵。</p>
+  </li>
+</ul>
+
+<h3 id="12-范数">1.2 范数</h3>
+
+<ul>
+  <li>
+    <p>一个向量 $x\in \mathbb R^p$ 的 (欧几里得) <strong>范数</strong> 被定义为：</p>
+
+    <script type="math/tex; mode=display">\|x\|=\sqrt{\sum_{i=1}^{p}x_i^2}=\sqrt{x^{\mathrm T}x}</script>
+
+    <p><br /></p>
+  </li>
+  <li>
+    <p>一个 <strong>单位向量</strong> 是一个范数为 $1$ 的向量。</p>
+
+    <p><br /></p>
+  </li>
+  <li>
+    <p>可以推广到关于一个 <strong>正定</strong> 矩阵 $\mathcal A$ 的范数：</p>
+
+    <script type="math/tex; mode=display">\|x\|_{\mathcal A}=\sqrt{x^{\mathrm T}\mathcal A x}</script>
+  </li>
+</ul>
+
+<h3 id="13-两个向量的夹角">1.3 两个向量的夹角</h3>
+
+<ul>
+  <li>
+    <p>两个向量 $x,y\in \mathbb R^p$ 之间的夹角 $\theta$ 由 $\theta$ 的余弦值定义：</p>
+
+    <script type="math/tex; mode=display">\cos(\theta)=\dfrac{x^{\mathrm T}y}{\|x\|\|y\|}</script>
+
+    <p>在二维空间 $\mathbb R^2$ 中的例子：</p>
+
+    <p><img src="http://andy-blog.oss-cn-beijing.aliyuncs.com/blog/2020-08-25-WX20200825-150918%402x.png" width="40%" /></p>
+
+    <p><span><center> <span style="font-size:10pt"> <span style="color:steelblue;font-weight:bold">图 2</span>：投影</span></center></span></p>
+
+    <p><br /></p>
+  </li>
+  <li>
+    <p>根据三角学我们知道，在角 $C$ 为直角的直角三角形 $$</p>
+  </li>
+</ul>
+
+<p>下节内容：几何观点和高维数据</p>
+:ET

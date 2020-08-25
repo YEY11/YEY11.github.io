@@ -1,0 +1,187 @@
+I"7<h1 id="lecture-02-几何观点和高维数据">Lecture 02 几何观点和高维数据</h1>
+
+<p><strong>参考教材</strong>：</p>
+
+<ul>
+  <li><em>Hardle, W. and Simar, L (2015). Applied multivariate statistical analysis, 4th edition.</em></li>
+  <li><em>Hastie, T. Tibshirani, R. and Friedman, J. (2009). The elements of statistical learning, 2nd edition</em></li>
+</ul>
+
+<h2 id="1-几何观点">1. 几何观点</h2>
+<h3 id="11-距离">1.1 距离</h3>
+
+<ul>
+  <li>
+    <p>两个向量 $x,y\in \mathbb R^p$ 之间的 <strong>欧几里得距离 (Euclidian distance)</strong> $d(x,y)$ 被定义为：</p>
+
+    <script type="math/tex; mode=display">d(x,y)=\sqrt{\sum_{i=1}^{p}(x_i-y_i)^2}=\sqrt{(x-y)^{\mathrm T}(x-y)}</script>
+
+    <p>二维空间 $\mathbb R^2$ 中的例子，其中 $x=(x_1,x_2)$，$y=(y_1,y_2)$：</p>
+
+    <p><img src="http://andy-blog.oss-cn-beijing.aliyuncs.com/blog/2020-08-25-WX20200825-142548%402x.png" width="50%" /></p>
+
+    <p><span><center> <span style="font-size:10pt"> <span style="color:steelblue;font-weight:bold">图 1</span>：距离 $d$</span></center></span></p>
+
+    <p><br /></p>
+  </li>
+  <li>
+    <p>该距离的一个 <strong>加权版本</strong> 可以被定义为：</p>
+
+    <script type="math/tex; mode=display">d(x,y)=\sqrt{\sum_{i=1}^{p}w_i(x_i-y_i)^2}=\sqrt{(x-y)^{\mathrm T}\mathcal W(x-y)}</script>
+
+    <p>其中，每个 $w_i&gt;0$，并且 $\mathcal W=\mathrm{diag}(w_1,\dots,w_p)$。</p>
+
+    <p><br /></p>
+  </li>
+  <li>
+    <p>这可以被进一步推广到下面的距离：</p>
+
+    <script type="math/tex; mode=display">d(x,y)=\sqrt{(x-y)^{\mathrm T}\mathcal A(x-y)}</script>
+
+    <p>其中，$\mathcal A$ 是一个 <strong>正定</strong> 矩阵。</p>
+  </li>
+</ul>
+
+<h3 id="12-范数">1.2 范数</h3>
+
+<ul>
+  <li>
+    <p>一个向量 $x\in \mathbb R^p$ 的 (欧几里得) <strong>范数 (Norm)</strong> 被定义为：</p>
+
+    <script type="math/tex; mode=display">\|x\|=\sqrt{\sum_{i=1}^{p}x_i^2}=\sqrt{x^{\mathrm T}x}</script>
+
+    <p><br /></p>
+  </li>
+  <li>
+    <p>一个 <strong>单位向量</strong> 是一个范数为 $1$ 的向量。</p>
+
+    <p><br /></p>
+  </li>
+  <li>
+    <p>可以推广到关于一个 <strong>正定</strong> 矩阵 $\mathcal A$ 的范数：</p>
+
+    <script type="math/tex; mode=display">\|x\|_{\mathcal A}=\sqrt{x^{\mathrm T}\mathcal A x}</script>
+  </li>
+</ul>
+
+<h3 id="13-两个向量的夹角">1.3 两个向量的夹角</h3>
+
+<ul>
+  <li>
+    <p>两个向量 $x,y\in \mathbb R^p$ 之间的夹角 $\theta$ 由 $\theta$ 的余弦值定义：</p>
+
+    <script type="math/tex; mode=display">\cos(\theta)=\dfrac{x^{\mathrm T}y}{\|x\|\|y\|}</script>
+
+    <p>在二维空间 $\mathbb R^2$ 中的例子：</p>
+
+    <p><img src="http://andy-blog.oss-cn-beijing.aliyuncs.com/blog/2020-08-25-WX20200825-151458%402x.png" width="70%" /></p>
+
+    <p><span><center> <span style="font-size:10pt"> <span style="color:steelblue;font-weight:bold">图 2</span>：向量夹角和投影</span></center></span></p>
+
+    <p><br /></p>
+  </li>
+  <li>
+    <p>根据三角学我们知道，在角 $C$ 为直角的直角三角形 $ABC$ 中，角 $A$ 的余弦值等于 $AC$ 段的长度 $b$ 除以 $AB$ 段的长度 $c$，因此</p>
+
+    <script type="math/tex; mode=display">\cos(\theta)=\dfrac{p_x}{\|x\|}</script>
+
+    <p>其中，$p_x$ 被称为 $x$ 在 $y$ 上的 <strong>投影 (Projection)</strong>。回归之前的两个向量夹角的余弦定义，我们可以计算出 $p_x$ 为：</p>
+
+    <script type="math/tex; mode=display">p_x=\cos(\theta)\|x\|=\dfrac{x^{\mathrm T}y}{\|y\|}</script>
+  </li>
+</ul>
+
+<h3 id="14-旋转">1.4 旋转</h3>
+
+<ul>
+  <li>
+    <p>对于 $p$ 维空间 $\mathbb R^p$ 中的向量，我们通常使用 <strong>$p$ 轴系统</strong> 来描述它们，并给出 $x$ 在该 $p$ 坐标系中的坐标。</p>
+
+    <p><br /></p>
+  </li>
+  <li>
+    <p>在多元统计学中，有时将轴 (所有轴同时) <strong>旋转</strong> 一个角度 $\theta$ 会很有用，可以通过这种方式创建一个新的 $p$ 轴坐标系。</p>
+
+    <p><br /></p>
+  </li>
+  <li>
+    <p>在二维空间 $\mathbb R^2$ 中，我们可以通过 <strong>正交矩阵</strong> 来描述一个角度为 $\theta$ 的旋转：</p>
+
+    <script type="math/tex; mode=display">% <![CDATA[
+\Gamma = \begin{pmatrix}\cos(\theta) & \sin(\theta) \\ -\sin(\theta) & \cos(\theta)\end{pmatrix} %]]></script>
+
+    <p>具体来说，如果坐标轴的原始集合 <strong>以原点为中心逆时针旋转</strong> 一个角度 $\theta$，则原始坐标轴系统中坐标为 $x$ 的点的新坐标 $y$ 为：</p>
+
+    <script type="math/tex; mode=display">y=\Gamma x</script>
+
+    <p>如果是 <strong>顺时针旋转</strong>，则为：</p>
+
+    <script type="math/tex; mode=display">y=\Gamma^{\mathrm T}x</script>
+
+    <p><br /></p>
+  </li>
+  <li>
+    <p>更一般地，在向量 $x$ 左边乘以一个 <strong>正交矩阵</strong> $\Gamma$ 在几何上对应于坐标轴系统的一次旋转。</p>
+  </li>
+</ul>
+
+<h2 id="2-均值协方差和相关系数">2. 均值、协方差和相关系数</h2>
+
+<h3 id="21-均值">2.1 均值</h3>
+
+<ul>
+  <li>
+    <p>一个随机向量 $X=(X_1,\dots,X_p)^{\mathrm T}$ 的 <strong>均值 (Mean)</strong> $\mu\in \mathbb R^p$ 被定义为：</p>
+
+    <script type="math/tex; mode=display">\mu=\begin{pmatrix}\mu_1 \\ \vdots \\ \mu_p\end{pmatrix}=\begin{pmatrix}E(X_1) \\ \vdots \\ E(X_p)\end{pmatrix}</script>
+
+    <p><br /></p>
+  </li>
+  <li>
+    <p>在实践中，我们无法计直接对 $\mu$ 进行计算 (因为我们无法观测到总体)，但是我们可以根据一个样本 $X_1,\dots,X_n$ 的 <strong>样本均值</strong> 来估算它：</p>
+
+    <script type="math/tex; mode=display">\overline X=\begin{pmatrix}\overline X_1 \\ \vdots \\ \overline X_p\end{pmatrix}</script>
+
+    <p>其中，对于 $j=1,\dots,p$，</p>
+
+    <script type="math/tex; mode=display">\overline X_j = \dfrac{1}{n}\sum_{i=1}^{n}X_{ij}</script>
+
+    <p>是第 $j$ 个变量 $X_j$ 的样本均值。</p>
+
+    <p><br /></p>
+  </li>
+  <li>
+    <p>回顾矩阵 $\mathcal X$ 的表示形式：</p>
+
+    <script type="math/tex; mode=display">% <![CDATA[
+\mathcal X=\begin{pmatrix}
+X_{11} & \cdots & X_{1p} \\
+X_{21} & \cdots & X_{2p} \\
+& \vdots & \\
+X_{n1} & \cdots & X_{np}
+\end{pmatrix} %]]></script>
+
+    <p>以及一个长度为 $n$ 的列向量 $1_n=(1,\dots,1)^{\mathrm T}$。我们可以将 $\overline X$ 表示为 <strong>矩阵形式</strong>：</p>
+
+    <script type="math/tex; mode=display">\overline X=n^{-1}\mathcal X^{\mathrm T}1_n</script>
+  </li>
+</ul>
+
+<h3 id="22-协方差矩阵">2.2 协方差矩阵</h3>
+
+<ul>
+  <li>
+    <p>两个随机变量 $X$ 和 $Y$ 之间的 <strong>协方差 (Covariance)</strong> $\sigma_{XY}$ 是这两个随机变量之间的 <strong>线性依赖性 (linear dependence)</strong> 的一种度量：</p>
+
+    <script type="math/tex; mode=display">\sigma_{XY}=\mathrm{Cov}(X,Y)=E(XY)-E(X)E(Y)</script>
+
+    <ul>
+      <li>$\sigma_{XX}=\mathrm{Var}(X)$</li>
+      <li>如果 $X$ 和 $Y$ 彼此独立，则 $\sigma_{XY}=0$</li>
+      <li>但是，$\sigma_{XY}=0$ 并不意味着 $X$ 和 $Y$ 彼此独立</li>
+    </ul>
+  </li>
+</ul>
+
+<p>下节内容：几何观点和高维数据</p>
+:ET

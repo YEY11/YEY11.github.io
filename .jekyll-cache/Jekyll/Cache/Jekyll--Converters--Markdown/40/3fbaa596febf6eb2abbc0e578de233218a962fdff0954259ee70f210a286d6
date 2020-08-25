@@ -1,0 +1,28 @@
+I"<h1 id="lecture-02-几何观点和高维数据">Lecture 02 几何观点和高维数据</h1>
+
+<p><strong>参考教材</strong>：</p>
+
+<ul>
+  <li><em>Hardle, W. and Simar, L (2015). Applied multivariate statistical analysis, 4th edition.</em></li>
+  <li><em>Hastie, T. Tibshirani, R. and Friedman, J. (2009). The elements of statistical learning, 2nd edition</em></li>
+</ul>
+
+<h2 id="1-几何观点">1. 几何观点</h2>
+<h3 id="11-距离">1.1 距离</h3>
+
+<p>两个向量 $x,y\in \mathbb R^p$ 之间的 <strong>欧几里得距离 (Euclidian distance)</strong> $d(x,y)$ 被定义为：</p>
+
+<script type="math/tex; mode=display">d(x,y)=\sqrt{\sum_{i=1}^{p}(x_i-y_i)^2}=\sqrt{(x-y)^{\mathrm T}(x-y)}</script>
+
+<p>二维空间 $\mathbb R^2$ 中的例子，其中 $x=(x_1,x_2)$，$y=(y_1,y_2)$：</p>
+
+<p><img src="http://andy-blog.oss-cn-beijing.aliyuncs.com/blog/2020-08-25-WX20200825-142548%402x.png" width="50%" /></p>
+
+<p><span><center> <span style="font-size:10pt"> <span style="color:steelblue;font-weight:bold">图 1</span>：距离 $d$ </span></center></span></p>
+
+<p>该距离的一个 <strong>加权版本</strong> 可以被定义为：</p>
+
+<script type="math/tex; mode=display">d(x,y)=\sqrt{\sum_{i=1}^{p}w_i(x_i-y_i)^2}=\sqrt{}</script>
+
+<p>下节内容：几何观点和高维数据</p>
+:ET
