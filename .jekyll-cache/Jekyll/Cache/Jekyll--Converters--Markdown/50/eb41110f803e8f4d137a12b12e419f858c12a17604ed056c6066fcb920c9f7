@@ -1,0 +1,246 @@
+I"|*<h1 id="lecture-03-多元分布">Lecture 03 多元分布</h1>
+
+<p><strong>参考教材</strong>：</p>
+
+<ul>
+  <li><em>Hardle, W. and Simar, L (2015). Applied multivariate statistical analysis, 4th edition.</em></li>
+  <li><em>Hastie, T. Tibshirani, R. and Friedman, J. (2009). The elements of statistical learning, 2nd edition</em></li>
+</ul>
+
+<h2 id="1-分布和密度函数">1. 分布和密度函数</h2>
+
+<p>令 $X=(X_1,\dots,X_p)^{\mathrm T}$ 为一个随机向量。</p>
+
+<h3 id="11-累积分布函数">1.1 累积分布函数</h3>
+
+<p>对于所有的 $x=(x_1,\dots,x_p)^{\mathrm T}\in \mathbb R^p$，$X$ 的 <strong>累积分布函数 (Cumulative Distribution Function, CDF)</strong> 被定义为：</p>
+
+<script type="math/tex; mode=display">F(x)=P(X\le x)=P(X_1\le x_1,\dots,X_p \le x_p)</script>
+
+<h3 id="12-概率密度函数">1.2 概率密度函数</h3>
+
+<p>如果 $X$ 是连续的，则 $X$ 的 <strong>概率密度函数 (Probability Density Function, PDF)</strong> $f$ 是一个非负函数，可以通过下式定义：</p>
+
+<script type="math/tex; mode=display">F(x)=\int_{-\infty}^{x}f(u)du</script>
+
+<p>它总是满足：</p>
+
+<script type="math/tex; mode=display">\int_{-\infty}^{\infty}f(u)du=1</script>
+
+<p>该积分是 $p$ 元的，$u\in \mathbb R^p$，但是 $f(u)\in \mathbb R$：</p>
+
+<script type="math/tex; mode=display">\int_{-\infty}^{x}f(u)du = \int_{-\infty}^{x_1} \cdots \int_{-\infty}^{x_p} f(u_1,\dots,u_p)du_1 \dots du_p</script>
+
+<h3 id="13-边缘-cdf">1.3 边缘 CDF</h3>
+
+<p>$X$ 的某个子集的 <strong>边缘 CDF (Marginal CDF)</strong> 是通过在该子集上计算的 $X$ 的边缘得到的，从而使其他值等于无穷大。</p>
+
+<ul>
+  <li>
+    <p>例如，$X_1$ 的边缘 CDF 为：</p>
+
+    <script type="math/tex; mode=display">% <![CDATA[
+\begin{align}
+  F_{X_1}(x_1) &= P(X_1 \le x_1) \\[2ex]
+  &= P(X_1 \le x_1, X_2 \le \infty,\dots,X_p \le \infty) \\[2ex]
+  &= F_X(x_1,\infty,\dots,\infty)
+  \end{align} %]]></script>
+  </li>
+  <li>
+    <p>$(X_1,X_3)$ 的边缘 CDF 为：</p>
+
+    <script type="math/tex; mode=display">% <![CDATA[
+\begin{align}
+  F_{X_1,X_3}(x_1,x_3) &= P(X_1 \le x_1,X_3 \le x_3) \\[2ex]
+  &= P(X_1 \le x_1, X_2 \le \infty,X_3 \le x_3, X_4 \le \infty,\dots,X_p \le \infty) \\[2ex]
+  &= F_X(x_1,\infty,x_3,\infty,\dots,\infty)
+  \end{align} %]]></script>
+  </li>
+</ul>
+
+<h3 id="14-边缘密度">1.4 边缘密度</h3>
+
+<p>对于一个连续的随机向量 $X$，$X$ 的某个子集的 <strong>边缘密度 (Marginal Density)</strong> 是通过 $X$ 的 <strong>联合密度 (Joint Density)</strong> $f$ 在其他分量上进行积分得到的。</p>
+<ul>
+  <li>
+    <p>例如，$X_1$ 的边缘密度为：</p>
+
+    <script type="math/tex; mode=display">f_{X_1}(x_1)=\int_{-\infty}^{\infty}\cdots \int_{-\infty}^{\infty} f(x_1,u_2,\dots,u_p)du_2 \dots du_p</script>
+  </li>
+  <li>
+    <p>$(X_1,X_3)$ 的边缘密度为：</p>
+
+    <script type="math/tex; mode=display">f_{X_1,X_3}(x_1,x_3)=\int_{-\infty}^{\infty}\cdots \int_{-\infty}^{\infty} f(x_1,u_2,x_3,u_4,\dots,u_p)du_2 du_4 \dots du_p</script>
+  </li>
+</ul>
+
+<h3 id="15-条件-pdf">1.5 条件 PDF</h3>
+
+<p>对于两个连续的随机变量 $X_1$ 和 $X_2$，在给定 $X_1$ 的情况下，$X_2$ 的 <strong>条件 PDF (Conditional PDF)</strong> 为：</p>
+
+<script type="math/tex; mode=display">f(x_2\mid x_1)=\dfrac{f(x_1,x_2)}{f_{X_1}(x_1)}</script>
+
+<p>该定义只对值 $x_1$ 满足 $f_{X_1}(x_1)&gt;0$ 成立。</p>
+
+<h3 id="16-独立性">1.6 独立性</h3>
+
+<p>两个连续的随机变量 $X_1$ 和 $X_2$ 是 <strong>独立的 (Independent)</strong> 当且仅当它们满足</p>
+
+<script type="math/tex; mode=display">f(x_1,x_2)=f_{X_1}(x_1)f_{X_2}(x_2)</script>
+
+<p>如果 $X_1$ 和 $X_2$ 是独立的，那么</p>
+
+<script type="math/tex; mode=display">f_{X_2\mid X_1}(x_2\mid x_1)=\dfrac{f(x_1,x_2)}{f_{X_1}(x_1)}=\dfrac{f_{X_1}(x_1)f_{X_2}(x_2)}{f_{X_1}(x_1)}=f_{X_2}(x_2)</script>
+
+<p>因此，知道 $X_1$ 的值并不会改变对 $X_2$ 的概率评估，反之亦然。</p>
+
+<h3 id="17-期望和方差">1.7 期望和方差</h3>
+
+<p>一个随机向量 $X=(X_1,\dots,X_p)^{\mathrm T}$ 的 <strong>均值 (Mean)</strong> $\mu \in \mathbb R^p$ 被定义为：</p>
+
+<script type="math/tex; mode=display">\mu = \begin{pmatrix}\mu_1 \\ \vdots \\ \mu_p \end{pmatrix} = \begin{pmatrix}E(X_1) \\ \vdots \\ E(X_p) \end{pmatrix} = \begin{pmatrix}\int xf_{X_1}(x)dx \\ \vdots \\ \int xf_{X_p}(x)dx \end{pmatrix}</script>
+
+<ul>
+  <li>
+    <p>如果 $X$ 和 $Y$ 是两个 $p$ 维向量，$\alpha$ 和 $\beta$ 是两个常数，那么</p>
+
+    <script type="math/tex; mode=display">E(\alpha X + \beta Y)=\alpha E(X) + \beta E(Y)</script>
+  </li>
+  <li>
+    <p>如果 $X$ 是一个 $p\times 1$ 的向量，$Y$ 是一个 $q\times 1$ 的向量，$X$ 和 $Y$ 相互独立，那么</p>
+
+    <script type="math/tex; mode=display">E(XY^{\mathrm T})=E(X)E(Y^{\mathrm T})</script>
+
+    <ul>
+      <li>提示：请记住要始终检查矩阵尺寸是否兼容。</li>
+    </ul>
+  </li>
+</ul>
+
+<p><strong>条件期望 (Conditional Expectation)</strong> $E(X_2\mid X_1=x_1)$ 被定义为：</p>
+
+<script type="math/tex; mode=display">E(X_2\mid X_1=x_1) = \int x_2 f_{X_2\mid X_1}(x_2\mid x_1)dx_2</script>
+
+<p>并且 <strong>条件方差 (Conditional Variance)</strong> $\mathrm{Var}(X_2\mid X_1=x_1)$ 被定义为：</p>
+
+<script type="math/tex; mode=display">\mathrm{Var}(X_2\mid X_1=x_1) = E(X_2X_2^{\mathrm T}\mid X_1=x_1)-E(X_2\mid X_1=x_1)E(X_2^{\mathrm T}\mid X_1=x_1)</script>
+
+<p>如果 $X_2$ 是一个列向量。</p>
+
+<ul>
+  <li>提示：如有疑问，请检查所得矩阵的维数，以查看是否正确。</li>
+</ul>
+
+<h3 id="18-协方差">1.8 协方差</h3>
+
+<p>如上节课中所述，一个均值为 $\mu$ 的随机向量 $X$ 的 <strong>协方差 (Covariance)</strong> $\Sigma$ 被定义为：</p>
+
+<script type="math/tex; mode=display">\Sigma = E\{(X-\mu)(X-\mu)^{\mathrm T}\}</script>
+
+<p>我们将一个均值为 $\mu$，协方差为 $\Sigma$ 的随机向量 $X$ 记为：</p>
+
+<script type="math/tex; mode=display">X \sim (\mu, \Sigma)</script>
+
+<p>对于一个均值为 $\mu$ 的 $p\times 1$ 向量 $X$ 和一个均值为 $\nu$ 的 $q\times 1$ 向量 $Y$，两者的 <strong>协方差矩阵 (Covariance Matrix)</strong> 被定义为：</p>
+
+<script type="math/tex; mode=display">\Sigma_{X,Y} = \mathrm{Cov}(X,Y)=E\{(X-\mu)(Y-\nu)^{\mathrm T}\}=E(XY^{\mathrm T})-E(X)E(Y^{\mathrm T})</script>
+
+<p>该矩阵的元素是 $X$ 和 $Y$ 中的分量之间的成对协方差。</p>
+
+<ul>
+  <li>
+    <p>我们有</p>
+
+    <script type="math/tex; mode=display">\mathrm{Cov}(X+Y,Z)=\mathrm{Cov}(X,Z)+\mathrm{Cov}(Y,Z)</script>
+  </li>
+  <li>
+    <p>我们有</p>
+
+    <script type="math/tex; mode=display">\mathrm{Var}(X+Y)= \mathrm{Var}(X)+2\mathrm{Cov}(X,Y)+\mathrm{Var}(Y)</script>
+  </li>
+  <li>
+    <p>对于矩阵 $\mathcal A$ 和 $\mathcal B$，以及随机向量 $X$ 和 $Y$，可以很好地定义以下数量：</p>
+
+    <script type="math/tex; mode=display">\mathrm{Cov}(\mathcal AX,\mathcal BY)=\mathcal A \mathrm{Cov}(X,Y) \mathcal B^{\mathrm T}</script>
+  </li>
+</ul>
+
+<h2 id="2-多元分布">2. 多元分布</h2>
+
+<p>一个非常有用且经常遇到的分布是 <strong>多元正态分布 (Multinormal Distribution)</strong>，也简称为 <strong>正态分布 (Normal Distribution)</strong>。</p>
+
+<ul>
+  <li>
+    <p>回顾在 <strong>单变量 (univariate)</strong> 情况下，一个正态分布 $N(\mu,\sigma^2)$ 的概率密度函数为：</p>
+
+    <script type="math/tex; mode=display">f(x)=\dfrac{1}{\sqrt{2\pi}\sigma}\exp \left \{-\dfrac{(x-\mu)^2}{2\sigma^2} \right \}</script>
+  </li>
+  <li>
+    <p>在 <strong>多变量 (multivariate)</strong> 情况下，需要考虑矩阵和向量。</p>
+  </li>
+  <li>
+    <p>回顾协方差矩阵：</p>
+
+    <script type="math/tex; mode=display">% <![CDATA[
+\Sigma = \begin{pmatrix}\sigma_{11} & \cdots & \sigma_{1p} \\ & \vdots & \\ \sigma_{p1} & \cdots & \sigma_{pp}\end{pmatrix}= \begin{pmatrix}\sigma_{1}^2 & \cdots & \sigma_{1p} \\ & \vdots & \\ \sigma_{p1} & \cdots & \sigma_{p}^2\end{pmatrix} %]]></script>
+
+    <p>其中，$\sigma_j^2=\mathrm{Var}(X_j)$。</p>
+  </li>
+  <li>
+    <p>一个均值为 $\mu$，协方差为 $\Sigma$ 的多元正态分布的概率密度函数为：</p>
+
+    <script type="math/tex; mode=display">f(x)=|2\pi \Sigma|^{-1/2}\exp \left\{ -\dfrac{1}{2}(x-\mu)^{\mathrm T}\Sigma^{-1}(x-\mu) \right\} \tag{1}\label{1}</script>
+  </li>
+  <li>
+    <p>对于服从这样一个多元正态分布的 $p$ 维向量 $X$，我们将其记为：</p>
+
+    <script type="math/tex; mode=display">X\sim N_p(\mu, \Sigma)</script>
+  </li>
+</ul>
+
+<p>如果 $X_i$ 是彼此独立的，那么</p>
+
+<script type="math/tex; mode=display">% <![CDATA[
+\Sigma = \begin{pmatrix} \sigma_1^2 & \cdots & 0 \\ & \vdots & \\ 0 & \cdots & \sigma_p^2\end{pmatrix}=\mathrm{diag}(\sigma_1^2,\dots,\sigma_p^2) %]]></script>
+
+<p>因此，我们有</p>
+
+<script type="math/tex; mode=display">|2\pi \Sigma|=|\mathrm{diag}(2\pi \sigma_1^2,\dots, 2\pi \sigma_p^2)|=(2\pi)^p \sigma_1^2 \cdots \sigma_p^2</script>
+
+<p>以及</p>
+
+<script type="math/tex; mode=display">\Sigma^{-1}=\mathrm{diag}(\sigma_1^{-2},\dots,\sigma_p^{-2})</script>
+
+<p>所以，</p>
+
+<script type="math/tex; mode=display">% <![CDATA[
+\begin{align}
+f(x) &= \dfrac{1}{\sqrt{(2\pi)^p}\prod_{j=1}^{p}\sigma_j}\exp \left \{ -\dfrac{1}{2}\sum_{j=1}^{p}\dfrac{(x_j-\mu_j)^2}{\sigma_j^2}\right\} \\[2ex]
+&= \dfrac{1}{\sqrt{(2\pi)^p}\prod_{j=1}^{p}\sigma_j} \prod_{j=1}^{p}\exp\left \{  -\dfrac{(x_j-\mu_j)^2}{2\sigma_j^2}\right\} \\[2ex]
+&= \prod_{j=1}^{p} \left[ \dfrac{1}{\sqrt{2\pi}\sigma_j}\exp \left\{ - \dfrac{(x_j-\mu_j)^2}{2\sigma_j^2}\right\}\right]
+\end{align} %]]></script>
+
+<p>等于 $p$ 个单变量正态分布 $N(\mu_j,\sigma_j^2)$ 的概率密度函数的乘积。</p>
+
+<p>由等式 $\eqref{1}$ 可知，当 $(x-\mu)^{\mathrm T}\Sigma^{-1}(x-\mu)$ 是一个常数时，正态分布 $N_p(\mu,\Sigma)$ 的概率密度也是一个常数。</p>
+
+<p>现在，对于一个正的常数 $c$，</p>
+
+<script type="math/tex; mode=display">(x-\mu)^{\mathrm T}\Sigma^{-1}(x-\mu)=c</script>
+
+<p>对应一个 <strong>椭球体 (ellipsoid)</strong>。</p>
+
+<p>量</p>
+
+<script type="math/tex; mode=display">\sqrt{(x-\mu)^{\mathrm T}\Sigma^{-1}(x-\mu)}</script>
+
+<p>被称为 $x$ 和 $\mu$ 之间的 <strong>马氏距离 (Mahalanobis Distance)</strong>。</p>
+
+<p>例如，在 $p=2$ 维情况下：</p>
+
+<p><img src="http://andy-blog.oss-cn-beijing.aliyuncs.com/blog/2020-08-26-WX20200826-151144%402x.png" width="80%" /></p>
+
+<p><span><center> <span style="font-size:10pt"> <span style="color:steelblue;font-weight:bold">图 1</span>：一个 $\mu=\begin{pmatrix}3 \\ 2\end{pmatrix}$ 和 $\Sigma=\begin{pmatrix}1  \\ 2\end{pmatrix}$ 正态样本的散点图和</span></center></span></p>
+
+<p>下节内容：多元分布</p>
+:ET

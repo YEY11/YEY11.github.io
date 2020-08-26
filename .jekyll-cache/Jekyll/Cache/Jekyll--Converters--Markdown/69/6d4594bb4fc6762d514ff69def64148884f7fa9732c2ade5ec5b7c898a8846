@@ -1,0 +1,84 @@
+I"_<h1 id="lecture-03-多元分布">Lecture 03 多元分布</h1>
+
+<p><strong>参考教材</strong>：</p>
+
+<ul>
+  <li><em>Hardle, W. and Simar, L (2015). Applied multivariate statistical analysis, 4th edition.</em></li>
+  <li><em>Hastie, T. Tibshirani, R. and Friedman, J. (2009). The elements of statistical learning, 2nd edition</em></li>
+</ul>
+
+<h2 id="1-分布和密度函数">1. 分布和密度函数</h2>
+
+<p>令 $X=(X_1,\dots,X_p)^{\mathrm T}$ 为一个随机向量。</p>
+
+<ul>
+  <li>
+    <p>对于所有的 $x=(x_1,\dots,x_p)^{\mathrm T}\in \mathbb R^p$，$X$ 的 <strong>累积分布函数 (Cumulative Distribution Function, CDF)</strong> 被定义为：</p>
+
+    <script type="math/tex; mode=display">F(x)=P(X\le x)=P(X_1\le x_1,\dots,X_p \le x_p)</script>
+
+    <p><br /></p>
+  </li>
+  <li>
+    <p>如果 $X$ 是连续的，则 $X$ 的 <strong>概率密度函数 (Probability Density Function, PDF)</strong> $f$ 是一个非负函数，可以通过下式定义：</p>
+
+    <script type="math/tex; mode=display">F(x)=\int_{-\infty}^{x}f(u)du</script>
+
+    <p>它总是满足：</p>
+
+    <script type="math/tex; mode=display">\int_{-\infty}^{\infty}f(u)du=1</script>
+
+    <ul>
+      <li>
+        <p>该积分是 $p$ 元的，$u\in \mathbb R^p$，但是 $f(u)\in \mathbb R$：</p>
+
+        <script type="math/tex; mode=display">\int_{-\infty}^{x}f(u)du = \int_{-\infty}^{x_1} \cdots \int_{-\infty}^{x_p} f(u_1,\dots,u_p)du_1 \dots du_p</script>
+      </li>
+    </ul>
+
+    <p><br /></p>
+  </li>
+  <li>$X$ 的某个子集的 <strong>边缘 CDF (Marginal CDF)</strong> 是通过在该子集上计算的 $X$ 的边缘得到的，从而使其他值等于无穷大。
+    <ul>
+      <li>
+        <p>例如，$X_1$ 的边缘 CDF 为：</p>
+
+        <script type="math/tex; mode=display">% <![CDATA[
+\begin{align}
+F_{X_1}(x_1) &= P(X_1 \le x_1) \\[2ex]
+&= P(X_1 \le x_1, X_2 \le \infty,\dots,X_p \le \infty) \\[2ex]
+&= F_X(x_1,\infty,\dots,\infty)
+\end{align} %]]></script>
+      </li>
+      <li>
+        <p>$(X_1,X_3)$ 的边缘 CDF 为：</p>
+
+        <script type="math/tex; mode=display">% <![CDATA[
+\begin{align}
+F_{X_1,X_3}(x_1,x_3) &= P(X_1 \le x_1,X_3 \le x_3) \\[2ex]
+&= P(X_1 \le x_1, X_2 \le \infty,X_3 \le x_3, X_4 \le \infty,\dots,X_p \le \infty) \\[2ex]
+&= F_X(x_1,\infty,x_3,\infty,\dots,\infty)
+\end{align} %]]></script>
+      </li>
+    </ul>
+
+    <p><br /></p>
+  </li>
+  <li>对于一个连续的随机向量 $X$，$X$ 的某个子集的 <strong>边缘密度 (Marginal Density)</strong> 是通过 $X$ 的 <strong>联合密度 (Joint Density)</strong> $f$ 在其他分量上进行积分得到的。
+    <ul>
+      <li>
+        <p>例如，$X_1$ 的边缘密度为：</p>
+
+        <script type="math/tex; mode=display">f_{X_1}(x_1)=\int_{-\infty}^{\infty}\cdots \int_{-\infty}^{\infty} f(x_1,u_2,\dots,u_p)du_2 \dots du_p</script>
+      </li>
+      <li>
+        <p>$(X_1,X_3)$ 的边缘密度为：</p>
+
+        <script type="math/tex; mode=display">f_{X_1,X_3}(x_1,x_3)=\int_{-\infty}^{\infty}\cdots \int_{-\infty}^{\infty} f(x_1,u_2,x_3,u_4,\dots,u_p)du_2 du_4 \dots du_p</script>
+      </li>
+    </ul>
+  </li>
+</ul>
+
+<p>下节内容：多元分布</p>
+:ET

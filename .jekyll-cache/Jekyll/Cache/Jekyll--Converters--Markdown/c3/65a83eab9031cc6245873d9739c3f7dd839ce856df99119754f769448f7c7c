@@ -1,0 +1,19 @@
+I"�<h1 id="lecture-03-多元分布">Lecture 03 多元分布</h1>
+
+<p><strong>参考教材</strong>：</p>
+
+<ul>
+  <li><em>Hardle, W. and Simar, L (2015). Applied multivariate statistical analysis, 4th edition.</em></li>
+  <li><em>Hastie, T. Tibshirani, R. and Friedman, J. (2009). The elements of statistical learning, 2nd edition</em></li>
+</ul>
+
+<h2 id="1-分布和密度函数">1. 分布和密度函数</h2>
+
+<p>令 $X=(X_1,\dots,X_p)^{\mathrm T}$ 为一个随机向量。</p>
+
+<ul>
+  <li>对于所有的 $x=(x_1,\dots,x_p)^{\mathrm T}\in \mathbb R^p$，$X$ 的 <strong>累积分布函数 (cumulative distribution function, CDF)</strong></li>
+</ul>
+
+<p>下节内容：多元分布</p>
+:ET
