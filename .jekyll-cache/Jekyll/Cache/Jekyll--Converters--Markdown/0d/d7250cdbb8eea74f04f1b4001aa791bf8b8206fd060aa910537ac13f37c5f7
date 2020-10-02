@@ -1,0 +1,53 @@
+I"<h1 id="lecture-04-主成分分析">Lecture 04 主成分分析</h1>
+
+<p><strong>参考教材</strong>：</p>
+
+<ul>
+  <li><em>Hardle, W. and Simar, L (2015). Applied multivariate statistical analysis, 4th edition.</em></li>
+  <li><em>Hastie, T. Tibshirani, R. and Friedman, J. (2009). The elements of statistical learning, 2nd edition</em></li>
+</ul>
+
+<h2 id="1-引言">1. 引言</h2>
+
+<p>对于 1 维、2 维或 3 维数据的可视化要相对容易：我们可以在散点图中表示它们，从中我们可以学到很多有关数据的结构/属性的信息。</p>
+
+<p>当数据具有较高维度时，我们很难对其进行可视化：</p>
+
+<ul>
+  <li>我们可以找到一种数据摘要的方法吗？</li>
+  <li>摘要应该更容易以图的形式表示。</li>
+  <li>摘要仍应包含有关原始数据的尽可能多的信息。</li>
+  <li>通常，我们可以通过降维来实现这一目标。</li>
+  <li>接下来，我们来看一个将 2 维数据降维为单一维度数据的例子。</li>
+</ul>
+
+<h3 id="例子将-2-维数据降维到-1-维数据">例子：将 2 维数据降维到 1 维数据</h3>
+
+<p>作为一个玩具示例，我们将首先看到如何将以下的 2 维数据降维到 1 维。</p>
+
+<p>数据来自 i.i.d. 属性对 $(X_{i1}, X_{i2})^{\mathrm T} \sim (\mu, \Sigma)$，其中 $i = 1, \dots, n$，如图 1 所示。</p>
+
+<p><img src="http://andy-blog.oss-cn-beijing.aliyuncs.com/blog/2020-09-27-WX20200927-224826%402x.png" width="80%" /></p>
+
+<p><span><center> <span style="font-size:10pt"> <span style="color:steelblue;font-weight:bold">图 1</span>：2 维数据的散点图</span></center></span></p>
+
+<p>对于这类问题，通常首先需要进行 <strong>中心化数据</strong> (中心化之后的数据从几何上更容易理解)。对于 $i = 1, \dots, n$，我们将 $(X_{i1}, X_{i2})^{\mathrm T}$ 替换为 $(X_{i1}- \overline X_1, X_{i2}- \overline X_2)^{\mathrm T}$，如图 2 所示：</p>
+
+<p><img src="http://andy-blog.oss-cn-beijing.aliyuncs.com/blog/2020-09-27-WX20200927-230722%402x.png" width="80%" /></p>
+
+<p><span><center> <span style="font-size:10pt"> <span style="color:steelblue;font-weight:bold">图 2</span>：中心化数据</span></center></span></p>
+
+<p><strong>注意</strong>：从现在开始，为避免使用繁琐的符号表示法，当我们提到 $X_{ij}$ 时，我们实际上指的是 X ij-¯Xj。</p>
+
+<p>为了将这些数据缩减为一个维度，我们可以例如仅保留每个数据点的第一个分量X i1。</p>
+
+<h2 id="xx-分布和密度函数">XX. 分布和密度函数</h2>
+
+<p>例如，在 $p=2$ 维情况下：</p>
+
+<p><img src="http://andy-blog.oss-cn-beijing.aliyuncs.com/blog/2020-08-26-WX20200826-151144%402x.png" width="70%" /></p>
+
+<p><span><center> <span style="font-size:10pt"> <span style="color:steelblue;font-weight:bold">图 1</span>：一个 $\mu=\begin{pmatrix}3 \\ 2\end{pmatrix}$ 和 $\Sigma=\begin{pmatrix}1 &amp; -1.5 \\ -1.5 &amp; 4\end{pmatrix}$ 的正态分布的样本散点图和椭圆轮廓线</span></center></span></p>
+
+<p>下节内容：主成分分析</p>
+:ET

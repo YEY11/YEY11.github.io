@@ -1,0 +1,23 @@
+I"<h1 id="lecture-07-因子分析">Lecture 07 因子分析</h1>
+
+<p><strong>参考教材</strong>：</p>
+
+<ul>
+  <li><em>Hardle, W. and Simar, L (2015). Applied multivariate statistical analysis, 4th edition.</em></li>
+  <li><em>Hastie, T. Tibshirani, R. and Friedman, J. (2009). The elements of statistical learning, 2nd edition</em></li>
+</ul>
+
+<h2 id="1-正交因子模型">1. 正交因子模型</h2>
+
+<p>令 $X \sim (\mu, \Sigma)$ 为一个 $p$ 维的随机向量。在 PCA 中，我们知道，如果 $\Sigma$ 只有 $q&lt; p$ 个非零特征值，那么我们可以将 $X$ 表示为</p>
+
+<script type="math/tex; mode=display">X-\mu =\Gamma_{}</script>
+
+<p><img src="http://andy-blog.oss-cn-beijing.aliyuncs.com/blog/2020-09-27-WX20200927-224826%402x.png" width="80%" /></p>
+
+<p><span><center> <span style="font-size:10pt"> <span style="color:steelblue;font-weight:bold">图 1</span>：2 维数据的散点图</span></center></span></p>
+
+<p>对于这类问题，通常首先需要进行 <strong>中心化数据</strong> (中心化之后的数据从几何上更容易理解)。对于 $i = 1, \dots, n$，我们将 $(X_{i1}, X_{i2})^{\mathrm T}$ 替换为 $(X_{i1}- \overline X_1, X_{i2}- \overline X_2)^{\mathrm T}$，如图 2 所示：</p>
+
+<p>下节内容：主成分分析</p>
+:ET

@@ -1,0 +1,111 @@
+I"<h1 id="lecture-04-主成分分析">Lecture 04 主成分分析</h1>
+
+<p><strong>参考教材</strong>：</p>
+
+<ul>
+  <li><em>Hardle, W. and Simar, L (2015). Applied multivariate statistical analysis, 4th edition.</em></li>
+  <li><em>Hastie, T. Tibshirani, R. and Friedman, J. (2009). The elements of statistical learning, 2nd edition</em></li>
+</ul>
+
+<h2 id="1-引言">1. 引言</h2>
+
+<p>对于 1 维、2 维或 3 维数据的可视化要相对容易：我们可以在散点图中表示它们，从中我们可以学到很多有关数据的结构/属性的信息。</p>
+
+<p>当数据具有较高维度时，我们很难对其进行可视化：</p>
+
+<ul>
+  <li>我们可以找到一种数据摘要的方法吗？</li>
+  <li>摘要应该更容易以图的形式表示。</li>
+  <li>摘要仍应包含有关原始数据的尽可能多的信息。</li>
+  <li>通常，我们可以通过降维来实现这一目标。</li>
+  <li>接下来，我们来看一个将 2 维数据降维为单一维度数据的例子。</li>
+</ul>
+
+<h3 id="例子将-2-维数据降维到-1-维数据">例子：将 2 维数据降维到 1 维数据</h3>
+
+<p>作为一个玩具示例，我们将首先看到如何将以下的 2 维数据降维到 1 维。</p>
+
+<p>数据来自 i.i.d. 属性对 $(X_{i1}, X_{i2})^{\mathrm T} \sim (\mu, \Sigma)$，其中 $i = 1, \dots, n$，如图 1 所示。</p>
+
+<p><img src="http://andy-blog.oss-cn-beijing.aliyuncs.com/blog/2020-09-27-WX20200927-224826%402x.png" width="80%" /></p>
+
+<p><span><center> <span style="font-size:10pt"> <span style="color:steelblue;font-weight:bold">图 1</span>：2 维数据的散点图</span></center></span></p>
+
+<p>对于这类问题，通常首先需要进行 <strong>中心化数据</strong> (中心化之后的数据从几何上更容易理解)。对于 $i = 1, \dots, n$，我们将 $(X_{i1}, X_{i2})^{\mathrm T}$ 替换为 $(X_{i1}- \overline X_1, X_{i2}- \overline X_2)^{\mathrm T}$，如图 2 所示：</p>
+
+<p><img src="http://andy-blog.oss-cn-beijing.aliyuncs.com/blog/2020-09-27-WX20200927-230722%402x.png" width="80%" /></p>
+
+<p><span><center> <span style="font-size:10pt"> <span style="color:steelblue;font-weight:bold">图 2</span>：中心化数据</span></center></span></p>
+
+<p><strong>注意</strong>：从现在起，为避免繁琐的符号表示，当我们提到 $X_{ij}$ 时，我们实际上指的是 $X_{ij}-\overline X_j$。</p>
+
+<p>为了将这些数据降维到一维，我们可以采取一些措施，例如：<strong>仅保留每个数据点的第一个分量</strong> $X_{i1}$。</p>
+
+<p><img src="http://andy-blog.oss-cn-beijing.aliyuncs.com/blog/2020-09-27-WX20200927-231549%402x.png" width="80%" /></p>
+
+<p><span><center> <span style="font-size:10pt"> <span style="color:steelblue;font-weight:bold">图 3</span>：2 维数据中每个数据点在第一个分量方向 $X_{1}$ 上的投影</span></center></span></p>
+
+<p><img src="http://andy-blog.oss-cn-beijing.aliyuncs.com/blog/2020-09-28-WX20200928-092335%402x.png" width="75%" /></p>
+
+<p><span><center> <span style="font-size:10pt"> <span style="color:steelblue;font-weight:bold">图 4</span>：每个数据点仅保留第一个分量 $X_{i1}$，将数据降维到 1 维</span></center></span></p>
+
+<p>但这种降维方式并不是我们所期望的，因为我们丢失了原始数据中第二个分量 $X_2$ 的所有相关信息。</p>
+
+<ul>
+  <li>例如，假设数据包含 $n = 100$ 个个体的年龄 ($X_1$) 和身高 ($X_2$)。</li>
+  <li>那么，上面的降维方式将仅保留年龄，并完全丢弃身高相关的数据。</li>
+</ul>
+
+<p>事实上，我们可以创建一个同时包含年龄和身高信息的 <strong>新变量</strong>。</p>
+
+<p>一种简单的方法是对年龄和身高进行 <strong>线性组合</strong>。</p>
+
+<ul>
+  <li>
+    <p>例如，对于 $i = 1, \dots, n$，我们可以创建一个新变量</p>
+
+    <script type="math/tex; mode=display">Y_i = \dfrac{1}{2}\text{age}_i + \dfrac{1}{2}\text{height}_i</script>
+
+    <p>它相当于是对每个样本的年龄和身高数据的取平均值。其中，两个系数 $1/2$ 可以分别视为年龄和身高的权重。</p>
+  </li>
+  <li>
+    <p>通常在这类问题中，我们会对线性组合的进行重新缩放，以使各权重系数的平方和等于 $1$。在这种情况下，我们有</p>
+
+    <script type="math/tex; mode=display">Y_i = \dfrac{1}{\sqrt 2}\text{age}_i + \dfrac{1}{\sqrt 2}\text{height}_i</script>
+  </li>
+</ul>
+
+<p>因此，值 $Y_i = \dfrac{1}{\sqrt 2}X_{i1} + \dfrac{1}{\sqrt 2}X_{i2}$ 如图 5 所示：</p>
+
+<p><img src="http://andy-blog.oss-cn-beijing.aliyuncs.com/blog/2020-09-28-WX20200928-094512%402x.png" width="75%" /></p>
+
+<p><span><center> <span style="font-size:10pt"> <span style="color:steelblue;font-weight:bold">图 5</span>：通过创建一个各分量的线性组合实现降维</span></center></span></p>
+
+<p>取两个分量的比例平均值相当于在原坐标系中将原始数据投影到图 6 中的红线 ($X_1 = X_2$) 上，并仅保留投影值 (蓝色)。</p>
+
+<p><img src="http://andy-blog.oss-cn-beijing.aliyuncs.com/blog/2020-09-28-WX20200928-095637%402x.png" width="80%" /></p>
+
+<p><span><center> <span style="font-size:10pt"> <span style="color:steelblue;font-weight:bold">图 6</span>：2 维数据中每个数据点在直线 $X_{1}=X_{2}$ 方向上的投影</span></center></span></p>
+
+<p>那么，上图是如何生成的呢？</p>
+
+<ul>
+  <li>
+    <p>在前面的课程中我们已经介绍过，向量 $x$ 在向量 $y$ 上的正交投影 $p_x = \dfrac{x^{\mathrm T} y}{|y|}$，如图所示</p>
+
+    <p><img src="http://andy-blog.oss-cn-beijing.aliyuncs.com/blog/2020-09-28-WX20200928-104553%402x.png" width="30%" /></p>
+  </li>
+  <li>
+    <p>简而言之，点 $x$ 在通过原点和点 $y$ 的直线上的正交投影 $p_x$ 由下式给出</p>
+
+    <script type="math/tex; mode=display">p_x = \dfrac{x^{\mathrm T} y}{\|y\|} \tag {1}</script>
+  </li>
+  <li>
+    <p>取线性组合 $Y_i = \dfrac{1}{\sqrt 2}X_{i1} + \dfrac{1}{\sqrt 2}X_{i2}$ 相当于</p>
+
+    <script type="math/tex; mode=display">Y_i = X_i^{\mathrm T}a</script>
+  </li>
+</ul>
+
+<p>下节内容：主成分分析</p>
+:ET

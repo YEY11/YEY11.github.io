@@ -1,0 +1,186 @@
+I"� <h1 id="lecture-07-因子分析">Lecture 07 因子分析</h1>
+
+<p><strong>参考教材</strong>：</p>
+
+<ul>
+  <li><em>Hardle, W. and Simar, L (2015). Applied multivariate statistical analysis, 4th edition.</em></li>
+  <li><em>Hastie, T. Tibshirani, R. and Friedman, J. (2009). The elements of statistical learning, 2nd edition</em></li>
+</ul>
+
+<h2 id="1-正交因子模型">1. 正交因子模型</h2>
+
+<p>令 $X \sim (\mu, \Sigma)$ 为一个 $p$ 维的随机向量。在 PCA 中，我们知道，如果 $\Sigma$ 只有 $q&lt; p$ 个非零特征值，那么我们可以将 $X$ 表示为</p>
+
+<script type="math/tex; mode=display">X-\mu =\Gamma_{(1)}Y_{(1)} \tag{1}</script>
+
+<p>(之所以减去 $\mu$，是因为我们的计算是针对均值为零的 $X$)。</p>
+
+<p>其中，</p>
+
+<script type="math/tex; mode=display">\Gamma_{(1)}=\underbrace{(\gamma_1,\dots,\gamma_q)}_{p \times q}</script>
+
+<p>并且</p>
+
+<script type="math/tex; mode=display">Y_{(1)}=\underbrace{(Y_1,\dots,Y_q)^{\mathrm T}}_{q \times 1}</script>
+
+<p>是主成分 (PCs) 的 $p$ 维向量 $Y=\Gamma^{\mathrm T} X$ 的前 $q$ 个分量。</p>
+
+<p>回忆一下，$Y_{(1)}\sim (0, \Lambda_1)$，其中 $\Lambda_1=\text{diag}(\lambda_1,\dots,\lambda_q)$。</p>
+
+<p>令 $Q=\Gamma_{(1)}\Lambda_{(1)}^{1/2}$ 和 $F=\Lambda_{(1)}^{-1/2}Y_{(1)}$，我们可以将式 $(1)$ 重写为</p>
+
+<script type="math/tex; mode=display">X=QF+\mu</script>
+
+<p>现在，我们有</p>
+
+<script type="math/tex; mode=display">% <![CDATA[
+\begin{align}
+\mathrm{E}(F) &= 0 \\[2ex]
+\mathrm{Var}(F) &= \Lambda_{(1)}^{-1/2}\mathrm{Var}(Y_{(1)})\Lambda_{(1)}^{-1/2}=I_q \\[2ex]
+\Sigma &= \mathrm{Var}(X)=Q\mathrm{Var}(F)Q^{\mathrm T} = QQ^{\mathrm T} = \sum_{j=1}^{q}\lambda_j \gamma_j \gamma_j^{\mathrm T}
+\end{align} %]]></script>
+
+<p>在这种情况下，$X$ 可以完全由 $F=(F_1,\dots,F_q)^{\mathrm T}$ 中的 $q &lt; p$ 个 <strong>不相关</strong> 因子的加权和确定。</p>
+
+<ul>
+  <li>
+    <p>注意，原始维度为 ${p \choose 2} + p = \frac{p(p+1)}{2}$ 的 $\mathrm{Var}(X)$ 可以由具有 $qp$ 项的载荷矩阵 $Q$ 的因子完全解释。</p>
+  </li>
+  <li>
+    <p>当 $q \ll p$ 时，$\frac{p(p+1)}{2}$ 的阶数约为 $O(p^2)$，而 $qp$ 的阶数约为 $O(p)$。 $\Rightarrow$ 我们实现了 <strong>降维</strong>。</p>
+  </li>
+  <li>
+    <p>$Q$ 的维数是一个微妙的问题，不仅仅是 $qp$。我们稍后会对此详细介绍。</p>
+  </li>
+</ul>
+
+<p>但事情往往不会如此理想。</p>
+
+<p>通常，在 <strong>正交因子模型 (orthogonal factor model)</strong> 中，我们假设以下数据生成机制：存在由 $q$ 个 <strong>公共因子 (common factors)</strong> 组成的随机向量 $F =(F_1,\dots,F_q)^{\mathrm T}$ 和 由 $p$ 个 <strong>特定因子 (speciﬁc factors)</strong> 组成的随机向量 $U =(U_1,\dots,U_p)$，使得</p>
+
+<script type="math/tex; mode=display">X=QF+U+\mu</script>
+
+<p>并且</p>
+
+<ul>
+  <li>$\mathrm{E}(F)=0$</li>
+  <li>$\mathrm{Var}(F)=I_q$</li>
+  <li>$\mathrm{E}(U)=0$</li>
+  <li>$\mathrm{Cov}(U_i,U_j)=0 \quad \text{if} \quad i\ne j$</li>
+  <li>$\mathrm{Cov}(F,U)=0$</li>
+</ul>
+
+<p>$Q$ 是一个 $p\times q$ 的非随机矩阵，其分量称为 <strong>载荷 (loadings)</strong>。</p>
+
+<p>特别地，$\mathrm{Var}(U)\equiv \Psi \equiv \mathrm{diag}(\psi_1,\dots,\psi_p)$ 是一个对角矩阵。</p>
+
+<p>现在，对于 $\Sigma := \mathrm{Var}(X)$，我们有</p>
+
+<script type="math/tex; mode=display">\Sigma = \mathrm{Var}(QF+U)=\mathrm{Var}(QF) + \mathrm{Var}(U)= QQ^{\mathrm T} + \Psi</script>
+
+<p>如果 $q \ll p$，是否实现了降维？是的，$Q$ 和 $\Psi$ 中总共只有 $qp + p$ 项，这要远少于 $p(p + 1)/ 2$。</p>
+
+<p>从某种意义上看，$X$ 的 $p$ 个分量之间的相关性完全是通过载荷的因子来解释的，而 $U_i$ 会为每个分量添加一些特定的噪声。</p>
+
+<ul>
+  <li>历史：Spearman 将因子分析模型引入了心理学领域中的一些重要应用。(在其他一些统计学课程中，也被称为“ Spearman’s $\rho$”）</li>
+  <li>如果 $q = 1$，则 $F$ 为不可观测属性 (例如，智力等因素)，而 $X_i$ 可能是在不同认知任务中获得的分数。</li>
+  <li>参见 Hardle 和 Simar 教材的第 363 页。</li>
+</ul>
+
+<h2 id="2-解释因子">2. 解释因子</h2>
+
+<p>我们可以使用与 PCA 中类似的工具来解释这些因子。</p>
+
+<p>我们可以依次用各分量表示模型</p>
+
+<script type="math/tex; mode=display">X=QF+U+\mu</script>
+
+<p>即，对于 $j=1,\dots,p$，</p>
+
+<script type="math/tex; mode=display">X_j = \sum_{\ell=1}^{q}q_{j\ell}F_{\ell} + U_j + \mu_j</script>
+
+<p>其中，$q_{j\ell}$ 是 $Q$ 中的第 $(j,\ell)$ 个元素。</p>
+
+<p>回忆 $\mathrm{Cov}(U,F)=0$，$\mathrm{Var}(F)=I_q$，$\mathrm{Var}(U) = \mathrm{diag}(\psi_1,\dots,\psi_p)$，可以推断出</p>
+
+<script type="math/tex; mode=display">\mathrm{Var}(X_j)=\sum_{\ell=1}^{q}q_{j\ell}^2 + \psi_j</script>
+
+<p>其中，$\sum_{\ell=1}^{q}q_{j\ell}^2$ 被称为 <strong>公共方差 (communality variance)</strong>，$\psi_j$ 则被称为 <strong>特定方差 (speciﬁc variance)</strong>。</p>
+
+<p>然后，</p>
+
+<script type="math/tex; mode=display">\dfrac{\sum_{\ell=1}^{q}q_{j\ell}^2}{\mathrm{Var}(X_j)} \tag{2}</script>
+
+<p>是 $X_j$ 的方差中由 $q$ 个因子解释的部分所占的比例。其值越接近 $1$，则说明这 $q$ 个因子对 $X_j$ 的方差解释程度越好。</p>
+
+<p>我们可以通过这些因子与 $X_j$ 之间的相关系数将二者联系起来。由于 $X=QF+U+\mu$，我们有</p>
+
+<script type="math/tex; mode=display">\mathrm{Cov}(X,F)=\mathrm{Cov}(QF+U,F)=\mathrm{Cov}(QF,F)=Q\mathrm{Cov}(F,F)=Q</script>
+
+<p>并且，由于 $\mathrm{Var}(X_j)=\sigma_{jj}$ 和 $\mathrm{Var}(F_j)=1$，可以推断出</p>
+
+<script type="math/tex; mode=display">\mathrm{Corr}(X,F)=D^{-1/2}Q</script>
+
+<p>其中，$D=\mathrm{diag}(\sigma_{11},\dots,\sigma_{pp})$。</p>
+
+<p>就像我们在 PCA 中所做的一样，通过分析这些相关性，我们可以看到哪些 $X_j$ 与每个因子都高度相关，并由此推断出这些因子的一种解释。</p>
+
+<h2 id="3-缩放数据">3. 缩放数据</h2>
+
+<p>如果我们改变 $X_j$ 的测量尺度会怎样？假设我们使用 $Y = CX$ 来代替 $X$，其中 $C = \mathrm{diag}(c_1,\dots,c_p)$。回想一下</p>
+
+<script type="math/tex; mode=display">X=QF+U+\mu</script>
+
+<p>可以推断出</p>
+
+<script type="math/tex; mode=display">Y=Q_Y F+U_Y+\mu_Y</script>
+
+<p>其中，$U_Y=CU$，$\mathrm{Var}(U_Y)=\Psi_Y$，并且我们定义</p>
+
+<script type="math/tex; mode=display">Q_Y=CQ, \quad \Psi_Y=C\Psi C^{\mathrm T}, \quad \mu_Y=C\mu \tag{3}</script>
+
+<p>这种情况下，因子 $F$ 并没有改变，并且新模型仍然是一个正交因子模型：</p>
+
+<ul>
+  <li>$\mathrm{E}(F)=0$</li>
+  <li>$\mathrm{Var}(F)=I_q$</li>
+  <li>$\mathrm{E}(U_Y)=0$</li>
+  <li>$\mathrm{Cov}(U_{Y,i},U_{Y,j})=0 \quad \text{if} \quad i\ne j$</li>
+  <li>$\mathrm{Cov}(F,U_Y)=0$</li>
+</ul>
+
+<p>由于缩放不会影响 $F$，因此在许多应用中，我们使用经过缩放和中心化的数据来搜索载荷，即使用数据</p>
+
+<script type="math/tex; mode=display">Y=D^{-1/2}(X-\mu)</script>
+
+<p>其中，$D=\mathrm{diag}(\sigma_{11},\dots,\sigma_{pp})$。</p>
+
+<p>也就是说，我们在以下模型中搜索 $Q_Y$ 和 $\Psi_Y$，</p>
+
+<script type="math/tex; mode=display">Y=Q_YF+U_Y</script>
+
+<p>在与以前相同的假设下：</p>
+
+<ul>
+  <li>$\mathrm{E}(F)=0$</li>
+  <li>$\mathrm{Var}(F)=I_q$</li>
+  <li>$\mathrm{E}(U_Y)=0$</li>
+  <li>$\mathrm{Cov}(U_{Y,i},U_{Y,j})=0 \quad \text{if} \quad i\ne j$</li>
+  <li>$\mathrm{Cov}(F,U_Y)=0$</li>
+</ul>
+
+<p>并且，$\mathrm{Var}(Y)=\mathrm{Corr}(Y)=Q_Y Q_Y^{\mathrm T} + \Psi_Y$。</p>
+
+<p>令 $q_{Y,j\ell}$ 表示 $Q_Y$ 的第 $(j,\ell)$ 个元素，那么，对于 $j=1,\dots,p$，</p>
+
+<script type="math/tex; mode=display">\sum_{ell=1}^{q}q_{Y,j\ell}^2 +\psi_{Y,j}=mathrm{Var}()</script>
+
+<p>====================================================================</p>
+
+<p><img src="http://andy-blog.oss-cn-beijing.aliyuncs.com/blog/2020-09-27-WX20200927-224826%402x.png" width="80%" /></p>
+
+<p><span><center> <span style="font-size:10pt"> <span style="color:steelblue;font-weight:bold">图 1</span>：2 维数据的散点图</span></center></span></p>
+
+<p>下节内容：主成分分析</p>
+:ET

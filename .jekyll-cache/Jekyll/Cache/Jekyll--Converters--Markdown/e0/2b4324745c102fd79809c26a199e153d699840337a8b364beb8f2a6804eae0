@@ -1,0 +1,82 @@
+I"<h1 id="lecture-07-因子分析">Lecture 07 因子分析</h1>
+
+<p><strong>参考教材</strong>：</p>
+
+<ul>
+  <li><em>Hardle, W. and Simar, L (2015). Applied multivariate statistical analysis, 4th edition.</em></li>
+  <li><em>Hastie, T. Tibshirani, R. and Friedman, J. (2009). The elements of statistical learning, 2nd edition</em></li>
+</ul>
+
+<h2 id="1-正交因子模型">1. 正交因子模型</h2>
+
+<p>令 $X \sim (\mu, \Sigma)$ 为一个 $p$ 维的随机向量。在 PCA 中，我们知道，如果 $\Sigma$ 只有 $q&lt; p$ 个非零特征值，那么我们可以将 $X$ 表示为</p>
+
+<script type="math/tex; mode=display">X-\mu =\Gamma_{(1)}Y_{(1)} \tag{1}</script>
+
+<p>(之所以减去 $\mu$，是因为我们的计算是针对均值为零的 $X$)。</p>
+
+<p>其中，</p>
+
+<script type="math/tex; mode=display">\Gamma_{(1)}=\underbrace{(\gamma_1,\dots,\gamma_q)}_{p \times q}</script>
+
+<p>并且</p>
+
+<script type="math/tex; mode=display">Y_{(1)}=\underbrace{(Y_1,\dots,Y_q)^{\mathrm T}}_{q \times 1}</script>
+
+<p>是主成分 (PCs) 的 $p$ 维向量 $Y=\Gamma^{\mathrm T} X$ 的前 $q$ 个分量。</p>
+
+<p>回忆一下，$Y_{(1)}\sim (0, \Lambda_1)$，其中 $\Lambda_1=\text{diag}(\lambda_1,\dots,\lambda_q)$。</p>
+
+<p>令 $Q=\Gamma_{(1)}\Lambda_{(1)}^{1/2}$ 和 $F=\Lambda_{(1)}^{-1/2}Y_{(1)}$，我们可以将式 $(1)$ 重写为</p>
+
+<script type="math/tex; mode=display">X=QF+\mu</script>
+
+<p>现在，我们有</p>
+
+<script type="math/tex; mode=display">% <![CDATA[
+\begin{align}
+\mathrm{E}(F) &= 0 \\[2ex]
+\mathrm{Var}(F) &= \Lambda_{(1)}^{-1/2}\mathrm{Var}(Y_{(1)})\Lambda_{(1)}^{-1/2}=I_q \\[2ex]
+\Sigma &= \mathrm{Var}(X)=Q\mathrm{Var}(F)Q^{\mathrm T} = QQ^{\mathrm T} = \sum_{j=1}^{q}\lambda_j \gamma_j \gamma_j^{\mathrm T}
+\end{align} %]]></script>
+
+<p>在这种情况下，$X$ 可以完全由 $F=(F_1,\dots,F_q)^{\mathrm T}$ 中的 $q &lt; p$ 个 <strong>不相关</strong> 因子的加权和确定。</p>
+
+<p>注意，原始维度为 ${p \choose 2} + p = \frac{p(p+1)}{2}$ 的 $\mathrm{Var}(X)$ 可以由具有 $qp$ 项的载荷矩阵 $Q$ 的因子完全解释。</p>
+
+<p>当 $q \ll p$ 时，$\frac{p(p+1)}{2}$ 的阶数约为 $O(p^2)$，而 $qp$ 的阶数约为 $O(p)$。 $\Rightarrow$ 我们已经实现了 <strong>降维</strong>。</p>
+
+<p>$Q$ 的维数是一个微妙的问题，不仅仅是 $qp$。我们稍后会对此详细介绍。</p>
+
+<p>但事情往往不会如此理想。</p>
+
+<p>通常，在 <strong>正交因子模型</strong> 中，我们假设以下数据生成机制：存在由 $q$ 个 <strong>公共因子</strong> 组成的随机向量 $F =(F_1,\dots,F_q)^{\mathrm T}$ 和 由 $p$ 个 <strong>特定因子</strong> 组成的随机向量 $U =(U_1,\dots,U_p)$，使得</p>
+
+<script type="math/tex; mode=display">X=QF+U+\mu</script>
+
+<p>并且</p>
+
+<ul>
+  <li>$\mathrm{E}(F)=0$</li>
+  <li>$\mathrm{Var}(F)=I_q$</li>
+  <li>$\mathrm{E}(U)=0$</li>
+  <li>$\mathrm{Cov}(U_i,U_j)=0 \quad \text{if} \quad i\ne j$</li>
+  <li>$\mathrm{Cov}(F,U)=0$</li>
+</ul>
+
+<p>$Q$ 是一个 $p\time q$ 的非随机矩阵，其分量称为 <strong>载荷 (loadings)</strong>。</p>
+
+<p>特别地，$\mathrm{Var}(U)\equiv \Psi \equiv \mathrm{diag}(\psi_1,\dots,\psi_p)$ 是一个对角矩阵。</p>
+
+<p>现在，对于 $\Sigma := \mathrm{Var}(X)$，我们有</p>
+
+<script type="math/tex; mode=display">\Sigma = \mathrm{Var}(QF+U)=\mathrm{Var}(QF) + \mathrm{Var}(U)= QQ^{\mathrm T} + \Psi</script>
+
+<p>如果 $q &lt; p$，是否实现？是的，Q和Ψ中只有qp + p个条目，而远远少于p（p + 1）/ 2。</p>
+
+<p><img src="http://andy-blog.oss-cn-beijing.aliyuncs.com/blog/2020-09-27-WX20200927-224826%402x.png" width="80%" /></p>
+
+<p><span><center> <span style="font-size:10pt"> <span style="color:steelblue;font-weight:bold">图 1</span>：2 维数据的散点图</span></center></span></p>
+
+<p>下节内容：主成分分析</p>
+:ET

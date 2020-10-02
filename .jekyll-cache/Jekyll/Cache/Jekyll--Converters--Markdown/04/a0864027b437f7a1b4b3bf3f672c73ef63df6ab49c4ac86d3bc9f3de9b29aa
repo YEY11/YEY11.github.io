@@ -1,0 +1,63 @@
+I"�
+<h1 id="lecture-07-因子分析">Lecture 07 因子分析</h1>
+
+<p><strong>参考教材</strong>：</p>
+
+<ul>
+  <li><em>Hardle, W. and Simar, L (2015). Applied multivariate statistical analysis, 4th edition.</em></li>
+  <li><em>Hastie, T. Tibshirani, R. and Friedman, J. (2009). The elements of statistical learning, 2nd edition</em></li>
+</ul>
+
+<h2 id="1-正交因子模型">1. 正交因子模型</h2>
+
+<p>令 $X \sim (\mu, \Sigma)$ 为一个 $p$ 维的随机向量。在 PCA 中，我们知道，如果 $\Sigma$ 只有 $q&lt; p$ 个非零特征值，那么我们可以将 $X$ 表示为</p>
+
+<script type="math/tex; mode=display">X-\mu =\Gamma_{(1)}Y_{(1)} \tag{1}</script>
+
+<p>(之所以减去 $\mu$，是因为我们的计算是针对均值为零的 $X$)。</p>
+
+<p>其中，</p>
+
+<script type="math/tex; mode=display">\Gamma_{(1)}=\underbrace{(\gamma_1,\dots,\gamma_q)}_{p \times q}</script>
+
+<p>并且</p>
+
+<script type="math/tex; mode=display">Y_{(1)}=\underbrace{(Y_1,\dots,Y_q)^{\mathrm T}}_{q \times 1}</script>
+
+<p>是主成分 (PCs) 的 $p$ 维向量 $Y=\Gamma^{\mathrm T} X$ 的前 $q$ 个分量。</p>
+
+<ul>
+  <li>
+    <p>回忆一下，$Y_{(1)}\sim (0, \Lambda_1)$，其中 $\Lambda_1=\text{diag}(\lambda_1,\dots,\lambda_q)$。</p>
+  </li>
+  <li>
+    <p>令 $Q=\Gamma_{(1)}\Lambda_{(1)}^{1/2}$ 和 $F=\Lambda_{(1)}^{-1/2}Y_{(1)}$，我们可以将式 $(1)$ 重写为</p>
+
+    <script type="math/tex; mode=display">X=QF+\mu</script>
+  </li>
+  <li>
+    <p>现在，我们有</p>
+
+    <script type="math/tex; mode=display">% <![CDATA[
+\begin{align}
+\mathrm{E}(F) &= 0 \\[2ex]
+\mathrm{Var}(F) &= \Lambda_{(1)}^{-1/2}\mathrm{Var}(Y_{(1)})\Lambda_{(1)}^{-1/2}=I_q \\[2ex]
+\Sigma &= \mathrm{Var}(X)=Q\mathrm{Var}(F)Q^{\mathrm T} = QQ^{\mathrm T} = \sum_{j=1}^{q}\lambda_j \gamma_j \gamma_j^{\mathrm T}
+\end{align} %]]></script>
+  </li>
+  <li>
+    <p>在这种情况下，$X$ 可以完全由 $F=(F_1,\dots,F_q)^{\mathrm T}$ 中的 $q &lt; p$ 个 <strong>不相关</strong> 因子的加权和确定。</p>
+  </li>
+  <li>
+    <p>注意，原始维度为 $p \choose{p \ 2}$ 的var（X）由具有q个条目的加载矩阵Q的系数完全解释。</p>
+  </li>
+</ul>
+
+<p><img src="http://andy-blog.oss-cn-beijing.aliyuncs.com/blog/2020-09-27-WX20200927-224826%402x.png" width="80%" /></p>
+
+<p><span><center> <span style="font-size:10pt"> <span style="color:steelblue;font-weight:bold">图 1</span>：2 维数据的散点图</span></center></span></p>
+
+<p>对于这类问题，通常首先需要进行 <strong>中心化数据</strong> (中心化之后的数据从几何上更容易理解)。对于 $i = 1, \dots, n$，我们将 $(X_{i1}, X_{i2})^{\mathrm T}$ 替换为 $(X_{i1}- \overline X_1, X_{i2}- \overline X_2)^{\mathrm T}$，如图 2 所示：</p>
+
+<p>下节内容：主成分分析</p>
+:ET

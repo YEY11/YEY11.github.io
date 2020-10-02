@@ -1,0 +1,27 @@
+I"�<h1 id="lecture-04-主成分分析">Lecture 04 主成分分析</h1>
+
+<p><strong>参考教材</strong>：</p>
+
+<ul>
+  <li><em>Hardle, W. and Simar, L (2015). Applied multivariate statistical analysis, 4th edition.</em></li>
+  <li><em>Hastie, T. Tibshirani, R. and Friedman, J. (2009). The elements of statistical learning, 2nd edition</em></li>
+</ul>
+
+<h2 id="1-引言">1. 引言</h2>
+
+<p>对于 1 维、2 维或 3 维数据的可视化要相对容易：我们可以在散点图中表示它们，从中我们可以学到很多有关数据的结构/属性的信息。</p>
+
+<p><img src="http://andy-blog.oss-cn-beijing.aliyuncs.com/blog/2020-09-27-WX20200927-224826%402x.png" width="70%" /></p>
+
+<p><span><center> <span style="font-size:10pt"> <span style="color:steelblue;font-weight:bold">图 1</span>：</span></center></span></p>
+
+<h2 id="xx-分布和密度函数">XX. 分布和密度函数</h2>
+
+<p>例如，在 $p=2$ 维情况下：</p>
+
+<p><img src="http://andy-blog.oss-cn-beijing.aliyuncs.com/blog/2020-08-26-WX20200826-151144%402x.png" width="70%" /></p>
+
+<p><span><center> <span style="font-size:10pt"> <span style="color:steelblue;font-weight:bold">图 1</span>：一个 $\mu=\begin{pmatrix}3 \\ 2\end{pmatrix}$ 和 $\Sigma=\begin{pmatrix}1 &amp; -1.5 \\ -1.5 &amp; 4\end{pmatrix}$ 的正态分布的样本散点图和椭圆轮廓线</span></center></span></p>
+
+<p>下节内容：主成分分析</p>
+:ET
