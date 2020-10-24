@@ -1,0 +1,23 @@
+I"�<h1 id="lecture-08-线性和二次分类">Lecture 08 线性和二次分类</h1>
+
+<p><strong>参考教材</strong>：</p>
+
+<ul>
+  <li><em>Hardle, W. and Simar, L (2015). Applied multivariate statistical analysis, 4th edition.</em></li>
+  <li><em>Hastie, T. Tibshirani, R. and Friedman, J. (2009). The elements of statistical learning, 2nd edition</em></li>
+</ul>
+
+<h2 id="1-引言">1. 引言</h2>
+
+<p>在分类问题中，总体中我们感兴趣的个体来自一些不同的类别 (例如：$K$ 个类别)。</p>
+
+<p>例如，$K=2$：健康；患病。</p>
+
+<p>我们可以从观测到的 $(X_1,G_1),\dots, (X_n, G_n)$ 中获得训练样本，其中</p>
+
+<ul>
+  <li>$G_i \in $</li>
+</ul>
+
+<p>下节内容：线性和二次分类</p>
+:ET

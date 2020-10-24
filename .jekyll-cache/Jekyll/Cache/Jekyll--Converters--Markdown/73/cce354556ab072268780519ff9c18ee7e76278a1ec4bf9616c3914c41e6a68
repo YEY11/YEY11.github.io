@@ -1,0 +1,26 @@
+I"a<h1 id="lecture-08-线性和二次分类">Lecture 08 线性和二次分类</h1>
+
+<p><strong>参考教材</strong>：</p>
+
+<ul>
+  <li><em>Hardle, W. and Simar, L (2015). Applied multivariate statistical analysis, 4th edition.</em></li>
+  <li><em>Hastie, T. Tibshirani, R. and Friedman, J. (2009). The elements of statistical learning, 2nd edition</em></li>
+</ul>
+
+<h2 id="1-引言">1. 引言</h2>
+
+<p>在分类问题中，总体中我们感兴趣的个体来自一些不同的类别 (例如：$K$ 个类别)。</p>
+
+<p>例如，$K=2$：健康；患病。</p>
+
+<p>我们可以从观测到的 $(X_1,G_1),\dots, (X_n, G_n)$ 中获得训练样本，其中</p>
+
+<ul>
+  <li>$G_i \in \{1,2,\dots,K\}$ 是第 $i$ 个观测样本的分组标签 (每个个体都刚好属于一个分组)。</li>
+  <li>$X_i$ 是一个解释变量 (例如，年龄、血压等)，或者，更常见的是由多个变量组成的一个向量 $X_i=(X_{i1},\dots, X_{ip})^{\mathrm T}$。</li>
+</ul>
+
+<p>假设现在我们又得到了一个新的个体，我们只观测到了它的解释变量 $X=x=(x)$</p>
+
+<p>下节内容：线性和二次分类</p>
+:ET

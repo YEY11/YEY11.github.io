@@ -1,0 +1,75 @@
+I"j<h1 id="lecture-08-线性和二次分类">Lecture 08 线性和二次分类</h1>
+
+<p><strong>参考教材</strong>：</p>
+
+<ul>
+  <li><em>Hardle, W. and Simar, L (2015). Applied multivariate statistical analysis, 4th edition.</em></li>
+  <li><em>Hastie, T. Tibshirani, R. and Friedman, J. (2009). The elements of statistical learning, 2nd edition</em></li>
+</ul>
+
+<h2 id="1-引言">1. 引言</h2>
+
+<p>在分类问题中，总体中我们感兴趣的个体来自一些不同的类别 (例如：$K$ 个类别)。</p>
+
+<p>例如，$K=2$：健康；患病。</p>
+
+<p>我们可以从观测到的 $(X_1,G_1),\dots, (X_n, G_n)$ 中获得训练样本，其中</p>
+
+<ul>
+  <li>$G_i \in \{1,2,\dots,K\}$ 是第 $i$ 个观测样本的分组标签 (每个个体都刚好属于一个分组)。</li>
+  <li>$X_i$ 是一个解释变量 (例如，年龄、血压等)，或者，更常见的是由多个变量组成的一个向量 $X_i=(X_{i1},\dots, X_{ip})^{\mathrm T}$。</li>
+</ul>
+
+<p><strong>问题</strong>：假设现在又来了一个新的个体，我们只观测到了它的解释变量 $X=x=(x_1,\dots,x_p)^{\mathrm T}$，但是不知道它来自哪个分组。</p>
+
+<p><strong>目标</strong>：我们需要将这个新的个体分类到正确的分组之中 (即找到其所属的分组)。这等价于找到这个新个体的分组标签 $G\in \{1,\dots, K\}$。</p>
+
+<p>我们应该怎么做？</p>
+
+<h2 id="2-主要技术思想">2. 主要技术思想</h2>
+
+<p><strong>主要思想</strong>：将该新值 $x$ 与训练样本 $X_i$ 进行比较。</p>
+
+<p>如果 $x$ 与来自分组 $k$ 中的 $X_i$ 要比来自其他分组的样本更相似，那么我们就将这个新个体分到组 $k$。</p>
+
+<p>那么如何确定 $x$ 与来自分组 $k$ 中的 $X_i$ 要比来自其他分组的样本 “更相似” 呢？</p>
+
+<p>对于 $k=1,\dots, K$，使用训练数据来估计在给定 $X$ 等于 $x$ 的情况下，一个个体来自组 $k$ 的概率：</p>
+
+<script type="math/tex; mode=display">P(G=k\mid X=x)</script>
+
+<p>将其估计值表示为：</p>
+
+<script type="math/tex; mode=display">\hat P(G=k\mid X=x)</script>
+
+<p>然后，将这个新个体分类到组 $k$，如果</p>
+
+<script type="math/tex; mode=display">\hat P(G=k\mid X=x) > \max_{j=1,\dots,K,j\ne k} \hat P(G=j\mid X=x)</script>
+
+<p>存在许多不同的分类方法，但它们本质上都对应于估计上述概率的各种方式。</p>
+
+<p>有两类主要方法：</p>
+
+<ul>
+  <li>回归估计技术</li>
+  <li>贝叶斯方法</li>
+</ul>
+
+<p>首先介绍二分类情况下的方法，即 $K=2$（可以扩展到 $K &gt; 2$ 个类的情况）。</p>
+
+<p>在本章中：我们观测到 i.i.d. 的训练样本数据 $(X_i, G_i), i=1,\dots,n$。当我们不想突显样本这一概念时，可以用符号 $(X,G)$ 表示来自同一总体的一般个体。</p>
+
+<h2 id="3-对于-k2-类的简单回归方法">3. 对于 $K=2$ 类的简单回归方法</h2>
+
+<p>假设所有个体都只来自 $K=2$ 个分组，那么我们可以将一个新个体分到组 $1$，如果</p>
+
+<script type="math/tex; mode=display">P(G=1\mid X=x) > P(G=2\mid X=x)</script>
+
+<p>在实践中：仅给定样本 $(X_1,G_1),\dots,(X_n, G_n)$，我们需要寻找 $P(G=k\mid X=x), k=1,2$ 的估计量。</p>
+
+<p>主要思想：通过回归来估计  $P(G=k\mid X=x)$。</p>
+
+<p>为此，我们需要根据 $G$ 定义一个新的变量。对于</p>
+
+<p>下节内容：线性和二次分类</p>
+:ET
