@@ -1,0 +1,54 @@
+I"�
+<h1 id="lecture-09-分类和回归树及相关方法">Lecture 09 分类和回归树及相关方法</h1>
+
+<p><strong>参考教材</strong>：</p>
+
+<ul>
+  <li><em>Hardle, W. and Simar, L (2015). Applied multivariate statistical analysis, 4th edition.</em></li>
+  <li><em>Hastie, T. Tibshirani, R. and Friedman, J. (2009). The elements of statistical learning, 2nd edition</em></li>
+</ul>
+
+<h2 id="1-引言">1. 引言</h2>
+
+<p>前一章中的方法依赖于很强的 <strong>参数假设 (parametric assumptions)</strong> (线性模型、逻辑模型或正态性假设)。</p>
+
+<p>当这些假设基本正确时，这些分类器可以很好地工作；但是当这些假设与真实情况相差很远时，这些分类器的性能可能会非常差。</p>
+
+<p>回忆一下之前的例子：当分隔边界看上去并非线性时，线性分类器将无法很好地工作。</p>
+
+<p>因此，我们需要一些对于强参数假设涉及较少的灵活模型。</p>
+
+<p>这里，我们将介绍由 Leo Breiman 在 1980 年代普及的概念：<strong>回归树 (regression trees)</strong>。</p>
+
+<h2 id="2-回归树">2. 回归树</h2>
+
+<p>假设我们观察到一个 i.i.d. 样本 $(X_1,Y_1),\dots,(X_n,Y_n)$ 来自以下基础均值模型</p>
+
+<script type="math/tex; mode=display">E(Y_i \mid X_i=x) = m(x)</script>
+
+<p>其中，$Y_i\in \mathbb R$ 和 $X_i=(X_i1,\dots,X_ip)^{\mathrm T} \in \mathbb R^p$ 是连续的。</p>
+
+<p>在本节内容中，这种表示法可能会引起混淆。<span style="color:red">因此，我们将样本表示为</span></p>
+
+<script type="math/tex; mode=display">(\mathcal X_1,\mathcal Y_1),\dots,(\mathcal X_n,\mathcal Y_n)</script>
+
+<p>其中，$\mathcal Y_i \in \mathbb R, \; \mathcal X_i=(\mathcal X_{i1},\dots,\mathcal X_{ip})^{\mathrm T}$。</p>
+
+<p>当我们不想强调数据的样本依赖性时，我们使用符号 $(X,Y)$，其中，$(X,Y)$ 与 $(\mathcal X_i,\mathcal Y_i)$ 具有相同的分布。特别地，它也来自模型</p>
+
+<script type="math/tex; mode=display">E(Y\mid X=x) = m(x)</script>
+
+<p>其中，$Y\in \mathbb R$ 和 $X=(X_1,\dots,X_p)^{\mathrm T} \in \mathbb R^p$ 是连续的。</p>
+
+<p>因此，我们保留了符号 $\{X_1,\dots,X_p\}$ 以表示一般向量 $X$ 的 <strong>坐标 (coordinates)</strong>。</p>
+
+<p>通常，均值函数 $m(\cdot)$ 在特征空间 (即 $X$ 的域，或者 $X$ 的所有可能值的 $\mathbb R^p$ 的子集) 上看上去可能非常不平滑。</p>
+
+<p>但是，如果 $x_1$ 和 $x 2$ 是特征空间中的两个闭合点，则m（x1）≈m（x2）很可能。</p>
+
+<p>*回归树的主要思想：将特征空间划分为不相交的区域R1，R2，…。 。 。</p>
+
+<p>*在每个区域Ri上，我们用一个常数近似m（x）。</p>
+
+<p>下节内容：分类和回归树及相关方法</p>
+:ET
