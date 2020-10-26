@@ -1,0 +1,33 @@
+I"P	<h1 id="lecture-10-bagging-和随机森林">Lecture 10 Bagging 和随机森林</h1>
+
+<p><strong>参考教材</strong>：</p>
+
+<ul>
+  <li><em>Hardle, W. and Simar, L (2015). Applied multivariate statistical analysis, 4th edition.</em></li>
+  <li><em>Hastie, T. Tibshirani, R. and Friedman, J. (2009). The elements of statistical learning, 2nd edition</em></li>
+</ul>
+
+<h2 id="1-bagging-分类树">1. Bagging 分类树</h2>
+
+<p>树模型具有 <strong>高方差</strong>。相似的样本可能会生成截然不同的树，尤其是在各个分量 ($X_j$) 相关性很高的情况下。这会导致预测结果不稳定。</p>
+
+<p>从更高的层面来看，这是由于在顶部划分过程中产生的错误会向下传播到其下方的所有划分中。</p>
+
+<p><strong>Bagging</strong> 是一种降低方差的方法：与仅生成一棵树相比，我们将基于数据生成许多 (例如：$B$ 棵) 深树。然后，我们以某种方式聚合 (或 “装袋”) 这 $B$ 棵树。</p>
+
+<p>深树的偏差很低，但方差很高。对它们进行聚合可以解决方差的问题。(直觉上：随机变量的平均值通常具有较小的方差，而聚合可以达到类似的效果)。</p>
+
+<p><strong>Bootstrapping</strong>：根据原始训练数据 $(\mathcal X_1,G_1),\dots,(\mathcal X_n,G_n)$ 创建 $B$ 个人工 <strong>bootstrap</strong> 样本。每个 bootstrap 样本都是通过有放回随机抽样得到的 $n$ 个数据对 $(\mathcal X_i, G_i)$ 生成的。</p>
+
+<p>(注意：我们是对整个数据对 $(\mathcal X_i, G_i)$，而不是分别对 $\mathcal X_i$ 和 $G_i$，进行重抽样。有放回意味着我们可以在多次抽样中得到相同的数据对：这 $n$ 个 bootstrap 数据对中的每一个都是从训练样本中的 $n$ 个原始数据对中选取的)。</p>
+
+<p>对于 $b=1,\dots,B$，我们将第 $b$ 个 bootstrap 样本记为</p>
+
+<script type="math/tex; mode=display">(\mathcal X_{b,1}^*, G_{b,1}^*),\dots,(\mathcal X_{b,n}^*, G_{b,n}^*)</script>
+
+<p>对于每个 bootstrap 样本，按照</p>
+
+<p><span style="font-size:10pt"> <span style="color:steelblue;font-weight:bold">图 2</span>：垃圾邮件例子的剪枝树。分裂变量在分支上显示为蓝色，分类则显示在每个结点上。终端结点下面的数字表示测试数据上的误分类率。</span></p>
+
+<p>下节内容：Boosting 和随机森林</p>
+:ET

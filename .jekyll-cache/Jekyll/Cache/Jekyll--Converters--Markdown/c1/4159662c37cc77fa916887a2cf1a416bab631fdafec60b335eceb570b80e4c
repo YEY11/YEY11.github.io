@@ -1,0 +1,111 @@
+I"�<h1 id="lecture-10-bagging-和随机森林">Lecture 10 Bagging 和随机森林</h1>
+
+<p><strong>参考教材</strong>：</p>
+
+<ul>
+  <li><em>Hardle, W. and Simar, L (2015). Applied multivariate statistical analysis, 4th edition.</em></li>
+  <li><em>Hastie, T. Tibshirani, R. and Friedman, J. (2009). The elements of statistical learning, 2nd edition</em></li>
+</ul>
+
+<h2 id="1-bagging-分类树">1. Bagging 分类树</h2>
+
+<p>树模型具有 <strong>高方差</strong>。相似的样本可能会生成截然不同的树，尤其是在各个分量 ($X_j$) 相关性很高的情况下。这会导致预测结果不稳定。</p>
+
+<p>从更高的层面来看，这是由于在顶部划分过程中产生的错误会向下传播到其下方的所有划分中。</p>
+
+<p><strong>Bagging</strong> 是一种降低方差的方法：与仅生成一棵树相比，我们将基于数据生成许多 (例如：$B$ 棵) 深树。然后，我们以某种方式聚合 (或 “装袋”) 这 $B$ 棵树。</p>
+
+<p>深树的偏差很低，但方差很高。对它们进行聚合可以解决方差的问题。(直觉上：随机变量的平均值通常具有较小的方差，而聚合可以达到类似的效果)。</p>
+
+<p><strong>Bootstrapping</strong>：根据原始训练数据 $(\mathcal X_1,G_1),\dots,(\mathcal X_n,G_n)$ 创建 $B$ 个人工 <strong>bootstrap</strong> 样本。每个 bootstrap 样本都是通过有放回随机抽样得到的 $n$ 个数据对 $(\mathcal X_i, G_i)$ 生成的。</p>
+
+<p>(注意：我们是对整个数据对 $(\mathcal X_i, G_i)$，而不是分别对 $\mathcal X_i$ 和 $G_i$，进行重抽样。有放回意味着我们可以在多次抽样中得到相同的数据对：这 $n$ 个 bootstrap 数据对中的每一个都是从训练样本中的 $n$ 个原始数据对中选取的)。</p>
+
+<p>对于 $b=1,\dots,B$，我们将第 $b$ 个 bootstrap 样本记为</p>
+
+<script type="math/tex; mode=display">(\mathcal X_{b,1}^*, G_{b,1}^*),\dots,(\mathcal X_{b,n}^*, G_{b,n}^*)</script>
+
+<p>对于每个 bootstrap 样本，按照以下方法计算一棵分类树：对于 $b=1,\dots,B$，第 $b$ 个 bootstrap 样本的树的结果为</p>
+
+<script type="math/tex; mode=display">% <![CDATA[
+\hat G_b = \hat G_b(x) = \sum_{\ell=1}^{L}\hat c_{b,\ell}^{*} I\{x\in R_{b,\ell}^{*}\}=\begin{cases}\hat c_{b,1}^* & \text{if }x\in R_{b,1}^* \\ \vdots \\ \hat c_{b,L}^* & \text{if }x\in R_{b,L}^*\end{cases} %]]></script>
+
+<p>其中，$\hat c_{b,\ell}^{*}$ 是区域 $R_{b,\ell}^{*}$ 的预测类。</p>
+
+<p>然后，以下列方式之一聚合这 $B$ 棵树并生成一个新的单一结果 $\hat G_{bag}$：</p>
+
+<ol>
+  <li>
+    <p><strong>共识/多数投票 (Consensus/Majority voting)</strong>：对特征空间中的所有 $x$，令 $p_1(x),\dots,p_K(x)$ 分别为这 $B$ 棵树中将 $x$ 分类到组 $1,\dots,$ 组 $K$ 的树所占比例。然后，我们有</p>
+
+    <script type="math/tex; mode=display">\hat G_{bag}(x)=\mathop{\operatorname{arg\,max}}\limits_k p_k(x)</script>
+
+    <p>(我们取占比最高的类作为聚合后的结果类)</p>
+  </li>
+  <li>
+    <p><strong>平均类别占比 (Average the class proportions)</strong>：对于这 $B$ 棵树中的每一棵树的分类占比进行平均。这里，对于第 $b$ 棵树，如果 $x\in R_{b,\ell}^{*}$，对于 $k=1,\dots,K$，计算</p>
+
+    <script type="math/tex; mode=display">\hat p_{b,k}^*(x)=\dfrac{1}{N_{b,\ell}^*}\sum_{i \text{ s.t. }\mathcal X_{b,i}^* \in R_{b,\ell}^*} I\{G_{b,i}^* = k\}</script>
+
+    <p>其中，$N_{b,\ell}^{*}$ 是区域 $R_{b,\ell}^{*}$ 中的 bootstrap 样本 $\mathcal X_{b,i}^{*}$ 的数量。</p>
+
+    <p>然后，我们取</p>
+
+    <script type="math/tex; mode=display">\hat p_{k}^*(x)=\dfrac{1}{B} \sum_{b=1}^{B}\hat p_{b,k}^*(x)</script>
+
+    <p>并且将 $x$ 分类到能够最大化 $\hat p_k^{*}$ 的类。</p>
+  </li>
+</ol>
+
+<p>通常来说，上面第二种方法的效果更好 (变量更少)，特别是对于 $B$ 很小的情况；另外，它还可以为类的概率提供一个良好的估计。</p>
+
+<p>使用 “bagging” 方法的代价是什么？我们牺牲了 <strong>可解释性 (Interpretability)</strong>；从 $B$ 棵树中获得的决策规则本身并不是一棵树。(一棵树被认为是 “可解释的” 对象；可以通过视觉表示)</p>
+
+<h3 id="例子具有模拟数据的树">例子：具有模拟数据的树</h3>
+
+<p>假设原始数据具有两个类 ($1$ 和 $2$)，以及 $p=5$ 个特征 $X_1,\dots,X_5$，每个特征都服从标准正态分布，并且每对特征之间的相关系数都是 $0.95$。响应 $Y$ 完全由 $X_1$ 确定：$P(Y=1\mid x_1\le 0.5)=0.2$ 和 $P(Y=1\mid x_1 &gt; 0.5)=0.8$。</p>
+
+<p>我们的训练样本大小为 $N=30$，并且我们创建了 $B=200$ 个 bootstrap 样本。</p>
+
+<p>另外，大小为 $2000$ 的测试样本也从相同的总体中产生。</p>
+
+<p>我们为训练样本和 $200$ 个 bootstrap 样本中的每一个拟合分类树，并且没有使用剪枝。图 1 显示了原始树和 11 个 bootstrap 树。注意，这些树是各不相同的，它们都有各自的分裂特征和分裂点。</p>
+
+<p><img src="http://andy-blog.oss-cn-beijing.aliyuncs.com/blog/2020-10-25-WX20201026-001655%402x.png" width="80%" /></p>
+
+<p><span style="font-size:10pt"> <span style="color:steelblue;font-weight:bold">图 1</span>：模拟数据集上的 bagging 树。左上角是原始树，其余 11 棵树基于 bootstrap 样本生成的。每棵树的顶部都有关于分裂特征和分裂点的注释。</span></p>
+
+<p>可以看到，这些树看上去都各不相同。原始树的变化很大，因为 5 个 $X_j$ 变量是高度相关的 (因此，样本中的一个微小变化可能会生成非常不同的树)。另外，这里没有使用剪枝。</p>
+
+<p>图 2 显示了原始树和 bagging 树的测试误差。在这个例子中，由于预测变量之间的相关性，这些树具有较高的方差， 而 bagging 方法成功平滑了这种方差，并因此降低了测试误差。</p>
+
+<p><img src="http://andy-blog.oss-cn-beijing.aliyuncs.com/blog/2020-10-25-WX20201026-002955%402x.png" width="60%" /></p>
+
+<p><span style="font-size:10pt"> <span style="color:steelblue;font-weight:bold">图 2</span>：图 1 中 bagging 例子的误差曲线。这里显示的是原始树与 bagging 树的测试误差，它是关于 bootstrap 样本数的一个函数。橙色点对应共识投票方法，而绿色点对应概率平均方法。</span></p>
+
+<h2 id="2-随机森林分类">2. 随机森林分类</h2>
+
+<p>Bagging 的缺点：生成的 $B$ 棵树之间不是相互独立的。这会削弱聚合的方差减小效应。</p>
+
+<p>直觉上：如果 $B$ 个变量来自相同分布，其方差为 $\sigma^2$ 且每对变量之间相关系数为 $\rho$，那么，这 $B$ 个变量的平均值的方差为</p>
+
+<script type="math/tex; mode=display">\rho \sigma^2 + (1-\rho)\sigma^2/B</script>
+
+<p>其中，第一项 $\rho \sigma^2$ 不会随着 $B$ 的增长而缩小。</p>
+
+<p><strong>随机森林 (Random forests, RF)</strong>：通过特定方式生成 bootstrap 树来减少 $B$ 棵树之间的相关性。</p>
+
+<p>当生成 boostrap 树时，在每次分裂之前，随机选择 $m (\le p)$ 个 $X_j$ 作为分裂的候选对象 (而不是将全部 $p$ 个 $X_j$ 都视为候选对象)。</p>
+
+<p>通常，$m =\sqrt p$ (R 中的函数 <code class="language-plaintext highlighter-rouge">randomForest()</code> 的默认设置)，但由于它是一个调整参数，因此我们可能希望能够自适应地选择其值。</p>
+
+<p>对于 <code class="language-plaintext highlighter-rouge">randomForest()</code>，每个终端结点的默认大小为1（增大最大可能的树）。</p>
+
+<ul>
+  <li>B不是调整参数。 随着B的增加，RF变得更加稳定，但只要B足够大，则将B变大的好处就很小。 只需将B大（例如，计算上可行的值）。 另请参见下几张幻灯片中出现的袋外（OOB）错误。</li>
+</ul>
+
+<p>且成对相关为ρ的B个相同分布变量的平均值具有方差</p>
+
+<p>下节内容：Boosting 和随机森林</p>
+:ET

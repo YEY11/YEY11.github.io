@@ -1,0 +1,15 @@
+I"�<h1 id="lecture-10-bagging-和随机森林">Lecture 10 Bagging 和随机森林</h1>
+
+<p><strong>参考教材</strong>：</p>
+
+<ul>
+  <li><em>Hardle, W. and Simar, L (2015). Applied multivariate statistical analysis, 4th edition.</em></li>
+  <li><em>Hastie, T. Tibshirani, R. and Friedman, J. (2009). The elements of statistical learning, 2nd edition</em></li>
+</ul>
+
+<h2 id="1-bagging-分类树">1. Bagging 分类树</h2>
+
+<p><span style="font-size:10pt"> <span style="color:steelblue;font-weight:bold">图 2</span>：垃圾邮件例子的剪枝树。分裂变量在分支上显示为蓝色，分类则显示在每个结点上。终端结点下面的数字表示测试数据上的误分类率。</span></p>
+
+<p>下节内容：Boosting 和随机森林</p>
+:ET
