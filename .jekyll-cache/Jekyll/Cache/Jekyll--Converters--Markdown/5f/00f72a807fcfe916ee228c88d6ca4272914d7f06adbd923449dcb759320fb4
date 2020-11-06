@@ -1,0 +1,520 @@
+I"z�<h1 id="lecture-03-线性回归">Lecture 03 线性回归</h1>
+
+<p><strong>参考教材</strong>：</p>
+
+<ul>
+  <li><em>Gareth, J., Daniela, W., Trevor, H., &amp; Robert, T. (2013). An intruduction to statistical learning: with applications in R. Spinger.</em></li>
+  <li><em>Hastie, T., Tibshirani, R., &amp; Friedman, J. (2009). The elements of statistical learning: data mining, inference, and prediction. Spinger Science &amp; Business Media.</em></li>
+</ul>
+
+<h2 id="1-线性回归">1. 线性回归</h2>
+
+<h3 id="11-什么是线性回归">1.1 什么是线性回归</h3>
+
+<p>线性回归是一种简单的监督学习方法，它假设 $Y$ 和 $X_1, X_2,\dots, X_p$ 之间的依赖关系是线性的。</p>
+
+<p>注意：真实的回归函数永远不会是线性。</p>
+
+<p><img src="http://andy-blog.oss-cn-beijing.aliyuncs.com/blog/2020-09-08-WX20200908-100135%402x.png" width="70%" /></p>
+
+<center><span style="font-size:10pt"> <span style="color:steelblue;font-weight:bold">图 1</span>： 线性回归模型，其中红色曲线表示真实回归函数，蓝色直线表示线性回归函数。</span></center>
+
+<p>尽管看起来似乎过于简单，但线性回归在概念上和实践中都非常有用。</p>
+
+<h3 id="12-例子广告数据的线性回归">1.2 例子：广告数据的线性回归</h3>
+
+<p>回顾上节课中的广告数据的例子，我们可能会关心以下问题：</p>
+
+<ul>
+  <li>广告预算和销售额之间是否有关系？</li>
+  <li>广告预算和销售额之间的相关性有多强？</li>
+  <li>哪些媒体有助于提升销售额？</li>
+  <li>我们如何准确地预测未来的销售额？</li>
+  <li>二者之间的关系是线性的吗？</li>
+  <li>不同广告媒体之间是否存在协同作用？</li>
+</ul>
+
+<p><img src="http://andy-blog.oss-cn-beijing.aliyuncs.com/blog/2020-08-15-WX20200815-221610%402x.png" width="90%" /></p>
+
+<p><span style="font-size:10pt"> <span style="color:steelblue;font-weight:bold">图 2</span>：<code class="language-plaintext highlighter-rouge">Advertising</code> (广告) 数据集。这个散点图绘制了 200 个不同市场的 <code class="language-plaintext highlighter-rouge">sales</code> (单位: 千) 关于 <code class="language-plaintext highlighter-rouge">TV</code>、<code class="language-plaintext highlighter-rouge">radio</code> 和 <code class="language-plaintext highlighter-rouge">newspager</code> 三种媒体广告预算 (单位: 千美元) 的函数。每个散点图我们都给出了 <code class="language-plaintext highlighter-rouge">sales</code> 这个变量通过普通最小二乘法的拟合线，拟合的这个结果将在下节课详解。换句话说，在每个图中的蓝线代表一个线性回归模型，可以用来预测 <code class="language-plaintext highlighter-rouge">TV</code>、<code class="language-plaintext highlighter-rouge">radio</code> 和 <code class="language-plaintext highlighter-rouge">newspager</code>  的 <code class="language-plaintext highlighter-rouge">sales</code>。</span></p>
+
+<h2 id="2-简单线性回归">2. 简单线性回归</h2>
+
+<p>我们假设一个模型：</p>
+
+<script type="math/tex; mode=display">Y=\beta_0 + \beta_1 X +\epsilon</script>
+
+<p>其中，$\beta_0$ 和 $\beta_1$ 是两个未知常数，分别代表 <strong>截距 (intercept)</strong> 和 <strong>斜率 (slope)</strong>，也被称为 <strong>系数 (coefficients)</strong> 或 <strong>参数 (parameters)</strong>，$\epsilon$ 代表 <strong>误差项 (error term)</strong>。</p>
+
+<p>给定模型系数的估计值 $\hat \beta_0$ 和 $\hat \beta_1$，我们可以根据下式预测未来的销售额：</p>
+
+<script type="math/tex; mode=display">\hat y=\hat \beta_0 +\hat \beta_1 x</script>
+
+<p>其中，$\hat y$ 表示在 $X=x$ 的基础上对 $Y$ 的预测。通常，我们用帽子符号 “^” 表示估计值。</p>
+
+<h3 id="21-最小二乘参数估计">2.1 最小二乘参数估计</h3>
+
+<p>令 $\hat y_i=\hat \beta_0 +\hat \beta_1 x_i$ 表示根据 $X$ 的第 $i$ 个值预测的 $Y$，且 $e_i=y_i-\hat y_i$ 代表第 $i$ 个 <strong>残差 (residual)</strong>。</p>
+
+<p>我们定义 <strong>残差平方和 (residual sum of squares, RSS)</strong> 为：</p>
+
+<script type="math/tex; mode=display">\mathrm{RSS}=e_1^2+e_2^2+\cdots +e_n^2</script>
+
+<p>或者等价地定义为：</p>
+
+<script type="math/tex; mode=display">\mathrm{RSS}=(y_1-\hat \beta_0 - \hat \beta_1 x_1)^2 + (y_2-\hat \beta_0 - \hat \beta_1 x_2)^2+\cdots + (y_n-\hat \beta_0 - \hat \beta_1 x_n)^2</script>
+
+<p>最小二乘法会选择 $\hat \beta_0$ 和 $\hat \beta_1$ 使得 $\mathrm{RSS}$ 最小化。通过计算可知，使 $\mathrm{RSS}$ 最小化的参数估计值为：</p>
+
+<script type="math/tex; mode=display">% <![CDATA[
+\begin{align}
+\hat \beta_1 &= \dfrac{\sum_{i=1}^n (x_i-\overline x\,)(y_i-\overline y\,)}{\sum_{i=1}^{n}(x_i-\overline x\,)^2} \\[2ex]
+\hat \beta_0 &= \overline y - \hat \beta_1 \overline x
+\end{align} %]]></script>
+
+<p>其中，$\overline y\equiv \frac{1}{n}\sum_{i=1}^n y_i$ 和 $\overline x\equiv \frac{1}{n}\sum_{i=1}^n x_i$ 是样本均值。</p>
+
+<h4 id="例子广告数据">例子：广告数据</h4>
+
+<p><img src="http://andy-blog.oss-cn-beijing.aliyuncs.com/blog/2020-09-08-WX20200908-111130%402x.png" width="70%" /></p>
+
+<p><span style="font-size:10pt"> <span style="color:steelblue;font-weight:bold">图 3</span>：对于 <code class="language-plaintext highlighter-rouge">Advertising</code> 数据集，最小二乘法拟合 <code class="language-plaintext highlighter-rouge">sales</code> 关于 <code class="language-plaintext highlighter-rouge">TV</code> 的回归，如图所示。这种拟合是通过使残差平方和最小化得到的。每条灰色线段代表一个残差，拟合模型是对误差平方和取均值折中的结果。这里的线性拟合抓住了变量间关系的本质，尽管它对图中左侧区域的拟合稍有缺陷。</span></p>
+
+<h3 id="22-评价系数估计值的准确性">2.2 评价系数估计值的准确性</h3>
+
+<h4 id="标准误差">标准误差</h4>
+
+<p>一个估计量的 <strong>标准误差 (standard error)</strong> 反映了它在重复采样下的变化情况。我们有：</p>
+
+<script type="math/tex; mode=display">% <![CDATA[
+\begin{align}
+\mathrm{SE}(\hat \beta_1)^2 &= \dfrac{\sigma^2}{\sum_{i=1}^{n}(x_i-\overline x\,)^2}\\[2ex]
+\mathrm{SE}(\hat \beta_0)^2 &= \sigma^2 \left[\dfrac{1}{n} + \dfrac{\overline x\,^2}{\sum_{i=1}^{n}(x_i-\overline x\,)^2}\right]
+\end{align} %]]></script>
+
+<p>其中，$\sigma^2=\mathrm{Var}(\epsilon)$。</p>
+
+<h4 id="置信区间">置信区间</h4>
+
+<p>这些标准误差可以用来计算 <strong>置信区间 (confidence intervals)</strong>。一个 $95 \%$ 置信区间被定义为一个取值范围：该范围有 $95\%$ 的概率会包含未知参数的真实值。它具有形式：</p>
+
+<script type="math/tex; mode=display">\hat \beta_1 \pm 2\cdot \mathrm{SE}(\hat \beta_1)</script>
+
+<p>也就是说，下述区间</p>
+
+<script type="math/tex; mode=display">\left[\hat \beta_1 - 2\cdot \mathrm{SE}(\hat \beta_1), \hat \beta_1 + 2\cdot \mathrm{SE}(\hat \beta_1)\right]</script>
+
+<p>有约 $95\%$ 的概率会包含 $\beta_1$ 的真实值 (在我们能够通过重复采样得到类似当前样本的情况下)。</p>
+
+<p>对于前面的广告数据的例子，$\beta_1$ 的 $95\%$ 置信区间为 $[0.042, 0.053]$。</p>
+
+<h4 id="假设检验">假设检验</h4>
+
+<p>标准误差也可以用于对系数进行 <strong>假设检验 (hypothesis test)</strong>。最常用的假设检验包括对 <strong>零假设 (null hypothesis)</strong>：</p>
+
+<p><span><center>$H_0:$ $X$ 和 $Y$ 之间没有关系</center></span></p>
+
+<p>和 <strong>备择假设 (alternative hypothesis)</strong>：</p>
+
+<p><span><center>$H_a:$ $X$ 和 $Y$ 之间存在一定的关系</center></span></p>
+
+<p>数学上来说，这就相当于检验</p>
+
+<script type="math/tex; mode=display">H_0: \beta_1=0 \qquad \mathrm{vs.} \qquad H_a: \beta_1 \ne 0</script>
+
+<p>因为如果 $\beta_1=0$，那么模型将简化为 $Y=\beta_0 + \epsilon$，而 $X$ 与 $Y$ 将不再相关。</p>
+
+<p>为了检验零假设，我们会按照下式计算一个 <strong>$t$ 统计量</strong>：</p>
+
+<script type="math/tex; mode=display">t=\dfrac{\hat \beta_1 - 0}{\mathrm{SE}(\hat \beta_1)}</script>
+
+<p>它将服从一个自由度为 $n-2$ 的 $t$ 分布，假设 $\beta_1=0$。</p>
+
+<p>使用统计软件，很容易计算任意观测值大于等于 $\lvert t \rvert$ 的概率，我们称此概率为 <strong>$p$ 值 (p-value)</strong>。</p>
+
+<h4 id="例子广告数据的结果">例子：广告数据的结果</h4>
+
+<p>表 1 提供了 <code class="language-plaintext highlighter-rouge">Advertising</code> 数据集中销量对电视广告预算的最小二乘回归模型的细节。可以看出，与它们的标准误差相比，系数 $\hat \beta_0$ 和 $\hat \beta_1$ 的值很大，所以 t 统计量也很大。如果 $H_0$ 为真，出现这样的值的概率几乎为零。因此，我们可以得出结论 $\beta_0 \ne 0$ 和 $\beta_1 \ne 0$。</p>
+
+<p><span style="font-size:10pt"> <span style="color:steelblue;font-weight:bold">表 1</span>：对于 <code class="language-plaintext highlighter-rouge">Advertising</code> 数据，销量对电视广告预算的最小二乘回归模型的系数。电视广告预算每增加 $1000$ 美元，销量增加约 $50$ 个单位。(<code class="language-plaintext highlighter-rouge">sales</code> 变量是以一千台为单位，而 <code class="language-plaintext highlighter-rouge">TV</code> 变量 是以一千美元为单位。)</span></p>
+
+<table>
+  <thead>
+    <tr>
+      <th> </th>
+      <th style="text-align: center">系数</th>
+      <th style="text-align: center">标准误</th>
+      <th style="text-align: center">t 统计量</th>
+      <th style="text-align: center">p 值</th>
+    </tr>
+  </thead>
+  <tbody>
+    <tr>
+      <td><code class="language-plaintext highlighter-rouge">Intercept</code></td>
+      <td style="text-align: center">$7.0325$</td>
+      <td style="text-align: center">$0.4578$</td>
+      <td style="text-align: center">$15.36$</td>
+      <td style="text-align: center">$&lt; 0.0001$</td>
+    </tr>
+    <tr>
+      <td><code class="language-plaintext highlighter-rouge">TV</code></td>
+      <td style="text-align: center">$0.0475$</td>
+      <td style="text-align: center">$0.0027$</td>
+      <td style="text-align: center">$17.67$</td>
+      <td style="text-align: center">$&lt; 0.0001$</td>
+    </tr>
+  </tbody>
+</table>
+
+<h3 id="23-评价模型的准确性">2.3 评价模型的准确性</h3>
+
+<p>一旦我们拒绝零假设，并倾向于接受备择假设，就会很自然地想要量化模型对数据的拟合程度。判断线性回归的拟合质量通常使用两个相关的量：<strong>残差标准误</strong> 和 <strong>$R^2$ 统计量</strong>。</p>
+
+<h4 id="残差标准误">残差标准误</h4>
+
+<p>我们可以通过下式计算 <strong>残差标准误 (residual standard error, RSE)</strong>：</p>
+
+<script type="math/tex; mode=display">\mathrm{RSE}=\sqrt{\dfrac{1}{n-2}\mathrm{RSS}}=\sqrt{\dfrac{1}{n-2}\sum_{i=1}^{n}(y_i-\hat y_i)^2}</script>
+
+<p>其中，<strong>残差平方和</strong> 为 $\mathrm{RSS}=\sum_{i=1}^{n}(y_i-\hat y_i)^2$。</p>
+
+<h4 id="r2-统计量">$R^2$ 统计量</h4>
+
+<p>$R^2$ 或者方差分数被定义为：</p>
+
+<script type="math/tex; mode=display">R^2=\dfrac{\mathrm{TSS} - \mathrm{RSS}}{\mathrm{TSS}}=1-\dfrac{\mathrm{RSS}}{\mathrm{TSS}}</script>
+
+<p>其中，$\mathrm{TSS}=\sum_{i=1}^{n}(y_i-\overline y\,)^2$ 被称为 <strong>总平方和 (total sum of squares, TSS)</strong>。</p>
+
+<p>可以证明，在简单线性回归模型中，$R^2 = r^2$，其中 $r$ 是 $X$ 和 $Y$ 之间的 <strong>相关性 (correlation)</strong>：</p>
+
+<script type="math/tex; mode=display">r=\mathrm{Cor}(X,Y)=\dfrac{\sum_{i=1}^{n}(x_i-\overline x\,)(y_i-\overline y\,)}{\sqrt{\sum_{i=1}^{n}(x_i-\overline x\,)^2}\sqrt{\sum_{i=1}^{n}(y_i-\overline y\,)^2}}</script>
+
+<h4 id="例子广告数据的结果-1">例子：广告数据的结果</h4>
+
+<p>表 2 显示了售出的单位数目在电视广告预算的线性回归中的残差标准误、$R^2$ 统计量和 $F$ 统计量。</p>
+
+<p><span style="font-size:10pt"> <span style="color:steelblue;font-weight:bold">表 2</span>：关于 <code class="language-plaintext highlighter-rouge">Advertising</code> 数据集上销量对于电视广告预算的最小二乘回归模型的更多信息。</span></p>
+
+<table>
+  <thead>
+    <tr>
+      <th style="text-align: center">量</th>
+      <th style="text-align: center">值</th>
+    </tr>
+  </thead>
+  <tbody>
+    <tr>
+      <td style="text-align: center">残差标准误</td>
+      <td style="text-align: center">$3.26$</td>
+    </tr>
+    <tr>
+      <td style="text-align: center">$R^2$</td>
+      <td style="text-align: center">$0.612$</td>
+    </tr>
+    <tr>
+      <td style="text-align: center">$F$ 统计量</td>
+      <td style="text-align: center">$312.1$</td>
+    </tr>
+  </tbody>
+</table>
+
+<h2 id="3-多元线性回归">3. 多元线性回归</h2>
+
+<h4 id="例子广告数据集">例子：广告数据集</h4>
+
+<p>简单线性回归是用单个预测变量预测响应变量的一种有用的方法。然而在实践中，常常有不止一个预测变量。例如，在 <code class="language-plaintext highlighter-rouge">Advertising</code> 数据集中，我们已经检查了销量与电视广告之间的关系。同时，我们还有广播广告和报纸广告的花费数据，我们可能想知道这两个媒体是否分别与销售相关。如何扩展对广告数据集的分析，来将这两个额外的预测变量纳入模型呢?</p>
+
+<p>一种选择是建立 3 个独立的简单线性回归模型，其中每一个都用不同的广告媒体作为预测变量。例如，可以用广播和报纸广告费建立简单的线性回归模型以预测销量，结果如表 3 和表 4 所示。</p>
+
+<p><span style="font-size:10pt"> <span style="color:steelblue;font-weight:bold">表 3</span>：对于 <code class="language-plaintext highlighter-rouge">Advertising</code> 数据，销量对广播广告预算的最小二乘回归模型的系数。广播广告预算每增加 $1000$ 美元，销量增加约 $203$ 个单位。(<code class="language-plaintext highlighter-rouge">sales</code> 变量是以一千台为单位，而 <code class="language-plaintext highlighter-rouge">radio</code> 变量 是以一千美元为单位。)</span></p>
+
+<table>
+  <thead>
+    <tr>
+      <th> </th>
+      <th style="text-align: center">系数</th>
+      <th style="text-align: center">标准误</th>
+      <th style="text-align: center">t 统计量</th>
+      <th style="text-align: center">p 值</th>
+    </tr>
+  </thead>
+  <tbody>
+    <tr>
+      <td><code class="language-plaintext highlighter-rouge">Intercept</code></td>
+      <td style="text-align: center">$9.312$</td>
+      <td style="text-align: center">$0.563$</td>
+      <td style="text-align: center">$16.54$</td>
+      <td style="text-align: center">$&lt; 0.0001$</td>
+    </tr>
+    <tr>
+      <td><code class="language-plaintext highlighter-rouge">radio</code></td>
+      <td style="text-align: center">$0.203$</td>
+      <td style="text-align: center">$0.020$</td>
+      <td style="text-align: center">$9.92$</td>
+      <td style="text-align: center">$&lt; 0.0001$</td>
+    </tr>
+  </tbody>
+</table>
+
+<p><span style="font-size:10pt"> <span style="color:steelblue;font-weight:bold">表 4</span>：对于 <code class="language-plaintext highlighter-rouge">Advertising</code> 数据，销量对报纸广告预算的最小二乘回归模型的系数。报纸广告预算每增加 $1000$ 美元，销量增加约 $55$ 个单位。(<code class="language-plaintext highlighter-rouge">sales</code> 变量是以一千台为单位，而 <code class="language-plaintext highlighter-rouge">newspaper</code> 变量 是以一千美元为单位。)</span></p>
+
+<table>
+  <thead>
+    <tr>
+      <th> </th>
+      <th style="text-align: center">系数</th>
+      <th style="text-align: center">标准误</th>
+      <th style="text-align: center">t 统计量</th>
+      <th style="text-align: center">p 值</th>
+    </tr>
+  </thead>
+  <tbody>
+    <tr>
+      <td><code class="language-plaintext highlighter-rouge">Intercept</code></td>
+      <td style="text-align: center">$12.351$</td>
+      <td style="text-align: center">$0.621$</td>
+      <td style="text-align: center">$19.88$</td>
+      <td style="text-align: center">$&lt; 0.0001$</td>
+    </tr>
+    <tr>
+      <td><code class="language-plaintext highlighter-rouge">newspaper</code></td>
+      <td style="text-align: center">$0.055$</td>
+      <td style="text-align: center">$0.017$</td>
+      <td style="text-align: center">$3.30$</td>
+      <td style="text-align: center">$0.00115$</td>
+    </tr>
+  </tbody>
+</table>
+
+<p>然而，这种为每个预测变量单独建立一个简单回归模型的方法是不能完全令人满意的。首先，若给定三个广告媒体的预算，我们并不清楚如何对销量做出一个单一的预测，因为每种广告媒体预算都有一个单独的回归方程。其次，在形成对回归系数的估计时，每个回归方程都忽略了其他两种媒体。我们即将看到，如果在构成数据集的 200 个市场上，三种媒体的预算存在相关性，那么我们对销量受某种媒体的影响的估计可能是极有误导性的。</p>
+
+<p>与单独为每个预测变量建立简单线性回归模型相比，更好的方法是扩展简单线性回归模型，使其可以直接包含多个预测变量。</p>
+
+<h4 id="多元线性回归">多元线性回归</h4>
+
+<p>在一般情况下，假设有 $p$ 个不同的预测变量。则多元线性回归模型的形式为:</p>
+
+<script type="math/tex; mode=display">Y=\beta_0 + \beta_1 X_1 + \beta_2 X_2 +\cdots + \beta_p X_p +\epsilon</script>
+
+<p>其中，$X_j$ 代表第 $j$ 个预测变量，$\beta_j$ 代表第 $j$ 个预测变量和响应变量之间的关联。</p>
+
+<p>$\beta_j$ 可解释为在 <strong>所有其他预测变量保持不变</strong> 的情况下，$X_j$ 增加一个单位对 $Y$ 产生的 <strong>平均 (average)</strong> 效应。以广告数据集为例，模型为：</p>
+
+<script type="math/tex; mode=display">\mathtt{sales}=\beta_0 + \beta_1 \times \mathtt{TV} + \beta_2 \times \mathtt{radio} + \beta_3 \times \mathtt{newspaper} + \epsilon</script>
+
+<h4 id="解释回归系数">解释回归系数</h4>
+
+<ul>
+  <li>理想的情况是预测变量之间是不相关的 —— 一种 <strong>平衡的设计</strong>：
+    <ul>
+      <li>每个系数可以被单独估计和测试。</li>
+      <li>这样的解释是可能的，例如 “当所有其他变量保持不变时，$X_j$ 的一个单位的变化关联于 $Y$ 的一个 $\beta_j$ 的变化”。</li>
+    </ul>
+  </li>
+  <li>预测变量之间的关联性会导致一些问题：
+    <ul>
+      <li>所有系数的方差趋于增加，有时会急剧增加。</li>
+      <li>解释变得困难：当 $X_j$ 改变时，其他预测变量也会发生改变。</li>
+    </ul>
+  </li>
+  <li>对于观测数据，应避免关于 <strong>因果关系</strong> 的断言。</li>
+</ul>
+
+<h4 id="解释-回归系数的困境">(解释) 回归系数的困境</h4>
+
+<p><em>Data Analysis and Regression, Mosteller and Tukey 1977</em></p>
+
+<ul>
+  <li>回归系数 $\beta_j$ 估计了在同时固定所有其他预测变量的情况下，$X_j$ 变化一个单位导致的 $Y$ 的期望变化。但是，预测变量通常会一起改变。</li>
+  <li>例子：$Y=$ 口袋里的零钱总额；$X_1=$ 硬币数量；$X_2 =$ 1 美分、5 美分和 10 美分的硬币数量。就其本身而言，$Y$ 在 $X_2$ 上的回归系数将 $&gt;0$。但是在模型中使用 $X_1$ 会怎样？</li>
+  <li>$Y =$ 一个赛季中一名足球运动员的铲球数量；$W$ 和 $H$ 是该运动员的体重和身高。拟合回归模型为 $\hat Y = b_0 + 0.5 W - 0.1 H$。 我们如何解释 $\hat \beta_2&lt;0$？</li>
+</ul>
+
+<h4 id="引用两位著名统计学家的话">引用两位著名统计学家的话</h4>
+
+<blockquote>
+  <p>“Essentially, all models are wrong, but some are useful.”</p>
+
+  <p>George Box</p>
+
+  <p><br /></p>
+
+  <p>“The only way to ﬁnd out what will happen when a complex system is disturbed is to disturb the system, not merely to observe it passively.”</p>
+
+  <p>Fred Mosteller and John Tukey, paraphrasing George Box</p>
+</blockquote>
+
+<h3 id="31-多元回归的估计和预测">3.1 多元回归的估计和预测</h3>
+
+<p>对于给定的估计系数 $\hat \beta_0,\hat \beta_1,\dots,\hat \beta_p$，我们可以使用以下公式进行预测：</p>
+
+<script type="math/tex; mode=display">\hat y=\hat \beta_0 + \hat \beta_1 x_1 + \hat \beta_2 x_2+\cdots + \hat \beta_p x_p</script>
+
+<p>与在简单线性回归中相同，多元线性回归同样采用最小二乘法进行参数估计。选择 $\beta_0,\beta_1,\dots,\beta_p$ 的估计值以最小化残差平方和：</p>
+
+<script type="math/tex; mode=display">% <![CDATA[
+\begin{align}
+\mathrm{RSS} &= \sum_{i=1}^{n}(y_i - \hat y_i)^2 \\[2ex]
+&= \sum_{i=1}^{n} (y_i- \hat \beta_0 - \hat \beta_1 x_{i1} - \hat \beta_2 x_{i2} - \cdots - \hat \beta_p x_{ip})^2
+\end{align} %]]></script>
+
+<p>计算过程可以通过标准统计软件完成。使得 $\mathrm{RSS}$ 最小化的 $\hat \beta_0, \hat \beta_1, \dots, \hat \beta_p$ 的值就是多元最小二乘回归系数估计。</p>
+
+<p>图 4 是用 $p=2$ 个预测变量对一个玩具数据集进行最小二乘拟合的一个例子。</p>
+
+<p><img src="http://andy-blog.oss-cn-beijing.aliyuncs.com/blog/2020-09-09-WX20200909-225054%402x.png" width="60%" /></p>
+
+<p><span style="font-size:10pt"> <span style="color:steelblue;font-weight:bold">图 4</span>：这个三维图中有两个预测变量和一个响应变量，最小二乘回归直线变成了一个平面。这个平面使得每个观测值 (由图中红点表示) 与平面之间的垂直距离的平方和尽可能小。</span></p>
+
+<h4 id="例子广告数据的结果-2">例子：广告数据的结果</h4>
+
+<p>表 3 显示了在 <code class="language-plaintext highlighter-rouge">Advertising</code> 数据中，用电视、广播和报纸广告预算预测产品销量的多元回归系数估计。我们对这些结果的解释如下：在电视和报纸广告预算给定的情况下，在广播广告上多投入 $1000$ 美元将使销量增加约 $189$ 个单位。</p>
+
+<p><span style="font-size:10pt"> <span style="color:steelblue;font-weight:bold">表 5</span>：在 <code class="language-plaintext highlighter-rouge">Advertising</code> 数据集中，<code class="language-plaintext highlighter-rouge">sales</code> 关于 <code class="language-plaintext highlighter-rouge">radio</code>、<code class="language-plaintext highlighter-rouge">TV</code> 和 <code class="language-plaintext highlighter-rouge">newspaper</code> 的多元线性回归的最小二乘估计系数。</span></p>
+
+<table>
+  <thead>
+    <tr>
+      <th> </th>
+      <th style="text-align: center">系数</th>
+      <th style="text-align: center">标准误</th>
+      <th style="text-align: center">t 统计量</th>
+      <th style="text-align: center">p 值</th>
+    </tr>
+  </thead>
+  <tbody>
+    <tr>
+      <td><code class="language-plaintext highlighter-rouge">Intercept</code></td>
+      <td style="text-align: center">$2.939$</td>
+      <td style="text-align: center">$0.3119$</td>
+      <td style="text-align: center">$9.42$</td>
+      <td style="text-align: center">$&lt; 0.0001$</td>
+    </tr>
+    <tr>
+      <td><code class="language-plaintext highlighter-rouge">TV</code></td>
+      <td style="text-align: center">$0.046$</td>
+      <td style="text-align: center">$0.0014$</td>
+      <td style="text-align: center">$32.81$</td>
+      <td style="text-align: center">$&lt; 0.0001$</td>
+    </tr>
+    <tr>
+      <td><code class="language-plaintext highlighter-rouge">radio</code></td>
+      <td style="text-align: center">$0.189$</td>
+      <td style="text-align: center">$0.0086$</td>
+      <td style="text-align: center">$21.89$</td>
+      <td style="text-align: center">$&lt; 0.0001$</td>
+    </tr>
+    <tr>
+      <td><code class="language-plaintext highlighter-rouge">newspaper</code></td>
+      <td style="text-align: center">$-0.001$</td>
+      <td style="text-align: center">$0.0059$</td>
+      <td style="text-align: center">$-0.18$</td>
+      <td style="text-align: center">$0.8599$</td>
+    </tr>
+  </tbody>
+</table>
+
+<p>将这些系数估计值与表 1、3、4 中的相比较，可以看出，<code class="language-plaintext highlighter-rouge">TV</code> 和 <code class="language-plaintext highlighter-rouge">radio</code> 这两个变量的多元回归系数估计与简单线性回归系数估计非常相似。然而，<code class="language-plaintext highlighter-rouge">newspaper</code> 在表 4 中的回归系数估计值是显著不为零的，但在多元回归模型中的系数估计值却接近于零且不再显著，相应的 $p$ 值显著，约为 $0.86$。</p>
+
+<p>这说明 <strong>简单回归系数和多元回归系数可能差异极大</strong>。这种差异的根源在于：<strong>简单回归</strong> 中的斜率表示在 <strong>忽略</strong> 其他预测变量 (如 <code class="language-plaintext highlighter-rouge">TV</code> 和 <code class="language-plaintext highlighter-rouge">radio</code>) 的情况下，报纸广告费用增加一千美元的平均效果。而在 <strong>多元回归</strong> 模型中，<code class="language-plaintext highlighter-rouge">newspaper</code> 的系数表示在 <code class="language-plaintext highlighter-rouge">TV</code> 和 <code class="language-plaintext highlighter-rouge">radio</code> <strong>保持不变</strong> 的情况下，报纸广告费用增加一千美元所产生的平均效果。</p>
+
+<p>多元回归的结果表明商品 <code class="language-plaintext highlighter-rouge">sales</code> 与 <code class="language-plaintext highlighter-rouge">newspaper</code> 无关，而简单线性回归的结论则相反，那么多元回归的结论是否还有意义呢？答案是肯定的。我们考虑由响应变量和三个预测变量构成的相关性矩阵，如表 6 所示。</p>
+
+<p><span style="font-size:10pt"> <span style="color:steelblue;font-weight:bold">表 6</span>：在 <code class="language-plaintext highlighter-rouge">Advertising</code> 数据集中，<code class="language-plaintext highlighter-rouge">TV</code>、<code class="language-plaintext highlighter-rouge">radio</code>、<code class="language-plaintext highlighter-rouge">newspaper</code> 和 <code class="language-plaintext highlighter-rouge">sales</code> 的相关性矩阵。</span></p>
+
+<table>
+  <thead>
+    <tr>
+      <th> </th>
+      <th style="text-align: center"><code class="language-plaintext highlighter-rouge">TV</code></th>
+      <th style="text-align: center"><code class="language-plaintext highlighter-rouge">radio</code></th>
+      <th style="text-align: center"><code class="language-plaintext highlighter-rouge">newspaper</code></th>
+      <th style="text-align: center"><code class="language-plaintext highlighter-rouge">sales</code></th>
+    </tr>
+  </thead>
+  <tbody>
+    <tr>
+      <td><code class="language-plaintext highlighter-rouge">TV</code></td>
+      <td style="text-align: center">$1.0000$</td>
+      <td style="text-align: center">$0.0548$</td>
+      <td style="text-align: center">$0.0567$</td>
+      <td style="text-align: center">$0.7822$</td>
+    </tr>
+    <tr>
+      <td><code class="language-plaintext highlighter-rouge">radio</code></td>
+      <td style="text-align: center"> </td>
+      <td style="text-align: center">$1.0000$</td>
+      <td style="text-align: center">$0.3541$</td>
+      <td style="text-align: center">$0.5762$</td>
+    </tr>
+    <tr>
+      <td><code class="language-plaintext highlighter-rouge">newspaper</code></td>
+      <td style="text-align: center"> </td>
+      <td style="text-align: center"> </td>
+      <td style="text-align: center">$1.0000$</td>
+      <td style="text-align: center">$0.2283$</td>
+    </tr>
+    <tr>
+      <td><code class="language-plaintext highlighter-rouge">sales</code></td>
+      <td style="text-align: center"> </td>
+      <td style="text-align: center"> </td>
+      <td style="text-align: center"> </td>
+      <td style="text-align: center">$1.0000$</td>
+    </tr>
+  </tbody>
+</table>
+
+<p>表中可见 <code class="language-plaintext highlighter-rouge">radio</code> 和 <code class="language-plaintext highlighter-rouge">newspaper</code> 之间的相关性为 $0.35$。这表明在报纸广告费更高的市场上，对广播广告的投入也趋于更高。现假设多元回归是正确的，报纸广告对销售没有直接影响，但广播广告能增加销量。那么在广播广告费较高的市场上，商品销量将趋于更高，而相关性矩阵显示，我们在这些市场上的报纸广告投入往往也会更高。</p>
+
+<p>因此，尽管报纸广告实际上并不影响销售，由于简单线性回归中只检查 <code class="language-plaintext highlighter-rouge">sales</code> 和 <code class="language-plaintext highlighter-rouge">newspaper</code> 之间的关系，于是导致了在简单线性回归中观察到商品的高销量与报纸广告的高投入之间的相关关系。因此，<code class="language-plaintext highlighter-rouge">newspaper</code> 是 <code class="language-plaintext highlighter-rouge">radio</code> 广告对销量的影响的一个替代品，<code class="language-plaintext highlighter-rouge">newspaper</code> 通过 <code class="language-plaintext highlighter-rouge">radio</code> 对 <code class="language-plaintext highlighter-rouge">sales</code> 的影响来获得 “认可”。</p>
+
+<h3 id="32-一些重要问题">3.2 一些重要问题</h3>
+
+<p>在进行多元线性回归时，我们通常有兴趣回答一些重要的问题：</p>
+
+<ol>
+  <li>预测变量 $X_1,X_2,\dots,X_p$ 中是否至少有一个可以用来预测响应变量?</li>
+  <li>所有的预测变量都有助于解释 $Y$ 吗？或者仅仅是预测变量的一个子集对预测有用?</li>
+  <li>模型对数据的拟合程度如何?</li>
+  <li>给定一组预测变量的值，响应值应预测为多少？所作预测的准确程度如何？</li>
+</ol>
+
+<p>现在我们依次解决这些问题。</p>
+
+<h4 id="问题-1响应变量和预测变量之间是否存在关系">问题 1：响应变量和预测变量之间是否存在关系？</h4>
+
+<p>与简单线性回归类似，我们用假设检验回答这个问题：</p>
+
+<script type="math/tex; mode=display">H_0:\beta_1=\beta_2=\dots =\beta_p =0 \qquad \text{vs.} \qquad H_a: \text{at least one }\beta_j \text{ is non-zero}</script>
+
+<p>为此，我们需要计算 <strong>$F$ 统计量</strong>：</p>
+
+<script type="math/tex; mode=display">F=\dfrac{(\mathrm{TSS}-\mathrm{RSS})/p}{\mathrm{RSS}/(n-p-1)} \sim F_{p,n-p-1}</script>
+
+<p>其中，$\mathrm{TSS}=\sum_{i=1}^{n}(y_i - \overline y)^2$，$\mathrm{RSS}=\sum_{i=1}^{n}(y_i - \hat y_i)^2$。</p>
+
+<p>如果线性回归假设是正确的，可知 $E[ \mathrm{RSS}/(n-p-1)]=\sigma^2$；进一步地，若 $H_0$ 为真，则有 $E[(\mathrm{TSS}-\mathrm{RSS}) / p]=\sigma^2$。</p>
+
+<p>因此，当响应变量与预测变量无关，$F$ 统计量应该接近 $1$。否则，如果 $H_a$ 为真，那么  $E[(\mathrm{TSS}-\mathrm{RSS}) / p] &gt; \sigma^2$，所以我们预计 $F$ 大于 1。</p>
+
+<p>如果 $n$ 很大，即使 $F$ 统计量只是略大于 $1$，可能也仍然提供了拒绝 $H_0$ 的证据。相反，若 $n$ 较小，则需要较大的 $F$ 统计量才能拒绝 $H_0$。</p>
+
+<p>事实上，每个变量的 $t$ 检验都等价于不含该变量，但包含所有其他变量的模型的 $F$ 检验。</p>
+
+<p>既然我们已经通过 $t$ 检验得到各个变量的 p 值，为什么还需要看整体的 $F$ 统计量呢？毕竟现在看来似乎是这样：如果任一变量的 p 值很小的，那么至少有一个预测变量与晌应变量相关。然而，这种逻辑存在缺陷的，特别是当预测变量的数目很大的时候。</p>
+
+<p>如果我们用单独的 $t$ 统计量及相应的 p 值确定预测变量与响应变量是否相关，很有可能错误地得出有相关性的结论。而 $F$ 统计量不存在这个问题，因为它会根据预测变量个数进行调整。因此，如果 $H_0$ 为真，那么无论预测变量个数或观测个数是多少，$F$ 统计量的 p 值小于 $0.05$ 概率只有 $5\%$。</p>
+
+<p>当 $p&lt; n$ 时，我们可以使用 $F$ 统计量检验预测变量和响应变量是否相关。然而，有时候变量数目非常大，即 $p &gt; n$，此时待估计的系数 $\beta_j$ 的个数比可用于估计的观测个数还多。在这种情况下，我们甚至无法用最小二乘法拟合多元线性模型，因此无法使用 $F$ 统计量，以及前面提到的一些 $R^2$ 等概念。当 $p$ 很大时，可以使用一些其他方法，如 <strong>前向选择 (forward selection)</strong>。在后面课程中，我们会更详细地讨论这种 <strong>高维 (high-dimensional)</strong> 情况。</p>
+
+<h4 id="问题-2选择重要的变量">问题 2：选择重要的变量</h4>
+
+<p>如前面所讨论的，多元回归分析的第一步是计算 $F$ 统计量并检查相应的 p 值。如果检验结果表明至少有一个预测变量与响应变量相关，那么我们希望知道 <strong>哪些变量是和响应变量相关</strong>。当然，我们可以查看各个变量的 p 值，但正如前面讨论的，如果预测变量的数目 $p$ 很大，很可能得出错误结论。</p>
+
+<p>所有的预测变量都与响应变量相关是可能的，但更常见的情况是响应变量仅与预测变量的某个 <strong>子集 (subset)</strong> 相关。确定哪些预测变量与响应变量相关，以建立只包含相关预测变量的模型的任务被称为 <strong>变量选择 (variable selection)</strong>。</p>
+
+<p>最直接的方法称为 <strong>所有子集/最佳子集回归 (all subsets/best subsets regression)</strong>：我们计算所有可能子集的最小二乘拟合，然后根据一些能较好地平衡训练误差与模型大小的准则，从它们中选择出最优子集在它们之间进行选择</p>
+
+<p>下节内容：线性回归</p>
+:ET
