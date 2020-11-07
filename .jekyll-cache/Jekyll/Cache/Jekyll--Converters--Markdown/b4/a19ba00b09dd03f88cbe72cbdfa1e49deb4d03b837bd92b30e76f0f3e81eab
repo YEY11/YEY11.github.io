@@ -1,0 +1,70 @@
+I"�<h1 id="lecture-04--分类">Lecture 04  分类</h1>
+
+<p><strong>参考教材</strong>：</p>
+
+<ul>
+  <li><em>Gareth, J., Daniela, W., Trevor, H., &amp; Robert, T. (2013). An intruduction to statistical learning: with applications in R. Spinger.</em></li>
+  <li><em>Hastie, T., Tibshirani, R., &amp; Friedman, J. (2009). The elements of statistical learning: data mining, inference, and prediction. Spinger Science &amp; Business Media.</em></li>
+</ul>
+
+<p>如今许多 <strong>分类器 (calssifier)</strong> 已被开发出来用于预测定性响应变量值。我们之前已经接触过一部分，这节课中，我们将讨论三种应用最广泛的分类方法：<strong>逻辑回归 (logistìc regression)</strong>、<strong>线性判别分析 (linear discriminant analysis)</strong> 和 <strong>K 最近邻 ()</strong> (K- n回阳t</p>
+
+<p>neighbor) 。在后面章节将会讨论更多的数据密集型计算方法，例如广且可加模视(第 7 萃) , 树方法、磁机森林、提升法(第 8 章)以及支持向盏机(第 9 章)。</p>
+
+<h2 id="1-分类问题概述">1. 分类问题概述</h2>
+
+<p>上节课中我们所讨论的线性回归模型假设响应变量 $Y$ 是定量的，但很多情况下，响应变量是 <strong>定性的 (qualitative)</strong>。例如，眼睛颜色是定性变量，取值蓝色或棕色。定性变量又称 <strong>分类 (categorical)</strong> 变量。本节课我们将学习预测定性响应变量的方法及 <strong>分类 (classification)</strong> 过程。预测一个观测的定性响应值也指对观测 <strong>分类 (classify)</strong>，因为它涉及将观测分配到一个类别中。另一方面，大部分的分类方法先从预测定性变量不同类别的概率开始，将分类问题作为概率估计的一个结果。从这个角度上看，分类与回归方法有许多类似之处。</p>
+
+<p>定性变量采用无序集合C中的值，例如：</p>
+
+<p>眼睛颜色∈{棕色，蓝色，绿色}email∈{垃圾邮件}。</p>
+
+<p>给定一个特征向量X和一个定性响应Y，并在集合C中获取值，分类任务就是构建一个函数C（X），该函数将特征向量X作为输入并预测其Y值； 即C（X）∈C.</p>
+
+<p>通常，我们对估计X属于C中每个类别的概率更感兴趣。</p>
+
+<p>例如，估计保险索赔是欺诈的可能性比分类是否欺诈更有价值。</p>
+
+<p><img src="http://andy-blog.oss-cn-beijing.aliyuncs.com/blog/2020-11-06-WX20201107-011252%402x.png" width="70%" /></p>
+
+<p><span style="font-size:10pt"> <span style="color:steelblue;font-weight:bold">图 7</span>：<code class="language-plaintext highlighter-rouge">Auto</code> 数据集，一些汽车的油耗 (<code class="language-plaintext highlighter-rouge">mpg</code>) 和马力 (<code class="language-plaintext highlighter-rouge">horsepower</code>)。橙色线是线性回归的拟合线。蓝色线是包含 <code class="language-plaintext highlighter-rouge">horsepower</code> 二次项的线性回归拟合线。绿色线是包含 <code class="language-plaintext highlighter-rouge">horsepower</code> 所有五次以内项的线性回归拟合线。</span></p>
+
+<p><span style="font-size:10pt"> <span style="color:steelblue;font-weight:bold">表 10</span>：<code class="language-plaintext highlighter-rouge">Auto</code> 数据集中，<code class="language-plaintext highlighter-rouge">mpg</code> 关于 <code class="language-plaintext highlighter-rouge">horsepower</code> 及其平方项的回归模型的最小二乘系数估计。</span></p>
+
+<table>
+  <thead>
+    <tr>
+      <th> </th>
+      <th style="text-align: center">系数</th>
+      <th style="text-align: center">标准误</th>
+      <th style="text-align: center">t 统计量</th>
+      <th style="text-align: center">p 值</th>
+    </tr>
+  </thead>
+  <tbody>
+    <tr>
+      <td><code class="language-plaintext highlighter-rouge">Intercept</code></td>
+      <td style="text-align: center">$56.9001$</td>
+      <td style="text-align: center">$1.8004$</td>
+      <td style="text-align: center">$31.6$</td>
+      <td style="text-align: center">$&lt; 0.0001$</td>
+    </tr>
+    <tr>
+      <td><code class="language-plaintext highlighter-rouge">horsepower</code></td>
+      <td style="text-align: center">$-0.4662$</td>
+      <td style="text-align: center">$0.0311$</td>
+      <td style="text-align: center">$-15.0$</td>
+      <td style="text-align: center">$&lt; 0.0001$</td>
+    </tr>
+    <tr>
+      <td><code class="language-plaintext highlighter-rouge">horsepower</code>$^2$</td>
+      <td style="text-align: center">$0.0012$</td>
+      <td style="text-align: center">$0.0001$</td>
+      <td style="text-align: center">$10.1$</td>
+      <td style="text-align: center">$&lt; 0.0001$</td>
+    </tr>
+  </tbody>
+</table>
+
+<p>下节内容：分类</p>
+:ET
