@@ -1,0 +1,43 @@
+I"5
+<h1 id="lecture-06-线性模型选择与正则化">Lecture 06 线性模型选择与正则化</h1>
+
+<p><strong>参考教材</strong>：</p>
+
+<ul>
+  <li><em>Gareth, J., Daniela, W., Trevor, H., &amp; Robert, T. (2013). An intruduction to statistical learning: with applications in R. Spinger.</em></li>
+  <li><em>Hastie, T., Tibshirani, R., &amp; Friedman, J. (2009). The elements of statistical learning: data mining, inference, and prediction. Spinger Science &amp; Business Media.</em></li>
+</ul>
+
+<p><img src="http://andy-blog.oss-cn-beijing.aliyuncs.com/blog/2020-11-08-WX20201108-211220%402x.png" width="80%" /></p>
+
+<p><span style="margin:auto; display:table; font-size:10pt"> <span style="color:steelblue;font-weight:bold">图 13</span>： 预验证的流程。</span></p>
+
+<p>前面例子中的详细预验证流程：</p>
+
+<ol>
+  <li>将全部 $78$ 个病例分为 $K = 13$ 个相等大小的部分，每部分包含 $6$ 个病例。</li>
+  <li>留出其中一个部分。仅使用其余 $12$ 个部分的数据，选择与类别标签具有至少 $0.3$ 的绝对相关性的特征，并构建最近质心分类规则。</li>
+  <li>使用构建好的分类规则预测之前留出部分的类别标签。</li>
+  <li>对 $13$ 个部分中的每个部分都执行上述步骤 2 和 3，从而为 $78$ 个病例中的每一个都生成一个 “预验证” 微阵列预测变量 $\tilde z_i$。</li>
+  <li>对生成的预验证微阵列预测变量和其他 6 个临床预测变量拟合一个逻辑回归模型。</li>
+</ol>
+
+<h3 id="28-bootstrap-vs-置换检验-permutation-tests">2.8 Bootstrap vs. 置换检验 (Permutation tests)</h3>
+
+<ul>
+  <li>
+    <p>Bootstrap 从 <strong>估计总体 (estimated population)</strong> 中抽样，并使用其结果来估计 <strong>标准误</strong> 和 <strong>置信区间</strong>。</p>
+  </li>
+  <li>
+    <p>置换方法从数据的 <strong>估计零分布 (estimated null distribution)</strong> 中抽样，并用它来估计 <strong>p 值</strong> 和假设检验的 <strong>错误发现率(False Discovery Rates, FDR)</strong>。</p>
+  </li>
+  <li>
+    <p>Bootstrap 可用于在简单情况下 <strong>检验零假设</strong>。例如，如果 $H_0: \theta=0$，则我们可以检查 $\theta$ 的置信区间中是否包含 $0$。</p>
+  </li>
+  <li>
+    <p>我们也可以将 bootstrap 抽样用于零分布 (请参阅 Efron 和 Tibshirani 的书 <em>《An Introduction to the Bootstrap》(1993, 第 16 章)</em>)，但这种做法与置换方法相比并不存在真正的优势。</p>
+  </li>
+</ul>
+
+<p>下节内容：线性模型选择与正则化</p>
+:ET
