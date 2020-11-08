@@ -1,0 +1,15 @@
+I"<h1 id="lecture-05-重抽样方法">Lecture 05 重抽样方法</h1>
+
+<p><strong>参考教材</strong>：</p>
+
+<ul>
+  <li><em>Gareth, J., Daniela, W., Trevor, H., &amp; Robert, T. (2013). An intruduction to statistical learning: with applications in R. Spinger.</em></li>
+  <li><em>Hastie, T., Tibshirani, R., &amp; Friedman, J. (2009). The elements of statistical learning: data mining, inference, and prediction. Spinger Science &amp; Business Media.</em></li>
+</ul>
+
+<p>现代统计学中，<strong>重抽样方法 (resampling method)</strong> 是一种不可或缺的工具。这种方法通过反复从训练集中抽取样本，然后对每一个样本重新拟合一个感兴趣的模型，来获取关于拟合模型的附加信息 (例如，它可以提供测试集上预测误差的估计值，以及我们参数估计值的标准差和偏差)。</p>
+
+<p>在本节课中，我们主要讨论两种 <strong>重抽样方法 (resampling)</strong>：**交叉验证法和 bootstrap。</p>
+
+<p>下节内容：重抽样方法</p>
+:ET

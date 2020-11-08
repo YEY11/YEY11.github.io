@@ -1,0 +1,17 @@
+I"m<h1 id="lecture-05-重抽样方法">Lecture 05 重抽样方法</h1>
+
+<p><strong>参考教材</strong>：</p>
+
+<ul>
+  <li><em>Gareth, J., Daniela, W., Trevor, H., &amp; Robert, T. (2013). An intruduction to statistical learning: with applications in R. Spinger.</em></li>
+  <li><em>Hastie, T., Tibshirani, R., &amp; Friedman, J. (2009). The elements of statistical learning: data mining, inference, and prediction. Spinger Science &amp; Business Media.</em></li>
+</ul>
+
+<p>在本节课中，我们主要讨论两种 <strong>重抽样方法 (resampling)</strong>：交叉验证法和。</p>
+
+<p>这些方法将感兴趣的模型适合于从训练集中形成的样本，以便获得有关拟合模型的其他信息。</p>
+
+<p>例如，它们提供测试集预测误差的估计值，以及我们参数估计值的标准偏差和偏差</p>
+
+<p>下节内容：重抽样方法</p>
+:ET
