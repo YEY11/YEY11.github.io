@@ -1,0 +1,172 @@
+I"�><h1 id="lecture-06-线性模型选择与正则化">Lecture 06 线性模型选择与正则化</h1>
+
+<p><strong>参考教材</strong>：</p>
+
+<ul>
+  <li><em>Gareth, J., Daniela, W., Trevor, H., &amp; Robert, T. (2013). An intruduction to statistical learning: with applications in R. Spinger.</em></li>
+  <li><em>Hastie, T., Tibshirani, R., &amp; Friedman, J. (2009). The elements of statistical learning: data mining, inference, and prediction. Spinger Science &amp; Business Media.</em></li>
+</ul>
+
+<h2 id="1-引言">1. 引言</h2>
+
+<p>回忆一下标准的线性回归模型：</p>
+
+<script type="math/tex; mode=display">Y=\beta_0 + \beta_1 X_1 +\cdots + \beta_p X_p + \epsilon</script>
+
+<p>它通常用于描述响应变量 $Y$ 和一系列预测变量 $X_1,X_2,\dots,X_p$ 之间的线性关系。并且我们在之前课程中介绍了一种用于拟合此模型的经典方法：最小二乘法。</p>
+
+<p>在接下来的课程中，我们将考虑一些扩展线性模型框架的方法。在第 7 章的课程中，我们对线性模型进行了推广，以使其适用于关系为 <strong>非线性 (non-linear)</strong>，但形式仍然 <strong>可加 (additive)</strong> 的情况。在第 8 章的课程中，我们将考虑一些更通用的 <strong>非线性模型</strong>。</p>
+
+<p>尽管线性模型非常简单，但其在可解释性方面具有明显优势，并且通常显示出良好的预测性能。因此，在正式介绍非线性模型之前，我们将先介绍几种可替代普通最小二乘拟合的一些其他拟合方法，这些方法是对简单线性模型的改进。</p>
+
+<p>那么，为什么要采用其他拟合方法替代最小二乘法呢?</p>
+
+<p>因为与最小二乘法相比，其他拟合方法具有更高的 <strong>预测准确率 (prediction accuracy)</strong> 和更好的 <strong>模型可解释性 (model interpretability)</strong>。</p>
+
+<ul>
+  <li>
+    <p><strong>预测准确率</strong>：若响应变量和预测变量的真实关系近似线性，则最小二乘估计的偏差较低。若 $n\gg p$，即观测个数 $n$ 远大于变量个数 $p$，则到最小二乘估计的方差通常较低，从而在测试样本集上有较好表现。然而，在不满足 $n$ 远大于 $p$ 的情况下，最小二乘拟合可能会发生较大变化，发生过拟合，从而使模型在测试样本集上表现较差。此外，若 $p &gt; n$，最小二乘法得到的系数估计结果不唯一：此时方差为 <strong>无穷大 (infinite)</strong>，这种情况下最小二乘法会失效。通过 <strong>限制 (constraining)</strong> 或 <strong>收缩 (shrinking)</strong> 待估计系数，以牺牲偏差为代价，显著减小估计量方差。这种方法可以显著提高模型在测试样本集上的预测准确率。</p>
+  </li>
+  <li>
+    <p><strong>模型可解释性</strong>：通过删除不相关的特征，即通过将相应的系数估计设置为零，我们可以获得更易于解释的模型。 我们将介绍一些自动执行特征选择的方法</p>
+  </li>
+</ul>
+
+<p>在多元回归模型中，常常存在一个或多个预测变量与响应变量不存在线性关系的情况，包括一些增加了模型的复杂性、却与模型 <strong>无关 (irrelevant)</strong> 的变量。通过移除这些无关变量，即将其系数设置为 $0$，可以使模型的可解释性更强，但运用最小二乘法很难将系数缩减至 $0$。本节课中，我们将介绍几种自动进行 <strong>特征选择 (feature selection)</strong> 或 <strong>变量选择 (variable selection)</strong> 的方法，以便将无关变量从多元回归模型中剔除。</p>
+
+<p>除了最小二乘法，还有多种方法可用于拟合线性模型，其中既有经典方法又有现代方法。本节课中我们主要讨论以下三类重要的方法：</p>
+
+<ul>
+  <li>
+    <p><strong>子集选择 (Subset selection)</strong>：该方法从 $p$ 个预测变量中挑选出与响应变量相关的变量，构建一个变量子集，再对这个缩减后的变量集合应用最小二乘法拟合模型。</p>
+  </li>
+  <li>
+    <p><strong>收缩 (Shrinkage)</strong>：该方法基于全部 $p$ 个变量进行模型拟合。但是，与最小二乘估计相比，该方法的估计系数可以缩减为 $0$。这种收缩，也称 <strong>正则化 (regularization)</strong>，具有减少方差的效果。根据收缩的类型，某些系数估计可以正好为 $0$。因此，收缩法也可以用于变量选择。</p>
+  </li>
+  <li>
+    <p><strong>降维 (Dimension reduction)</strong>：此方法将 $p$ 个原始预测变量投影到一个 $M$-维子空间中，其中 $M&lt; p$。这是通过计算原始变量的 $M$ 个不同的 <strong>线性组合 (linear combination)</strong> 或者 <strong>投影 (projections)</strong> 实现的。然后，我们将这 $M$ 个投影作为新的预测变量，用最小二乘法拟合线性回归模型。</p>
+  </li>
+</ul>
+
+<p>本节课中，我们将详细介绍上述方法及其优缺点。虽然这里我们讨论的是之前线性回归模型的扩展，但其中涉及的概念同样适用于其他方法，例如之前介绍的分类模型。</p>
+
+<h2 id="2-子集选择">2. 子集选择</h2>
+
+<p>这里我们将介绍几种选择预测变量子集的方法，包括最优子集选择和逐步模型选择。</p>
+
+<h3 id="21-最优子集选择">2.1 最优子集选择</h3>
+
+<p><strong>最优子集选择 (best subset selection)</strong>：对 $p$ 个预测变量的所有可能组合分别使用最小二乘回归进行拟合。即拟合包含一个变量所有 $p$ 个的模型；拟合包含两个变量的所有 ${p \choose 2} = p(p-1)/2$ 个模型，以此类推。最后在所有可能模型中选取一个最优模型。</p>
+
+<p><strong>最优子集选择算法</strong>：</p>
+
+<ol>
+  <li>令 $\mathcal M_0$ 表示 <strong>零模型 (null model)</strong>，即不包含任何预测变量的模型。该模型只是简单预测各观测的样本均值。</li>
+  <li>对于 $k=1,2,\dots,p$：<br />
+  (a) 拟合正好包含 $k$ 个预测变量的所有 ${p \choose k}$ 个模型。<br />
+  (b) 从这 ${p \choose k}$ 个模型中选择具有最小 $\mathrm{RSS}$ 或者最大 $R^2$ 的模型作为最优模型，记为 $\mathcal M_k$。</li>
+  <li>根据 $\mathrm{CV}$ 预测误差、$C_p\, (\mathrm{AIC})$、$\mathrm{BIC}$ 或者修正 $R^2$，从 $\mathcal M_0,\dots, \mathcal M_p$ 中选出一个最优模型。</li>
+</ol>
+
+<h4 id="例子信用卡数据集">例子：信用卡数据集</h4>
+
+<p>图 1 是应用最优子集选择的一个例子。图中的每个点都对应一个用 <code class="language-plaintext highlighter-rouge">Credit</code> 数据集的 $11$ 个预测变量的不同子集建立的最小二乘回归模型。其中，<code class="language-plaintext highlighter-rouge">ethnicity</code> 是一个包含三个水平的分类变量，因此将其编码为两个虚拟变量。图中横坐标表示模型中包含的变量个数，在散点圈中绘制每个模型对应的 $\mathrm{RSS}$ 和 $R^2$ 值，用红色折线将不同模型复杂度下的 $\mathrm{RSS}$ 和 $R^2$ 对应的点联结起来。</p>
+
+<p><img src="http://andy-blog.oss-cn-beijing.aliyuncs.com/blog/2020-11-08-WX20201109-000907%402x.png" width="80%" /></p>
+
+<p><span style="margin:auto; display:table; font-size:10pt"> <span style="color:steelblue;font-weight:bold">图 1</span>：图中展示了 <code class="language-plaintext highlighter-rouge">Credit</code> 数据集中 $10$ 个预测变量所有可能子集构成的模型的 $\mathrm{RSS}$ 和 $R^2$ 值。红色折线表示给定预测变量个数的情况下，最优模型的 $\mathrm{RSS}$ 和 $R^2$ 值轨迹。数据集包含 $10$ 个预测变量，而 $x$ 轴的范围在 $1$ 到 $11$ 之间，这是由于其中有一个包含三种水平的分类变量，将其编码后引入了两个虚拟变量。</span></p>
+
+<p>可以看到，随着变量个数增加，统计量得到改善。然而，在模型引入第三个变量之后，继续增加变量对于模型 $\mathrm{RSS}$ 和 $R^2$ 值的改善幅度将变得非常小。</p>
+
+<p>尽管我们在这里为最小二乘回归提供最优子集选择，但是相同的思想也适用于其他类型的模型，例如逻辑回归。在逻辑回归中应用最优子集选择时，算法的步骤 2 中的 $\mathrm{RSS}$ 应当用 <strong>偏差 (deviance)</strong> 代替，两者的作用相同，但偏差的适用范围更广。偏差定义为负 $2$ 倍的最大似然函数，偏差越小，拟合优度越高。</p>
+
+<h3 id="22-逐步选择">2.2 逐步选择</h3>
+
+<p><strong>当 $p$ 很大时</strong>，最优子集选择算法存在以下两方面的问题：</p>
+
+<ul>
+  <li>
+    <p>由于 <strong>运算效率</strong> 的限制，最优子集选择方法不再适用。</p>
+  </li>
+  <li>
+    <p>另外，还存在一些统计学上的问题：随着搜索空间的增大，通过最优子集法找到的模型虽然在训练数据上有较好表现，但对新数据并不具备良好的预测能力。从一个巨大搜索空间中得到的模型通常会存在 <strong>过拟合</strong> 和 <strong>系数估计方差高</strong> 的问题。</p>
+  </li>
+</ul>
+
+<p>基于上述的两大原因，与最优子集选择相比，逐步选择的优点是限制了搜索空间，从而提高了运算效率。</p>
+
+<h4 id="前向逐步选择">前向逐步选择</h4>
+
+<p><strong>前向逐步选择 (Forward stepwise selection)</strong> 从不包含任何预测变量的模型开始，然后每次添加一个预测变量到模型中，直到所有预测变量都被添加到模型中。特别地，在每一步中，算法将能够对拟合带来 <strong>最大额外提升</strong> 的变量添加到模型中。</p>
+
+<p><strong>前向逐步选择算法</strong>：</p>
+
+<ol>
+  <li>令 $\mathcal M_0$ 表示 <strong>零模型 (null model)</strong>，即不包含任何预测变量的模型。</li>
+  <li>对于 $k=0,1,2,\dots,p-1$：<br />
+  (a) 考虑所有 $p-k$ 个模型，其中每个模型都在模型 $\mathcal M_k$ 的基础上增加一个变量。<br />
+  (b) 从这 $p-k$ 个模型中选择具有最小 $\mathrm{RSS}$ 或者最大 $R^2$ 的模型作为最优模型，记为 $\mathcal M_{k+1}$。</li>
+  <li>根据 $\mathrm{CV}$ 预测误差、$C_p\, (\mathrm{AIC})$、$\mathrm{BIC}$ 或者修正 $R^2$，从 $\mathcal M_0,\dots, \mathcal M_p$ 中选出一个最优模型。</li>
+</ol>
+
+<p>与最优子集选择相比，前向逐步选择在运算效率上具有明显优势。</p>
+
+<p>虽然前向逐步选择在实际中有很好的应用，但它无法保证找到的模型是所有 $2^p$ 个模型中最优的。</p>
+
+<p>例如，在给定的包含三个变量的数据集中，最优的单变量模型只包含变量 $X_1$，最优的双变量模型包含 $X_2$ 和 $X_3$。这种情况下，通过前向逐步选择方法无法得到包含双变量的最优模型，因为 $\mathcal M_1$ 包含变量 $X_1$，从而 $\mathcal M_2$ 只能包含 $X_1$ 及另一变量，$X_2$ 或 $X_3$。</p>
+
+<p><strong>例子：信用卡数据集</strong></p>
+
+<p>表 1 给出了在 <code class="language-plaintext highlighter-rouge">Credit</code> 数据集上使用最优子集选择和前向逐步选择的前四个模型的结果。</p>
+
+<p><span style="margin:auto; display:table; font-size:10pt"> <span style="color:steelblue;font-weight:bold">表 1</span>：对 <code class="language-plaintext highlighter-rouge">Credit</code> 数据使用最优子集选择和前向逐步选择的前四个模型的结果。前三个模型选择结果相同，第四个模型选择结果不同。</span></p>
+
+<p><img src="http://andy-blog.oss-cn-beijing.aliyuncs.com/blog/2020-11-09-WX20201109-115551%402x.png" width="80%" /></p>
+
+<p>可以看到，最优子集选择和前向逐步选择在最优单变量模型中都引入了 <code class="language-plaintext highlighter-rouge">rating</code> 变量，紧接着在双变量和三变量模型中依次引入了 <code class="language-plaintext highlighter-rouge">income</code> 和 <code class="language-plaintext highlighter-rouge">student</code> 变量。但是，最优子集选择在四变量模型中将 <code class="language-plaintext highlighter-rouge">rating</code> 变量替换为 <code class="language-plaintext highlighter-rouge">cards</code> 变量，而在前向逐步选择中必须要在四变量模型中依然保留 <code class="language-plaintext highlighter-rouge">rating</code> 变量。从之前的图 1 来看，三变量和四变量模型之间在 $\mathrm{RSS}$ 值上并没有太大差别，因此，这两种方法选出的四变量模型都是可用的。</p>
+
+<p>在高维数据中，甚至 $n &lt; p$ 的情况下，依然可以使用前向逐步选择方法；在这种情况下，可以建立子模型 $\mathcal M_0,\dots,\mathcal M_{n-1}$，因为每个子模型都使用最小二乘法拟合，若 $p\gg n$，结果将是不唯一的。</p>
+
+<h4 id="后向逐步选择">后向逐步选择</h4>
+
+<p>与前向逐步选择一样，<strong>后向逐步选择 (backward stepwise selection)</strong> 为最优子集选择提供了一种有效的替代方法。</p>
+
+<p>但是，与前向逐步选择不同，它从包含所有 $p$ 个预测变量的最小二乘模型开始，然后每次删除一个作用最小的预测变量。</p>
+
+<p><strong>后向逐步选择算法</strong>：</p>
+
+<ol>
+  <li>令 $\mathcal M_p$ 表示 <strong>全模型 (full model)</strong>，即包含全部 $p$ 个预测变量的模型。</li>
+  <li>对于 $k=p,p-1,\dots,1$：<br />
+  (a) 考虑所有 $k$ 个模型，其中每个模型都在模型 $\mathcal M_k$ 的基础上减少一个变量，即每个模型都包含 $k-1$ 个变量。<br />
+  (b) 从这 $k$ 个模型中选择具有最小 $\mathrm{RSS}$ 或者最大 $R^2$ 的模型作为最优模型，记为 $\mathcal M_{k-1}$。</li>
+  <li>根据 $\mathrm{CV}$ 预测误差、$C_p\, (\mathrm{AIC})$、$\mathrm{BIC}$ 或者修正 $R^2$，从 $\mathcal M_0,\dots, \mathcal M_p$ 中选出一个最优模型。</li>
+</ol>
+
+<p>与前向逐步选择类似，后向逐步选择方法只需要对 $1+p(p+1)/2$ 个模型进行搜索。因此，当 $p$ 太大导致最优子集选择不适用时，可以采用该方法。</p>
+
+<p>同样，与前向逐步选择类似，后向逐步选择方法无法保证得到的模型在 $p$ 个预测变量的所有 $2^p$ 个可能子集中是最优的。</p>
+
+<p>后向逐步选择要求 <strong>样本数 $n$ 要大于变量数 $p$</strong> (保证全模型可以被拟合)。相反，前向逐步选择在 $n &lt; p$ 的情况下依然适用，因此当 $p$ 非常大的时候，前向逐步选择是唯一可行的子集选择方法。</p>
+
+<h3 id="23-选择最优模型">2.3 选择最优模型</h3>
+
+<p>最优子集选择、前向逐步选择和后向逐步选择等方法产生了一系列由 $p$ 个预测变量的子集所构建的模型。为了实现这些方法，需要找到一种确定最优模型的方法。</p>
+
+<p>如前所述，包含所有预测变量的模型总是具有最小的 $\mathrm{RSS}$ 和最大的 $R^2$，因为这些统计量与 <strong>训练误差</strong> 有关。然而，我们希望找到具有 <strong>最小测试误差</strong> 的模型。回想一下，训练误差通常不能很好地评估测试误差。</p>
+
+<p>因此，$\mathrm{RSS}$ 和 $R^2$ 并不适用于从一系列具有不同预测变量数量的模型中选择出最优模型。</p>
+
+<p>为了达到基于测试误差选择最优模型的目的，我们需要估计测试误差。通常有两种方法：</p>
+
+<ol>
+  <li>根据过拟合导致的偏差对训练误差进行 <strong>调整</strong>，从而间接地估计测试误差。</li>
+  <li>通过验证集方法或交叉验证方法，<strong>直接</strong> 估计测试误差。</li>
+</ol>
+
+<p>接下来，我们将对以上两种方法进行说明。</p>
+
+<p>####</p>
+
+<p>下节内容：线性模型选择与正则化</p>
+:ET

@@ -1,0 +1,19 @@
+I"�<h1 id="lecture-06-线性模型选择与正则化">Lecture 06 线性模型选择与正则化</h1>
+
+<p><strong>参考教材</strong>：</p>
+
+<ul>
+  <li><em>Gareth, J., Daniela, W., Trevor, H., &amp; Robert, T. (2013). An intruduction to statistical learning: with applications in R. Spinger.</em></li>
+  <li><em>Hastie, T., Tibshirani, R., &amp; Friedman, J. (2009). The elements of statistical learning: data mining, inference, and prediction. Spinger Science &amp; Business Media.</em></li>
+</ul>
+
+<p>回忆一下标准的线性回归模型：</p>
+
+<script type="math/tex; mode=display">Y=\beta_0 + \beta_1 X_1 +\cdots + \beta_p X_1</script>
+
+<p><img src="http://andy-blog.oss-cn-beijing.aliyuncs.com/blog/2020-11-08-WX20201108-211220%402x.png" width="80%" /></p>
+
+<p><span style="margin:auto; display:table; font-size:10pt"> <span style="color:steelblue;font-weight:bold">图 13</span>： 预验证的流程。</span></p>
+
+<p>下节内容：线性模型选择与正则化</p>
+:ET
