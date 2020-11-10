@@ -1,0 +1,23 @@
+I"J<h1 id="lecture-07-非线性模型">Lecture 07 非线性模型</h1>
+
+<p><strong>参考教材</strong>：</p>
+
+<ul>
+  <li><em>Gareth, J., Daniela, W., Trevor, H., &amp; Robert, T. (2013). An intruduction to statistical learning: with applications in R. Spinger.</em></li>
+  <li><em>Hastie, T., Tibshirani, R., &amp; Friedman, J. (2009). The elements of statistical learning: data mining, inference, and prediction. Spinger Science &amp; Business Media.</em></li>
+</ul>
+
+<h2 id="1-引言">1. 引言</h2>
+
+<p>目前为止，我们讨论的内容大多集中于线性模型。相比于其他模型而言，线性模型更易于描述、实现简单、解释性和推断理论都相对成熟。然而，我们也不能回避标准线性回归模型在预测上明显不足的问题。这是因为模型的线性假设通常只是对真实函数的一种近似，有时这种近似效果并不理想。</p>
+
+<p>上节课中，我们介绍了一些用于提升线性回归模型预测效果的模型，例如：基于最小二乘的岭回归、Lasso、PCR 和 PLS。这些模型在降低线性模型复杂度的同时也降低了估计的方差。但事实上，线性模型的形式仍未改变。</p>
+
+<p>本节课中，我们将介绍一xie模型力图在 保持模裂良好的解释性的前提下，放松线性假设，</p>
+
+<p><img src="http://andy-blog.oss-cn-beijing.aliyuncs.com/blog/2020-11-09-WX20201109-224317%402x.png" width="80%" /></p>
+
+<p><span style="margin:auto; display:table; font-size:10pt"> <span style="color:steelblue;font-weight:bold">图 18</span>：<strong>左图</strong>：<code class="language-plaintext highlighter-rouge">Credit</code> 数据集上不同 $M$ 值下 PCR 标准化系数估计。<strong>右图</strong>：用 PCR 进行 $10$-折交叉验证的均方误差随 $M$ 的变化。</span></p>
+
+<p>下节内容：非线性模型</p>
+:ET
