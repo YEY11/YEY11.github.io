@@ -1,0 +1,23 @@
+I"I<h1 id="lecture-05-主成分分析-二">Lecture 05 主成分分析 (二)</h1>
+
+<p><strong>参考教材</strong>：</p>
+
+<ul>
+  <li><em>Hardle, W. and Simar, L (2015). Applied multivariate statistical analysis, 4th edition.</em></li>
+  <li><em>Hastie, T. Tibshirani, R. and Friedman, J. (2009). The elements of statistical learning, 2nd edition</em></li>
+</ul>
+
+<h2 id="1-主成分的解释">1. 主成分的解释</h2>
+
+<p>请记住，我们的目的是通过尽可能少的 PC 来解释 $X_i$ 尽可能多的变化 (低维投影，以便于数据可视化)。</p>
+
+<p>并且，我们有</p>
+
+<script type="math/tex; mode=display"></script>
+
+<p><img src="http://andy-blog.oss-cn-beijing.aliyuncs.com/blog/2020-11-19-WX20201120-010645%402x.png" width="80%" /></p>
+
+<p><span style="margin:auto; display:table; font-size:10pt"> <span style="color:steelblue;font-weight:bold">图 18</span>：瑞士纸币数据：红色表示假钞，蓝色表示真钞。可以看到，仅仅依靠前两个 PC，我们已经能够将真钞和假钞区分开。</span></p>
+
+<p>下节内容：主成分分析 (二)</p>
+:ET

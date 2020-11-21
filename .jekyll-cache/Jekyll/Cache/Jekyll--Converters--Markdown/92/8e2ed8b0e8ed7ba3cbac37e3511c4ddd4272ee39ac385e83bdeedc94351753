@@ -1,0 +1,47 @@
+I"	<h1 id="lecture-05-主成分分析-二">Lecture 05 主成分分析 (二)</h1>
+
+<p><strong>参考教材</strong>：</p>
+
+<ul>
+  <li><em>Hardle, W. and Simar, L (2015). Applied multivariate statistical analysis, 4th edition.</em></li>
+  <li><em>Hastie, T. Tibshirani, R. and Friedman, J. (2009). The elements of statistical learning, 2nd edition</em></li>
+</ul>
+
+<h2 id="1-引言">1. 引言</h2>
+
+<p><img src="http://andy-blog.oss-cn-beijing.aliyuncs.com/blog/2020-11-19-WX20201120-010645%402x.png" width="80%" /></p>
+
+<p><span style="margin:auto; display:table; font-size:10pt"> <span style="color:steelblue;font-weight:bold">图 18</span>：瑞士纸币数据：红色表示假钞，蓝色表示真钞。可以看到，仅仅依靠前两个 PC，我们已经能够将真钞和假钞区分开。</span></p>
+
+<p>回顾前面 <code class="language-plaintext highlighter-rouge">PCX</code> 的输出结果：</p>
+
+<pre><code class="language-{r}">Standard deviations (1, .., p=6):
+[1] 1.7321388  0.9672748  0.4933697  0.4412015  0.2919107  0.1884534
+
+Rotation (n x k) = (6 x 6):
+            PC1     PC2    PC3     PC4     PC5     PC6
+Length     0.044  -0.011  0.326  -0.562  -0.753   0.098
+Left      -0.112  -0.071  0.259  -0.455   0.347  -0.767
+Right     -0.139  -0.066  0.345  -0.415   0.535   0.632
+Bottom    -0.768   0.563  0.218   0.186  -0.100  -0.022
+Top       -0.202  -0.659  0.557   0.451  -0.102  -0.035
+Diagonal   0.579   0.489  0.592   0.258   0.084  -0.046
+</code></pre>
+
+<p>这里，我们仅看前两个特征向量 (在 R 中被称为 <code class="language-plaintext highlighter-rouge">PC1</code> 和 <code class="language-plaintext highlighter-rouge">PC2</code>)，可以得到：</p>
+
+<script type="math/tex; mode=display">% <![CDATA[
+\begin{align}
+Y_{i1} &= 0.044X_{i1}− 0.112X_{i2}− 0.139X_{i3}− 0.768X_{i4}− 0.202X_{i5}+ 0.579X_{i6} \\[2ex]
+Y_{i2} &= −0.011X_{i1} − 0.071X_{i2} − 0.066X_{i3} + 0.563X_{i4} − 0.659X_{i5} + 0.489X_{i6}
+\end{align} %]]></script>
+
+<p>因此，我们知道：</p>
+
+<ul>
+  <li>第一个 PC 大致是第 $6$ 个成分 (对角线的长度) 与第 $4$ 个成分 (底部边距宽度) 之差；</li>
+  <li>第二个 PC 大致是第 $5$ 个成分 (顶部边距宽度) 与第 $6$ 和第 $4$ 个成分之和的差。</li>
+</ul>
+
+<p>下节内容：主成分分析 (二)</p>
+:ET

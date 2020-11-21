@@ -1,0 +1,86 @@
+I"<h1 id="lecture-05-主成分分析-二">Lecture 05 主成分分析 (二)</h1>
+
+<p><strong>参考教材</strong>：</p>
+
+<ul>
+  <li><em>Hardle, W. and Simar, L (2015). Applied multivariate statistical analysis, 4th edition.</em></li>
+  <li><em>Hastie, T. Tibshirani, R. and Friedman, J. (2009). The elements of statistical learning, 2nd edition</em></li>
+</ul>
+
+<h2 id="1-主成分的解释">1. 主成分的解释</h2>
+
+<p>请记住，我们的目的是通过尽可能少的 PC 来解释 $X_i$ 尽可能多的变化 (低维投影，以便于数据可视化)。</p>
+
+<p>并且，我们有</p>
+
+<script type="math/tex; mode=display">\mathrm{Var}(Y_{ij}) = \lambda_j, \quad \text{for}\; j=1,\dots,p</script>
+
+<p>以及</p>
+
+<script type="math/tex; mode=display">\sum_{j=1}^{p}\lambda_j = \sum_{j=1}^{p} \mathrm{Var}(Y_{ij}) = \mathrm{tr}(\Sigma) = \sum_{j=1}^{p} \mathrm{Var}(X_{ij})</script>
+
+<p>所以，前 $q$ 个主成分能够在多大程度上解释数据的变化可以通过以下比例来度量：</p>
+
+<script type="math/tex; mode=display">\psi_q = \dfrac{\sum_{j=1}^{q}\lambda_j}{\sum_{j=1}^{p}\lambda_j}</script>
+
+<p>在上节课的瑞士纸币的例子中，我们有：</p>
+
+<p><span style="margin:auto; display:table; font-size:10pt"> <span style="color:steelblue;font-weight:bold">表 1</span>：瑞士纸币数据：特征值、解释方差比例和累积比例。</span></p>
+
+<p><img src="http://andy-blog.oss-cn-beijing.aliyuncs.com/blog/2020-11-20-WX20201120-144300%402x.png" width="70%" /></p>
+
+<p>因此，我们有</p>
+
+<script type="math/tex; mode=display">\psi_1 = 0.668, \;\psi_2 = 0.876,\; \psi_3 = 0.930,\; \psi_4 = 0.973,\; \psi_5 = 0.992,\; \psi_6 = 1.000</script>
+
+<p>也就是说，第一个主成分解释了数据中 $66.8\%$ 的变化，前两个主成分一起解释了 $87.6\%$ 的变化，前三个主成分一起解释了 $93\%$ 的变化。</p>
+
+<p>通常，我们会将 $\psi_q$ 绘制在图中，称为 <strong>碎石图 (scree plot)</strong>，它将按照 $\lambda_1 \ge \lambda_2 \ge \cdots \ge \lambda_p$ 显示，这使我们能够查看哪些成分贡献最大。</p>
+
+<p>在 R 中，我们可以通过 <code class="language-plaintext highlighter-rouge">prcomp</code> 获得 PCA 结果，并用 <code class="language-plaintext highlighter-rouge">screeplot</code> 来绘制碎石图：</p>
+
+<p><img src="http://andy-blog.oss-cn-beijing.aliyuncs.com/blog/2020-11-20-WX20201120-145604%402x.png" width="80%" /></p>
+
+<p><span style="margin:auto; display:table; font-size:10pt"> <span style="color:steelblue;font-weight:bold">表 1</span>：瑞士纸币数据的碎石图，横轴表示 PC，纵轴表示该 PC 解释的方差 (即特征值)。</span></p>
+
+<p>通过观察碎石图，我们可以决定需要考虑的 PC 数量：</p>
+
+<ul>
+  <li>考虑全部 PC 是没有意义的，因为这样无法实现降维 (总共有 $p$ 个 PC)。</li>
+  <li>另一方面，我们应保留足够数量的 PC，以获取有关数据的大量信息。</li>
+  <li>我们需要保留足够数量的 PC，使得它们所解释的累计方差百分比足够大。</li>
+  <li>通常，我们会找到碎石图中的某个 <strong>拐点 (elbow)</strong> 并停在那里：以瑞士纸币为例，我们可以停在第 3 个 PC 处。</li>
+</ul>
+
+<p>在瑞士纸币的例子中，前两个 PC 一起解释了 $87.6\%$ 的数据方差，理论上看已经足够；但是前 3 个 PC 一起解释了 $93\%$ 的数据方差，要比之前更好一些。</p>
+
+<p>然而，第三个 PC 也只是增加了少量额外信息 (在某些情况下，少量信息实际上可能包含了之前的 PC 无法捕获到的关于数据的一些有趣的方面，因此我们需要对其进行检查)。</p>
+
+<p>通常，最初的几个 PC 共同解释了数据可变性的很大一部分，并且可以很容易从碎石图中看到。如果最初的 3 个或 4 个 PC 无法解释数据的大部分可变性，则意味着我们无法通过 PC 方法有效实现降维 (这种情况下，如果显著减小维数，则会丢失有关数据的太多信息)。</p>
+
+<p>我们可以计算每个主成分变量 $Y_{ik}$ 和原始数据向量 $X_i$ 之间的协方差。</p>
+
+<p>由于我们可以构造多达 $p$ 个主成分，我们可以将 $X_i$ 的 $p$ 个 PC 表示为：</p>
+
+<script type="math/tex; mode=display">Y_i = (Y_{i1},\dots, Y_{ip})^{\mathrm T}</script>
+
+<p>其中，$Y_{ik} = \gamma_k^{\mathrm T} (X_i - \mu)$。</p>
+
+<p>我们可以通过两个向量之间的协方差矩阵来计算 $X_i$ 和 $Y_i$ 中的所有成对元素之间的协方差：</p>
+
+<ul>
+  <li>
+    <p>令 $\Gamma = (\gamma_1,\dots,\gamma_p)$，它包含了 $\Sigma$ 的 $p$ 个特征向量。</p>
+  </li>
+  <li>
+    <p>令 $\Lambda = \mathrm{diag}(\lambda_1,\dots,\lambda_p)$，它包含了 $p$ 个对应的降序排列的特征值，并且令 $\gamma_{jk}$ 表示 $\gamma_j$ 的第 $k$ 个分量。并且，回忆一下，我们用 $\sigma_{jk}$ 表示 $\Sigma$ 中的第 $(j,k)$ 个元素。</p>
+  </li>
+  <li>
+    <p>我们有</p>
+
+    <script type="math/tex; mode=display"></script>
+  </li>
+</ul>
+
+<p>下节内容：主成分分析 (二)</p>
+:ET
