@@ -1,4 +1,4 @@
-I"�W<h1 id="lecture-07-因子分析">Lecture 07 因子分析</h1>
+I"�W<h1 id="lecture-07-因子分析">Lecture 07 因子分析</h1>
 
 <p><strong>参考教材</strong>：</p>
 
@@ -222,7 +222,7 @@
 
 <ul>
   <li>$\mathrm{E}(F_G)=0$</li>
-  <li>$\mathrm{Var}(F_G)=G^{\mathrm T}G=I_Q$</li>
+  <li>$\mathrm{Var}(F_G)=G^{\mathrm T}G=I_q$</li>
   <li>$\mathrm{E}(U)=0$</li>
   <li>$\mathrm{Cov}(U_{i},U_{j})=0 \quad \text{if} \quad i\ne j$</li>
   <li>$\mathrm{Cov}(F_G,U)=G^{\mathrm T} \mathrm{Cov}(F,U)=0$</li>
@@ -248,19 +248,19 @@
   </li>
 </ul>
 
-<p>因此，通常需要施加 $\frac{q(q-1)}{2}$ 个约束以使 $Q$ 可以被识别。有很多不同的方法可以做到这点。</p>
+<p>因此，通常需要施加 $\frac{q(q-1)}{2}$ 个约束以使 $Q$ 可以被确定下来。有很多不同的方法可以做到这点。</p>
 
 <p>一种方法是将 $Q$ 限制为 “下三角形” 矩阵，即，对于所有 $j &lt; \ell$，都有 $q_{j\ell}=0$。因此，这里恰好有 $\frac{q(q-1)}{2}$ 个零约束。</p>
 
 <ul>
   <li>
-    <p>通常，将进一步限制所有对角线上的元素 $q_{jj}&gt; 0 \quad (j=1,\dots,q)$，但这并没有真正降低自由度。(整个实数轴线和一半的实数轴都是维度为 $1$ 的对象)</p>
+    <p>通常，将进一步限制所有对角线上的元素 $q_{jj}&gt; 0 \quad (j=1,\dots,q)$，但这并没有真正降低自由度。(整个实数轴和半个实数轴都是维度为 $1$ 的对象)</p>
   </li>
   <li>
-    <p>上面的约束条件是由以下版本的 <strong>Cholesky 分解定理</strong> 引起的：对于秩为 $q\leq p$ 的 $p\times p$ 矩阵 $A$，可以找到唯一的 $p\times q$ 矩阵 $L =(l_{j\ell})$，使得 $A = LL^{\mathrm T}$ 和 $L$ 是对角线元素大于零的下三角形矩阵，即：对于所有 $j=1,\dots,q$，都有 $l_{jj}&gt; 0$；对于所有的 $j&lt; \ell$，都有 $l_{j\ell} = 0$。</p>
+    <p>上面的约束条件是由以下版本的 <strong>Cholesky 分解定理</strong> 引出的：对于秩为 $q\leq p$ 的 $p\times p$ 矩阵 $A$，可以找到唯一的 $p\times q$ 矩阵 $L =(l_{j\ell})$ 使得 $A = LL^{\mathrm T}$，并且 $L$ 是对角线元素大于零的下三角形矩阵，即：对于所有 $j=1,\dots,q$，都有 $l_{jj}&gt; 0$；对于所有的 $j&lt; \ell$，都有 $l_{j\ell} = 0$。</p>
   </li>
   <li>
-    <p>(对于我们的因子模型，所讨论的 $q$ 秩矩阵 $A$ 为 $QQ^{\mathrm T}$)</p>
+    <p>(对于我们的因子模型，上面讨论的 $q$ 秩矩阵 $A$ 即为 $QQ^{\mathrm T}$)</p>
   </li>
   <li>
     <p>Hardle 和 Simar 在教材中介绍了其他一些施加约束的方法，但我发现某些贝叶斯统计学者使用的这些零约束更具指导意义。</p>
@@ -275,7 +275,7 @@
 
 <p>同时，在没有任何模型的情况下，$\Sigma$ 的维度为</p>
 
-<script type="math/tex; mode=display">\underbrace{p(p+1)/2}_{\text{对角线 } + \text{ 上三角部分约束}}</script>
+<script type="math/tex; mode=display">\underbrace{p(p+1)/2}_{\text{对角线 } + \text{ 严格上三角部分约束}}</script>
 
 <p>因子建模的目标是降维。为了避免 <strong>“过度参数化 (over-parametrization)”</strong>，我们通常要求</p>
 
