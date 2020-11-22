@@ -1,0 +1,29 @@
+I"�<h1 id="lecture-06-主成分分析-三">Lecture 06 主成分分析 (三)</h1>
+
+<p><strong>参考教材</strong>：</p>
+
+<ul>
+  <li><em>Hardle, W. and Simar, L (2015). Applied multivariate statistical analysis, 4th edition.</em></li>
+  <li><em>Hastie, T. Tibshirani, R. and Friedman, J. (2009). The elements of statistical learning, 2nd edition</em></li>
+</ul>
+
+<h2 id="1-主成分回归">1. 主成分回归</h2>
+
+<p>在上节课中，我们介绍了 <strong>主成分回归 (principal component regression, PCR)</strong> (参见教材 <em>Elements of Statistical Learning, section 3.5</em>)，下面我们对其进行一些简单的回顾：</p>
+
+<p>对于中心化的 $\underbrace{Z}_{1\times 1}$ 和 $\underbrace{X}_{p\times 1}$，我们希望近似回归模型</p>
+
+<script type="math/tex; mode=display">% <![CDATA[
+\begin{align}
+Z &= \beta^{\mathrm T}X + \epsilon \\[2ex]
+&= \beta^{\mathrm T}\Gamma Y + \epsilon \\[2ex]
+&= \beta^{\mathrm T}\underbrace{\Gamma_{(1)}}_{p\times q} \underbrace{Y_{(1)}}_{q\times 1} + \beta^{\mathrm T} \underbrace{\Gamma_{(2)}}_{\p\times (p-q)} \underbrace{Y_{(2)}}_{(p-q)\times 1} + \epsilon
+\end{align} %]]></script>
+
+<p><span style="margin:auto; display:table; font-size:10pt"> <span style="color:steelblue;font-weight:bold">表 1</span>：瑞士纸币数据：特征值、解释方差比例和累积比例。</span></p>
+
+<p><img src="http://andy-blog.oss-cn-beijing.aliyuncs.com/blog/2020-11-20-WX20201120-144300%402x.png" width="65%" /></p>
+
+<p>下节内容：因子分析</p>
+
+:ET

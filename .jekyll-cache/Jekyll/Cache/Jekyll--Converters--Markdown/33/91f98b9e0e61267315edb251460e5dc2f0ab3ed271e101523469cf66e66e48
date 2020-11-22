@@ -1,0 +1,48 @@
+I"
+<h1 id="lecture-06-主成分分析-三">Lecture 06 主成分分析 (三)</h1>
+
+<p><strong>参考教材</strong>：</p>
+
+<ul>
+  <li><em>Hardle, W. and Simar, L (2015). Applied multivariate statistical analysis, 4th edition.</em></li>
+  <li><em>Hastie, T. Tibshirani, R. and Friedman, J. (2009). The elements of statistical learning, 2nd edition</em></li>
+</ul>
+
+<h2 id="1-主成分回归">1. 主成分回归</h2>
+
+<p>在上节课中，我们介绍了 <strong>主成分回归 (principal component regression, PCR)</strong> (参见教材 <em>Elements of Statistical Learning, section 3.5</em>)，下面我们对其进行一些简单的回顾：</p>
+
+<p>对于中心化的 $\underbrace{Z}_{1\times 1}$ 和 $\underbrace{X}_{p\times 1}$，我们希望将回归模型</p>
+
+<script type="math/tex; mode=display">% <![CDATA[
+\begin{align}
+Z &= \beta^{\mathrm T}X + \epsilon \\[2ex]
+&= \beta^{\mathrm T}\Gamma Y + \epsilon \\[2ex]
+&= \beta^{\mathrm T}\underbrace{\Gamma_{(1)}}_{p\times q} \underbrace{Y_{(1)}}_{q\times 1} + \beta^{\mathrm T} \underbrace{\Gamma_{(2)}}_{p\times (p-q)\;} \underbrace{Y_{(2)}}_{\;(p-q)\times 1} + \epsilon
+\end{align} %]]></script>
+
+<p>用以下模型近似</p>
+
+<script type="math/tex; mode=display">Z = \beta_{\mathrm{PC}}^{\mathrm T} Y_{(1)} + \eta</script>
+
+<p>并且我们相信来自 $Y_{(2)}$ 的可变性是可以忽略不计的 (即 $X\approx \Gamma_{(1)}Y_{(1)}$)。</p>
+
+<p>当然，在实践中，我们只能基于样本协方差矩阵 $S$ 获得 $\Gamma$ 和 $Y$ 的 “经验版本”。基于一般的最小二乘公式，我们可以计算出一个 $\hat \beta_{\mathrm{PC}}$ 估计。然后，我们可以将 $\beta$ 的 “PCR 估计” 定义为</p>
+
+<script type="math/tex; mode=display">\hat \beta^{\mathrm{PCR}}(q) = \hat \Gamma_{(1)} \hat \beta_{\mathrm{PC}}</script>
+
+<p>其中，$\hat \Gamma_{(1)}$ 是 $\Gamma_{(1)}$ 在实践中的估计版本。</p>
+
+<p>回忆一下，如果 $\mathcal X^{\mathrm T}\mathcal X$ 是可逆的但特征值较小，那么</p>
+
+<script type="math/tex; mode=display">\hat \beta_{\mathrm{LS}} = (\mathcal X^{\mathrm T}\mathcal X)^{-1}\mathcal X^{\mathrm T} \mathcal Z</script>
+
+<p>可以具有较大的（协) 方差。</p>
+
+<p><span style="margin:auto; display:table; font-size:10pt"> <span style="color:steelblue;font-weight:bold">表 1</span>：瑞士纸币数据：特征值、解释方差比例和累积比例。</span></p>
+
+<p><img src="http://andy-blog.oss-cn-beijing.aliyuncs.com/blog/2020-11-20-WX20201120-144300%402x.png" width="65%" /></p>
+
+<p>下节内容：因子分析</p>
+
+:ET
