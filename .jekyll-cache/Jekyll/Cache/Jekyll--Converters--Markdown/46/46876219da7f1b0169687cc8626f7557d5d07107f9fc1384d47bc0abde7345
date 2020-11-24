@@ -1,0 +1,34 @@
+I"�<h1 id="lecture-11-聚类分析">Lecture 11 聚类分析</h1>
+
+<p><strong>参考教材</strong>：</p>
+
+<ul>
+  <li><em>Hardle, W. and Simar, L (2015). Applied multivariate statistical analysis, 4th edition.</em></li>
+  <li><em>Hastie, T. Tibshirani, R. and Friedman, J. (2009). The elements of statistical learning, 2nd edition</em></li>
+</ul>
+
+<h2 id="1-引言">1. 引言</h2>
+
+<p><strong>分类 (有监督的学习问题)</strong>：将观察结果分类为我们事先知道的不同分组；我们有来自每个分组的训练数据。</p>
+
+<p><strong>聚类分析 (无监督学习问题)</strong>：我们怀疑数据可能来自多个组，我们希望统计技术可以帮助我们识别出这些分组，并将个体分配给这些不同的分组。<strong>聚类分析 (cluster analysis)</strong> 是一种描述性统计工具。</p>
+
+<p><strong>目标</strong>：将数据集中的个体分组到被称为 <strong>集群 (clusters)</strong> 的子集中，使得每个集群内的个体之间的关系比分配给不同集群的个体之间的关系更紧密。同一个集群内的个体彼此 <strong>相似</strong>。这个概念取决于相似性的定义。不同的 <strong>相似性度量 (measures of similarity)</strong> 可能导致不同的聚类结果。</p>
+
+<p><strong>层次聚类 (Hierarchical clustering)</strong>：有时我们也可以将集群按照某种自然层次排列：首先将所有个体分组为少数几个很大的集群，然后再将这些集群本身分为更小的集群。这种操作可以重复多次。</p>
+
+<h2 id="2-邻近度矩阵">2. 邻近度矩阵</h2>
+
+<p>大多数聚类算法都将 <strong>相异度矩阵 (dissimilarity matrix)</strong> 作为输入。</p>
+
+<p>这类数据可以用一个 $n\times n$ 的矩阵 $D$ 表示，其中 $D_{ij},\; i,j=1,\dots,n$ 是第 $i$ 个个体和第 $j$ 个个体之间的 **相异性度量。 D ij是（i，j）不相似矩阵D的元素。大多数算法假设该矩阵具有非负元素和对角线元素为零：对于i = 1，2，…，n，D ii = 0。</p>
+
+<p>*大多数算法还假设对称不相似矩阵，因此，如果原始D不对称，则必须将其替换为（D + D T）/ 2。</p>
+
+<p>*如果以相似而非相似的形式接收数据，我们通常会应用单调递减函数将其转变为相似。</p>
+
+<p><img src="http://andy-blog.oss-cn-beijing.aliyuncs.com/blog/2020-11-21-WX20201122-004902%402x.png" width="80%" /></p>
+
+<p><span style="margin:auto; display:table; font-size:10pt"> <span style="color:steelblue;font-weight:bold">图 1</span>：<strong>左上</strong>：当 $n=30$ 时，情况 (i)。<strong>右上</strong>：当 $n=100$ 时，情况 (i)。<strong>左下</strong>：当 $n=30$ 时，情况 (ii)。<strong>右下</strong>：当 $n=100$ 时，情况 (ii)。每张图中，左侧是 PLS 模型，右侧是 PCA 模型，每一侧从左到右依次为 $q=1,\dots,10$ 时，均方预测误差 PE 的箱型图。</span></p>
+
+:ET
