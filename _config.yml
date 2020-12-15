@@ -5,9 +5,9 @@ header-img: img/home-bg-coffee.jpg
 email: yangye0329@gmail.com
 description: "Every failure is leading towards success."
 keyword: "YEY Blog, YEY 的博客, Data Science"
-url: "http://andy-tk.github.io"          # your host, for absolute URL
+url: "http://yey11.github.io"          # your host, for absolute URL
 baseurl: ""      # for example, '/blog' if your blog hosted on 'host/blog'
-github_repo: "https://github.com/andy-tk/andy-tk.github.io.git" # your code repository
+github_repo: "https://github.com/yey11/yey11.github.io.git" # your code repository
 
 # Sidebar settings
 sidebar: true                           # whether or not using Sidebar.
@@ -20,7 +20,7 @@ sidebar-avatar: /img/avatar-andy.jpg      # use absolute URL, seeing it's used i
 RSS: false
 # weibo_username:     qiubaiying
 #zhihu_username:     qiubaiying
-github_username:    andy-tk
+github_username:    yey11
 #facebook_username:  baiying.qiu.7
 #jianshu_username:   e71990ada2fd
 #twitter_username:   qiubaiying
@@ -80,9 +80,9 @@ gitalk:
   enable: true    #是否开启Gitalk评论
   clientID: 12cf4852c3acac78c55b                            #生成的clientID
   clientSecret: 7696f2d8427d3bac01826e7d5514488c4d1cc0fc    #生成的clientSecret
-  repo: andy-tk.github.io    #仓库名称
-  owner: andy-tk    #github用户名
-  admin: andy-tk
+  repo: yey11.github.io    #仓库名称
+  owner: yey11    #github用户名
+  admin: yey11
   distractionFreeMode: true #是否启用类似FB的阴影遮罩
 
 
