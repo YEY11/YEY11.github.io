@@ -1,5 +1,4 @@
-I"6
-<h1 id="lecture-03-线性回归">Lecture 03 线性回归</h1>
+I"�<h1 id="lecture-03-线性回归">Lecture 03 线性回归</h1>
 
 <p><strong>参考教材</strong>：</p>
 
@@ -43,13 +42,13 @@
 
 <p>我们假设一个模型：</p>
 
-<script type="math/tex; mode=display">Y=\beta_0 + \beta_1 X +\epsilon</script>
+\[Y=\beta_0 + \beta_1 X +\epsilon\]
 
 <p>其中，$\beta_0$ 和 $\beta_1$ 是两个未知常数，分别代表 <strong>截距 (intercept)</strong> 和 <strong>斜率 (slope)</strong>，也被称为 <strong>系数 (coefficients)</strong> 或 <strong>参数 (parameters)</strong>，$\epsilon$ 代表 <strong>误差项 (error term)</strong>。</p>
 
 <p>给定模型系数的估计值 $\hat \beta_0$ 和 $\hat \beta_1$，我们可以根据下式预测未来的销售额：</p>
 
-<script type="math/tex; mode=display">\hat y=\hat \beta_0 +\hat \beta_1 x</script>
+\[\hat y=\hat \beta_0 +\hat \beta_1 x\]
 
 <p>其中，$\hat y$ 表示在 $X=x$ 的基础上对 $Y$ 的预测。通常，我们用帽子符号 “^” 表示估计值。</p>
 
@@ -59,19 +58,18 @@
 
 <p>我们定义 <strong>残差平方和 (residual sum of squares, RSS)</strong> 为：</p>
 
-<script type="math/tex; mode=display">\mathrm{RSS}=e_1^2+e_2^2+\cdots +e_n^2</script>
+\[\mathrm{RSS}=e_1^2+e_2^2+\cdots +e_n^2\]
 
 <p>或者等价地定义为：</p>
 
-<script type="math/tex; mode=display">\mathrm{RSS}=(y_1-\hat \beta_0 - \hat \beta_1 x_1)^2 + (y_2-\hat \beta_0 - \hat \beta_1 x_2)^2+\cdots + (y_n-\hat \beta_0 - \hat \beta_1 x_n)^2</script>
+\[\mathrm{RSS}=(y_1-\hat \beta_0 - \hat \beta_1 x_1)^2 + (y_2-\hat \beta_0 - \hat \beta_1 x_2)^2+\cdots + (y_n-\hat \beta_0 - \hat \beta_1 x_n)^2\]
 
 <p>最小二乘法会选择 $\hat \beta_0$ 和 $\hat \beta_1$ 使得 $\mathrm{RSS}$ 最小化。通过计算可知，使 $\mathrm{RSS}$ 最小化的参数估计值为：</p>
 
-<script type="math/tex; mode=display">% <![CDATA[
-\begin{align}
-\hat \beta_1 &= \dfrac{\sum_{i=1}^n (x_i-\overline x\,)(y_i-\overline y\,)}{\sum_{i=1}^{n}(x_i-\overline x\,)^2} \\[2ex]
-\hat \beta_0 &= \overline y - \hat \beta_1 \overline x
-\end{align} %]]></script>
+\[\begin{align}
+\hat \beta_1 &amp;= \dfrac{\sum_{i=1}^n (x_i-\overline x\,)(y_i-\overline y\,)}{\sum_{i=1}^{n}(x_i-\overline x\,)^2} \\[2ex]
+\hat \beta_0 &amp;= \overline y - \hat \beta_1 \overline x
+\end{align}\]
 
 <p>其中，$\overline y\equiv \frac{1}{n}\sum_{i=1}^n y_i$ 和 $\overline x\equiv \frac{1}{n}\sum_{i=1}^n x_i$ 是样本均值。</p>
 
@@ -87,11 +85,10 @@
 
 <p>一个估计量的 <strong>标准误 (standard error)</strong> 反映了它在重复采样下的变化情况。我们有：</p>
 
-<script type="math/tex; mode=display">% <![CDATA[
-\begin{align}
-\mathrm{SE}(\hat \beta_1)^2 &= \dfrac{\sigma^2}{\sum_{i=1}^{n}(x_i-\overline x\,)^2}\\[2ex]
-\mathrm{SE}(\hat \beta_0)^2 &= \sigma^2 \left[\dfrac{1}{n} + \dfrac{\overline x\,^2}{\sum_{i=1}^{n}(x_i-\overline x\,)^2}\right]
-\end{align} %]]></script>
+\[\begin{align}
+\mathrm{SE}(\hat \beta_1)^2 &amp;= \dfrac{\sigma^2}{\sum_{i=1}^{n}(x_i-\overline x\,)^2}\\[2ex]
+\mathrm{SE}(\hat \beta_0)^2 &amp;= \sigma^2 \left[\dfrac{1}{n} + \dfrac{\overline x\,^2}{\sum_{i=1}^{n}(x_i-\overline x\,)^2}\right]
+\end{align}\]
 
 <p>其中，$\sigma^2=\mathrm{Var}(\epsilon)$。</p>
 
@@ -99,11 +96,11 @@
 
 <p>这些标准误可以用来计算 <strong>置信区间 (confidence intervals)</strong>。一个 $95 \%$ 置信区间被定义为一个取值范围：该范围有 $95\%$ 的概率会包含未知参数的真实值。它具有形式：</p>
 
-<script type="math/tex; mode=display">\hat \beta_1 \pm 2\cdot \mathrm{SE}(\hat \beta_1)</script>
+\[\hat \beta_1 \pm 2\cdot \mathrm{SE}(\hat \beta_1)\]
 
 <p>也就是说，下述区间</p>
 
-<script type="math/tex; mode=display">\left[\hat \beta_1 - 2\cdot \mathrm{SE}(\hat \beta_1), \hat \beta_1 + 2\cdot \mathrm{SE}(\hat \beta_1)\right]</script>
+\[\left[\hat \beta_1 - 2\cdot \mathrm{SE}(\hat \beta_1), \hat \beta_1 + 2\cdot \mathrm{SE}(\hat \beta_1)\right]\]
 
 <p>有约 $95\%$ 的概率会包含 $\beta_1$ 的真实值 (在我们能够通过重复采样得到类似当前样本的情况下)。</p>
 
@@ -121,13 +118,13 @@
 
 <p>数学上来说，这就相当于检验</p>
 
-<script type="math/tex; mode=display">H_0: \beta_1=0 \qquad \mathrm{vs.} \qquad H_a: \beta_1 \ne 0</script>
+\[H_0: \beta_1=0 \qquad \mathrm{vs.} \qquad H_a: \beta_1 \ne 0\]
 
 <p>因为如果 $\beta_1=0$，那么模型将简化为 $Y=\beta_0 + \epsilon$，而 $X$ 与 $Y$ 将不再相关。</p>
 
 <p>为了检验零假设，我们会按照下式计算一个 <strong>$t$ 统计量</strong>：</p>
 
-<script type="math/tex; mode=display">t=\dfrac{\hat \beta_1 - 0}{\mathrm{SE}(\hat \beta_1)}</script>
+\[t=\dfrac{\hat \beta_1 - 0}{\mathrm{SE}(\hat \beta_1)}\]
 
 <p>它将服从一个自由度为 $n-2$ 的 $t$ 分布，假设 $\beta_1=0$。</p>
 
@@ -175,7 +172,7 @@
 
 <p>我们可以通过下式计算 <strong>残差标准误 (residual standard error, RSE)</strong>：</p>
 
-<script type="math/tex; mode=display">\mathrm{RSE}=\sqrt{\dfrac{1}{n-2}\mathrm{RSS}}=\sqrt{\dfrac{1}{n-2}\sum_{i=1}^{n}(y_i-\hat y_i)^2}</script>
+\[\mathrm{RSE}=\sqrt{\dfrac{1}{n-2}\mathrm{RSS}}=\sqrt{\dfrac{1}{n-2}\sum_{i=1}^{n}(y_i-\hat y_i)^2}\]
 
 <p>其中，<strong>残差平方和</strong> 为 $\mathrm{RSS}=\sum_{i=1}^{n}(y_i-\hat y_i)^2$。</p>
 
@@ -183,13 +180,13 @@
 
 <p>$R^2$ 或者方差分数被定义为：</p>
 
-<script type="math/tex; mode=display">R^2=\dfrac{\mathrm{TSS} - \mathrm{RSS}}{\mathrm{TSS}}=1-\dfrac{\mathrm{RSS}}{\mathrm{TSS}}</script>
+\[R^2=\dfrac{\mathrm{TSS} - \mathrm{RSS}}{\mathrm{TSS}}=1-\dfrac{\mathrm{RSS}}{\mathrm{TSS}}\]
 
 <p>其中，$\mathrm{TSS}=\sum_{i=1}^{n}(y_i-\overline y\,)^2$ 被称为 <strong>总平方和 (total sum of squares, TSS)</strong>。</p>
 
 <p>可以证明，在简单线性回归模型中，$R^2 = r^2$，其中 $r$ 是 $X$ 和 $Y$ 之间的 <strong>相关性 (correlation)</strong>：</p>
 
-<script type="math/tex; mode=display">r=\mathrm{Cor}(X,Y)=\dfrac{\sum_{i=1}^{n}(x_i-\overline x\,)(y_i-\overline y\,)}{\sqrt{\sum_{i=1}^{n}(x_i-\overline x\,)^2}\sqrt{\sum_{i=1}^{n}(y_i-\overline y\,)^2}}</script>
+\[r=\mathrm{Cor}(X,Y)=\dfrac{\sum_{i=1}^{n}(x_i-\overline x\,)(y_i-\overline y\,)}{\sqrt{\sum_{i=1}^{n}(x_i-\overline x\,)^2}\sqrt{\sum_{i=1}^{n}(y_i-\overline y\,)^2}}\]
 
 <h4 id="例子广告数据的结果-1">例子：广告数据的结果</h4>
 
@@ -296,13 +293,13 @@
 
 <p>在一般情况下，假设有 $p$ 个不同的预测变量。则多元线性回归模型的形式为:</p>
 
-<script type="math/tex; mode=display">Y=\beta_0 + \beta_1 X_1 + \beta_2 X_2 +\cdots + \beta_p X_p +\epsilon</script>
+\[Y=\beta_0 + \beta_1 X_1 + \beta_2 X_2 +\cdots + \beta_p X_p +\epsilon\]
 
 <p>其中，$X_j$ 代表第 $j$ 个预测变量，$\beta_j$ 代表第 $j$ 个预测变量和响应变量之间的关联。</p>
 
 <p>$\beta_j$ 可解释为在 <strong>所有其他预测变量保持不变</strong> 的情况下，$X_j$ 增加一个单位对 $Y$ 产生的 <strong>平均 (average)</strong> 效应。以广告数据集为例，模型为：</p>
 
-<script type="math/tex; mode=display">\mathtt{sales}=\beta_0 + \beta_1 \times \mathtt{TV} + \beta_2 \times \mathtt{radio} + \beta_3 \times \mathtt{newspaper} + \epsilon</script>
+\[\mathtt{sales}=\beta_0 + \beta_1 \times \mathtt{TV} + \beta_2 \times \mathtt{radio} + \beta_3 \times \mathtt{newspaper} + \epsilon\]
 
 <h4 id="解释回归系数">解释回归系数</h4>
 
@@ -350,15 +347,14 @@
 
 <p>对于给定的估计系数 $\hat \beta_0,\hat \beta_1,\dots,\hat \beta_p$，我们可以使用以下公式进行预测：</p>
 
-<script type="math/tex; mode=display">\hat y=\hat \beta_0 + \hat \beta_1 x_1 + \hat \beta_2 x_2+\cdots + \hat \beta_p x_p</script>
+\[\hat y=\hat \beta_0 + \hat \beta_1 x_1 + \hat \beta_2 x_2+\cdots + \hat \beta_p x_p\]
 
 <p>与在简单线性回归中相同，多元线性回归同样采用最小二乘法进行参数估计。选择 $\beta_0,\beta_1,\dots,\beta_p$ 的估计值以最小化残差平方和：</p>
 
-<script type="math/tex; mode=display">% <![CDATA[
-\begin{align}
-\mathrm{RSS} &= \sum_{i=1}^{n}(y_i - \hat y_i)^2 \\[2ex]
-&= \sum_{i=1}^{n} (y_i- \hat \beta_0 - \hat \beta_1 x_{i1} - \hat \beta_2 x_{i2} - \cdots - \hat \beta_p x_{ip})^2
-\end{align} %]]></script>
+\[\begin{align}
+\mathrm{RSS} &amp;= \sum_{i=1}^{n}(y_i - \hat y_i)^2 \\[2ex]
+&amp;= \sum_{i=1}^{n} (y_i- \hat \beta_0 - \hat \beta_1 x_{i1} - \hat \beta_2 x_{i2} - \cdots - \hat \beta_p x_{ip})^2
+\end{align}\]
 
 <p>计算过程可以通过标准统计软件完成。使得 $\mathrm{RSS}$ 最小化的 $\hat \beta_0, \hat \beta_1, \dots, \hat \beta_p$ 的值就是多元最小二乘回归系数估计。</p>
 
@@ -487,11 +483,11 @@
 
 <p>与简单线性回归类似，我们用假设检验回答这个问题：</p>
 
-<script type="math/tex; mode=display">H_0:\beta_1=\beta_2=\dots =\beta_p =0 \qquad \text{vs.} \qquad H_a: \text{at least one }\beta_j \text{ is non-zero}</script>
+\[H_0:\beta_1=\beta_2=\dots =\beta_p =0 \qquad \text{vs.} \qquad H_a: \text{at least one }\beta_j \text{ is non-zero}\]
 
 <p>为此，我们需要计算 <strong>$F$ 统计量</strong>：</p>
 
-<script type="math/tex; mode=display">F=\dfrac{(\mathrm{TSS}-\mathrm{RSS})/p}{\mathrm{RSS}/(n-p-1)} \sim F_{p,n-p-1}</script>
+\[F=\dfrac{(\mathrm{TSS}-\mathrm{RSS})/p}{\mathrm{RSS}/(n-p-1)} \sim F_{p,n-p-1}\]
 
 <p>其中，$\mathrm{TSS}=\sum_{i=1}^{n}(y_i - \overline y)^2$，$\mathrm{RSS}=\sum_{i=1}^{n}(y_i - \hat y_i)^2$。</p>
 
@@ -555,11 +551,11 @@
 
 <p>我们知道，RSE 一般被定义为：</p>
 
-<script type="math/tex; mode=display">\mathrm{RSE}=\sqrt{\dfrac{1}{n-p-1}\mathrm{RSS}}</script>
+\[\mathrm{RSE}=\sqrt{\dfrac{1}{n-p-1}\mathrm{RSS}}\]
 
 <p>在简单线性模型中，可简化为：</p>
 
-<script type="math/tex; mode=display">\mathrm{RSE}=\sqrt{\dfrac{1}{n-2}\mathrm{RSS}}=\sqrt{\dfrac{1}{n-2}\sum_{i=1}^{n}(y_i-\hat y_i)^2}</script>
+\[\mathrm{RSE}=\sqrt{\dfrac{1}{n-2}\mathrm{RSS}}=\sqrt{\dfrac{1}{n-2}\sum_{i=1}^{n}(y_i-\hat y_i)^2}\]
 
 <p>因此，如果相对于变量数量 $p$ 的增加来说，RSS 的减少量较小，那么，变量较多的模型可能反而具有更高的 RSE。</p>
 
@@ -567,7 +563,7 @@
 
 <p>一旦拟合出多元回归模型，应该根据预测变量 $X_1,X_2,\dots,X_p$ 直接用下式预测响应变量 $Y$：</p>
 
-<script type="math/tex; mode=display">\hat y=\hat \beta_0 + \hat \beta_1 x_1 + \hat \beta_2 x_2 +\cdots + \hat \beta_p x_p</script>
+\[\hat y=\hat \beta_0 + \hat \beta_1 x_1 + \hat \beta_2 x_2 +\cdots + \hat \beta_p x_p\]
 
 <p>但是，预测也存在以下三类不确定性：</p>
 
@@ -575,11 +571,11 @@
   <li>
     <p>系数估计值 $\hat \beta_0, \hat \beta_1, \hat \beta_2, \dots, \hat \beta_p$ 是对 $\beta_0, \beta_1, \beta_2, \dots, \beta_p$ 的估计。也就是说，<strong>最小二乘平面 (least squares plane)</strong></p>
 
-    <script type="math/tex; mode=display">\hat Y=\hat \beta_0 + \hat \beta_1 X_1 + \hat \beta_2 X_2 +\cdots + \hat \beta_p X_p</script>
+\[\hat Y=\hat \beta_0 + \hat \beta_1 X_1 + \hat \beta_2 X_2 +\cdots + \hat \beta_p X_p\]
 
     <p>只是对 <strong>真实总体回归平面 (true population regression plane)</strong></p>
 
-    <script type="math/tex; mode=display">f(X)=\beta_0 + \beta_1 X_1 + \beta_2 X_2 +\cdots + \beta_p X_p</script>
+\[f(X)=\beta_0 + \beta_1 X_1 + \beta_2 X_2 +\cdots + \beta_p X_p\]
 
     <p>的一个估计。系数估计的不准确性与上节课中提到的 <strong>可减小误差 (reducible error)</strong> 有关。我们可以计算 <strong>置信区间 (confidence interval)</strong> 以确定 $\hat Y$ 与 $f(X)$ 的接近程度。</p>
 
@@ -613,13 +609,11 @@
 
 <p>如果一个定性预测变量 (也被称为因子) 只有两个水平 (levels) 或可能的取值，那么将它纳入回归模型是非常简单的。我们只需给二值变量创建一个指标，或称 <strong>虚拟变量 (dummy variable)</strong>。例如，我们可以基于 <code class="language-plaintext highlighter-rouge">gender</code> 变量创建一个新变量：</p>
 
-<script type="math/tex; mode=display">% <![CDATA[
-x_i=\begin{cases}1 & \text{if }i\text{-th person is female}\\[2ex] 0 & \text{if }i\text{-th person is male}\end{cases} %]]></script>
+\[x_i=\begin{cases}1 &amp; \text{if }i\text{-th person is female}\\[2ex] 0 &amp; \text{if }i\text{-th person is male}\end{cases}\]
 
 <p>并在回归方程中使用这个变量。从而得到以下模型：</p>
 
-<script type="math/tex; mode=display">% <![CDATA[
-y_i=\beta_0 + \beta_1 x_i + \epsilon_i = \begin{cases}\beta_0 + \beta_1 + \epsilon_i & \text{if }i\text{-th person is female}\\[2ex] \beta_0 + \epsilon_i & \text{if }i\text{-th person is male}\end{cases} %]]></script>
+\[y_i=\beta_0 + \beta_1 x_i + \epsilon_i = \begin{cases}\beta_0 + \beta_1 + \epsilon_i &amp; \text{if }i\text{-th person is female}\\[2ex] \beta_0 + \epsilon_i &amp; \text{if }i\text{-th person is male}\end{cases}\]
 
 <p>那么，这种情况下得到的回归系数应该如何解释呢？</p>
 
@@ -661,18 +655,15 @@ y_i=\beta_0 + \beta_1 x_i + \epsilon_i = \begin{cases}\beta_0 + \beta_1 + \epsil
 
 <p>当一个定性预测变量具有两个以上的水平时，一个单独的虚拟变量无法代表所有可能的值。这种情况下，我们可以创建更多的虚拟变量。例如，我们对于 <code class="language-plaintext highlighter-rouge">ethnicity</code> 变量创建两个虚拟变量。第一个虚拟变量是：</p>
 
-<script type="math/tex; mode=display">% <![CDATA[
-x_{i1}=\begin{cases}1 & \text{if }i\text{-th person is Asian}\\[2ex] 0 & \text{if }i\text{-th person is not Asian}\end{cases} %]]></script>
+\[x_{i1}=\begin{cases}1 &amp; \text{if }i\text{-th person is Asian}\\[2ex] 0 &amp; \text{if }i\text{-th person is not Asian}\end{cases}\]
 
 <p>第二个虚拟变量是：</p>
 
-<script type="math/tex; mode=display">% <![CDATA[
-x_{i2}=\begin{cases}1 & \text{if }i\text{-th person is Caucasian}\\[2ex] 0 & \text{if }i\text{-th person is not Caucasian}\end{cases} %]]></script>
+\[x_{i2}=\begin{cases}1 &amp; \text{if }i\text{-th person is Caucasian}\\[2ex] 0 &amp; \text{if }i\text{-th person is not Caucasian}\end{cases}\]
 
 <p>然后，这两个变量都可以用于回归方程中，得以下模型：</p>
 
-<script type="math/tex; mode=display">% <![CDATA[
-y_i=\beta_0 + \beta_1 x_{i1} +\beta_2 x_{i2} + \epsilon_i = \begin{cases}\beta_0 + \beta_1 + \epsilon_i & \text{if }i\text{-th person is Asian}\\[2ex] \beta_0 + \beta_2 + \epsilon_i & \text{if }i\text{-th person is Caucasian}\\[2ex] \beta_0 + \epsilon_i & \text{if }i\text{-th person is African American}\end{cases} %]]></script>
+\[y_i=\beta_0 + \beta_1 x_{i1} +\beta_2 x_{i2} + \epsilon_i = \begin{cases}\beta_0 + \beta_1 + \epsilon_i &amp; \text{if }i\text{-th person is Asian}\\[2ex] \beta_0 + \beta_2 + \epsilon_i &amp; \text{if }i\text{-th person is Caucasian}\\[2ex] \beta_0 + \epsilon_i &amp; \text{if }i\text{-th person is African American}\end{cases}\]
 
 <p>虚拟变量个数总是比水平数少 $1$。没有相对应的虚拟变量的水平 (即这里的 African American) 被称为 <strong>基准水平 (baseline)</strong>。</p>
 
@@ -725,7 +716,7 @@ y_i=\beta_0 + \beta_1 x_{i1} +\beta_2 x_{i2} + \epsilon_i = \begin{cases}\beta_0
 
 <p><strong>交互作用 (Interactions)</strong>：在先前对广告数据的分析中，我们的线性模型假设一种媒体的广告支出增加引起的 <code class="language-plaintext highlighter-rouge">sales</code> 变化与其他媒体的广告支出无关。例如，对于线性模型</p>
 
-<script type="math/tex; mode=display">\widehat{\mathtt{sales}} = \beta_0 + \beta_1 \times \mathtt{TV} + \beta_2 \times \mathtt{radio}</script>
+\[\widehat{\mathtt{sales}} = \beta_0 + \beta_1 \times \mathtt{TV} + \beta_2 \times \mathtt{radio}\]
 
 <p>可以发现，无论在 <code class="language-plaintext highlighter-rouge">radio</code> 上花费多少，<code class="language-plaintext highlighter-rouge">TV</code> 增加一个单位对 <code class="language-plaintext highlighter-rouge">sales</code> 的平均效应总是 $\beta_1$。</p>
 
@@ -737,11 +728,10 @@ y_i=\beta_0 + \beta_1 x_{i1} +\beta_2 x_{i2} + \epsilon_i = \begin{cases}\beta_0
 
 <p>一种扩展该模型，使其能够考虑交互作用的方法是加入第三个预测变量，名为 <strong>交互项 (interaction term)</strong>，由二者的乘积构成。这里，我们可以用包含 <code class="language-plaintext highlighter-rouge">radio</code>、<code class="language-plaintext highlighter-rouge">TV</code> 以及两者之间的交互项的线性模型来预测 <code class="language-plaintext highlighter-rouge">sales</code>：</p>
 
-<script type="math/tex; mode=display">% <![CDATA[
-\begin{align}
-\mathtt{sales} &= \beta_0 + \beta_1 \times \mathtt{TV} + \beta_2 \times \mathtt{radio} + \beta_3 \times (\mathtt{radio} \times \mathtt{TV}) + \epsilon \\[2ex]
-&= \beta_0 + (\beta_1 + \beta_3 \times \mathtt{radio}) \times \mathtt{TV} + \beta_2 \times \mathtt{radio} + \epsilon
-\end{align} %]]></script>
+\[\begin{align}
+\mathtt{sales} &amp;= \beta_0 + \beta_1 \times \mathtt{TV} + \beta_2 \times \mathtt{radio} + \beta_3 \times (\mathtt{radio} \times \mathtt{TV}) + \epsilon \\[2ex]
+&amp;= \beta_0 + (\beta_1 + \beta_3 \times \mathtt{radio}) \times \mathtt{TV} + \beta_2 \times \mathtt{radio} + \epsilon
+\end{align}\]
 
 <p><span style="font-size:10pt"> <span style="color:steelblue;font-weight:bold">表 9</span>：<code class="language-plaintext highlighter-rouge">Advertising</code> 数据集中，<code class="language-plaintext highlighter-rouge">sales</code> 关于 <code class="language-plaintext highlighter-rouge">TV</code>、<code class="language-plaintext highlighter-rouge">radio</code> 和交互项的回归模型的最小二乘系数估计。</span></p>
 
@@ -797,12 +787,12 @@ y_i=\beta_0 + \beta_1 x_{i1} +\beta_2 x_{i2} + \epsilon_i = \begin{cases}\beta_0
   <li>
     <p><code class="language-plaintext highlighter-rouge">TV</code> 广告费用每增加 $1000$ 美元，<code class="language-plaintext highlighter-rouge">sales</code> 将增加</p>
 
-    <script type="math/tex; mode=display">(\hat \beta_1 +\hat \beta_3\times \mathtt{radio})\times 1000=19+1.1 \times \mathtt{radio} \quad \text{units}</script>
+\[(\hat \beta_1 +\hat \beta_3\times \mathtt{radio})\times 1000=19+1.1 \times \mathtt{radio} \quad \text{units}\]
   </li>
   <li>
     <p><code class="language-plaintext highlighter-rouge">radio</code> 广告费用每增加 $1000$ 美元，<code class="language-plaintext highlighter-rouge">sales</code> 将增加</p>
 
-    <script type="math/tex; mode=display">(\hat \beta_2 +\hat \beta_3\times \mathtt{TV})\times 1000=29+1.1 \times \mathtt{TV} \quad \text{units}</script>
+\[(\hat \beta_2 +\hat \beta_3\times \mathtt{TV})\times 1000=29+1.1 \times \mathtt{TV} \quad \text{units}\]
   </li>
 </ul>
 
@@ -816,21 +806,19 @@ y_i=\beta_0 + \beta_1 x_{i1} +\beta_2 x_{i2} + \epsilon_i = \begin{cases}\beta_0
 
 <p>考虑之前的 <code class="language-plaintext highlighter-rouge">Credit</code> 数据集，假设我们希望用 <code class="language-plaintext highlighter-rouge">income</code> (定量) 和 <code class="language-plaintext highlighter-rouge">student</code> (定性) 预测 <code class="language-plaintext highlighter-rouge">balance</code>。在没有交互项的情况下，模型为：</p>
 
-<script type="math/tex; mode=display">% <![CDATA[
-\begin{align}
-\mathtt{balance}_i &\approx \beta_0 + \beta_1 \times \mathtt{income}_i + \begin{cases}\beta_2 & \text{if }i\text{-th person is a student} \\ 0 & \text{if }i\text{-th person is not a student}\end{cases} \\[2ex]
-&= \beta_1 \times \mathtt{income}_i + \begin{cases}\beta_0 + \beta_2 & \text{if }i\text{-th person is a student} \\ \beta_0 & \text{if }i\text{-th person is not a student}\end{cases}
-\end{align} %]]></script>
+\[\begin{align}
+\mathtt{balance}_i &amp;\approx \beta_0 + \beta_1 \times \mathtt{income}_i + \begin{cases}\beta_2 &amp; \text{if }i\text{-th person is a student} \\ 0 &amp; \text{if }i\text{-th person is not a student}\end{cases} \\[2ex]
+&amp;= \beta_1 \times \mathtt{income}_i + \begin{cases}\beta_0 + \beta_2 &amp; \text{if }i\text{-th person is a student} \\ \beta_0 &amp; \text{if }i\text{-th person is not a student}\end{cases}
+\end{align}\]
 
 <p>请注意，这相当于为数据拟合了两条平行线，一条反映学生的情况，另一条反映非学生的情况。如图 6 的左图所示，两条直线有着不同的截距，分别是 $\beta_0 + \beta_2$ 和 $\beta_0$，但它们都有相同的斜率 $\beta_1$。事实上，两条线平行说明 <code class="language-plaintext highlighter-rouge">income</code> 增加对 <code class="language-plaintext highlighter-rouge">balance</code> 的影响不依赖于信用卡持有者是否 为学生。这意味着模型可能存在严重的局限性，因为事实上对学生与非学生来说，<code class="language-plaintext highlighter-rouge">income</code> 变化对信用卡余额的影响可能差别很大。</p>
 
 <p>该模型局限可以通过增加交互项来解决，交互项由 <code class="language-plaintext highlighter-rouge">student</code> 的虚拟变量乘以 <code class="language-plaintext highlighter-rouge">income</code> 构成，这样模型就变为：</p>
 
-<script type="math/tex; mode=display">% <![CDATA[
-\begin{align}
-\mathtt{balance}_i &\approx \beta_0 + \beta_1 \times \mathtt{income}_i + \begin{cases}\beta_2 + \beta_3 \times \mathtt{income}_i & \text{if }i\text{-th person is a student} \\ 0 & \text{if }i\text{-th person is not a student}\end{cases} \\[2ex]
-&= \begin{cases}(\beta_0 + \beta_2) + (\beta_1 + \beta_3) \times \mathtt{income}_i & \text{if }i\text{-th person is a student} \\ \beta_0 + \beta_1 \times \mathtt{income}_i & \text{if }i\text{-th person is not a student}\end{cases}
-\end{align} %]]></script>
+\[\begin{align}
+\mathtt{balance}_i &amp;\approx \beta_0 + \beta_1 \times \mathtt{income}_i + \begin{cases}\beta_2 + \beta_3 \times \mathtt{income}_i &amp; \text{if }i\text{-th person is a student} \\ 0 &amp; \text{if }i\text{-th person is not a student}\end{cases} \\[2ex]
+&amp;= \begin{cases}(\beta_0 + \beta_2) + (\beta_1 + \beta_3) \times \mathtt{income}_i &amp; \text{if }i\text{-th person is a student} \\ \beta_0 + \beta_1 \times \mathtt{income}_i &amp; \text{if }i\text{-th person is not a student}\end{cases}
+\end{align}\]
 
 <p>我们再一次对学生和非学生生成了两条不同的回归直线，但现在两条回归直线具有不同的截距 $\beta_0+\beta_2$ 和 $\beta_0$，以及不同的斜率 $\beta_1+\beta_3$ 和 $\beta_1$。收入变动可能对学生和非学生的信用卡余额产生不同的影响。</p>
 
@@ -850,7 +838,7 @@ y_i=\beta_0 + \beta_1 x_{i1} +\beta_2 x_{i2} + \epsilon_i = \begin{cases}\beta_0
 
 <p>图 7 显示了 <code class="language-plaintext highlighter-rouge">Auto</code> 数据集中一些汽车的 <code class="language-plaintext highlighter-rouge">mpg</code> (英里每加仑，即油耗) 和 <code class="language-plaintext highlighter-rouge">horsepower</code> (马力)。橙色的线代表线性回归拟合。<code class="language-plaintext highlighter-rouge">mpg</code> 和 <code class="language-plaintext highlighter-rouge">horsepower</code> 无疑是相关的，但它们的关系明显是非线性的：数据呈现出一种曲线关系。<strong>使用预测变量的转换形式</strong> 是一种将非线性因素纳入线性模型的简单方法。例如，图 7 中的点似乎有 <strong>二次方 (quadratic)</strong> 的形状特征，这表明模型</p>
 
-<script type="math/tex; mode=display">\mathtt{mpg} = \beta_0 + \beta_1 \times \mathtt{horsepower} + \beta_2 \times \mathtt{horsepower}^2 + \epsilon</script>
+\[\mathtt{mpg} = \beta_0 + \beta_1 \times \mathtt{horsepower} + \beta_2 \times \mathtt{horsepower}^2 + \epsilon\]
 
 <p>可能会提供更好的拟合，这里我们用 <code class="language-plaintext highlighter-rouge">horsepower</code> 的非线性函数预测 <code class="language-plaintext highlighter-rouge">mpg</code>，但它仍然是一个 <strong>线性模型</strong>。事实上，这是一个多元线性回归模型，其中 $X_1=\mathtt{horsepower}$，$X_2=\mathtt{horsepower}^2$。因此，我们可以用标准线性回归软件来估计 $\beta_0$、$\beta_1$ 和 $\beta_2$ 以得到非线性拟合。</p>
 

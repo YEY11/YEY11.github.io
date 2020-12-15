@@ -1,0 +1,12 @@
+I"$<h1 id="lecture-19-降维">Lecture 19 降维</h1>
+<h2 id="主要内容">主要内容</h2>
+<ul>
+  <li><strong>主成成分分析（PCA）</strong>
+    <ul>
+      <li>线性降维方法</li>
+      <li>对角化协方差矩阵</li>
+    </ul>
+  </li>
+  <li><strong>核化 PCA</strong></li>
+</ul>
+:ET

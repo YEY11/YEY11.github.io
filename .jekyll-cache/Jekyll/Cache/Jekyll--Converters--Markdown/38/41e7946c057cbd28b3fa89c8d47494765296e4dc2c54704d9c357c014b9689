@@ -1,4 +1,4 @@
-I"><h1 id="lecture-05-重抽样方法">Lecture 05 重抽样方法</h1>
+I"�}<h1 id="lecture-05-重抽样方法">Lecture 05 重抽样方法</h1>
 
 <p><strong>参考教材</strong>：</p>
 
@@ -97,7 +97,7 @@
 
 <p>计算 $K$-折 CV 估计：</p>
 
-<script type="math/tex; mode=display">\mathrm{CV}_{(K)}=\sum_{k=1}^{K}\dfrac{n_k}{n} \mathrm{MSE}_k</script>
+\[\mathrm{CV}_{(K)}=\sum_{k=1}^{K}\dfrac{n_k}{n} \mathrm{MSE}_k\]
 
 <p>其中，$\mathrm{MSE}_k = \sum_{i\in C_k} (y_i - \hat y_i)^2 / n_k$，而 $\hat y_i$ 是第 $i$ 个观测的拟合值，它是通过移除第 $k$ 个部分后拟合出的模型得到的。</p>
 
@@ -107,7 +107,7 @@
 
 <p>LOOCV 方法的计算量可能很大，因为模型需要被拟合 $n$ 次。但是，使用最小二乘法来拟合线性或多项式回归时，可以将 LOOCV 的计算成本缩减到与单个模型拟合成本相同。计算公式如下：</p>
 
-<script type="math/tex; mode=display">\mathrm{CV}_{(n)}=\dfrac{1}{n}\sum_{i=1}^{n}\left(\dfrac{y_i - \hat y_i}{1- h_i}\right)^2</script>
+\[\mathrm{CV}_{(n)}=\dfrac{1}{n}\sum_{i=1}^{n}\left(\dfrac{y_i - \hat y_i}{1- h_i}\right)^2\]
 
 <p>其中，$\hat y_i$ 是原始最小二乘拟合的第 $i$ 个拟合值，$h_i$ 是杠杆值 (帽子矩阵的对角线上的第 $i$ 个元素；有关详细信息，请参见教材)。类似于普通的 $\mathrm{MSE}$，区别仅在于第 $i$ 个残差除了一个系数 $1-h_i$。</p>
 
@@ -147,13 +147,13 @@
 
 <p>计算交叉验证估计 $\mathrm{CV}_{(K)}$：</p>
 
-<script type="math/tex; mode=display">\mathrm{CV}_{(K)} = \sum_{k=1}^{K}\dfrac{n_k}{n}\text{Err}_k</script>
+\[\mathrm{CV}_{(K)} = \sum_{k=1}^{K}\dfrac{n_k}{n}\text{Err}_k\]
 
 <p>其中，$\text{Err}_k = \sum_{i\in C_k} I(y_i \ne \hat y_i)/n_k$。</p>
 
 <p>$\mathrm{CV}_{(K)}$ 的标准差的估计为：</p>
 
-<script type="math/tex; mode=display">\widehat{\mathrm{SE}}(\mathrm{CV}_{(K)}) = \sqrt{\sum_{k=1}^{K}(\text{Err}_k-\overline{\text{Err}_k})^2 / (K-1)}</script>
+\[\widehat{\mathrm{SE}}(\mathrm{CV}_{(K)}) = \sqrt{\sum_{k=1}^{K}(\text{Err}_k-\overline{\text{Err}_k})^2 / (K-1)}\]
 
 <p>这是一个有用的估计，但严格来说，还不是很有效。</p>
 
@@ -219,7 +219,7 @@
 
 <p>可以证明，能够使风险最小化的 $\alpha$ 的值为：</p>
 
-<script type="math/tex; mode=display">\alpha = \dfrac{\sigma_Y^2 - \sigma_{XY}}{\sigma_X^2 + \sigma_Y^2 -2\sigma_{XY}}</script>
+\[\alpha = \dfrac{\sigma_Y^2 - \sigma_{XY}}{\sigma_X^2 + \sigma_Y^2 -2\sigma_{XY}}\]
 
 <p>其中，$\sigma_X^2= \mathrm{Var}(X),\;\sigma_Y^2= \mathrm{Var}(Y),\;\sigma_{XY}= \mathrm{Cov}(X,Y)$。</p>
 
@@ -227,7 +227,7 @@
 
 <p>然后，我们就可以估计出使得投资方差最小化的 $\alpha$ 值：</p>
 
-<script type="math/tex; mode=display">\hat \alpha = \dfrac{\hat \sigma_Y^2 - \hat \sigma_{XY}}{\hat \sigma_X^2 + \hat \sigma_Y^2 -2\hat \sigma_{XY}}</script>
+\[\hat \alpha = \dfrac{\hat \sigma_Y^2 - \hat \sigma_{XY}}{\hat \sigma_X^2 + \hat \sigma_Y^2 -2\hat \sigma_{XY}}\]
 
 <p>图 9 展示了在一个模拟数据集上用此方法估计 $\alpha$ 的结果。</p>
 
@@ -241,11 +241,11 @@
 
 <p>$\alpha$ 全部 $1000$ 个估计的均值为：</p>
 
-<script type="math/tex; mode=display">\overline \alpha = \dfrac{1}{1000}\sum_{r=1}^{1000}\hat \alpha_r = 0.5996</script>
+\[\overline \alpha = \dfrac{1}{1000}\sum_{r=1}^{1000}\hat \alpha_r = 0.5996\]
 
 <p>这与 $\alpha=0.6$ 非常接近，而该估计量的标准差为：</p>
 
-<script type="math/tex; mode=display">\sqrt{\dfrac{1}{1000-1}\sum_{r=1}^{1000}(\hat \alpha_r - \overline \alpha)^2} =0.083</script>
+\[\sqrt{\dfrac{1}{1000-1}\sum_{r=1}^{1000}(\hat \alpha_r - \overline \alpha)^2} =0.083\]
 
 <p>这为我们提供了一个关于 $\hat \alpha$ 精度的很好的认识：$\mathrm{SE}(\hat \alpha)\approx 0.083$。</p>
 
@@ -275,7 +275,7 @@
 
 <p>然后，我们可以利用下面的公式计算这些 bootstrap 估计的标准误：</p>
 
-<script type="math/tex; mode=display">\mathrm{SE}_B(\hat \alpha)=\sqrt{\dfrac{1}{B-1}\sum_{r=1}^{B}(\hat \alpha^{*r} - \overline{\hat \alpha^*})^2}</script>
+\[\mathrm{SE}_B(\hat \alpha)=\sqrt{\dfrac{1}{B-1}\sum_{r=1}^{B}(\hat \alpha^{*r} - \overline{\hat \alpha^*})^2}\]
 
 <p>其中，$\overline{\hat \alpha^*}=\frac{1}{B}\sum_{r’=1}^{B}\hat \alpha^{* r’}$。</p>
 
@@ -311,7 +311,7 @@
   <li>
     <p>但是，每个 bootstrap 样本都与原始数据有很大的 <strong>重叠</strong> 部分。事实上，大约有三分之二的原始数据点会出现在每个 bootstrap 样本中。简单证明如下：</p>
 
-    <script type="math/tex; mode=display">\Pr\{i\text{-th observation} \in Z^{*b}\} = 1-\left(1- \dfrac{1}{n}\right)^n \approx 1- e^{-1} =0.632</script>
+\[\Pr\{i\text{-th observation} \in Z^{*b}\} = 1-\left(1- \dfrac{1}{n}\right)^n \approx 1- e^{-1} =0.632\]
   </li>
   <li>
     <p>这将导致 bootstrap <strong>严重低估</strong> 真实的预测误差。因为大量数据重叠导致过拟合使得 bootstrap 的估计误差仅为真实误差的大约三分之一。</p>

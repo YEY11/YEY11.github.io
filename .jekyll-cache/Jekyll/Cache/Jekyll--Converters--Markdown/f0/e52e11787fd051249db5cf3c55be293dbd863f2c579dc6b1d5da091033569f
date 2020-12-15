@@ -1,0 +1,249 @@
+I"�%<h1 id="lecture-15-贝叶斯分类">Lecture 15 贝叶斯分类</h1>
+<h2 id="主要内容">主要内容</h2>
+<ul>
+  <li><strong>离散设定下的贝叶斯思想</strong>
+    <ul>
+      <li>Beta-Binomial 共轭</li>
+    </ul>
+  </li>
+  <li><strong>贝叶斯分类</strong>
+    <ul>
+      <li>非共轭的渐进必要性</li>
+    </ul>
+  </li>
+</ul>
+
+<h2 id="1-离散设定下的贝叶斯思想">1. 离散设定下的贝叶斯思想</h2>
+<h3 id="11-如何将贝叶斯观点应用于离散数据">1.1 如何将贝叶斯观点应用于离散数据？</h3>
+<ul>
+  <li>优先考虑 <strong>生成</strong> 输入的 <strong>生成式模型</strong>
+    <ul>
+      <li>
+        <p>对比 <strong>判别式模型</strong>，其将输入作为 <strong>条件</strong></p>
+
+        <table>
+          <thead>
+            <tr>
+              <th>生成式模型</th>
+              <th>判别式模型</th>
+            </tr>
+          </thead>
+          <tbody>
+            <tr>
+              <td>对输入 $\boldsymbol x$ 和标签 $y$ 的联合分布 $p(\boldsymbol x,y)$进行建模，并通过贝叶斯规则来计算 $p(y\mid \boldsymbol x)$，然后选择最可能的标签 $y$ 进行预测</td>
+              <td>直接对后验条件概率 $p(y\mid \boldsymbol x)$ 建模，或者从输入 $\boldsymbol x$ 学习一个直接映射到类别的标签 $y$</td>
+            </tr>
+            <tr>
+              <td>例如：朴素贝叶斯</td>
+              <td>例如：Logistic 回归</td>
+            </tr>
+          </tbody>
+        </table>
+      </li>
+    </ul>
+  </li>
+  <li>为了便于理解，我们从最基础的设定开始
+    <ul>
+      <li>抛 $n$ 次硬币，其中有 $k$ 次正面朝上</li>
+      <li>只有 $\boldsymbol x$（结果的序列），没有 “类别” $y$</li>
+    </ul>
+  </li>
+  <li>在离散数据上应用 <span style="color:red">生成式模型</span>
+    <ul>
+      <li>例如，<a href="https://www.jiqizhixin.com/graph/technologies/e49b21d8-935a-4da6-910d-504c79b9785f">主题模型</a>、生成式分类器（朴素贝叶斯模型、<a href="https://zhuanlan.zhihu.com/p/93732903">多项式混合模型</a>）</li>
+    </ul>
+  </li>
+</ul>
+
+<h3 id="12-离散共轭先验beta-binomial">1.2 离散共轭先验：Beta-Binomial</h3>
+<ul>
+  <li>离散空间也存在共轭先验</li>
+  <li>考虑抛 $n$ 次硬币，其中有 $k$ 次正面朝上
+    <ul>
+      <li>令单次抛掷正面朝上的概率为 $p(Head)=q$（<span style="color:red">伯努利分布</span>）</li>
+      <li>推断问题为：硬币是否是公正的（即 $q \approx 0.5$）？</li>
+    </ul>
+  </li>
+  <li>
+    <p>多次尝试，利用 <span style="color:red">二项式分布</span></p>
+
+\[p(k|n,q)= {n\choose k}q^k(1-q)^{n-k}\]
+
+    <ul>
+      <li>
+        <p>以及它的共轭先验 <span style="color:red">Beta 分布</span></p>
+
+\[\begin{align}
+p(q) &amp;= \text{Beta}(q;\alpha,\beta) \\
+&amp;= \dfrac{\gamma(\alpha+\beta)}{\gamma(\alpha)\gamma(\beta)}q^{\alpha-1}(1-q)^{\beta-1}
+\end{align}\]
+      </li>
+    </ul>
+  </li>
+</ul>
+
+<h3 id="13-beta-分布">1.3 Beta 分布</h3>
+
+<p><img src="http://andy-blog.oss-cn-beijing.aliyuncs.com/blog/2020-02-21-730e0cf3d7ca7bcbee16a1b6b5096b63f624a83e.png" width="60%" /></p>
+
+<center> <span style="font-size:10pt"> Source: <span style="font-style:italic"><a href="https://en.wikipedia.org/wiki/Beta_distribution/">https://en.wikipedia.org/wiki/Beta_distribution</a></span></span></center>
+
+<h3 id="14-beta-binomial-共轭">1.4 Beta-Binomial 共轭</h3>
+<ul>
+  <li>
+    <p>二项式（Binomial）分布</p>
+
+\[p(k|n,q)= {n\choose k}q^k(1-q)^{n-k}\]
+  </li>
+  <li>
+    <p>Beta 分布</p>
+
+\[\begin{align}
+  p(q) &amp;= \text{Beta}(q;\alpha,\beta) \\
+  &amp;= \color{red}{\dfrac{\gamma(\alpha+\beta)}{\gamma(\alpha)\gamma(\beta)}}q^{\alpha-1}(1-q)^{\beta-1}  \qquad \color{red}{\text{很好，现在我们知道了 Beta 分布的归一化算子}}
+  \end{align}\]
+  </li>
+  <li>
+    <p>证明二者共轭：</p>
+
+\[\begin{eqnarray}
+\color{green}{\text{贝叶斯后验} \qquad p(q|k,n)}\; &amp;{\color{purple}\propto}&amp; p(k|n,q)p(q) \\
+&amp;{\color{purple}\propto}&amp; q^k(1-q)^{n-k}q^{\alpha-1}(1-q)^{\beta-1} \\
+&amp;{\color{black}=}&amp; q^{k+\alpha-1}(1-q)^{n-k+\beta-1} \\
+&amp;{\color{purple}\propto}&amp; \color{red}{\text{Beta}}(q;k+\alpha,n-k+\beta) \qquad \color{purple}{\text{技巧：忽略常数项因子（归一化算子）}}
+\end{eqnarray}\]
+  </li>
+</ul>
+
+<h3 id="15-归一化的唯一性">1.5 归一化的唯一性</h3>
+<ul>
+  <li>我们多次用到了一种技巧：
+当一个非规范分布（unnormalized distribution）和某一已知分布成比例时，我们可以认为其就是该分布。</li>
+  <li>如果 $f(\theta) \propto g(\theta)$，其中 $g$ 为某一已知分布，那么 $\dfrac{f(\theta)}{\int_{\boldsymbol \Theta} f(\theta)\,\text{d}\theta}=g(\theta)$</li>
+  <li>
+    <p><strong><span style=" color:steelblue">证明：</span></strong> $f(\theta) \propto g(\theta)$ 意味着</p>
+
+\[f(\theta) = C\cdot g(\theta) \tag{1}\]
+
+\[\int_{\boldsymbol \Theta} f(\theta)\,\text{d}\theta = C\cdot \int_{\boldsymbol \Theta} g(\theta)\,\text{d}\theta = C \tag{2}\]
+
+    <p>将 $(1)$ 和 $(2)$ 的等号两边的对应项相除，即可得到</p>
+
+\[\dfrac{f(\theta)}{\int_{\boldsymbol \Theta} f(\theta)\,\text{d}\theta}=g(\theta)\]
+  </li>
+</ul>
+
+<h3 id="16-拉普拉斯的日出问题">1.6 拉普拉斯的日出问题</h3>
+
+<blockquote>
+  <p>每天清晨，你都观察到太阳升起。仅基于这一事实，明天太阳会升起的概率是多少？</p>
+</blockquote>
+
+<p><img src="http://andy-blog.oss-cn-beijing.aliyuncs.com/blog/2020-02-21-sunrise.jpg" width="30%" /></p>
+
+<ul>
+  <li>利用 Beta-Binomial 共轭，其中 $q$ 为太阳早上升起的概率 $\Pr($ <em>“太阳早上升起”</em> $)$
+    <ul>
+      <li>后验
+\(p(q|k.n)=\text{Beta}(q;k+\alpha,n-k+\beta)\)</li>
+      <li>$n=k=$ 观察者的年龄（按天数计算）</li>
+      <li>令 $\alpha=\beta=1$（等同于均匀分布先验）</li>
+    </ul>
+  </li>
+  <li>
+    <p>基于上面这些假设，可以得到后验</p>
+
+\[p(q|k)=\text{Beta}(q;\color{purple}{k+1},\color{purple}{1}) \qquad \color{purple}{\text{“自然地”计算太阳升起 / 没有升起的天数}}\]
+
+    <p>所以，明天早上太阳升起的概率的期望为</p>
+
+\[E_{p(q|k)}[q]=\dfrac{k+1}{k+2}\qquad\qquad\]
+  </li>
+</ul>
+
+<p>考虑观察者的年龄：</p>
+
+<p><img src="http://andy-blog.oss-cn-beijing.aliyuncs.com/blog/2020-02-21-WX20200222-015836%402x.png" /></p>
+
+<p>随着数据的增加，<strong>先验的影响逐渐减小，但永远不会消失</strong>。</p>
+
+<h3 id="17-常见的共轭先验">1.7 常见的共轭先验</h3>
+<p><img src="http://andy-blog.oss-cn-beijing.aliyuncs.com/blog/2020-02-21-WX20200222-014957%402x.png" width="80%" /></p>
+
+<h2 id="2-贝叶斯-logistic-回归">2. 贝叶斯 Logistic 回归</h2>
+<p><strong>判别式分类器，将输入作为条件对后验建模。在这样的设定下，我们应该如何进行贝叶斯推断？</strong></p>
+<h3 id="21-再看-logistic-回归">2.1 再看 Logistic 回归</h3>
+<ul>
+  <li>与回归问题相比，同样存在类似的参数不确定性问题
+    <ul>
+      <li>尽管内置了预测不确定性对输出建模</li>
+    </ul>
+  </li>
+</ul>
+
+<p><img src="http://andy-blog.oss-cn-beijing.aliyuncs.com/blog/2020-02-22-WX20200222-115957%402x.png" /></p>
+
+<center><span style="font-size:10pt">Source: <span style="font-style:italic">Machine Learning A Probabilistic Perspective, MLAPP (p.257-258)</span> by Murphy</span></center>
+
+<h3 id="22-共轭不存在的情况">2.2 共轭不存在的情况</h3>
+<ul>
+  <li>我们可以利用共轭先验吗？例如：
+    <ul>
+      <li>生成二分类模型（generative binary models）的 Beta-Binomial 共轭</li>
+      <li>多分类模型的 Dirichlet-Multinomial 共轭（类似的公式）</li>
+    </ul>
+  </li>
+  <li>
+    <p>模型是 <span style="color:red">判别式的</span>，Logistic 回归的参数由  sigmoid 函数定义（或者，对于多分类模型，参数由 softmax 函数定义；类似的问题和类似的解）</p>
+
+\[p(y|q,\boldsymbol x)=q^y(1-q)^{1-y}\]
+
+\[q=\sigma(\boldsymbol x'\boldsymbol w)\]
+
+    <ul>
+      <li>需要 $\boldsymbol w$ 的先验，而不是 $q$</li>
+      <li><span style="color:red">没有已知的共轭先验</span>，所以使用高斯先验</li>
+    </ul>
+  </li>
+</ul>
+
+<h3 id="23-近似">2.3 近似</h3>
+<ul>
+  <li>
+    <p>归一化常数没有已知的解</p>
+
+\[\begin{align}
+p(\boldsymbol w|\boldsymbol X,\boldsymbol y) &amp;\propto p(\boldsymbol w)p(\boldsymbol y|\boldsymbol X,\boldsymbol w) \\
+&amp;= \text{Normal}(\boldsymbol 0,\sigma^2 \boldsymbol I)\prod_{i=1}^{n}\sigma(\boldsymbol x_i'\boldsymbol w)^{y_i}\left(1-\sigma(\boldsymbol x_i'\boldsymbol w)\right)^{1-y_i}
+\end{align}\]
+  </li>
+  <li>
+    <p>通过近似求解<br />
+<strong><span style="color:steelblue">拉普拉斯近似：</span></strong></p>
+    <ul>
+      <li>假定众数的后验服从渐进正态</li>
+      <li>可以计算归一化常数、抽样等</li>
+    </ul>
+
+    <p><img src="http://andy-blog.oss-cn-beijing.aliyuncs.com/blog/2020-02-22-WX20200222-130306%402x.png" width="50%" /></p>
+
+    <center><span style="font-size:10pt">Source: <span style="font-style:italic">Machine Learning A Probabilistic Perspective, MLAPP (p.258)</span> by Murphy</span></center>
+  </li>
+</ul>
+
+<h2 id="总结">总结</h2>
+<ul>
+  <li>离散设定下的贝叶斯思想
+    <ul>
+      <li>Beta-Binomial 共轭</li>
+    </ul>
+  </li>
+  <li>贝叶斯分类
+    <ul>
+      <li>非共轭的渐进必要性</li>
+    </ul>
+  </li>
+</ul>
+
+<p>下节内容：概率图模型</p>
+:ET

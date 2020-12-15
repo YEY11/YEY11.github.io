@@ -1,0 +1,387 @@
+I"�3<h1 id="lecture-4-logistic-回归与基扩展">Lecture 4 Logistic 回归与基扩展</h1>
+<h2 id="主要内容">主要内容</h2>
+<ul>
+  <li><strong>Logistic 回归</strong>
+    <ul>
+      <li>一种主流的二分类算法</li>
+    </ul>
+  </li>
+  <li><strong>基扩展</strong>
+    <ul>
+      <li>通过数据转换扩展模型的表现能力</li>
+      <li>线性回归和 Logistic 回归的例子</li>
+      <li>理论注释</li>
+    </ul>
+  </li>
+</ul>
+
+<h2 id="1-logistic-回归模型">1. Logistic 回归模型</h2>
+<p><strong>一种主流的二分类算法</strong></p>
+<h3 id="11-二分类例子">1.1 二分类：例子</h3>
+
+<p><img src="https://tva1.sinaimg.cn/large/006y8mN6ly1g8da4ba4y8j30ku0mgq43.jpg" width="30%" align="right" /></p>
+
+<ul>
+  <li>例子：给定体重指数（BMI），患者是否患有 2 型糖尿病（T2D）？</li>
+  <li>这种类型的问题称为二分类问题</li>
+  <li>一种方法是采用线性回归
+    <ul>
+      <li>用数据拟合一条直线 / 超平面
+(找到权重 $\boldsymbol w$)</li>
+      <li>记为 $s\equiv \boldsymbol{x’w}$</li>
+      <li>如果 $s\ge 0.5$，预测为 “是”</li>
+      <li>如果 $s&lt; 0.5$，预测为 “否”</li>
+    </ul>
+  </li>
+</ul>
+
+<h3 id="12-分类策略">1.2 分类策略</h3>
+
+<p><img src="https://tva1.sinaimg.cn/large/006y8mN6ly1g8dc07u76yj30nq0iwtb1.jpg" width="30%" align="right" /></p>
+
+<ul>
+  <li>这种方法容易受到异常值的影响</li>
+  <li>总体而言，最小二乘标准在这种情况下看起来不自然</li>
+  <li>有许多专门针对二分类问题而开发的方法</li>
+  <li>例如，Logistic 回归、感知器、支持向量机（SVM）
+<br /><br /></li>
+</ul>
+
+<h3 id="13-logistic-回归模型">1.3 Logistic 回归模型</h3>
+
+<p><img src="https://tva1.sinaimg.cn/large/006y8mN6ly1g8dcjbutp6j31820okwjl.jpg" width="60%" /></p>
+
+<ul>
+  <li>概率分类方法
+    <ul>
+      <li>$P(Y=1\mid\boldsymbol x)=f(\boldsymbol x)=?$</li>
+      <li>采用线性函数？例如：$s(\boldsymbol x)=\boldsymbol{x’w}$</li>
+    </ul>
+  </li>
+  <li>问题是：概率需要介于 0 到 1 之间。</li>
+  <li>Logistic 函数：$f(s)=\dfrac{1}{1+\exp(-s)}$</li>
+  <li>
+    <p>Logistic 回归模型：</p>
+
+    <p>$P(Y=1 \mid \boldsymbol x)=\dfrac{1}{1+\exp(-\boldsymbol{x’w})}$</p>
+  </li>
+  <li>
+    <p>等价于对数几率比的线性模型：</p>
+
+    <p>$\log \dfrac{P(Y=1 \mid \boldsymbol x)}{P(Y=0 \mid \boldsymbol x)}=\boldsymbol{x’w}$</p>
+  </li>
+</ul>
+
+<p><strong>思考：Logistic 回归是一种线性方法吗？</strong></p>
+
+<h3 id="14-logistic-回归是一种线性分类器">1.4 Logistic 回归是一种线性分类器</h3>
+<ul>
+  <li>
+    <p>Logistic 回归模型：</p>
+
+    <p>$P(Y=1 \mid \boldsymbol x)=\dfrac{1}{1+\exp(-\boldsymbol{x’w})}$</p>
+  </li>
+  <li>
+    <p>分类规则：</p>
+
+    <p>如果 $P(Y=1 \mid \boldsymbol x)&gt;\dfrac{1}{2}$ ，则分类为 “1”，否则分类为 “0”</p>
+  </li>
+  <li>
+    <p>决策边界：</p>
+
+    <p>$\dfrac{1}{1+\exp(-\boldsymbol{x’w})}=\dfrac{1}{2}$ ，即 $\boldsymbol{x’w}=0$</p>
+  </li>
+</ul>
+
+<h3 id="15-参数向量的影响二维问题">1.5 参数向量的影响（二维问题）</h3>
+
+<p><img src="https://tva1.sinaimg.cn/large/006y8mN6ly1g8dct0d4vqj30v40k846k.jpg" width="60%" /></p>
+
+<ul>
+  <li>决策边界是直线 $P(Y=1 \mid \boldsymbol x)=0.5$
+    <ul>
+      <li>在高维问题中，决策边界是一个平面或者超平面</li>
+    </ul>
+  </li>
+  <li>向量 $\boldsymbol w$ 与决策边界呈直角
+    <ul>
+      <li>即 $\boldsymbol w$ 是决策边界的法线</li>
+      <li>注意：出于简化考虑，图中我们假设 $w_0=0$</li>
+    </ul>
+  </li>
+</ul>
+
+<h3 id="16-线性-vs-logistic-概率模型">1.6 线性 vs. Logistic 概率模型</h3>
+<ul>
+  <li>
+    <p>线性回归假设一个正态分布，具有固定的方差和均值，由线性模型给出：</p>
+
+    <p>$p(y \mid \boldsymbol x)=Normal(\boldsymbol{x’w},\sigma^2)$</p>
+  </li>
+  <li>
+    <p>Logistic 回归假设一个伯努利分布，参数由线性模型的 Logistic 变换给出：</p>
+
+    <p>$p(y \mid \boldsymbol x)=Bernoulli(\text{logistic}(\boldsymbol{x’w}))$</p>
+  </li>
+  <li>
+    <p>回忆伯努利分布的定义：</p>
+
+    <p>$p(1)=\theta$ 和 $p(0)=1-\theta$，其中 $\theta\in[0,1]$</p>
+  </li>
+  <li>
+    <p>相当于：</p>
+
+    <p>$p(y)=\theta^y(1-\theta)^{1-y}$，其中 $y\in{0,1}$</p>
+  </li>
+</ul>
+
+<h3 id="17-利用最大似然估计训练">1.7 利用最大似然估计训练</h3>
+<ul>
+  <li>
+    <p>假设数据点之间互相独立，数据的概率为：</p>
+
+    <p>$p(y_1,…,y_n \mid \boldsymbol x_1,…,\boldsymbol x_n)=\prod_{i=1}^{n}p(y_i \mid \boldsymbol x_i)$</p>
+  </li>
+  <li>
+    <p>假设伯努利分布，可以得到：</p>
+
+    <p>$p(y_i \mid \boldsymbol x_i)=(\theta(\boldsymbol x_i))^{y_i}(1-\theta(\boldsymbol x_i))^{1-y_i}$</p>
+
+    <p>其中，$\theta(\boldsymbol x_i)=\dfrac{1}{1+\exp(-\boldsymbol{x’w})}$</p>
+  </li>
+  <li>
+    <p>训练：最大化上式的权重 $\boldsymbol w$</p>
+  </li>
+</ul>
+
+<h3 id="18-采用-log-技巧进行简化">1.8 采用 Log 技巧进行简化</h3>
+<ul>
+  <li>
+    <p>相比最大化似然函数，我们选择最大化其对数：</p>
+
+\[\begin{eqnarray}
+\log\left(\prod_{i=1}^{n}p(y_i \mid \boldsymbol x_i)\right)&amp;=&amp;\sum_{i=1}^{n}\log p(y_i \mid \boldsymbol x_i)\\
+&amp;=&amp; \sum_{i=1}^{n}\log\left((\theta(\boldsymbol x_i))^{y_i}(1-\theta(\boldsymbol x_i))^{1-y_i}\right)\\
+&amp;=&amp; \sum_{i=1}^{n}\left(y_i\log(\theta(\boldsymbol x_i))+(1-y_i)\log(1-\theta(\boldsymbol x_i))\right)\\
+&amp;=&amp; \sum_{i=1}^{n}\left((y_i-1)\boldsymbol x_i'\boldsymbol w-\log(1+\exp(-\boldsymbol x_i'\boldsymbol w))\right)\\
+\end{eqnarray}\]
+  </li>
+</ul>
+
+<h3 id="19-迭代优化">1.9 迭代优化</h3>
+
+<p><img src="https://tva1.sinaimg.cn/large/006y8mN6ly1g8de125bwpj30hc0h6dmw.jpg" width="30%" align="right" /></p>
+
+<ul>
+  <li>训练 Logistic 回归相当于寻找使对数似然函数最大化的 $\boldsymbol w$</li>
+  <li>解析方法：将目标函数的偏导数设为零，求解 $\boldsymbol w$</li>
+  <li><strong>坏消息</strong>：没有闭合解，必须采用迭代方法（例如：梯度下降、牛顿-拉弗森、迭代加权最小二乘）</li>
+  <li><strong>好消息</strong>：如果没有不相关特征，问题是严格凸的（碗形），可以保证优化方法是有效的</li>
+</ul>
+
+<p>展望（Lecture 5）：正则化可以帮助处理不相关特征</p>
+
+<h2 id="2-logistic-回归决策理论视角">2. Logistic 回归：决策理论视角</h2>
+<p><strong>其中损失函数就是交叉熵</strong></p>
+<h3 id="21-交叉熵">2.1 交叉熵</h3>
+<ul>
+  <li>交叉熵是一种比较两个分布的方法</li>
+  <li>
+    <p>交叉熵是对参考分布 $g_{ref}(a)$ 和估计分布 $g_{est}(a)$ 之间散度的一种度量。
+对于离散分布：</p>
+
+    <p>$H(g_{ref},g_{est})=-\sum\limits_{a\in A}g_{ref}(a)\log g_{est}(a)$</p>
+
+    <p>其中，$A$ 是分布的支撑集，例如：$A={0,1}$</p>
+  </li>
+</ul>
+
+<h3 id="22-训练使得交叉熵最小化">2.2 训练使得交叉熵最小化</h3>
+<ul>
+  <li>
+    <p>考虑一个单独数据点的对数似然函数：</p>
+
+    <p>$\log p(y_i \mid \boldsymbol x_i)=y_i\log(\theta(\boldsymbol x_i))+(1-y_i)\log(1-\theta(\boldsymbol x_i))$</p>
+  </li>
+  <li>上式为负交叉熵</li>
+  <li>
+    <p>交叉熵：</p>
+
+    <p>$H(g_{ref},g_{est})=-\sum_a g_{ref}(a)\log g_{est}(a)$</p>
+  </li>
+  <li>
+    <p>参考（真实）分布为：</p>
+
+    <p>$g_{ref}(1)=y_i$ 和 $g_{ref}(0)=1-y_i$</p>
+  </li>
+  <li>
+    <p>Logistic 回归将该分布估计为：</p>
+
+    <p>$g_{ref}(1)=\theta(\boldsymbol x_i)$ 和 $g_{ref}(0)=1-\theta(\boldsymbol x_i)$</p>
+
+    <p>它找到使得每个训练数据交叉熵的和最小化的 $\boldsymbol w$</p>
+  </li>
+</ul>
+
+<h2 id="3-基扩展">3. 基扩展</h2>
+<p><strong>通过数据转换扩展模型的可用性</strong></p>
+<h3 id="31-线性回归的基扩展">3.1 线性回归的基扩展</h3>
+
+<p><img src="https://tva1.sinaimg.cn/large/006y8mN6ly1g8df2ee2ylj30cc0emq3e.jpg" width="20%" align="right" /></p>
+
+<ul>
+  <li>让我们后退一步。回到线性回归和最小二乘</li>
+  <li>实际数据可能是非线性的</li>
+  <li>如果我们仍然想使用线性回归，应该怎么办？
+    <ul>
+      <li>因为它简单、易于理解、计算效率高等。</li>
+    </ul>
+  </li>
+  <li>如何将非线性数据与线性方法结合起来？</li>
+</ul>
+
+<p><em>如果你无法击败他们，那就加入他们。</em></p>
+
+<h3 id="32-转换数据">3.2 转换数据</h3>
+<ul>
+  <li>诀窍是转换数据：将数据映射到另一个特征空间，在该空间内数据是线性的</li>
+  <li>
+    <p>将该转换记为 $\varphi:\Bbb R^m \rightarrow \Bbb R^k$</p>
+
+    <p>如果 $\boldsymbol x$ 是原始特征集合，那么 $\varphi(\boldsymbol x)$ 表示新的特征集合</p>
+  </li>
+  <li>例子：假设只有一个特征 $x$，数据点呈一条抛物线而非直线<br />
+<img src="https://tva1.sinaimg.cn/large/006y8mN6ly1g8dfek4hy1j30d407uwej.jpg" width="20%" /></li>
+</ul>
+
+<h3 id="33-例子多项式回归">3.3 例子：多项式回归</h3>
+<p><img src="https://tva1.sinaimg.cn/large/006y8mN6ly1g8dfngo8myj30cm098aab.jpg" width="20%" align="right" /></p>
+
+<ul>
+  <li>
+    <p>别担心，我们可以定义：</p>
+
+    <p>$\varphi_1(x)=x$</p>
+
+    <p>$\varphi_2(x)=x^2$</p>
+  </li>
+  <li>
+    <p>接下来，对 $\varphi_1$ 和 $\varphi_2$ 应用线性回归：</p>
+
+    <p>$y=w_0+w_1\varphi_1(x)+w_2\varphi_2(x)=w_0+w_1x+w_2x^2$</p>
+
+    <p>现在，我们得到了二次回归</p>
+  </li>
+  <li>
+    <p>更一般地，如果新的属性集合是 $x$ 的幂，我们可以得到多项式回归</p>
+  </li>
+</ul>
+
+<h3 id="34-基扩展">3.4 基扩展</h3>
+<ul>
+  <li>数据转换，也称为基扩展，是一种通用技术
+    <ul>
+      <li>在整个课程中，我们将看到更多的例子</li>
+    </ul>
+  </li>
+  <li>它既可以用于回归问题，也可以用于分类问题</li>
+  <li>$\varphi$ 有很多可能的选择</li>
+</ul>
+
+<p><img src="https://tva1.sinaimg.cn/large/006y8mN6ly1g8dfrc1rdgj30uu0duwfy.jpg" width="50%" /></p>
+
+<h3 id="35-logistic-回归的基扩展">3.5 Logistic 回归的基扩展</h3>
+<ul>
+  <li>二分类问题例子：数据集不是线性可分的</li>
+  <li>
+    <p>定义转换：</p>
+
+    <p>$\varphi_i(\boldsymbol x)=\|\boldsymbol x - \boldsymbol z_i\|$ ，其中 $\boldsymbol z_i$ 是某些预定义的常量</p>
+  </li>
+  <li>选择 $\boldsymbol z_1=[0,0]’,\boldsymbol z_2=[0,1]’,\boldsymbol z_3=[1,0]’,\boldsymbol z_4=[1,1]’$</li>
+</ul>
+
+<p><img src="https://tva1.sinaimg.cn/large/006y8mN6ly1g8dfy38turj319y0h641r.jpg" width="80%" /></p>
+
+<h3 id="36-径向基函数">3.6 径向基函数</h3>
+<p><img src="https://tva1.sinaimg.cn/large/006y8mN6ly1g8dgcpagn4j30h40e8402.jpg" width="30%" align="right" /></p>
+
+<ul>
+  <li>上面的转换是使用径向基函数（RBF）的一个例子
+    <ul>
+      <li>它们的使用来自近似理论，其中 RBF 的和用于对给定函数近似</li>
+    </ul>
+  </li>
+  <li>
+    <p>径向基函数的形式是：</p>
+
+    <p>$\varphi(\boldsymbol x)=\psi(\|\boldsymbol x-\boldsymbol z\|)$ ，其中 $\boldsymbol z$ 是一个常量</p>
+  </li>
+  <li>例子：
+    <ul>
+      <li>$\varphi(\boldsymbol x)=\|\boldsymbol x - \boldsymbol z\|$</li>
+      <li>$\varphi(\boldsymbol x)=\exp\left(-\dfrac{1}{\sigma}\|\boldsymbol x - \boldsymbol z\|^2\right)$</li>
+    </ul>
+  </li>
+</ul>
+
+<h3 id="37-基扩展的挑战">3.7 基扩展的挑战</h3>
+<ul>
+  <li>基扩展可以大大提高方法的可用性，尤其是线性方法</li>
+  <li>在上面的例子中，一个局限是转换需要预先定义：
+    <ul>
+      <li>需要选择新的数据集的尺度</li>
+      <li>如果使用 RBF，需要选择 $\boldsymbol z_i$</li>
+    </ul>
+  </li>
+  <li>对于 $\boldsymbol z_i$，可以选择等距点，或者对训练数据进行聚类并使用聚类中心</li>
+  <li>另一种常见做法是使用训练数据 $\boldsymbol z_i\equiv\boldsymbol x_i$
+    <ul>
+      <li>例如： $\varphi_i(\boldsymbol x)=\psi(\|\boldsymbol x - \boldsymbol x_i\|)$</li>
+      <li>然而，对于很大的数据集，这会导致特征数量巨大，使得计算困难</li>
+    </ul>
+  </li>
+</ul>
+
+<h3 id="38-接下来的方向">3.8 接下来的方向</h3>
+<ul>
+  <li>有几种途径可以将基扩展的思想带入一个新的层次
+    <ul>
+      <li>在后面的学习中将会讨论</li>
+    </ul>
+  </li>
+  <li>一种想法是从数据中 <em>学习</em> 转换 $\varphi$
+    <ul>
+      <li>例如：人工神经网络</li>
+    </ul>
+  </li>
+  <li>另一种强大的扩展是使用核方法
+    <ul>
+      <li>例如：核感知器</li>
+    </ul>
+  </li>
+  <li>最后，在稀疏核机中，训练仅仅依赖于一些少量的数据点
+    <ul>
+      <li>例如：SVM</li>
+    </ul>
+  </li>
+</ul>
+
+<h2 id="总结">总结</h2>
+<ul>
+  <li>Logistic 回归
+    <ul>
+      <li>主流的线性分类器</li>
+    </ul>
+  </li>
+  <li>基扩展
+    <ul>
+      <li>通过数据转换扩展模型的表现能力</li>
+      <li>线性回归和 Logistic 回归的相关例子</li>
+      <li>理论解释</li>
+    </ul>
+  </li>
+</ul>
+
+<p>下节内容：正则化避免过拟合、病态优化；相关算法例子</p>
+:ET

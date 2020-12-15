@@ -1,4 +1,4 @@
-I"kZ<h1 id="lecture-13-形式语言理论和有限状态自动机">Lecture 13 形式语言理论和有限状态自动机</h1>
+I"�W<h1 id="lecture-13-形式语言理论和有限状态自动机">Lecture 13 形式语言理论和有限状态自动机</h1>
 
 <p>在接下来的两周，我们将学习 <strong>句法（syntax）</strong>相关内容。和目前为止我们学过的内容相比，这部分内容会比较偏理论。</p>
 
@@ -44,19 +44,19 @@
 <ul>
   <li>二进制串（Binary strings）以 0 开头，以 1 结尾
     <ul>
-      <li><script type="math/tex">\{01, 001, 011, 0001, \dots\}</script> ⭕️</li>
-      <li><script type="math/tex">\{1, 0, 00, 11, 100, \dots\}</script> ❌</li>
+      <li>\(\{01, 001, 011, 0001, \dots\}\) ⭕️</li>
+      <li>\(\{1, 0, 00, 11, 100, \dots\}\) ❌</li>
     </ul>
   </li>
-  <li>来自字母集 <script type="math/tex">\{a, b\}</script> 的偶数长度的序列
+  <li>来自字母集 \(\{a, b\}\) 的偶数长度的序列
     <ul>
-      <li><script type="math/tex">\{aa, ab, ba, bb, aaaa, \dots\}</script> ⭕️</li>
-      <li><script type="math/tex">\{aaa, aba, bbb, \dots\}</script> ❌</li>
+      <li>\(\{aa, ab, ba, bb, aaaa, \dots\}\) ⭕️</li>
+      <li>\(\{aaa, aba, bbb, \dots\}\) ❌</li>
     </ul>
   </li>
   <li>以 wh- 类型的单词作为开头，问号 ？结尾的英文句子
     <ul>
-      <li><script type="math/tex">\{\textit{what }?, \textit{where my pants }?, \dots\}</script> ⭕️</li>
+      <li>\(\{\textit{what }?, \textit{where my pants }?, \dots\}\) ⭕️</li>
     </ul>
   </li>
 </ul>
@@ -117,7 +117,7 @@
       <li>$0 \,(0\mid 1)^* 1$</li>
     </ul>
   </li>
-  <li>来自字母集 <script type="math/tex">\{a, b\}</script> 的偶数长度的序列
+  <li>来自字母集 \(\{a, b\}\) 的偶数长度的序列
     <ul>
       <li>$((aa)\mid (ab)\mid (ba)\mid (bb))^*$</li>
     </ul>
@@ -170,11 +170,11 @@
 
 <h3 id="32-fsa-的例子">3.2 FSA 的例子</h3>
 <ul>
-  <li>输入字母集：<script type="math/tex">\{a,b\}</script></li>
-  <li>状态：<script type="math/tex">\{q_0,q_1\}</script></li>
+  <li>输入字母集：\(\{a,b\}\)</li>
+  <li>状态：\(\{q_0,q_1\}\)</li>
   <li>起始状态：$q_0$</li>
-  <li>最终状态：<script type="math/tex">\{q_1\}</script></li>
-  <li>转移函数：<script type="math/tex">\{(q_0,a) \to q_0, \;(q_0,b) \to q_1, \;(q_1,b) \to q_1\}</script></li>
+  <li>最终状态：\(\{q_1\}\)</li>
+  <li>转移函数：\(\{(q_0,a) \to q_0, \;(q_0,b) \to q_1, \;(q_1,b) \to q_1\}\)</li>
   <li>注意：如果在 $q_1$ 状态下应用 $a$ 符号会导致失败。</li>
   <li>接受 $a^*bb^*$</li>
 </ul>
@@ -240,7 +240,7 @@
 <h3 id="42-wfsa-最短路径">4.2 WFSA 最短路径</h3>
 <p>对于路径 $\pi=t_1,\dots, t_N$，现在其总分为：</p>
 
-<script type="math/tex; mode=display">\lambda(t_0)+\sum_{i=1}^{N}\delta(t_i)+\rho(t_N)</script>
+\[\lambda(t_0)+\sum_{i=1}^{N}\delta(t_i)+\rho(t_N)\]
 
 <p>其中，每个 $t$ 都是一条边，因此在分数计算中，更正式的方式是使用转移前后的状态和边的标签。</p>
 
@@ -251,7 +251,7 @@
 
 <p>回忆一下，在 n-gram 语言模型中， 我们采用如下方式对字符串（句子）进行记分：</p>
 
-<script type="math/tex; mode=display">P(w_1,\dots,w_M)\approx \prod_{m=1}^{M}P_n(w_m\mid w_{m-1},\dots,w_{m-n+1})</script>
+\[P(w_1,\dots,w_M)\approx \prod_{m=1}^{M}P_n(w_m\mid w_{m-1},\dots,w_{m-n+1})\]
 
 <p>现在，我们用 FSA 表示 Unigram 语言模型：</p>
 <ul>
@@ -261,28 +261,25 @@
   <li>
     <p>序列 $w_1, w_2, \dots, w_M$ 的路径得分为：</p>
 
-    <script type="math/tex; mode=display">0+\sum_{m}^{M}\delta(q_0,w_m,q_0)+0=\sum_{m}^{M}\log P_1(w_m)</script>
+\[0+\sum_{m}^{M}\delta(q_0,w_m,q_0)+0=\sum_{m}^{M}\log P_1(w_m)\]
   </li>
 </ul>
 
 <p>现在，让我们再来看一下 Bigram 语言模型：</p>
 
-<script type="math/tex; mode=display">P(w_1,w_2,\dots,w_M)=\prod_{i=1}^{M}P(w_i\mid w_{i-1})</script>
+\[P(w_1,w_2,\dots,w_M)=\prod_{i=1}^{M}P(w_i\mid w_{i-1})\]
 
 <p>Bigram 语言模型的 WFSA 实现：</p>
 <ul>
   <li>输入符号的字母集：$\Sigma=$ 单词 types 的集合（即词汇表 vocabulary）</li>
   <li>状态集合：$Q=\Sigma$（状态数量 $=$ 单词 types 的数量）<br />
 因为在 Bigram 语言模型下，我们需要一个状态来记住当前单词的前一个上下文单词。</li>
-  <li>起始状态加权函数：<script type="math/tex">% <![CDATA[
-\lambda(q_i)=\log P(w_1=i\mid w_0 = \texttt{<s>}) %]]></script></li>
-  <li>最终状态加权函数：<script type="math/tex">% <![CDATA[
-\rho(q_i)=\log P(w_{M+1}=\texttt{</s>}\mid w_M=i) %]]></script></li>
+  <li>起始状态加权函数：\(\lambda(q_i)=\log P(w_1=i\mid w_0 = \texttt{&lt;s&gt;})\)</li>
+  <li>最终状态加权函数：\(\rho(q_i)=\log P(w_{M+1}=\texttt{&lt;/s&gt;}\mid w_M=i)\)</li>
   <li>
     <p>转移函数：</p>
 
-    <script type="math/tex; mode=display">% <![CDATA[
-\delta(q_i,w,q_j)=\begin{cases} \log P(w_m=j\mid w_{m-1}=i),& \; w=j\\-\infty,& \; w \ne j \end{cases} %]]></script>
+\[\delta(q_i,w,q_j)=\begin{cases} \log P(w_m=j\mid w_{m-1}=i),&amp; \; w=j\\-\infty,&amp; \; w \ne j \end{cases}\]
   </li>
 </ul>
 
@@ -325,13 +322,12 @@
 <h3 id="52-编辑距离自动机">5.2 编辑距离自动机</h3>
 <p>这里是一个 <strong>编辑距离自动机 (Edit Distance Automata)</strong> 的例子：</p>
 
-<script type="math/tex; mode=display">% <![CDATA[
-\begin{align}
-\delta(q,a,a,q) &= \delta(q,b,b,q)=0 \\
-\delta(q,a,b,q) &= \delta(q,b,a,q)=1 \\
-\delta(q,a,\varepsilon,q) &= \delta(q,b,\varepsilon,q)=1 \\
-\delta(q,\varepsilon,a,q) &= \delta(q,\varepsilon,b,q)=1
-\end{align} %]]></script>
+\[\begin{align}
+\delta(q,a,a,q) &amp;= \delta(q,b,b,q)=0 \\
+\delta(q,a,b,q) &amp;= \delta(q,b,a,q)=1 \\
+\delta(q,a,\varepsilon,q) &amp;= \delta(q,b,\varepsilon,q)=1 \\
+\delta(q,\varepsilon,a,q) &amp;= \delta(q,\varepsilon,b,q)=1
+\end{align}\]
 
 <p>其中，$\delta$ 是状态转移的记分函数，在编辑距离的 WFST 实现下，我们只需要一个状态 $q$。上面的式子表明：将 $a$ 替换为 $a$ 或者将 $b$ 替换为 $b$ 的代价为 $0$；将 $a$ 替换为 $b$ 或者将 $b$ 替换为 $a$ 的代价为 $1$；将 $a$ 删除或者将 $b$ 删除的代价为 $1$；插入一个 $a$ 或者 $b$ 的代价为 1。</p>
 
@@ -356,7 +352,7 @@ $ab \to aaab: 2$</li>
 
 <p>我们可以采用 FST 来进行 <strong>形态学分析（morphological analysis）</strong>。这里，我们的目标为：</p>
 
-<script type="math/tex; mode=display">\textit{canto}\to \textit{cantar} + \text{VERB} + \text{present} + 1\text{P} + \text{singular}</script>
+\[\textit{canto}\to \textit{cantar} + \text{VERB} + \text{present} + 1\text{P} + \text{singular}\]
 
 <p>即给定单词 $canto$，我们希望知道它是如何得到的。例如，它可以由 $cantar$，加上动词（VERB）属性，加上现在时态（present），加上第一人称（1P），加上单数形式（singular）得到。</p>
 

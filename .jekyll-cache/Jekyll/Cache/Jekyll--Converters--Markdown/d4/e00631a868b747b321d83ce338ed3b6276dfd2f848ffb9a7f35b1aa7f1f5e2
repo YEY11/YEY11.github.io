@@ -1,4 +1,4 @@
-I"Z�<h1 id="lecture-10-分布语义学">Lecture 10 分布语义学</h1>
+I"j~<h1 id="lecture-10-分布语义学">Lecture 10 分布语义学</h1>
 
 <p>这节课我们继续学习语义学相关内容，这次我们不再关注单词层面的语义学，而是从语料库中直接学习单词含义，这个领域也被称为 <strong>分布语义学（Distributional Semantics）</strong>。</p>
 
@@ -133,13 +133,13 @@
 
 <p>然后，我们将计算该单词对应的 <strong>IDF（inverse document frequency）</strong>值。</p>
 
-<script type="math/tex; mode=display">\textit{idf}_w=\log \dfrac{|D|}{\textit{df}_w}</script>
+\[\textit{idf}_w=\log \dfrac{|D|}{\textit{df}_w}\]
 
 <p>其中，$|D|$ 表示文档总数。$\textit{df}_w$ 表示单词 $w$ 的文档频率，即该单词在所有文档（即语料库）中出现的总次数（TF 矩阵中最后一行）。这里，$\log$ 的底数为 $2$。</p>
 
 <p>例如：假设一共有 $500$ 个文档，单词 “$\textit{the}$” 的 $\textit{df}$ 值为 $500$，那么这里单词 “$\textit{the}$” 的 IDF 值为：</p>
 
-<script type="math/tex; mode=display">\textit{idf}_\textit{the}=\log_2 \dfrac{500}{500}=\log_2 1=0</script>
+\[\textit{idf}_\textit{the}=\log_2 \dfrac{500}{500}=\log_2 1=0\]
 
 <p>分别计算每个单词的 IDF 值，并将其和对应单元格的 TF 值相乘，我们可以得到下面的 TF-IDF 矩阵</p>
 
@@ -166,7 +166,7 @@
 
 <p>SVD 的核心思想很简单：给定一个矩阵 $A$，我们可以将其分解为 3 个相乘的矩阵：$U$、$\Sigma$ 和 $V^{\mathrm T}$。</p>
 
-<script type="math/tex; mode=display">A=U\Sigma V^{\mathrm T}</script>
+\[A=U\Sigma V^{\mathrm T}\]
 
 <p><img src="http://andy-blog.oss-cn-beijing.aliyuncs.com/blog/2020-06-13-WX20200613-154720%402x.png" width="80%" /></p>
 
@@ -227,27 +227,25 @@
   <li>它们各自的概率分布（假设彼此之间互相独立）</li>
 </ul>
 
-<script type="math/tex; mode=display">\textit{PMI}(x,y)=\log_2 \dfrac{p(x,y)}{p(x)p(y)}</script>
+\[\textit{PMI}(x,y)=\log_2 \dfrac{p(x,y)}{p(x)p(y)}\]
 
 <h3 id="29-例子计算-pmi">2.9 例子：计算 PMI</h3>
 <p><img src="http://andy-blog.oss-cn-beijing.aliyuncs.com/blog/2020-06-13-WX20200613-171638%402x.png" width="65%" /></p>
 
-<script type="math/tex; mode=display">% <![CDATA[
-\begin{align}
-p(x,y) &= \text{count}(x,y)/\Sigma \\\\
-p(x) &= \Sigma_x/\Sigma \\\\
-p(y) &= \Sigma_y/\Sigma
-\end{align} %]]></script>
+\[\begin{align}
+p(x,y) &amp;= \text{count}(x,y)/\Sigma \\\\
+p(x) &amp;= \Sigma_x/\Sigma \\\\
+p(y) &amp;= \Sigma_y/\Sigma
+\end{align}\]
 
 <p>假设 $x=\textit{state},\,y=\textit{country}$，我们可以得到：</p>
 
-<script type="math/tex; mode=display">% <![CDATA[
-\begin{align}
-p(x,y) &= 10/15871304=6.3 \times 10^{-7} \\\\
-p(x) &= 12786/15871304=8.0 \times 10^{-4} \\\\
-p(y) &= 3617/15871304=2.3 \times 10^{-4}\\\\
-\textit{PMI}(x,y) &= \log_2 \dfrac{6.3 \times 10^{-7}}{8.0 \times 10^{-4}\times 2.3 \times 10^{-4}} = 1.78
-\end{align} %]]></script>
+\[\begin{align}
+p(x,y) &amp;= 10/15871304=6.3 \times 10^{-7} \\\\
+p(x) &amp;= 12786/15871304=8.0 \times 10^{-4} \\\\
+p(y) &amp;= 3617/15871304=2.3 \times 10^{-4}\\\\
+\textit{PMI}(x,y) &amp;= \log_2 \dfrac{6.3 \times 10^{-7}}{8.0 \times 10^{-4}\times 2.3 \times 10^{-4}} = 1.78
+\end{align}\]
 
 <h3 id="210-pmi-矩阵">2.10 PMI 矩阵</h3>
 <p>我们可以按照前面的方法计算所有单元格的 PMI，从而得到 PMI 矩阵。</p>
@@ -375,14 +373,14 @@ p(y) &= 3617/15871304=2.3 \times 10^{-4}\\\\
   <li>
     <p>全概率被定义为：</p>
 
-    <script type="math/tex; mode=display">\prod_{l\in -L,\dots,-1,1,\dots,L}P(w_{t+l}\mid w_t)</script>
+\[\prod_{l\in -L,\dots,-1,1,\dots,L}P(w_{t+l}\mid w_t)\]
 
     <p>其中，$w_t$ 是目标单词（中心单词），$w_{t+l}$ 是上下文单词，下标表示运行文本中的位置。</p>
   </li>
   <li>
     <p>使用一个 Logistic 回归模型来计算上面每一个乘积项（例如，$w_k=\textit{he},\,w_j=\textit{rests}$）：</p>
 
-    <script type="math/tex; mode=display">P(w_k\mid w_j)=\dfrac{\exp(\mathbf c_{w_k}\cdot \mathbf v_{w_j})}{\sum_{w'\in V}\exp(\mathbf c_{w'}\cdot \mathbf v_{w_j})}</script>
+\[P(w_k\mid w_j)=\dfrac{\exp(\mathbf c_{w_k}\cdot \mathbf v_{w_j})}{\sum_{w'\in V}\exp(\mathbf c_{w'}\cdot \mathbf v_{w_j})}\]
 
     <p>其中，$\mathbf c_{w_k}$ 和 $\mathbf v_{w_j}$ 分别表示单词 $w_k$ 和 $w_j$ 的词嵌入。</p>
   </li>
@@ -437,11 +435,10 @@ p(y) &= 3617/15871304=2.3 \times 10^{-4}\\\\
 
 <p><img src="http://andy-blog.oss-cn-beijing.aliyuncs.com/blog/2020-06-13-WX20200613-230444%402x.png" width="30%" /></p>
 
-<script type="math/tex; mode=display">% <![CDATA[
-\begin{align}
-P(+\mid t,c) &= \dfrac{1}{1+e^{-t\cdot c}}\\\\
-P(-\mid t,c) &= 1-\dfrac{1}{1+e^{-t\cdot c}}
-\end{align} %]]></script>
+\[\begin{align}
+P(+\mid t,c) &amp;= \dfrac{1}{1+e^{-t\cdot c}}\\\\
+P(-\mid t,c) &amp;= 1-\dfrac{1}{1+e^{-t\cdot c}}
+\end{align}\]
 
 <p>其中，$t$ 和 $c$ 表示目标单词和上下文单词（或者负样本）的词嵌入。</p>
 
@@ -451,11 +448,11 @@ P(-\mid t,c) &= 1-\dfrac{1}{1+e^{-t\cdot c}}
 
 <p>因此，我们可以通过简单地将正负样本的 log 概率相加来得到 Skip-gram 模型的总的损失函数：</p>
 
-<script type="math/tex; mode=display">L(\boldsymbol \theta)=\sum_{(t,c)\in +}\log P(+\mid t,c)+\sum_{(t,c)\in -}\log P(-\mid t,c)</script>
+\[L(\boldsymbol \theta)=\sum_{(t,c)\in +}\log P(+\mid t,c)+\sum_{(t,c)\in -}\log P(-\mid t,c)\]
 
 <p>但是，在实践中，相比仅仅采用一个负样本，我们通常会采用 $k$ 个负样本：</p>
 
-<script type="math/tex; mode=display">L(\boldsymbol \theta)=\log P(+\mid t,c)+\sum_{i=1}^k\log P(-\mid t,n_i)</script>
+\[L(\boldsymbol \theta)=\log P(+\mid t,c)+\sum_{i=1}^k\log P(-\mid t,n_i)\]
 
 <h3 id="310-训练说明">3.10 训练说明</h3>
 

@@ -1,4 +1,4 @@
-I"��<h1 id="lecture-07-非线性模型">Lecture 07 非线性模型</h1>
+I"ޜ<h1 id="lecture-07-非线性模型">Lecture 07 非线性模型</h1>
 
 <p><strong>参考教材</strong>：</p>
 
@@ -52,7 +52,7 @@
 
 <p>为了体现响应变量和预测变量之间的非线性关系，将线性模型推广的最自然的方法是将标准线性模型替换为一个多项式函数：</p>
 
-<script type="math/tex; mode=display">y_i = \beta_0 + \beta_1 x_i + \beta_2 x_i^2 + \beta_3 x_i^3 + \dots + \beta_d x_i^d + \epsilon_i</script>
+\[y_i = \beta_0 + \beta_1 x_i + \beta_2 x_i^2 + \beta_3 x_i^3 + \dots + \beta_d x_i^d + \epsilon_i\]
 
 <p>其中，$\epsilon_i$ 是误差项。这种方法称为 <strong>多项式回归</strong>。对于阶数比较大的 $d$，多项式回归将呈现明显的非线性曲线。</p>
 
@@ -68,7 +68,7 @@
 
 <p>这里，我们真正关心的并非回归系数，而是在任意一个 $x_0$ 处的拟合函数值：</p>
 
-<script type="math/tex; mode=display">\hat f(x_0) = \hat \beta_0 + \hat \beta_1 x_0+ \hat \beta_2 x_0^2+ \hat \beta_3 x_0^3+ \hat \beta_4 x_0^4</script>
+\[\hat f(x_0) = \hat \beta_0 + \hat \beta_1 x_0+ \hat \beta_2 x_0^2+ \hat \beta_3 x_0^3+ \hat \beta_4 x_0^4\]
 
 <p>由于 $\hat f(x_0)$ 是一个关于 $\hat \beta_{\ell}$ 的线性函数，我们可以得到一个在任意 $x_0$ 处的 <strong>点方差 (pointwise-variances)</strong> $\mathrm{Var}[\hat f(x_0)]$ 的简单表示。在图 1 中，我们已经计算了 $x_0$ 值组成的网格上的拟合值和 <strong>点标准误 (pointwise standard errors)</strong>。并且画出了出拟合值曲线以及距离拟合值两倍标准误的曲线，即 $\hat f(x_0) \pm 2 \cdot \mathrm{se}[\hat f(x_0)]$。之所以取两倍标准误是因为为对于正态分布的误差项来说，这个值对应的大约是 $95\%$ 置信区间。</p>
 
@@ -76,7 +76,7 @@
 
 <p>从图 1 可以看出，工资好像是来自于两个不同的总体：一个总体是年收入高于 $250$ 千美元的高收入组，而另一个则是低收入组。将 <code class="language-plaintext highlighter-rouge">wage</code> 看作一个二元变量就能将数据分成两个组。这样以 <code class="language-plaintext highlighter-rouge">age</code> 的多项式函数作为预测变量的逻辑回归就能用来预测这个二元响应变量。换句话说，实际上需要拟合的是下面这个模型：</p>
 
-<script type="math/tex; mode=display">\Pr(y_i > 250 \mid x_i) = \dfrac{\exp(\beta_0 + \beta_1 x_i + \beta_2 x_i^2 +  \dots + \beta_d x_i^d)}{1 + \exp(\beta_0 + \beta_1 x_i + \beta_2 x_i^2 + \dots + \beta_d x_i^d)}</script>
+\[\Pr(y_i &gt; 250 \mid x_i) = \dfrac{\exp(\beta_0 + \beta_1 x_i + \beta_2 x_i^2 +  \dots + \beta_d x_i^d)}{1 + \exp(\beta_0 + \beta_1 x_i + \beta_2 x_i^2 + \dots + \beta_d x_i^d)}\]
 
 <p>为了获得其置信区间，只需要计算相关的 $\mathrm{logit}$ 函数的上下限，然后取反即可得到概率的置信区间。</p>
 
@@ -92,25 +92,24 @@
 
 <p>具体来说，首先在 $X$ 取值空间上创建 $K$ 个分割点 $c_1,c_2,\dots,c_K$，然后构造以下 $K+1$ 个新变量：</p>
 
-<script type="math/tex; mode=display">% <![CDATA[
-\begin{align}
-C_0(X) &= I(X < c_1) \\[2ex]
-C_1(X) &= I(c_1 \le X < c_2) \\[2ex]
-C_2(X) &= I(c_2 \le X < c_3) \\[2ex]
-&\; \vdots \\[2ex]
-C_{K-1}(X) &= I(c_{K-1} \le X < c_K) \\[2ex]
-C_K(X) &= I(c_K \le X)
-\end{align} %]]></script>
+\[\begin{align}
+C_0(X) &amp;= I(X &lt; c_1) \\[2ex]
+C_1(X) &amp;= I(c_1 \le X &lt; c_2) \\[2ex]
+C_2(X) &amp;= I(c_2 \le X &lt; c_3) \\[2ex]
+&amp;\; \vdots \\[2ex]
+C_{K-1}(X) &amp;= I(c_{K-1} \le X &lt; c_K) \\[2ex]
+C_K(X) &amp;= I(c_K \le X)
+\end{align}\]
 
 <p>其中，$I(\cdot)$ 是指示函数，当条件成立时返回 $1$，否则返回 $0$。例如，当 $c_K \le X$ 时，$I(c_K \le X)$ 等于 $1$，否则等于 $0$。这样定义的变量有时候也称为 <strong>虚拟变量</strong>。注意，由于 $X$ 只能落在 $K + 1$ 个区间中的某一个，于是对任意 $X$ 的取值，都有 $C_0(X) + C_1(X) +\cdots + C_K(X) = 1$。然后，我们可以将 $C_1(X),C_2(X),\dots, C_K(X)$ 作为预测变量，使用最小二乘法来拟合一个线性模型：</p>
 
-<script type="math/tex; mode=display">y_i = \beta_0 + \beta_1 C_1(x_i) + \beta_2 C_2(x_i) + \cdots + \beta_K C_K(x_i) +\epsilon_i</script>
+\[y_i = \beta_0 + \beta_1 C_1(x_i) + \beta_2 C_2(x_i) + \cdots + \beta_K C_K(x_i) +\epsilon_i\]
 
 <p>对于 $X$ 的一个给定值，$C_1(X),C_2(X),\dots, C_K(X)$ 中至多只有一项系数非零。注意到，当 $X &lt; c_1$ 时，式中的每个预测变量都为零，所以 $\beta_0$ 可以被解释为 $X &lt; c_1$ 时响应 $Y$ 的平均值。相应地，当 $c_j \le X &lt; c_{j+1}$ 时，响应的预测值为 $\beta_0 + \beta_j$，所以这里 $\beta_j$ 可以被解释为：当 $X$ 由 $X &lt; c_1$ 增至 $c_j \le X &lt; c_{j+1}$ 时，响应变量 $Y$ 的平均增量。</p>
 
 <p>图 2 左图是以图 1 中的 <code class="language-plaintext highlighter-rouge">Wage</code> 数据拟合阶梯函数的效果。用 <code class="language-plaintext highlighter-rouge">wage</code> 对 <code class="language-plaintext highlighter-rouge">age</code> 拟合逻辑回归模型：</p>
 
-<script type="math/tex; mode=display">\Pr(y_i > 250 \mid x_i) = \dfrac{\exp(\beta_0 + \beta_1 C_1(x_i) + \cdots + \beta_K C_K(x_i))}{1 + \exp(\beta_0 + \beta_1 C_1(x_i) + \cdots + \beta_K C_K(x_i))}</script>
+\[\Pr(y_i &gt; 250 \mid x_i) = \dfrac{\exp(\beta_0 + \beta_1 C_1(x_i) + \cdots + \beta_K C_K(x_i))}{1 + \exp(\beta_0 + \beta_1 C_1(x_i) + \cdots + \beta_K C_K(x_i))}\]
 
 <p>并用该模型预测一个样本属于高收入组的概率。图 2 右图显示使用这种方法得到的拟合后验概率。</p>
 
@@ -122,8 +121,7 @@ C_K(X) &= I(c_K \le X)
 
 <p>总的来说，阶梯函数方法易于使用。我们可以创建一系列虚拟变量来代表每个变量组。这对于创建易于解释的交互项非常有用。例如，我们可以创建关于 <code class="language-plaintext highlighter-rouge">year</code> 和 <code class="language-plaintext highlighter-rouge">age</code> 的交互作用：</p>
 
-<script type="math/tex; mode=display">% <![CDATA[
-I(\mathtt{year} < 2005)\cdot \mathtt{age},\quad I(\mathtt{year} \ge 2005)\cdot \mathtt{age} %]]></script>
+\[I(\mathtt{year} &lt; 2005)\cdot \mathtt{age},\quad I(\mathtt{year} \ge 2005)\cdot \mathtt{age}\]
 
 <p>将允许不同年龄组拟合不同的线性函数。</p>
 
@@ -135,7 +133,7 @@ I(\mathtt{year} < 2005)\cdot \mathtt{age},\quad I(\mathtt{year} \ge 2005)\cdot \
 
 <p>多项式和阶梯函数回归模型实际上是特殊的 <strong>基函数 (basis function)</strong> 方法。基本原理是对变量 $X$ 的函数或变换 $b_1(X),b_2(X),\dots,b_K(X)$ 进行建模。以模型</p>
 
-<script type="math/tex; mode=display">y_i = \beta_0 + \beta_1 b_1(x_i) + \beta_2 b_2(x_i) + \beta_3 b_3(x_i) + \cdots + \beta_K b_K(x_i) +\epsilon_i</script>
+\[y_i = \beta_0 + \beta_1 b_1(x_i) + \beta_2 b_2(x_i) + \beta_3 b_3(x_i) + \cdots + \beta_K b_K(x_i) +\epsilon_i\]
 
 <p>来替代线性模型。注意基函数 $b_1(\cdot),b_2(\cdot),\dots,b_K(\cdot)$ 的值是给定的而且是已知的 (也就是说，在建模之前就选定了基函数的形式)。例如，对于多项式回归来说，基函数就是 $b_j(x_i) = x_i^j$，而对于阶梯函数其基函数则为 $b_j(x_i) = I(c_j \le x_i &lt; c_{j+1})$。我们可以认为上面的式子实际上等价于预测变量为 $b_1(x_i),b_2(x_i),\dots,b_K(x_i)$ 的标准线性模型。因此，可以使用最小二乘法来估计式中未知的回归系数。重要的是，这还表示之前我们所讨论的有关线性模型的各种推断结果，如标准误、系数估计值和用于模型整体显著性检验的 $F$ 统计量都可以使用。</p>
 
@@ -151,15 +149,14 @@ I(\mathtt{year} < 2005)\cdot \mathtt{age},\quad I(\mathtt{year} \ge 2005)\cdot \
 
 <p>例如，这里我们使用分段三次多项式函数来拟合下面的三次回归模型：</p>
 
-<script type="math/tex; mode=display">y_i = \beta_0 + \beta_1 x_i + \beta_2 x_i^2 + \beta_3 x_i^3 + \epsilon_i</script>
+\[y_i = \beta_0 + \beta_1 x_i + \beta_2 x_i^2 + \beta_3 x_i^3 + \epsilon_i\]
 
 <p>其中，系数 $\beta_0$、$\beta_1$、$\beta_2$ 和 $\beta_3$ 在 $X$ 的不同区域上是不相同的。系数发生变化的临界点称为 <strong>结点 (knots)</strong>。</p>
 
 <p>例如，无结点的分段三次多项式就是上面式子中 $d=3$ 的标准三次多项式。具有一个结点 $c$ 的分段三次多项式形式如下：</p>
 
-<script type="math/tex; mode=display">% <![CDATA[
-y_i = \begin{cases}y_i = \beta_{01} + \beta_{11} x_i + \beta_{21} x_i^2 + \beta_{31} x_i^3 + \epsilon_i & \text{if } x_i < c \\[2ex]
-y_i = \beta_{02} + \beta_{12} x_i + \beta_{22} x_i^2 + \beta_{32} x_i^3 + \epsilon_i & \text{if } x_i \ge c \end{cases} %]]></script>
+\[y_i = \begin{cases}y_i = \beta_{01} + \beta_{11} x_i + \beta_{21} x_i^2 + \beta_{31} x_i^3 + \epsilon_i &amp; \text{if } x_i &lt; c \\[2ex]
+y_i = \beta_{02} + \beta_{12} x_i + \beta_{22} x_i^2 + \beta_{32} x_i^3 + \epsilon_i &amp; \text{if } x_i \ge c \end{cases}\]
 
 <p>换句话说，模型要求拟合两个不同的多项式函数，其中一个在 $x_i &lt; c$ 的观测子集上，另一个在 $x_i \ge c$ 的观测子集上。第一个多项式函数的系数为 $\beta_{01}$、$\beta_{11}$、$\beta_{21}$、$\beta_{31}$，第二个多项式函数的系数为 $\beta_{02}$、$\beta_{12}$、$\beta_{22}$、$\beta_{32}$。每一个多项式函数都使用最小二乘法来拟合。</p>
 
@@ -191,20 +188,18 @@ y_i = \beta_{02} + \beta_{12} x_i + \beta_{22} x_i^2 + \beta_{32} x_i^3 + \epsil
 
 <p>我们可以将此模型表示为：</p>
 
-<script type="math/tex; mode=display">y_i = \beta_0 + \beta_1 b_1(x_i) + \beta_2 b_2(x_i) + \cdots + \beta_{K+1} b_{K+1}(x_i) + \epsilon_i</script>
+\[y_i = \beta_0 + \beta_1 b_1(x_i) + \beta_2 b_2(x_i) + \cdots + \beta_{K+1} b_{K+1}(x_i) + \epsilon_i\]
 
 <p>其中，$b_k$ 是 <strong>基函数</strong>：</p>
 
-<script type="math/tex; mode=display">% <![CDATA[
-\begin{align}
-b_1(x_i) &= x_i \\[2ex]
-b_{k+1}(x_i) &= (x_i - \xi_k)_{+} \quad k=1,\dots,K
-\end{align} %]]></script>
+\[\begin{align}
+b_1(x_i) &amp;= x_i \\[2ex]
+b_{k+1}(x_i) &amp;= (x_i - \xi_k)_{+} \quad k=1,\dots,K
+\end{align}\]
 
 <p>这里，$()_{+}$ 表示 <strong>大于零的部分</strong>，即</p>
 
-<script type="math/tex; mode=display">% <![CDATA[
-(x_i - \xi_k)_{+} = \begin{cases}x_i - \xi_k & \text{if } x_i > \xi_k \\[2ex] 0 & \text{otherwise}\end{cases} %]]></script>
+\[(x_i - \xi_k)_{+} = \begin{cases}x_i - \xi_k &amp; \text{if } x_i &gt; \xi_k \\[2ex] 0 &amp; \text{otherwise}\end{cases}\]
 
 <p><img src="http://andy-blog.oss-cn-beijing.aliyuncs.com/blog/2020-11-10-WX20201110-134853%402x.png" width="80%" /></p>
 
@@ -216,22 +211,20 @@ b_{k+1}(x_i) &= (x_i - \xi_k)_{+} \quad k=1,\dots,K
 
 <p>同样，我们可以用 <strong>截断幂基函数 (truncated power basis function)</strong> 来表示该模型：</p>
 
-<script type="math/tex; mode=display">y_i = \beta_0 + \beta_1 b_1(x_i) + \beta_2 b_2(x_i) + \cdots + \beta_{K+3} b_{K+3}(x_i) + \epsilon_i</script>
+\[y_i = \beta_0 + \beta_1 b_1(x_i) + \beta_2 b_2(x_i) + \cdots + \beta_{K+3} b_{K+3}(x_i) + \epsilon_i\]
 
 <p>其中，</p>
 
-<script type="math/tex; mode=display">% <![CDATA[
-\begin{align}
-b_1(x_i) &= x_i \\[2ex]
-b_2(x_i) &= x_i^2 \\[2ex]
-b_3(x_i) &= x_i^3 \\[2ex]
-b_{k+3}(x_i) &= (x_i - \xi_k)_{+}^3 \quad k=1,\dots,K
-\end{align} %]]></script>
+\[\begin{align}
+b_1(x_i) &amp;= x_i \\[2ex]
+b_2(x_i) &amp;= x_i^2 \\[2ex]
+b_3(x_i) &amp;= x_i^3 \\[2ex]
+b_{k+3}(x_i) &amp;= (x_i - \xi_k)_{+}^3 \quad k=1,\dots,K
+\end{align}\]
 
 <p>并且</p>
 
-<script type="math/tex; mode=display">% <![CDATA[
-(x_i-\xi_k)_{+}^3 = \begin{cases}(x_i-\xi_k)^3 & \text{if } x_i > \xi_k \\[2ex] 0 & \text{otherwise}\end{cases} %]]></script>
+\[(x_i-\xi_k)_{+}^3 = \begin{cases}(x_i-\xi_k)^3 &amp; \text{if } x_i &gt; \xi_k \\[2ex] 0 &amp; \text{otherwise}\end{cases}\]
 
 <p>可以证明，在原三次多项式基础上添加截断幂基函数项 $\beta_{k+3}b_{k+3}(x_i)$ 只会使其在 $\xi_k$ 处的三阶导数非连续；而在每个结点处，函数本身及其一阶、二阶导数都是连续的。</p>
 
@@ -301,7 +294,7 @@ b_{k+3}(x_i) &= (x_i - \xi_k)_{+}^3 \quad k=1,\dots,K
 
 <p>如何保证 $g(x)$ 是光滑的呢？一种自然的方式是采用以下准则：</p>
 
-<script type="math/tex; mode=display">\mathop{\operatorname{minimize}}\limits_{g \in \mathcal S} \sum_{i=1}^{n}(y_i - g(x_i))^2 + \lambda \int g''(t)^2dt</script>
+\[\mathop{\operatorname{minimize}}\limits_{g \in \mathcal S} \sum_{i=1}^{n}(y_i - g(x_i))^2 + \lambda \int g''(t)^2dt\]
 
 <p>其中，</p>
 
@@ -327,13 +320,13 @@ b_{k+3}(x_i) &= (x_i - \xi_k)_{+}^3 \quad k=1,\dots,K
 
 <p>为了定义有效自由度，我们可以将指定 $\lambda$ 的光滑样条对 $n$ 个观测的拟合值向量写成：</p>
 
-<script type="math/tex; mode=display">\hat{\mathbf g}_{\lambda} =\mathbf S_{\lambda}\mathbf y</script>
+\[\hat{\mathbf g}_{\lambda} =\mathbf S_{\lambda}\mathbf y\]
 
 <p>其中，$\mathbf{S}_{\lambda}$ 是一个 $n\times n$ 的矩阵 (由 $x_i$ 和 $\lambda$ 决定)，$\mathbf y$ 是观测的响应值向量。</p>
 
 <p><strong>有效自由度 (effective degrees of freedom)</strong> 的定义由下式给出：</p>
 
-<script type="math/tex; mode=display">\mathrm{df}_{\lambda}=\sum_{i=1}^{n}\{\mathbf{S}_{\lambda}\}_{ii}</script>
+\[\mathrm{df}_{\lambda}=\sum_{i=1}^{n}\{\mathbf{S}_{\lambda}\}_{ii}\]
 
 <p>可以看到，它是矩阵 $\mathbf{S}_{\lambda}$ 的对角线上的元素之和。</p>
 
@@ -341,7 +334,7 @@ b_{k+3}(x_i) &= (x_i - \xi_k)_{+}^3 \quad k=1,\dots,K
 
 <p>我们利用下式计算光滑样条的留一交叉验证误差 (LOOCV)，其运算量与计算单个拟合模型相同：</p>
 
-<script type="math/tex; mode=display">\mathrm{RSS}_{cv}(\lambda) = \sum_{i=1}^{n}(y_i - \hat g_{\lambda}^{(-i)}(x_i))^2 = \sum_{i=1}^{n}\left[\dfrac{y_i - \hat g_{\lambda}(x_i)}{1-\{\mathbf S_{\lambda}\}_{ii}} \right]^2</script>
+\[\mathrm{RSS}_{cv}(\lambda) = \sum_{i=1}^{n}(y_i - \hat g_{\lambda}^{(-i)}(x_i))^2 = \sum_{i=1}^{n}\left[\dfrac{y_i - \hat g_{\lambda}(x_i)}{1-\{\mathbf S_{\lambda}\}_{ii}} \right]^2\]
 
 <p>其他相关细节：</p>
 
@@ -376,13 +369,13 @@ b_{k+3}(x_i) &= (x_i - \xi_k)_{+}^3 \quad k=1,\dots,K
 
 <p><strong>广义可加模型 (Generalized additive models, GAM)</strong> 允许我们在多个变量下实现灵活的非线性，但仍然保留线性模型的可加性结构。</p>
 
-<script type="math/tex; mode=display">y_i=\beta_0 + f_1(x_{i1})+ f_2(x_{i2})+\cdots + f_p(x_{ip}) + \epsilon_i</script>
+\[y_i=\beta_0 + f_1(x_{i1})+ f_2(x_{i2})+\cdots + f_p(x_{ip}) + \epsilon_i\]
 
 <p><img src="http://andy-blog.oss-cn-beijing.aliyuncs.com/blog/2020-11-10-WX20201110-174556%402x.png" width="90%" /></p>
 
 <p>GAM 用于分类：</p>
 
-<script type="math/tex; mode=display">\log \left(\dfrac{p(X)}{1-p(X)} \right) = \beta_0 + f_1(X_1)+ f_2(X_2)+\cdots + f_p(X_p)</script>
+\[\log \left(\dfrac{p(X)}{1-p(X)} \right) = \beta_0 + f_1(X_1)+ f_2(X_2)+\cdots + f_p(X_p)\]
 
 <p><img src="http://andy-blog.oss-cn-beijing.aliyuncs.com/blog/2020-11-10-WX20201110-175017%402x.png" width="90%" /></p>
 

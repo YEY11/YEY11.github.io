@@ -1,4 +1,4 @@
-I"0g<h1 id="lecture-09-词汇语义学">Lecture 09 词汇语义学</h1>
+I"8f<h1 id="lecture-09-词汇语义学">Lecture 09 词汇语义学</h1>
 
 <p>这节课我们将学习词汇语义学。</p>
 
@@ -302,7 +302,7 @@ u'sloping land (especially the slope beside a body of water)‘
       <li>利用深度进行比较</li>
     </ul>
 
-    <script type="math/tex; mode=display">\text{simwup}(c_1,c_2)=\dfrac{2\times\text{depth}(LCS(c_1,c_2))}{\text{depth}(c_1)+\text{depth}(c_2)}</script>
+\[\text{simwup}(c_1,c_2)=\dfrac{2\times\text{depth}(LCS(c_1,c_2))}{\text{depth}(c_1)+\text{depth}(c_2)}\]
   </li>
 </ul>
 
@@ -329,7 +329,7 @@ u'sloping land (especially the slope beside a body of water)‘
 
 <h3 id="25-概念概率concept-probability">2.5 概念概率（Concept Probability）</h3>
 
-<script type="math/tex; mode=display">P(c)=\dfrac{\sum_{w\in \text{words}(c)}\mathrm{count}(w)}{N}</script>
+\[P(c)=\dfrac{\sum_{w\in \text{words}(c)}\mathrm{count}(w)}{N}\]
 
 <ul>
   <li>$P(c)$：从语料库中随机选择的一个单词是概念 $c$ 的一个实例的概率。</li>
@@ -340,8 +340,8 @@ u'sloping land (especially the slope beside a body of water)‘
 
 <p><img src="http://andy-blog.oss-cn-beijing.aliyuncs.com/blog/2020-06-12-WX20200612-233913%402x.png" width="40%" /></p>
 
-<p><script type="math/tex">\text{words}(\textit{geological-formation}) = \{\textit{hill}, \textit{ridge}, \textit{grotto}, \textit{coast}, \textit{natural elevation}, \textit{cave}, \textit{shore}\}</script>
-<script type="math/tex">\text{words}(\textit{natural elevation}) = \{\textit{hill}, \textit{ridge}\}</script></p>
+<p>\(\text{words}(\textit{geological-formation}) = \{\textit{hill}, \textit{ridge}, \textit{grotto}, \textit{coast}, \textit{natural elevation}, \textit{cave}, \textit{shore}\}\)
+\(\text{words}(\textit{natural elevation}) = \{\textit{hill}, \textit{ridge}\}\)</p>
 
 <p><strong>例子：</strong>层次结构中较高的抽象结点具有较高的 $P(c)$</p>
 
@@ -353,11 +353,10 @@ u'sloping land (especially the slope beside a body of water)‘
 
 <p>我们可以利用概念概率 $P(c)$ 来定义 <strong>信息量（information content，IC）</strong>，$P(c)$ 越大，词义越抽象，信息量越小。</p>
 
-<script type="math/tex; mode=display">% <![CDATA[
-\begin{align}
-IC(c) &= -\log P(c) \\\\
-\mathrm{simlin}(c_1,c_2) &= \dfrac{2\times IC(LCS(c_1,c_2))}{IC(c_1)+IC(c_2)}
-\end{align} %]]></script>
+\[\begin{align}
+IC(c) &amp;= -\log P(c) \\\\
+\mathrm{simlin}(c_1,c_2) &amp;= \dfrac{2\times IC(LCS(c_1,c_2))}{IC(c_1)+IC(c_2)}
+\end{align}\]
 
 <p>可以看到，$\mathrm{simlin}$ 和 $\mathrm{simwup}$ 的唯一区别就是用 $IC$ 代替 $\text{depth}$。</p>
 
@@ -365,12 +364,11 @@ IC(c) &= -\log P(c) \\\\
 
 <p><img src="http://andy-blog.oss-cn-beijing.aliyuncs.com/blog/2020-06-12-WX20200612-234408%402x.png" width="60%" /></p>
 
-<script type="math/tex; mode=display">% <![CDATA[
-\begin{align}
-\mathrm{simlin}(c_1,c_2) &= \dfrac{2\times -\log P(\textit{geological-formation})}{-\log P(\textit{hill})-\log P(\textit{coast})} \\
-&= \dfrac{-2\log 0.00176}{-\log 0.0000189-\log 0.0000216}\\
-&= 0.587
-\end{align} %]]></script>
+\[\begin{align}
+\mathrm{simlin}(c_1,c_2) &amp;= \dfrac{2\times -\log P(\textit{geological-formation})}{-\log P(\textit{hill})-\log P(\textit{coast})} \\
+&amp;= \dfrac{-2\log 0.00176}{-\log 0.0000189-\log 0.0000216}\\
+&amp;= 0.587
+\end{align}\]
 
 <p>如果 $LCS$ 结点在层次结构中位置非常高（例如：$P(c)=0.99$），那么 $IC$ 将非常低（在这种情况下为 $0.01$）。</p>
 

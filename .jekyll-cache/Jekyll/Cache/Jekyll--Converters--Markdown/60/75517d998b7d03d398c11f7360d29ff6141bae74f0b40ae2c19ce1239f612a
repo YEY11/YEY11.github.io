@@ -1,4 +1,4 @@
-I"Ô<h1 id="lecture-12-语篇">Lecture 12 语篇</h1>
+I"e�<h1 id="lecture-12-语篇">Lecture 12 语篇</h1>
 
 <p>这节课我们学习 <strong>语篇（Discourse）</strong>，它是关于如何将文档中的句子组织成连贯的故事线。因此，我们将目光从理解单词和上下文含义上转移到一个更高的层次：理解文档含义以及句子是如何在文档中组织的。</p>
 
@@ -74,7 +74,7 @@
       <li>
         <p>对于间隙 $i$，计算一个 <strong>深度分数（depth score）</strong>，当深度分数超过某个 <strong>阈值（threshold）</strong>$t$ 时，就在这个间隙处插入一个分界线。</p>
 
-        <script type="math/tex; mode=display">\text{depth}(gap_i)=(sim_{i-1}-sim_{i})+(sim_{i+1}-sim_{i})</script>
+\[\text{depth}(gap_i)=(sim_{i-1}-sim_{i})+(sim_{i+1}-sim_{i})\]
       </li>
     </ul>
   </li>
@@ -86,7 +86,7 @@
 
 <p><img src="http://andy-blog.oss-cn-beijing.aliyuncs.com/blog/2020-06-18-WX20200618-234220%402x.png" width="80%" /></p>
 
-<script type="math/tex; mode=display">\text{depth}(gap_i)=(sim_{i-1}-sim_{i})+(sim_{i+1}-sim_{i})</script>
+\[\text{depth}(gap_i)=(sim_{i-1}-sim_{i})+(sim_{i+1}-sim_{i})\]
 
 <p>我们将文档分成了 7 个单独的句子，另外，我们还用不同颜色标记了文本中的一些内容相关的高频关键词。首先，我们计算第一个间隙的相似度，由于 $k=1$，所以这里我们得到第 1 个和第 2 个句子的词袋向量，并计算两个向量的余弦相似度，结果为 $0.9$。同理，我们计算第二个间隙的相似度（即第 2 个句子和第 3 个句子的词袋向量的余弦相似度），得到结果为 $0.7$。按照相同方法，计算得到所有其余间隙的相似度。</p>
 

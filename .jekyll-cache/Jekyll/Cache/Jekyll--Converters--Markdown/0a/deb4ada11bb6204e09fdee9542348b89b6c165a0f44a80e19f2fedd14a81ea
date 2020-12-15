@@ -1,4 +1,4 @@
-I"H�<h1 id="lecture-08-nlp-深度学习循环网络">Lecture 08 NLP 深度学习：循环网络</h1>
+I"��<h1 id="lecture-08-nlp-深度学习循环网络">Lecture 08 NLP 深度学习：循环网络</h1>
 
 <p>上节课我们介绍了前馈神经网络，本节课我们将学习循环神经网络。</p>
 
@@ -13,11 +13,11 @@
 
 <p>让我们来看一个使用 trigram 模型生成句子的例子：</p>
 
-<script type="math/tex; mode=display">\textit{I saw a table is round and about}</script>
+\[\textit{I saw a table is round and about}\]
 
 <p>对于人类而言，上面生成的句子看上去语义不通。但是从 trigram 模型的角度来看，这个句子并没有什么奇怪的，因为如果我们逐个观察 trigram 模型的上下文，会发现每个 trigram 看上去都说得通：</p>
 
-<script type="math/tex; mode=display">\textit{I saw a / saw a table / a table is / table is round / is round and / round and about}</script>
+\[\textit{I saw a / saw a table / a table is / table is round / is round and / round and about}\]
 
 <p>那么，为什么最终我们得到的句子语义不通呢？问题在于：有限的 <strong>上下文</strong>。</p>
 
@@ -37,7 +37,7 @@
 
 <p>所以，RNN 实际上就是一个方程：</p>
 
-<script type="math/tex; mode=display">\mathbf s_i=f(\mathbf s_{i-1},\mathbf x_i)</script>
+\[\mathbf s_i=f(\mathbf s_{i-1},\mathbf x_i)\]
 
 <p>其中，$\mathbf s_{i-1}$ 表示之前的状态信息，$\mathbf x_i$ 表示当前输入，$f$ 是带参数的函数，$\mathbf s_i$ 表示生成的新状态。</p>
 
@@ -45,7 +45,7 @@
 
 <p>那么，我们如何实现这个 RNN 函数呢？</p>
 
-<script type="math/tex; mode=display">\mathbf s_i=\tanh(W_{\mathbf s} \mathbf s_{i-1} + W_{\mathbf x} \mathbf x_i + \mathbf b)</script>
+\[\mathbf s_i=\tanh(W_{\mathbf s} \mathbf s_{i-1} + W_{\mathbf x} \mathbf x_i + \mathbf b)\]
 
 <p>本质上，我们这里用权重矩阵 $W_{\mathbf s}$ 和 $W_{\mathbf x}$ 分别对之前的状态信息 $\mathbf s_{i-1}$ 和当前输入 $\mathbf x_i$ 进行线性变换，然后将它们映射到相同的线性空间并相加，然后再加上一个偏置向量 $\mathbf b$，将结果作为 $\tanh$ 函数的输入，得到新的状态信息 $\mathbf s_i$。</p>
 
@@ -62,9 +62,9 @@
 
 <p><strong>简单 RNN</strong>：</p>
 
-<script type="math/tex; mode=display">\mathbf s_i=\tanh(W_{\mathbf s} \mathbf s_{i-1} + W_{\mathbf x} \mathbf x_i + \mathbf b)</script>
+\[\mathbf s_i=\tanh(W_{\mathbf s} \mathbf s_{i-1} + W_{\mathbf x} \mathbf x_i + \mathbf b)\]
 
-<script type="math/tex; mode=display">y_i=\sigma(W_y \mathbf s_i)</script>
+\[y_i=\sigma(W_y \mathbf s_i)\]
 
 <p>所以，RNN 会拟合任何关于序列的信息，我们只需要设计正确的输出函数即可。重要的一点是，即使我们有很多的时间步（例如 4 个），但是它们都共享相同的参数矩阵（即 $W_{\mathbf s},W_{\mathbf x}$ 和 $W_{y}$）。所以，即使序列再长，我们也不会有更多的参数。</p>
 
@@ -75,13 +75,12 @@
     <p>一个展开的 RNN 只是一个非常深的神经网络。<br />
 例如，在之前的例子中，假如给定之前的状态 $\mathbf s_3$ 和当前输入 $\mathbf x_4$，可以计算当前状态 $\mathbf s_4$：</p>
 
-    <script type="math/tex; mode=display">% <![CDATA[
-\begin{align}
-\mathbf s_4 &= R(\mathbf s_3,\mathbf x_4) \\
-&= R(\overbrace{R(\mathbf s_2,\mathbf x_3)}^{\mathbf s_3},\mathbf x_4)\\
-&= R(R(\overbrace{R(\mathbf s_1,\mathbf x_2)}^{\mathbf s_2},\mathbf x_3),\mathbf x_4)\\
-&= R(R(R(\overbrace{R(\mathbf s_0,\mathbf x_1)}^{\mathbf s_1},\mathbf x_2),\mathbf x_3),\mathbf x_4)\\
-\end{align} %]]></script>
+\[\begin{align}
+\mathbf s_4 &amp;= R(\mathbf s_3,\mathbf x_4) \\
+&amp;= R(\overbrace{R(\mathbf s_2,\mathbf x_3)}^{\mathbf s_3},\mathbf x_4)\\
+&amp;= R(R(\overbrace{R(\mathbf s_1,\mathbf x_2)}^{\mathbf s_2},\mathbf x_3),\mathbf x_4)\\
+&amp;= R(R(R(\overbrace{R(\mathbf s_0,\mathbf x_1)}^{\mathbf s_1},\mathbf x_2),\mathbf x_3),\mathbf x_4)\\
+\end{align}\]
   </li>
   <li>
     <p>但是很多时间步之间都共享相同的参数。<br />
@@ -97,9 +96,9 @@
 
 <p><img src="http://andy-blog.oss-cn-beijing.aliyuncs.com/blog/2020-04-21-WX20200421-224647%402x.png" width="80%" /></p>
 
-<script type="math/tex; mode=display">\mathbf s_i=\tanh(W_{\mathbf s}\mathbf s_{i-1}+W_{\mathbf x}\mathbf x_{i}+\mathbf b)</script>
+\[\mathbf s_i=\tanh(W_{\mathbf s}\mathbf s_{i-1}+W_{\mathbf x}\mathbf x_{i}+\mathbf b)\]
 
-<script type="math/tex; mode=display">\mathbf y_i=\text{softmax}(W_{\mathbf y}\mathbf s_i)</script>
+\[\mathbf y_i=\text{softmax}(W_{\mathbf y}\mathbf s_i)\]
 
 <p>我们知道，语言模型的任务是根据给定的上下文单词预测接下来出现的单词。例如：给定上下文单词 “$\textit{a}$”，预测下一个单词 “$\textit{cow}$”，以此类推，生成后续单词 “$\textit{eats}$”、“$\textit{grass}$” 以及句号 “$\textit{.}$” 等等。</p>
 
@@ -125,9 +124,9 @@
   <li><strong>训练样本</strong>：$\textit{a cow eats grass}$</li>
 </ul>
 
-<script type="math/tex; mode=display">\mathbf s_i=\tanh(W_{\mathbf s}\mathbf s_{i-1}+W_{\mathbf x}\mathbf x_{i}+\mathbf b)</script>
+\[\mathbf s_i=\tanh(W_{\mathbf s}\mathbf s_{i-1}+W_{\mathbf x}\mathbf x_{i}+\mathbf b)\]
 
-<script type="math/tex; mode=display">\mathbf y_i=\text{softmax}(W_{\mathbf y}\mathbf s_i)</script>
+\[\mathbf y_i=\text{softmax}(W_{\mathbf y}\mathbf s_i)\]
 
 <p>首先，我们将当前单词转换为 one-hot 向量 $\mathbf x_i$，然后用它来计算下一个隐藏状态 $\mathbf s_i$：在这个过程中，one-hot 向量被转换为词嵌入 $W_{\mathbf x}\mathbf x_{i}$，并且结合之前的状态 $\mathbf s_{i-1}$ 的线性变换 $W_{\mathbf s}\mathbf s_{i-1}$，以及偏置向量 $\mathbf b$，输入 $\tanh$ 函数，计算得到下一个隐藏状态 $\mathbf s_i$。</p>
 
@@ -211,7 +210,7 @@
 
 <p><img src="http://andy-blog.oss-cn-beijing.aliyuncs.com/blog/2020-04-23-WX20200423-141736%402x.png" width="50%" /></p>
 
-<script type="math/tex; mode=display">f_t=\sigma(W_f \cdot [\mathbf h_{t-1},\mathbf x_{t}]+\mathbf b_{f})</script>
+\[f_t=\sigma(W_f \cdot [\mathbf h_{t-1},\mathbf x_{t}]+\mathbf b_{f})\]
 
 <p>其中，$\mathbf h_{t-1}$ 为之前的状态向量，$\mathbf x_{t}$ 为当前的输入向量。</p>
 
@@ -233,9 +232,9 @@
 
 <p><img src="http://andy-blog.oss-cn-beijing.aliyuncs.com/blog/2020-04-23-WX20200423-141951%402x.png" width="50%" /></p>
 
-<script type="math/tex; mode=display">i_t=\sigma(W_i \cdot [\mathbf h_{t-1},\mathbf x_{t}]+\mathbf b_{i})</script>
+\[i_t=\sigma(W_i \cdot [\mathbf h_{t-1},\mathbf x_{t}]+\mathbf b_{i})\]
 
-<script type="math/tex; mode=display">\tilde C_t=\tanh(W_C \cdot [\mathbf h_{t-1},\mathbf x_{t}]+\mathbf b_{C})</script>
+\[\tilde C_t=\tanh(W_C \cdot [\mathbf h_{t-1},\mathbf x_{t}]+\mathbf b_{C})\]
 
 <p><strong>输入门控制着有多少新的信息需要写入记忆细胞中。</strong></p>
 
@@ -250,7 +249,7 @@
 
 <p><img src="http://andy-blog.oss-cn-beijing.aliyuncs.com/blog/2020-04-23-WX20200423-142007%402x.png" width="50%" /></p>
 
-<script type="math/tex; mode=display">C_t=f_t*C_{t-1}+i_t* \tilde C_{t}</script>
+\[C_t=f_t*C_{t-1}+i_t* \tilde C_{t}\]
 
 <p>其中，$f_t$ 表示遗忘门，$i_t$ 表示输入门，$*$ 表示两个向量/矩阵中对应元素相乘。</p>
 
@@ -264,9 +263,9 @@
 
 <p><img src="http://andy-blog.oss-cn-beijing.aliyuncs.com/blog/2020-04-23-WX20200423-150254%402x.png" width="50%" /></p>
 
-<script type="math/tex; mode=display">o_t=\sigma(W_o \cdot [\mathbf h_{t-1},\mathbf x_{t}]+\mathbf b_{o})</script>
+\[o_t=\sigma(W_o \cdot [\mathbf h_{t-1},\mathbf x_{t}]+\mathbf b_{o})\]
 
-<script type="math/tex; mode=display">\mathbf h_t=o_t * \tanh(C_t)</script>
+\[\mathbf h_t=o_t * \tanh(C_t)\]
 
 <p><strong>输出门控制着我们需要从记忆细胞中提取多少内容来生成下一个隐藏状态 $\mathbf h_t$</strong>。</p>
 
@@ -282,15 +281,14 @@
 
 <p>这里是 LSTM 架构中涉及到的所有公式：</p>
 
-<script type="math/tex; mode=display">% <![CDATA[
-\begin{align}
-f_t &= \sigma(W_f \cdot [\mathbf h_{t-1},\mathbf x_{t}]+\mathbf b_{f})\\
-i_t &= \sigma(W_i \cdot [\mathbf h_{t-1},\mathbf x_{t}]+\mathbf b_{i})\\
-o_t & =\sigma(W_o \cdot [\mathbf h_{t-1},\mathbf x_{t}]+\mathbf b_{o})\\
-\tilde C_t &= \tanh(W_C \cdot [\mathbf h_{t-1},\mathbf x_{t}]+\mathbf b_{C})\\
-C_t &= f_t*C_{t-1}+i_t* \tilde C_{t}\\
-\mathbf h_t &= o_t * \tanh(C_t)
-\end{align} %]]></script>
+\[\begin{align}
+f_t &amp;= \sigma(W_f \cdot [\mathbf h_{t-1},\mathbf x_{t}]+\mathbf b_{f})\\
+i_t &amp;= \sigma(W_i \cdot [\mathbf h_{t-1},\mathbf x_{t}]+\mathbf b_{i})\\
+o_t &amp; =\sigma(W_o \cdot [\mathbf h_{t-1},\mathbf x_{t}]+\mathbf b_{o})\\
+\tilde C_t &amp;= \tanh(W_C \cdot [\mathbf h_{t-1},\mathbf x_{t}]+\mathbf b_{C})\\
+C_t &amp;= f_t*C_{t-1}+i_t* \tilde C_{t}\\
+\mathbf h_t &amp;= o_t * \tanh(C_t)
+\end{align}\]
 
 <p>可以看到，我们一共有 3 个门：遗忘门、输入门、输出门，并且它们的计算过程也非常相似，但是它们彼此之间的参数并不共享。然后，我们计算蒸馏信息 $\tilde C_t$，它表示我们希望加入记忆细胞的候选信息，其计算过程和门类似，唯一区别是采用了另一种非线性函数 $\tanh$ 而非之前的 $\text{sigmoid}$，因为我们不需要将结果中的所有元素都约束到 $[0,1]$ 区间内。当然，这里我们可以采用任何非线性函数（例如 ReLU 等），$\tanh$ 只是其中最常用的一种。之后，我们可以利用遗忘门和输入门来更新记忆细胞并计算下一个隐藏状态。最后，我们将更新后的记忆细胞和隐藏状态作为下一个时间步的输入。</p>
 
@@ -304,12 +302,11 @@ C_t &= f_t*C_{t-1}+i_t* \tilde C_{t}\\
 
 <p>它允许 LSTM 的 3 个门不仅依赖于当前输入 $\mathbf x_t$ 和之前的隐藏状态 $\mathbf h_{t-1}$，同时还依赖于之前的记忆细胞状态 $C_{t-1}$。</p>
 
-<script type="math/tex; mode=display">% <![CDATA[
-\begin{align}
-f_t &= \sigma(W_f\cdot [C_{t-1},\mathbf h_{t-1},\mathbf x_t]+\mathbf b_f)\\
-i_t &= \sigma(W_i\cdot [C_{t-1},\mathbf h_{t-1},\mathbf x_t]+\mathbf b_i)\\
-o_t &= \sigma(W_o\cdot [C_{t-1},\mathbf h_{t-1},\mathbf x_t]+\mathbf b_o)
-\end{align} %]]></script>
+\[\begin{align}
+f_t &amp;= \sigma(W_f\cdot [C_{t-1},\mathbf h_{t-1},\mathbf x_t]+\mathbf b_f)\\
+i_t &amp;= \sigma(W_i\cdot [C_{t-1},\mathbf h_{t-1},\mathbf x_t]+\mathbf b_i)\\
+o_t &amp;= \sigma(W_o\cdot [C_{t-1},\mathbf h_{t-1},\mathbf x_t]+\mathbf b_o)
+\end{align}\]
 
 <p>可以看到，和 LSTM 唯一区别就是在决定哪些项归零时，我们增加了之前的记忆细胞状态作为参考。通常，peephole 连接会包含非常多的参数。</p>
 
@@ -321,15 +318,14 @@ o_t &= \sigma(W_o\cdot [C_{t-1},\mathbf h_{t-1},\mathbf x_t]+\mathbf b_o)
 
 <p><img src="http://andy-blog.oss-cn-beijing.aliyuncs.com/blog/2020-04-23-WX20200423-164018%402x.png" width="45%" /></p>
 
-<script type="math/tex; mode=display">% <![CDATA[
-\begin{align}
-z_t &= \sigma(W_z\cdot [\mathbf h_{t-1},\mathbf x_t])\\
-r_t &= \sigma(W_r\cdot [\mathbf h_{t-1},\mathbf x_t])\\
-\tilde {\mathbf h}_{t} &= \tanh(W\cdot [r_t * \mathbf h_{t-1},\mathbf x_t])\\
-\mathbf h_t &= (\mathbf 1-z_t)*\mathbf h_{t-1} + z_t * \tilde {\mathbf h}_{t}
-\end{align} %]]></script>
+\[\begin{align}
+z_t &amp;= \sigma(W_z\cdot [\mathbf h_{t-1},\mathbf x_t])\\
+r_t &amp;= \sigma(W_r\cdot [\mathbf h_{t-1},\mathbf x_t])\\
+\tilde {\mathbf h}_{t} &amp;= \tanh(W\cdot [r_t * \mathbf h_{t-1},\mathbf x_t])\\
+\mathbf h_t &amp;= (\mathbf 1-z_t)*\mathbf h_{t-1} + z_t * \tilde {\mathbf h}_{t}
+\end{align}\]
 
-<p>关于 GRU，我们不会进行非常详细的讨论。基本上，GRU 包含一个 <strong>更新门（update gate）$z_t$</strong> 和一个 <strong>重置门（reset gate）$r_t$</strong>，其计算过程和 LSTM 中的门类似。然后我们计算 <strong>蒸馏隐藏状态 <script type="math/tex">\tilde {\mathbf h}_{t}</script></strong>，它表示我们从当前输入中提取到的希望加入隐藏状态的信息，和之前的 $\tilde C_t$ 类似，但计算过程有些差别：其中包含了当前输入 $\mathbf x_t$ 和之前的隐藏状态 $\mathbf h_{t-1}$，并且在计算之前，我们还将重置门 $r_t$ 和之前的隐藏状态 $\mathbf h_{t-1}$ 中的对应元素相乘。重置门 $r_t$ 的作用是在计算蒸馏隐藏状态前，将之前的隐藏状态 $\mathbf h_{t-1}$ 中某些无用的元素归零。然后，我们用更新门 $z_t$ 来更新隐藏状态。相比 LSTM 中更新记忆细胞时使用两个独立的门（遗忘门和输入门），GRU 在更新隐藏状态时只用到了一个更新门：这里 $z_t$ 扮演了类似输入门的角色，而 $(\mathbf 1-z_t)$ 则扮演了类似遗忘门的角色。</p>
+<p>关于 GRU，我们不会进行非常详细的讨论。基本上，GRU 包含一个 <strong>更新门（update gate）$z_t$</strong> 和一个 <strong>重置门（reset gate）$r_t$</strong>，其计算过程和 LSTM 中的门类似。然后我们计算 <strong>蒸馏隐藏状态 \(\tilde {\mathbf h}_{t}\)</strong>，它表示我们从当前输入中提取到的希望加入隐藏状态的信息，和之前的 $\tilde C_t$ 类似，但计算过程有些差别：其中包含了当前输入 $\mathbf x_t$ 和之前的隐藏状态 $\mathbf h_{t-1}$，并且在计算之前，我们还将重置门 $r_t$ 和之前的隐藏状态 $\mathbf h_{t-1}$ 中的对应元素相乘。重置门 $r_t$ 的作用是在计算蒸馏隐藏状态前，将之前的隐藏状态 $\mathbf h_{t-1}$ 中某些无用的元素归零。然后，我们用更新门 $z_t$ 来更新隐藏状态。相比 LSTM 中更新记忆细胞时使用两个独立的门（遗忘门和输入门），GRU 在更新隐藏状态时只用到了一个更新门：这里 $z_t$ 扮演了类似输入门的角色，而 $(\mathbf 1-z_t)$ 则扮演了类似遗忘门的角色。</p>
 
 <p>实践中，GRU 和 LSTM 的性能相当，并且由于少了一个门和记忆细胞，GRU 的参数要比 LSTM 少一些。但是，GRU 并没有在参数数量上取得太大的优势，因为绝大部分（$90\%$ 左右）的参数集中在嵌入矩阵中，所以节省一个门可能只是减少了几百/几千个参数，而这些减少对于训练一个很大的模型并没有太大差别。</p>
 
@@ -349,7 +345,7 @@ r_t &= \sigma(W_r\cdot [\mathbf h_{t-1},\mathbf x_t])\\
 
 <p><img src="http://andy-blog.oss-cn-beijing.aliyuncs.com/blog/2020-04-23-WX20200423-172722%402x.png" width="80%" /></p>
 
-<script type="math/tex; mode=display">\mathbf y_i=\text{softmax}(W_{\mathbf s}\cdot [\mathbf s_i,\mathbf u_i])</script>
+\[\mathbf y_i=\text{softmax}(W_{\mathbf s}\cdot [\mathbf s_i,\mathbf u_i])\]
 
 <p>双向 LSTM 包含一个从左至右的 LSTM 和一个从右至左的 LSTM。当我们处理一个给定单词时，它将结合第一个 LSTM 从左至右的隐藏状态 $\mathbf s_i$ 和第二个 LSTM 从右至左的隐藏状态 $\mathbf u_i$，所以，我们无法用它来预测下一个单词。因此，我们无法用双向 LSTM 来实现语言模型。</p>
 

@@ -1,4 +1,4 @@
-I"�_<h1 id="lecture-07-nlp-深度学习前馈网络">Lecture 07 NLP 深度学习：前馈网络</h1>
+I"l[<h1 id="lecture-07-nlp-深度学习前馈网络">Lecture 07 NLP 深度学习：前馈网络</h1>
 
 <p><strong>什么是深度学习？</strong></p>
 
@@ -31,7 +31,7 @@
   <li>
     <p>给定输入（向量） $\mathbf x$，计算实值（标量）$h$</p>
 
-    <script type="math/tex; mode=display">h=\tanh \left(\sum_{j}w_jx_j+b\right)</script>
+\[h=\tanh \left(\sum_{j}w_jx_j+b\right)\]
   </li>
   <li>对输入进行缩放（乘以权重，$\mathbf w$），并且加上偏移量（偏置，$b$）</li>
   <li>采用 <strong>非线性函数</strong>，例如：logistic sigmoid, hyperbolic sigmoid（tanh），或者 ReLU</li>
@@ -43,13 +43,13 @@
   <li>
     <p>通常会有很多个隐藏神经元，即</p>
 
-    <script type="math/tex; mode=display">h_i=\tanh \left(\sum_{j}w_{ij}x_{j}+b_i\right)</script>
+\[h_i=\tanh \left(\sum_{j}w_{ij}x_{j}+b_i\right)\]
   </li>
   <li>每个神经元都有属于自己的权重向量 $\mathbf w_i$ 和偏置项 $b_i$</li>
   <li>
     <p>某一层的计算结果可以用矩阵和向量操作表示</p>
 
-    <script type="math/tex; mode=display">\mathbf h=\tanh (W\mathbf x + \mathbf b)</script>
+\[\mathbf h=\tanh (W\mathbf x + \mathbf b)\]
 
     <p>其中，$W$ 是一个由权重向量 $\mathbf w_i$ 构成的矩阵，$\mathbf x$ 是输入向量，$\mathbf b$ 是所有偏置项组成的向量。</p>
   </li>
@@ -69,7 +69,7 @@
       <li>
         <p>使用 Softmax 函数，确保概率大于 $0$，并且和为 $1$。</p>
 
-        <script type="math/tex; mode=display">\left[\dfrac{\exp(v_1)}{\sum_i\exp(v_i)},\dfrac{\exp(v_2)}{\sum_i\exp(v_i)},\dots,\dfrac{\exp(v_m)}{\sum_i\exp(v_i)} \right]</script>
+\[\left[\dfrac{\exp(v_1)}{\sum_i\exp(v_i)},\dfrac{\exp(v_2)}{\sum_i\exp(v_i)},\dots,\dfrac{\exp(v_m)}{\sum_i\exp(v_i)} \right]\]
       </li>
     </ul>
   </li>
@@ -81,11 +81,11 @@
 
 <p>让我们回到之前的例子，上图是一个包含 1 个输入层、2 个隐藏层和 1 个输出层的前馈神经网络。它可以表示为：</p>
 
-<script type="math/tex; mode=display">\mathbf h_1=\tanh (W_1\mathbf x + \mathbf b_1)</script>
+\[\mathbf h_1=\tanh (W_1\mathbf x + \mathbf b_1)\]
 
-<script type="math/tex; mode=display">\mathbf h_2=\tanh (W_2\mathbf h_1 + \mathbf b_2)</script>
+\[\mathbf h_2=\tanh (W_2\mathbf h_1 + \mathbf b_2)\]
 
-<script type="math/tex; mode=display">\mathbf y=\text{softmax}(W_3\mathbf h_2)</script>
+\[\mathbf y=\text{softmax}(W_3\mathbf h_2)\]
 
 <p>权重矩阵 $W$ 和偏置向量 $\mathbf b$ 就是该模型的所有参数，我们通过定义目标函数，利用梯度下降等方法对其进行训练。</p>
 
@@ -97,7 +97,7 @@
   <li>
     <p>本质上，模型试图尽可能地 “拟合” 训练数据，我们可以通过其分配给正确输出的概率来衡量：</p>
 
-    <script type="math/tex; mode=display">L=\prod_{i=0}^{m}P(y_i\mid x_i)</script>
+\[L=\prod_{i=0}^{m}P(y_i\mid x_i)\]
 
     <ul>
       <li><strong>最大化</strong> 所有训练数据的总概率 $L$</li>
@@ -127,11 +127,11 @@
 
 <p><img src="http://andy-blog.oss-cn-beijing.aliyuncs.com/blog/2020-04-17-WX20200417-204406%402x.png" width="40%" /></p>
 
-<script type="math/tex; mode=display">\mathbf h_1=\tanh (W_1\mathbf x + \mathbf b_1)</script>
+\[\mathbf h_1=\tanh (W_1\mathbf x + \mathbf b_1)\]
 
-<script type="math/tex; mode=display">\mathbf h_2=\tanh (W_2\mathbf h_1 + \mathbf b_2)</script>
+\[\mathbf h_2=\tanh (W_2\mathbf h_1 + \mathbf b_2)\]
 
-<script type="math/tex; mode=display">\mathbf y=\text{softmax}(W_3\mathbf h_2)</script>
+\[\mathbf y=\text{softmax}(W_3\mathbf h_2)\]
 
 <p>对于第一个文档 <strong>doc 1</strong>：<br />
 输入向量 $\mathbf x=[0,2,3,0]$ 代表文档的词袋表示<br />
@@ -177,7 +177,7 @@
     <p><strong>基本框架</strong>：可以视为句子上的 “滑动窗口”，根据有限的上下文对每个单词进行预测。<br />
 例如，$n=3$ 时，一个 trigram 模型为：</p>
 
-    <script type="math/tex; mode=display">P(w_1,w_2,\dots,w_m)=\prod_{i=1}^{m}P(w_i\mid w_{i-2} w_{i-1})</script>
+\[P(w_1,w_2,\dots,w_m)=\prod_{i=1}^{m}P(w_i\mid w_{i-2} w_{i-1})\]
   </li>
   <li>训练（估计）来自频率计数
     <ul>
@@ -189,7 +189,7 @@
 <h3 id="32-语言模型作为分类器">3.2 语言模型作为分类器</h3>
 <p>语言模型可以被视为简单的 <strong>分类器</strong>，对一个序列中下一个可能出现的单词进行分类。</p>
 
-<script type="math/tex; mode=display">P(w_i\mid w_{i-2}=“\textit{cow}”,w_{i-1}=“\textit{eats}”)</script>
+\[P(w_i\mid w_{i-2}=“\textit{cow}”,w_{i-1}=“\textit{eats}”)\]
 
 <p>例如，在 trigram 模型中，我们给定当前的两个上下文单词 “$\textit{cow}$” 和 “$\textit{eats}$”，我们希望预测接下来出现的单词。分类任务是从词汇表（总的类别）中选择可能性最高的一个作为下一个出现的单词。</p>
 
@@ -199,7 +199,7 @@
   <li>
     <p>使用神经网络作为模型的一个分类器</p>
 
-    <script type="math/tex; mode=display">P(w_i\mid w_{i-2}=“\textit{cow}”,w_{i-1}=“\textit{eats}”)</script>
+\[P(w_i\mid w_{i-2}=“\textit{cow}”,w_{i-1}=“\textit{eats}”)\]
 
     <ul>
       <li><strong>输入特征</strong>：前面的两个单词</li>
@@ -226,11 +226,11 @@
     <p>缓解数据稀疏问题。<br />
 例如，考虑语料库中有一个句子：</p>
 
-    <script type="math/tex; mode=display">\textit{dog is walking}</script>
+\[\textit{dog is walking}\]
 
     <p>现在，我们有一个新的句子：</p>
 
-    <script type="math/tex; mode=display">\textit{cat is running}</script>
+\[\textit{cat is running}\]
 
     <p>词嵌入模型对于 “$\textit{dog}$” 和 “$\textit{cat}$” 这两个单词给出了相似的词嵌入，同理，对于 “$\textit{walking}$” 和 “$\textit{running}$” 也给出了相似的词嵌入。然后，我们的模型会意识到既然 “$\textit{dog is walking}$ ” 是一个可能的句子序列，那么，“$\textit{cat is running}$” 也应当是一个可能的句子序列。</p>
 
@@ -251,18 +251,18 @@
 
 <p>这里，我们采用 n-grams 语言模型。首先，我们观察 $(n-1)$ 个上下文单词：</p>
 
-<script type="math/tex; mode=display">w_{t-n+1},\dots,w_{t-2},w_{t-1}</script>
+\[w_{t-n+1},\dots,w_{t-2},w_{t-1}\]
 
 <p>并对它们进行嵌入，得到相应的词嵌入：</p>
 
-<script type="math/tex; mode=display">C(w_{t-n+1}),\dots,C(w_{t-2}),C(w_{t-1})</script>
+\[C(w_{t-n+1}),\dots,C(w_{t-2}),C(w_{t-1})\]
 
 <p>然后，我们将这些词嵌入连接起来，输入非线性激活函数 $\tanh$ 函数。之后，再进行解除嵌入或者进行另一个线性转换来生成输出层。很重要的一点是，我们试图预测的是一个单词，输出类别的大小实际上等于词汇表的大小，所以输出层中的单元数量实际上等于词汇表中的唯一单词数量。最后，我们在这些值上应用一个 $\text{softmax}$ 函数，从而得到一个关于所有单词概率的向量。之后，当我们要根据上下文预测下一个单词时，我们只需要选择概率向量中的最大值对应的单词作为预测单词即可。</p>
 
 <h3 id="36-例子">3.6 例子</h3>
 <p>现在，我们来看一个简单的例子，输入是前面上下文的两个单词 “$\textit{cow}$” 和 “$\textit{eats}$”，然后我们试图估计下一个单词为 “$\textit{grass}$” 的概率：</p>
 
-<script type="math/tex; mode=display">P(w_i=“\textit{grass}”\mid w_{i-2}=“\textit{cow}”,w_{i-1}=“\textit{eats}”)</script>
+\[P(w_i=“\textit{grass}”\mid w_{i-2}=“\textit{cow}”,w_{i-1}=“\textit{eats}”)\]
 
 <ul>
   <li>
@@ -275,11 +275,11 @@
   <li>
     <p>将它们连接起来，输入网络中。</p>
 
-    <script type="math/tex; mode=display">\mathbf x=\mathbf v_{\textit{cow}}\oplus \mathbf v_{\textit{eats}}</script>
+\[\mathbf x=\mathbf v_{\textit{cow}}\oplus \mathbf v_{\textit{eats}}\]
 
-    <script type="math/tex; mode=display">\mathbf h_1=\tanh(W_1\mathbf x+\mathbf b_1)</script>
+\[\mathbf h_1=\tanh(W_1\mathbf x+\mathbf b_1)\]
 
-    <script type="math/tex; mode=display">\mathbf y=\text{softmax}(W_2\mathbf h_1)</script>
+\[\mathbf y=\text{softmax}(W_2\mathbf h_1)\]
 
     <p>首先，我们将单词 “$\textit{cow}$” 和 “$\textit{eats}$” 的词嵌入 $\mathbf v_{\textit{cow}}$ 和 $\mathbf v_{\textit{eats}}$ 连接起来作为输入向量 $\mathbf x$。然后通过权重矩阵 $W_1$ 进行加权，并加上偏置向量 $\mathbf b_1$，将结果作为非线性函数 $\tanh$ 的输入，得到隐藏层的表示 $\mathbf h_1$。利用权重矩阵 $W_2$ 对 $\mathbf h_1$ 加权，并作为函数 $\text{softmax}$ 的输入，最终得到预测结果 $\mathbf y$。</p>
   </li>
@@ -288,7 +288,7 @@
 
     <p><img src="http://andy-blog.oss-cn-beijing.aliyuncs.com/blog/2020-04-18-WX20200418-202408%402x.png" width="50%" /></p>
 
-    <script type="math/tex; mode=display">P(w_i=“\textit{grass}”\mid w_{i-2}=“\textit{cow}”,w_{i-1}=“\textit{eats}”)=0.8</script>
+\[P(w_i=“\textit{grass}”\mid w_{i-2}=“\textit{cow}”,w_{i-1}=“\textit{eats}”)=0.8\]
 
     <p>该前馈神经网络模型的大部分参数都在词嵌入（即所有单词的词嵌入表，维度为 $d\times |V|$）和输出嵌入（即 $W_2$，维度为 $|V|\times d$）中。</p>
   </li>
@@ -323,7 +323,7 @@
       <li>
         <p>例如，给定当前单词 “$\textit{eats}$”，和它的前一个上下文单词 “$\textit{cow}$”，我们的目标是预测当前单词 “$\textit{eats}$” 的词性：</p>
 
-        <script type="math/tex; mode=display">P(t_i\mid w_{i-1}=\textit{“cow”},w_{i}=\textit{“eats”})</script>
+\[P(t_i\mid w_{i-1}=\textit{“cow”},w_{i}=\textit{“eats”})\]
 
         <p>对当前单词 “$\textit{eats}$” 的可能词性分类。</p>
       </li>

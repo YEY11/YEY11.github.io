@@ -1,4 +1,4 @@
-I"�d<h1 id="lecture-03-容错基础知识">Lecture 03 容错基础知识</h1>
+I"b<h1 id="lecture-03-容错基础知识">Lecture 03 容错基础知识</h1>
 
 <p><strong>参考教材</strong>：<em>Transaction Processing: Concepts and Techniques, Jim Gray and Andreas Reuter, Morgan Kaufmann, 1993</em></p>
 
@@ -17,7 +17,7 @@
     <p>$P(A \cap B)=$ 在这段时期内事件 $A$ 和 $B$ 都发生的概率<br />
 如果 $A$ 和 $B$ 互为独立事件，那么</p>
 
-    <script type="math/tex; mode=display">P(A \cap B)=P(A)\times P(B)</script>
+\[P(A \cap B)=P(A)\times P(B)\]
 
     <p><br /></p>
   </li>
@@ -25,9 +25,8 @@
     <p>$P(A \cup B)= P(A) + P(B) - P(A\cap B)$<br />
 如果 $A$ 和 $B$ 互为独立事件，那么</p>
 
-    <script type="math/tex; mode=display">% <![CDATA[
-\begin{align} P(A \cup B) &= P(A)+P(B)-P(A)\times P(B) \\
-&= P(A)+P(B)\qquad  (如果\, P(A)\, 和\, P(B)\, 非常小)\end{align} %]]></script>
+\[\begin{align} P(A \cup B) &amp;= P(A)+P(B)-P(A)\times P(B) \\
+&amp;= P(A)+P(B)\qquad  (如果\, P(A)\, 和\, P(B)\, 非常小)\end{align}\]
 
     <p><br /></p>
   </li>
@@ -39,11 +38,11 @@
   <li>
     <p>如果事件 $A$ 和 $B$ 的平均时间分别为 $MT(A)$ 和 $MT(B)$，那么到第一次事件发生的平均时间为</p>
 
-    <script type="math/tex; mode=display">MT(A\cup B)=\dfrac{1}{P(A\cup B)}=\dfrac{1}{P(A)+P(B)-P(A\cap B)}</script>
+\[MT(A\cup B)=\dfrac{1}{P(A\cup B)}=\dfrac{1}{P(A)+P(B)-P(A\cap B)}\]
 
     <p>假设 $P(A)$ 和 $P(B)$ 都非常小，那么我们可以认为 $P(A\cap B)\approx 0$。因此，在容错问题中，我们可以认为两个系统同时发生故障的概率非常低，此时</p>
 
-    <script type="math/tex; mode=display">MT(A\cup B)=\dfrac{1}{P(A)+P(B)}</script>
+\[MT(A\cup B)=\dfrac{1}{P(A)+P(B)}\]
   </li>
 </ul>
 
@@ -56,7 +55,7 @@
 
 <p><strong>模块可用性 (Module availability)</strong>：测量服务完成与消耗时间的比率。计算公式如下：</p>
 
-<script type="math/tex; mode=display">\dfrac{\text{Mean time to failure}}{\text{Mean time to failure} + \text{mean time to repair}}</script>
+\[\dfrac{\text{Mean time to failure}}{\text{Mean time to failure} + \text{mean time to repair}}\]
 
 <h3 id="22-事件发生平均时间">2.2 事件发生平均时间</h3>
 
@@ -70,7 +69,7 @@
 
 <p>因此，这些事件中有一个发生的平均时间为：</p>
 
-<script type="math/tex; mode=display">\dfrac{1}{np}=\dfrac{1}{p}\times \dfrac{1}{n}=\dfrac{m}{n}</script>
+\[\dfrac{1}{np}=\dfrac{1}{p}\times \dfrac{1}{n}=\dfrac{m}{n}\]
 
 <h3 id="23-基于可用性的系统分类">2.3 基于可用性的系统分类</h3>
 
@@ -131,7 +130,7 @@
 
         <p>令 $M$ 为单个模块的 MTTF。三工系统中的任意一个模块的 MTTF 均为 $M/3$，然后，两个工作模块中的任意一个模块的 MTTF 为 $M/2$。整个系统总的 MMTF 为：</p>
 
-        <script type="math/tex; mode=display">M \times(1/3 + 1/2)= 0.83M</script>
+\[M \times(1/3 + 1/2)= 0.83M\]
       </li>
     </ul>
   </li>
@@ -161,7 +160,7 @@
   <li>
     <p>如果三工系统可以屏蔽所有瞬态/软故障，并且硬故障的 MTTF 为 $100$ 年，则系统的 MTTF 为:</p>
 
-    <script type="math/tex; mode=display">100 \times（1/3 + 1/2）= 83.7 \text{ 年}</script>
+\[100 \times（1/3 + 1/2）= 83.7 \text{ 年}\]
   </li>
 </ul>
 
@@ -223,29 +222,29 @@
 
 <p>系统中单个模块/设备不可用的概率为：</p>
 
-<script type="math/tex; mode=display">P_1 = \dfrac{MTTR}{MTTF + MTTR}\cong \dfrac{MTTR}{MTTF} \quad (\text{如果}\; MTTF \gg MTTR)</script>
+\[P_1 = \dfrac{MTTR}{MTTF + MTTR}\cong \dfrac{MTTR}{MTTF} \quad (\text{如果}\; MTTF \gg MTTR)\]
 
 <p>系统中 ($n-1$) 个模块不可用的概率为：</p>
 
-<script type="math/tex; mode=display">P_{n-1}=\left(\dfrac{MTTR}{MTTF}\right)^{n-1}</script>
+\[P_{n-1}=\left(\dfrac{MTTR}{MTTF}\right)^{n-1}\]
 
 <p>系统中单个模块/设备失效的概率为：</p>
 
-<script type="math/tex; mode=display">P_f = \dfrac{1}{MTTF}</script>
+\[P_f = \dfrac{1}{MTTF}\]
 
 <p>对于一个多模块系统，如果其中一个模块失效了，整体系统仍然可能是可用的，例如：在 RAID 6 中，我们有多个磁盘，即使其中某个磁出现故障，我们仍然可以通过其余磁盘上的数据和校验位进行数据恢复，使得系统继续运行。</p>
 
 <p>系统由于特定的第 $i$ 个模块失效而最终发生故障的概率为：</p>
 
-<script type="math/tex; mode=display">P_f \cdot P_{n-1}= \left(\dfrac{1}{MTTF}\right) \cdot \left(\dfrac{MTTR}{MTTF}\right)^{n-1}</script>
+\[P_f \cdot P_{n-1}= \left(\dfrac{1}{MTTF}\right) \cdot \left(\dfrac{MTTR}{MTTF}\right)^{n-1}\]
 
 <p>一个 n-plex 的 Failfast 系统失效的概率为：</p>
 
-<script type="math/tex; mode=display">P_{n-plex} = \left(\dfrac{n}{MTTF}\right) \cdot \left(\dfrac{MTTR}{MTTF}\right)^{n-1}</script>
+\[P_{n-plex} = \left(\dfrac{n}{MTTF}\right) \cdot \left(\dfrac{MTTR}{MTTF}\right)^{n-1}\]
 
 <p>一个 n-plex 的 Failfast 系统的 MTTF 为：</p>
 
-<script type="math/tex; mode=display">MTTF_n = \left(\dfrac{MTTF}{n}\right) \cdot \left(\dfrac{MTTF}{MTTR}\right)^{(n-1)}</script>
+\[MTTF_n = \left(\dfrac{MTTF}{n}\right) \cdot \left(\dfrac{MTTF}{MTTR}\right)^{(n-1)}\]
 
 <h2 id="4-old-new-master">4. Old-New Master</h2>
 

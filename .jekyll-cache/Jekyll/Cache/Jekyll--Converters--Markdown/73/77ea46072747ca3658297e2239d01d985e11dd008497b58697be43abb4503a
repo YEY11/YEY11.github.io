@@ -1,4 +1,4 @@
-I"�,<h1 id="lecture-12-qa">Lecture 12 Q&amp;A</h1>
+I"�,<h1 id="lecture-12-qa">Lecture 12 Q&amp;A</h1>
 
 <p><strong>参考教材</strong>：</p>
 
@@ -30,7 +30,7 @@
 
 <p><img src="http://andy-blog.oss-cn-beijing.aliyuncs.com/blog/2020-11-10-WX20201110-180620%402x.png" width="60%" /></p>
 
-<script type="math/tex; mode=display">E\left [(y_0 - \hat f(x_0))^2 \right] = \mathrm{Var}(\hat f(x_0)) + [\mathrm{Bias}(\hat f(x_0))]^2 + \mathrm{Var}(\epsilon)</script>
+\[E\left [(y_0 - \hat f(x_0))^2 \right] = \mathrm{Var}(\hat f(x_0)) + [\mathrm{Bias}(\hat f(x_0))]^2 + \mathrm{Var}(\epsilon)\]
 
 <ul>
   <li><strong>偏差</strong>：模型假设带来的误差。灵活度越高，模型假设越少，偏差越低。</li>

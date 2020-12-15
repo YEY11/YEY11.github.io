@@ -1,4 +1,4 @@
-I"Ѣ<h1 id="lecture-11-上下文表示">Lecture 11 上下文表示</h1>
+I"С<h1 id="lecture-11-上下文表示">Lecture 11 上下文表示</h1>
 
 <p>这节课我们学习 <strong>上下文表示（Contextual Representation）</strong>，即单词在上下文中的含义。</p>
 
@@ -342,7 +342,7 @@ BERT 不需要另外单独的下游任务模型。BERT 提供了单词的上下�
   <li>COLA：句子可接受度预测（sentence acceptability prediction）</li>
 </ul>
 
-<p>BERT 在所有任务上都取得了非常好的表现。此外，BERT 发布了 2 种版本：<script type="math/tex">\text{BERT}_{\text{BASE}}</script> 和 <script type="math/tex">\text{BERT}_{\text{LARGE}}</script>。其中，<script type="math/tex">\text{BERT}_{\text{LARGE}}</script> 的参数数量要比 <script type="math/tex">\text{BERT}_{\text{BASE}}</script> 的参数数量更多一些。</p>
+<p>BERT 在所有任务上都取得了非常好的表现。此外，BERT 发布了 2 种版本：\(\text{BERT}_{\text{BASE}}\) 和 \(\text{BERT}_{\text{LARGE}}\)。其中，\(\text{BERT}_{\text{LARGE}}\) 的参数数量要比 \(\text{BERT}_{\text{BASE}}\) 的参数数量更多一些。</p>
 
 <h3 id="310-transformers">3.10 Transformers</h3>
 
@@ -406,18 +406,18 @@ BERT 不需要另外单独的下游任务模型。BERT 提供了单词的上下�
   <li>
     <p>基于注意力机制的单个单词的上下文表示计算公式：</p>
 
-    <script type="math/tex; mode=display">A(q,K,V)=\sum_i \dfrac{e^{q\cdot k_i}}{\sum_j e^{q\cdot k_j}}\times v_i</script>
+\[A(q,K,V)=\sum_i \dfrac{e^{q\cdot k_i}}{\sum_j e^{q\cdot k_j}}\times v_i\]
 
     <p>当我们有多个查询向量时（即需要同时计算多个单词的上下文表示时），我们可以将它们堆叠为矩阵形式：</p>
 
-    <script type="math/tex; mode=display">A(Q,K,V)=\text{softmax}(QK^{\mathrm T})V</script>
+\[A(Q,K,V)=\text{softmax}(QK^{\mathrm T})V\]
 
     <p><br /></p>
   </li>
   <li>
     <p>Transformers 还使用 <strong>缩放后的点积（scaled dot-product）</strong>来避免计算得到的数值过大：</p>
 
-    <script type="math/tex; mode=display">A(Q,K,V)=\text{softmax}\left(\dfrac{QK^{\mathrm T}}{\sqrt{d_k}}\right)V</script>
+\[A(Q,K,V)=\text{softmax}\left(\dfrac{QK^{\mathrm T}}{\sqrt{d_k}}\right)V\]
 
     <p>其中，$d_k$ 表示查询向量（query）和键向量（key）的维度。</p>
 

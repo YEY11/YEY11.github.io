@@ -1,4 +1,4 @@
-I" q<h1 id="lecture-09-分类和回归树-cart">Lecture 09 分类和回归树 (CART)</h1>
+I"$l<h1 id="lecture-09-分类和回归树-cart">Lecture 09 分类和回归树 (CART)</h1>
 
 <p><strong>参考教材</strong>：</p>
 
@@ -23,19 +23,19 @@
 
 <p>假设我们观察到一个 i.i.d. 样本 $(X_1,Y_1),\dots,(X_n,Y_n)$ 来自以下基础均值模型</p>
 
-<script type="math/tex; mode=display">E(Y_i \mid X_i=x) = m(x)</script>
+\[E(Y_i \mid X_i=x) = m(x)\]
 
 <p>其中，$Y_i\in \mathbb R$ 和 $X_i=(X_{i1},\dots,X_{ip})^{\mathrm T} \in \mathbb R^p$ 是连续的。</p>
 
 <p>在本节内容中，这种表示法可能会引起混淆。<span style="color:red">因此，我们将样本表示为</span></p>
 
-<script type="math/tex; mode=display">(\mathcal X_1,\mathcal Y_1),\dots,(\mathcal X_n,\mathcal Y_n)</script>
+\[(\mathcal X_1,\mathcal Y_1),\dots,(\mathcal X_n,\mathcal Y_n)\]
 
 <p>其中，$\mathcal Y_i \in \mathbb R, \; \mathcal X_i=(\mathcal X_{i1},\dots,\mathcal X_{ip})^{\mathrm T}$。</p>
 
 <p>当我们不想强调数据的样本依赖性时，我们使用符号 $(X,Y)$，其中，$(X,Y)$ 与 $(\mathcal X_i,\mathcal Y_i)$ 具有相同的分布。特别地，它也来自模型</p>
 
-<script type="math/tex; mode=display">E(Y\mid X=x) = m(x)</script>
+\[E(Y\mid X=x) = m(x)\]
 
 <p>其中，$Y\in \mathbb R$ 和 $X=(X_1,\dots,X_p)^{\mathrm T} \in \mathbb R^p$ 是连续的。</p>
 
@@ -49,7 +49,7 @@
 
 <p>为了解决这个问题：考虑 $p=2$ 的情况。这里我们需要估计回归曲线</p>
 
-<script type="math/tex; mode=display">m(x) = E(Y \mid X = x)</script>
+\[m(x) = E(Y \mid X = x)\]
 
 <p>其中，$Y\in \mathbb R$ 和 $X=(X_1,X_2)^{\mathrm T} \in \mathbb R^2$ 是连续的。</p>
 
@@ -92,8 +92,7 @@
 
 <p>对于特征空间中的所有 $x$，</p>
 
-<script type="math/tex; mode=display">% <![CDATA[
-m(x)\approx \sum_{\ell=1}^{L}c_{\ell}I\{x \in R_{\ell}\}=\begin{cases}c_{\ell} & \text{if }x\in R_{\ell} \\[2ex] 0 & \text{otherwise}\end{cases} %]]></script>
+\[m(x)\approx \sum_{\ell=1}^{L}c_{\ell}I\{x \in R_{\ell}\}=\begin{cases}c_{\ell} &amp; \text{if }x\in R_{\ell} \\[2ex] 0 &amp; \text{otherwise}\end{cases}\]
 
 <p>区域 $R_1,R_2,\dots$ 上的分段常数近似如下：</p>
 
@@ -126,11 +125,11 @@ m(x)\approx \sum_{\ell=1}^{L}c_{\ell}I\{x \in R_{\ell}\}=\begin{cases}c_{\ell} &
 
 <p>然后，对于 $\ell \in \{1,\dots,L\}$ 和 $x\in R_{\ell}$，我们通过下式来近似 $m(x)$</p>
 
-<script type="math/tex; mode=display">\hat m(x)=\hat c_{\ell}= \text{average}(\mathcal Y_i) \quad \text{s.t.} \quad \mathcal X_i \in R_{\ell}</script>
+\[\hat m(x)=\hat c_{\ell}= \text{average}(\mathcal Y_i) \quad \text{s.t.} \quad \mathcal X_i \in R_{\ell}\]
 
 <p>因此，在每个区域 $R_{\ell}$ 上，我们取 $\mathcal X_i\in R_{\ell}$ 对应的 $\mathcal Y_i$ 的平均值。这与选择使下面的 RSS 最小化的 $c_1,\dots,c_L$ 是相同的</p>
 
-<script type="math/tex; mode=display">\sum_{i=1}^{n}\left[\mathcal Y_i - \sum_{\ell=1}^{L}c_{\ell}I\{\mathcal X_i \in R_{\ell}\}\right]^2 = \sum_{\ell=1}^{L}\sum_{\mathcal X_i \in R_{\ell}}(\mathcal Y_i - c_{\ell})^2</script>
+\[\sum_{i=1}^{n}\left[\mathcal Y_i - \sum_{\ell=1}^{L}c_{\ell}I\{\mathcal X_i \in R_{\ell}\}\right]^2 = \sum_{\ell=1}^{L}\sum_{\mathcal X_i \in R_{\ell}}(\mathcal Y_i - c_{\ell})^2\]
 
 <p><strong>但是，我们如何确定树的骨架？换而言之，我们如何选择连续的划分？</strong></p>
 
@@ -150,7 +149,7 @@ m(x)\approx \sum_{\ell=1}^{L}c_{\ell}I\{x \in R_{\ell}\}=\begin{cases}c_{\ell} &
   <li>
     <p>从全部数据开始，并考虑第一次划分的所有可能方式，即考虑将数据分为两个区域的所有划分</p>
 
-    <script type="math/tex; mode=display">R_1(j,t)=\{\mathcal X_i \quad \text{s.t.} \quad \mathcal X_{ij}\le t\},\quad R_2(j,t)=\{\mathcal X_i \quad \text{s.t.} \quad \mathcal X_{ij} > t\}</script>
+\[R_1(j,t)=\{\mathcal X_i \quad \text{s.t.} \quad \mathcal X_{ij}\le t\},\quad R_2(j,t)=\{\mathcal X_i \quad \text{s.t.} \quad \mathcal X_{ij} &gt; t\}\]
 
     <p>对于所有的 $j=1,\dots,p$ 和 $\mathcal X_{ij}$ 所能取得的所有 $t$ 值。</p>
 
@@ -159,15 +158,15 @@ m(x)\approx \sum_{\ell=1}^{L}c_{\ell}I\{x \in R_{\ell}\}=\begin{cases}c_{\ell} &
   <li>
     <p>在所有 $j$ 和 $t$ 上，选择能够最小化 RSS 的 <strong>分裂变量</strong> $j$ 和 <strong>分裂点</strong> $t$：</p>
 
-    <script type="math/tex; mode=display">\min_{c_1} \sum_{\mathcal X_i\in R_1(j,t)} (\mathcal Y_i-c_1)^2 + \min_{c_2} \sum_{\mathcal X_i\in R_2(j,t)} (\mathcal Y_i-c_2)^2</script>
+\[\min_{c_1} \sum_{\mathcal X_i\in R_1(j,t)} (\mathcal Y_i-c_1)^2 + \min_{c_2} \sum_{\mathcal X_i\in R_2(j,t)} (\mathcal Y_i-c_2)^2\]
 
     <p>如前所述，这等价于在所有 $j$ 和 $t$ 上，最小化</p>
 
-    <script type="math/tex; mode=display">\sum_{\mathcal X_i\in R_1(j,t)} (\mathcal Y_i- \hat c_1)^2 + \sum_{\mathcal X_i\in R_2(j,t)} (\mathcal Y_i- \hat c_2)^2</script>
+\[\sum_{\mathcal X_i\in R_1(j,t)} (\mathcal Y_i- \hat c_1)^2 + \sum_{\mathcal X_i\in R_2(j,t)} (\mathcal Y_i- \hat c_2)^2\]
 
     <p>其中，</p>
 
-    <script type="math/tex; mode=display">\hat c_{\ell} = \text{average}(\mathcal Y_i) \quad \text{s.t.}\quad \mathcal X_i \in R_{\ell}(j,t)</script>
+\[\hat c_{\ell} = \text{average}(\mathcal Y_i) \quad \text{s.t.}\quad \mathcal X_i \in R_{\ell}(j,t)\]
   </li>
   <li>
     <p>一旦找到了上面定义的最佳 $j$ 和 $t$，我们就确定了第一个划分。它创建了 $R_1(j,t)$ 和 $R_2(j,t)$ 两个数据区域。</p>
@@ -244,11 +243,11 @@ m(x)\approx \sum_{\ell=1}^{L}c_{\ell}I\{x \in R_{\ell}\}=\begin{cases}c_{\ell} &
 
 <p>一种策略：仅当一个划分能够使 RSS 的减少量超过某个阈值的情况下，才在两个区域中执行该划分，其中</p>
 
-<script type="math/tex; mode=display">\mathrm{RSS}=\sum_{i=1}^{n}\{\mathcal Y_i-\hat m(\mathcal X_i)\}^2</script>
+\[\mathrm{RSS}=\sum_{i=1}^{n}\{\mathcal Y_i-\hat m(\mathcal X_i)\}^2\]
 
 <p>并且，对于 $x\in \mathbb R^p$，</p>
 
-<script type="math/tex; mode=display">\hat m(x) = \sum_{\ell =1}^{L}\hat c_{\ell}I\{x\in R_{\ell}\}</script>
+\[\hat m(x) = \sum_{\ell =1}^{L}\hat c_{\ell}I\{x\in R_{\ell}\}\]
 
 <p>但是，可能会发生这样的情况：某一次划分毫无价值，而接下来的一次划分可能会非常有用，因此这种策略过于短视了。</p>
 
@@ -260,19 +259,19 @@ m(x)\approx \sum_{\ell=1}^{L}c_{\ell}I\{x \in R_{\ell}\}=\begin{cases}c_{\ell} &
 
 <p>对于第 $\ell$ 层，令</p>
 
-<script type="math/tex; mode=display">N_{\ell} = \text{number of observed } \mathcal X_i \in R_{\ell}</script>
+\[N_{\ell} = \text{number of observed } \mathcal X_i \in R_{\ell}\]
 
 <p>回忆一下，在一个区间 $R_{\ell}$ 内 (即对于 $x\in R_{\ell}$)，我们通过下式估计 $m(x)$</p>
 
-<script type="math/tex; mode=display">\hat m(x)=\hat c_{\ell} =\dfrac{1}{N_{\ell}}\sum_{\mathcal X_i\in R_{\ell}}\mathcal Y_i</script>
+\[\hat m(x)=\hat c_{\ell} =\dfrac{1}{N_{\ell}}\sum_{\mathcal X_i\in R_{\ell}}\mathcal Y_i\]
 
 <p>对于一棵树 $T$，将区域 $R_{\ell}$ 中的 RSS 除以 $N_{\ell}$，表示为</p>
 
-<script type="math/tex; mode=display">Q_{\ell}(T)=\dfrac{1}{N_{\ell}}\sum_{\mathcal X_i\in R_{\ell}}(\mathcal Y_i-\hat c_{\ell})^2</script>
+\[Q_{\ell}(T)=\dfrac{1}{N_{\ell}}\sum_{\mathcal X_i\in R_{\ell}}(\mathcal Y_i-\hat c_{\ell})^2\]
 
 <p>成本复杂度标准定义为</p>
 
-<script type="math/tex; mode=display">C_{\alpha}(T)=\sum_{\ell=1}^{|T|}N_{\ell}Q_{\ell}(T) + \alpha |T|</script>
+\[C_{\alpha}(T)=\sum_{\ell=1}^{|T|}N_{\ell}Q_{\ell}(T) + \alpha |T|\]
 
 <p>其中，$\alpha \ge 0$ 是一个调整参数，用于控制树大小 $|T|$ 和数据拟合优度 $\sum_{\ell=1}^{|T|}N_{\ell}Q_{\ell}(T)$ 之间的权衡。</p>
 
@@ -319,8 +318,7 @@ m(x)\approx \sum_{\ell=1}^{L}c_{\ell}I\{x \in R_{\ell}\}=\begin{cases}c_{\ell} &
 
 <p>假设我们已经将特征空间划分为区域 $R_1,\dots,R_L$。我们将通过下式估计一个新个体 $X$ 的类标签 $G$：</p>
 
-<script type="math/tex; mode=display">% <![CDATA[
-\hat G = \hat G(X)=\sum_{\ell=1}^{L}\hat c_{\ell}I\{X\in R_{\ell}\}=\begin{cases}\hat c_1 & \text{if } X\in R_1 \\ \vdots \\ \hat c_L & \text{if } X\in R_L\end{cases} %]]></script>
+\[\hat G = \hat G(X)=\sum_{\ell=1}^{L}\hat c_{\ell}I\{X\in R_{\ell}\}=\begin{cases}\hat c_1 &amp; \text{if } X\in R_1 \\ \vdots \\ \hat c_L &amp; \text{if } X\in R_L\end{cases}\]
 
 <p>其中，$\hat c_{\ell}$ 是区域 $R_{\ell}$ 的预测类。</p>
 
@@ -330,14 +328,14 @@ m(x)\approx \sum_{\ell=1}^{L}c_{\ell}I\{x \in R_{\ell}\}=\begin{cases}c_{\ell} &
   <li>
     <p>在一个区域 $R_{\ell}$ 中，对于每个类标签 $k=1,\dots,K$，我们计算训练数据中 $G_i=k$ 的数据所占比例 $\hat p_{\ell k}$：</p>
 
-    <script type="math/tex; mode=display">\hat p_{\ell k}=\dfrac{1}{N_{\ell}}\sum_{i \text{ s.t. }\mathcal X_i\in R_{\ell}}I\{G_i = k\}</script>
+\[\hat p_{\ell k}=\dfrac{1}{N_{\ell}}\sum_{i \text{ s.t. }\mathcal X_i\in R_{\ell}}I\{G_i = k\}\]
 
     <p>其中，$N_{\ell}$ 是区域 $R_{\ell}$ 中的训练数据量。</p>
   </li>
   <li>
     <p>我们将区域 $R_{\ell}$ 中的预测类 $\hat c_{\ell}$ 取为</p>
 
-    <script type="math/tex; mode=display">\hat c_{\ell}=\mathop{\operatorname{arg\,max}}\limits_{k=1,\dots,K}\hat p_{\ell k}</script>
+\[\hat c_{\ell}=\mathop{\operatorname{arg\,max}}\limits_{k=1,\dots,K}\hat p_{\ell k}\]
 
     <p>即我们采用区域 $R_{\ell}$ 的训练数据中最常见的类作为该区域的预测类。</p>
   </li>
@@ -351,17 +349,17 @@ m(x)\approx \sum_{\ell=1}^{L}c_{\ell}I\{x \in R_{\ell}\}=\begin{cases}c_{\ell} &
   <li>
     <p><strong>误分类误差 (Misclassiﬁcation error)</strong>：</p>
 
-    <script type="math/tex; mode=display">Q_{\ell}(T) = \dfrac{1}{N_{\ell}} \sum_{i \text{ s.t. }\mathcal X_i \in R_{\ell}}I\{G_i \ne \hat c_{\ell}\}=1-\hat p_{\ell \hat c_{\ell}}</script>
+\[Q_{\ell}(T) = \dfrac{1}{N_{\ell}} \sum_{i \text{ s.t. }\mathcal X_i \in R_{\ell}}I\{G_i \ne \hat c_{\ell}\}=1-\hat p_{\ell \hat c_{\ell}}\]
   </li>
   <li>
     <p><strong>基尼系数 (Gini index)</strong>：</p>
 
-    <script type="math/tex; mode=display">Q_{\ell}(T) = \sum_{k \ne k'}\hat p_{\ell k} \hat p_{\ell k'}=\sum_{k=1}^{K}\hat p_{\ell k}(1- \hat p_{\ell k})</script>
+\[Q_{\ell}(T) = \sum_{k \ne k'}\hat p_{\ell k} \hat p_{\ell k'}=\sum_{k=1}^{K}\hat p_{\ell k}(1- \hat p_{\ell k})\]
   </li>
   <li>
     <p><strong>交叉熵/偏差 (Cross-entropy/deviance)</strong>：</p>
 
-    <script type="math/tex; mode=display">Q_{\ell}(T) = - \sum_{k=1}^{K}\hat p_{\ell k} \log \hat p_{\ell k}</script>
+\[Q_{\ell}(T) = - \sum_{k=1}^{K}\hat p_{\ell k} \log \hat p_{\ell k}\]
   </li>
 </ul>
 
@@ -377,14 +375,14 @@ m(x)\approx \sum_{\ell=1}^{L}c_{\ell}I\{x \in R_{\ell}\}=\begin{cases}c_{\ell} &
   <li>
     <p>从全部数据开始，并考虑将数据分为两个区域的所有可能的划分方式</p>
 
-    <script type="math/tex; mode=display">R_1(j,t)=\{\mathcal X_i \quad \text{s.t.} \quad \mathcal X_{ij}\le t\},\quad R_2(j,t)=\{\mathcal X_i \quad \text{s.t.} \quad \mathcal X_{ij} > t\}</script>
+\[R_1(j,t)=\{\mathcal X_i \quad \text{s.t.} \quad \mathcal X_{ij}\le t\},\quad R_2(j,t)=\{\mathcal X_i \quad \text{s.t.} \quad \mathcal X_{ij} &gt; t\}\]
 
     <p>对于所有的 $j=1,\dots,p$ 和 $\mathcal X_{j}$ 在训练样本上所能取得的所有 $t$ 值，即 $t\in \{\mathcal X_{1j},\dots,\mathcal X_{nj}\}$。</p>
   </li>
   <li>
     <p>创建第一棵树 $T$，它包含两个区域 $R_1$ 和 $R_2$。在所有可能的 $j$ 和 $t$ 上，选择分裂变量 $X_j$ 和分裂点 $t$，以最小化</p>
 
-    <script type="math/tex; mode=display">\sum_{\ell=1}^{2}N_{\ell}Q_{\ell}</script>
+\[\sum_{\ell=1}^{2}N_{\ell}Q_{\ell}\]
 
     <p>其中，$Q_{\ell}$ 可以是交叉熵或者基尼系数。</p>
   </li>
@@ -398,14 +396,14 @@ m(x)\approx \sum_{\ell=1}^{L}c_{\ell}I\{x \in R_{\ell}\}=\begin{cases}c_{\ell} &
       <li>
         <p>考虑在所有 $j$ 和 $t$ 上，$R_1$ 的所有可能划分，记为 $R_1’$ 和 $R_2’$，并找到能够最小化下式的 $j$ 和 $t$。</p>
 
-        <script type="math/tex; mode=display">\sum_{\ell=1}^{2}N_{\ell}Q_{\ell}</script>
+\[\sum_{\ell=1}^{2}N_{\ell}Q_{\ell}\]
 
         <p>其中，$Q_1$ 和 $Q_2$ 可以是交叉熵或基尼系数，分别应用于区域 $R_1’$ 和 $R_2’$。</p>
       </li>
       <li>
         <p>然后考虑在所有 $j$ 和 $t$ 上，$R_2$ 的所有可能划分，记为 $R_3’$ 和 $R_4’$，并找到能够最小化下式的 $j$ 和 $t$。</p>
 
-        <script type="math/tex; mode=display">\sum_{\ell=3}^{4}N_{\ell}Q_{\ell}</script>
+\[\sum_{\ell=3}^{4}N_{\ell}Q_{\ell}\]
 
         <p>其中，$Q_3$ 和 $Q_4$ 可以是交叉熵或基尼系数，分别应用于区域 $R_3’$ 和 $R_4’$。</p>
       </li>
@@ -425,7 +423,7 @@ m(x)\approx \sum_{\ell=1}^{L}c_{\ell}I\{x \in R_{\ell}\}=\begin{cases}c_{\ell} &
 
 <p>这里，成本复杂度标准定义为</p>
 
-<script type="math/tex; mode=display">C_{\alpha}(T)=\sum_{\ell=1}^{|T|}N_{\ell}Q_{\ell}(T) + \alpha |T|</script>
+\[C_{\alpha}(T)=\sum_{\ell=1}^{|T|}N_{\ell}Q_{\ell}(T) + \alpha |T|\]
 
 <p>在这种情况下，为了修剪树，我们可以将 $Q_{\ell}$ 设为之前定义的三个标准中的任何一个，而最常用的是误分类率。</p>
 

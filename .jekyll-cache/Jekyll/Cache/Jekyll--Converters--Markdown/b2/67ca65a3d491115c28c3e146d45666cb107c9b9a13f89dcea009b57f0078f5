@@ -1,4 +1,4 @@
-I".K<h1 id="lecture-10-bagging-和随机森林">Lecture 10 Bagging 和随机森林</h1>
+I"I<h1 id="lecture-10-bagging-和随机森林">Lecture 10 Bagging 和随机森林</h1>
 
 <p><strong>参考教材</strong>：</p>
 
@@ -23,12 +23,11 @@
 
 <p>对于 $b=1,\dots,B$，我们将第 $b$ 个 bootstrap 样本记为</p>
 
-<script type="math/tex; mode=display">(\mathcal X_{b,1}^*, G_{b,1}^*),\dots,(\mathcal X_{b,n}^*, G_{b,n}^*)</script>
+\[(\mathcal X_{b,1}^*, G_{b,1}^*),\dots,(\mathcal X_{b,n}^*, G_{b,n}^*)\]
 
 <p>对于每个 bootstrap 样本，按照以下方法计算一棵分类树：对于 $b=1,\dots,B$，第 $b$ 个 bootstrap 样本的树的结果为</p>
 
-<script type="math/tex; mode=display">% <![CDATA[
-\hat G_b = \hat G_b(x) = \sum_{\ell=1}^{L}\hat c_{b,\ell}^{*} I\{x\in R_{b,\ell}^{*}\}=\begin{cases}\hat c_{b,1}^* & \text{if }x\in R_{b,1}^* \\ \vdots \\ \hat c_{b,L}^* & \text{if }x\in R_{b,L}^*\end{cases} %]]></script>
+\[\hat G_b = \hat G_b(x) = \sum_{\ell=1}^{L}\hat c_{b,\ell}^{*} I\{x\in R_{b,\ell}^{*}\}=\begin{cases}\hat c_{b,1}^* &amp; \text{if }x\in R_{b,1}^* \\ \vdots \\ \hat c_{b,L}^* &amp; \text{if }x\in R_{b,L}^*\end{cases}\]
 
 <p>其中，$\hat c_{b,\ell}^{*}$ 是区域 $R_{b,\ell}^{*}$ 的预测类。</p>
 
@@ -38,20 +37,20 @@
   <li>
     <p><strong>共识/多数投票 (Consensus/Majority voting)</strong>：对特征空间中的所有 $x$，令 $p_1(x),\dots,p_K(x)$ 分别为这 $B$ 棵树中将 $x$ 分类到组 $1,\dots,$ 组 $K$ 的树所占比例。然后，我们有</p>
 
-    <script type="math/tex; mode=display">\hat G_{bag}(x)=\mathop{\operatorname{arg\,max}}\limits_k p_k(x)</script>
+\[\hat G_{bag}(x)=\mathop{\operatorname{arg\,max}}\limits_k p_k(x)\]
 
     <p>(我们取占比最高的类作为聚合后的结果类)</p>
   </li>
   <li>
     <p><strong>平均类别占比 (Average the class proportions)</strong>：对于这 $B$ 棵树中的每一棵树的分类占比进行平均。这里，对于第 $b$ 棵树，如果 $x\in R_{b,\ell}^{*}$，对于 $k=1,\dots,K$，计算</p>
 
-    <script type="math/tex; mode=display">\hat p_{b,k}^*(x)=\dfrac{1}{N_{b,\ell}^*}\sum_{i \text{ s.t. }\mathcal X_{b,i}^* \in R_{b,\ell}^*} I\{G_{b,i}^* = k\}</script>
+\[\hat p_{b,k}^*(x)=\dfrac{1}{N_{b,\ell}^*}\sum_{i \text{ s.t. }\mathcal X_{b,i}^* \in R_{b,\ell}^*} I\{G_{b,i}^* = k\}\]
 
     <p>其中，$N_{b,\ell}^{*}$ 是区域 $R_{b,\ell}^{*}$ 中的 bootstrap 样本 $\mathcal X_{b,i}^{*}$ 的数量。</p>
 
     <p>然后，我们取</p>
 
-    <script type="math/tex; mode=display">\hat p_{k}^*(x)=\dfrac{1}{B} \sum_{b=1}^{B}\hat p_{b,k}^*(x)</script>
+\[\hat p_{k}^*(x)=\dfrac{1}{B} \sum_{b=1}^{B}\hat p_{b,k}^*(x)\]
 
     <p>并且将 $x$ 分类到能够最大化 $\hat p_k^{*}$ 的类。</p>
   </li>
@@ -65,7 +64,7 @@
 
 <p>假设原始数据具有两个类 ($1$ 和 $2$)，以及 $p=5$ 个特征 $X_1,\dots,X_5$，每个特征都服从标准正态分布，并且每对特征之间的相关系数都是 $0.95$。响应 $Y$ 完全由 $X_1$ 确定：</p>
 
-<script type="math/tex; mode=display">P(Y=1\mid x_1\le 0.5)=0.2 \quad \text{and} \quad P(Y=1\mid x_1 > 0.5)=0.8</script>
+\[P(Y=1\mid x_1\le 0.5)=0.2 \quad \text{and} \quad P(Y=1\mid x_1 &gt; 0.5)=0.8\]
 
 <p>我们的训练样本大小为 $N=30$，并且我们创建了 $B=200$ 个 bootstrap 样本。</p>
 
@@ -91,7 +90,7 @@
 
 <p>直觉上：如果 $B$ 个变量来自相同分布，其方差为 $\sigma^2$ 且每对变量之间相关系数为 $\rho$，那么，这 $B$ 个变量的平均值的方差为</p>
 
-<script type="math/tex; mode=display">\rho \sigma^2 + (1-\rho)\sigma^2/B</script>
+\[\rho \sigma^2 + (1-\rho)\sigma^2/B\]
 
 <p>其中，第一项 $\rho \sigma^2$ 不会随着 $B$ 的增长而缩小。</p>
 
@@ -123,7 +122,7 @@
 
 <p>我们可以使用 OOB 误分类误差：</p>
 
-<script type="math/tex; mode=display">\dfrac{1}{n}\sum_{i=1}^{n}I\{\hat G_i \ne G_i\}</script>
+\[\dfrac{1}{n}\sum_{i=1}^{n}I\{\hat G_i \ne G_i\}\]
 
 <p>它可以动态地实现一些 CV，而且计算速度更快。</p>
 
@@ -141,7 +140,7 @@
 
 <p>特别是当我们有 $L$ 个区域，当前风险为 $\sum_{l=1}^{L}N_{l}’Q_{l}’$，并且需要将其中某个区域一分为二，从而创建 $L+1$ 个区域 $R_1,\dots,R_{L+1}$ 时，我们选择一个分裂变量和分裂点以最小化新的风险</p>
 
-<script type="math/tex; mode=display">\sum_{\ell=1}^{L+1}N_{\ell}Q_{\ell}</script>
+\[\sum_{\ell=1}^{L+1}N_{\ell}Q_{\ell}\]
 
 <p>它要比之前的风险 $\sum_{l=1}^{L}N_{l}’Q_{l}’$ 更小。(当引入一个划分时，风险会减小；这与我们上节课中展示的基尼系数和交叉熵曲线的凹度有关)</p>
 
@@ -149,13 +148,13 @@
 
 <p>令 $\widehat{\text{impr}}_t$ 表示通过引入这种分割获得的风险 $\sum N_lQ_l$ 的减少量，<strong>一种用于衡量 $X_j$ 的重要性的标准是</strong>：</p>
 
-<script type="math/tex; mode=display">\mathcal I_j(T) = \sum_t \widehat{\text{impr}}_t \cdot I\{v(t)=j\}</script>
+\[\mathcal I_j(T) = \sum_t \widehat{\text{impr}}_t \cdot I\{v(t)=j\}\]
 
 <p>其中，求和式是在最终树中的所有内部结点上。其值越大，说明变量 $j$ 越重要。</p>
 
 <p>在 RF 中我们有 $B$ 棵树，记为 $T_1,\dots,T_B$。对于第 $j$ 个变量 $X_j$，计算其重要性的一种方式是对于 $b=1,\dots,B$，分别计算 $\mathcal I_j(T_b)$。然后取平均值：</p>
 
-<script type="math/tex; mode=display">\dfrac{1}{B}\sum_{b=1}^{B} \mathcal I_j(T_b)</script>
+\[\dfrac{1}{B}\sum_{b=1}^{B} \mathcal I_j(T_b)\]
 
 <p>当 $Q_l$ 是基尼系数度量时，这种重要性度量被称为 <strong>基尼重要性 (Gini importance)</strong>。</p>
 
@@ -212,7 +211,7 @@
 
 <p>回忆一下之前 PLS 的内容，为了计算一个变量 $X\in \mathbb R^p$ 的 PLS 成分 $T\in \mathbb R^p$，我们取</p>
 
-<script type="math/tex; mode=display">T=\Phi^{\mathrm T}X</script>
+\[T=\Phi^{\mathrm T}X\]
 
 <p>对于某个特定矩阵 $\Phi^{\mathrm T}$。该矩阵是 <code class="language-plaintext highlighter-rouge">plsr()</code> 的输出之一 (投影矩阵)。</p>
 

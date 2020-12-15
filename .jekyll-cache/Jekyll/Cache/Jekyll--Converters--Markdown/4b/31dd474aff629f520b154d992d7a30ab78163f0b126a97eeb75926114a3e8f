@@ -1,4 +1,4 @@
-I"�X<h1 id="lecture-07-因子分析">Lecture 07 因子分析</h1>
+I"xR<h1 id="lecture-07-因子分析">Lecture 07 因子分析</h1>
 
 <p><strong>参考教材</strong>：</p>
 
@@ -11,17 +11,17 @@
 
 <p>令 $X \sim (\mu, \Sigma)$ 为一个 $p$ 维的随机向量。在 PCA 中，我们知道，<strong>如果 $\Sigma$ 只有 $q&lt; p$ 个非零特征值</strong>，那么我们可以将 $X$ 表示为</p>
 
-<script type="math/tex; mode=display">X-\mu =\Gamma_{(1)}Y_{(1)} \tag{1}</script>
+\[X-\mu =\Gamma_{(1)}Y_{(1)} \tag{1}\]
 
 <p>(之所以减去 $\mu$，是因为我们的计算是针对均值为零的 $X$)。</p>
 
 <p>其中，</p>
 
-<script type="math/tex; mode=display">\Gamma_{(1)}=\underbrace{(\gamma_1,\dots,\gamma_q)}_{p \times q}</script>
+\[\Gamma_{(1)}=\underbrace{(\gamma_1,\dots,\gamma_q)}_{p \times q}\]
 
 <p>并且</p>
 
-<script type="math/tex; mode=display">Y_{(1)}=\underbrace{(Y_1,\dots,Y_q)^{\mathrm T}}_{q \times 1}</script>
+\[Y_{(1)}=\underbrace{(Y_1,\dots,Y_q)^{\mathrm T}}_{q \times 1}\]
 
 <p>是主成分 (PCs) 的 $p$ 维向量 $Y=\Gamma^{\mathrm T} X$ 的前 $q$ 个分量。</p>
 
@@ -29,16 +29,15 @@
 
 <p>令 $Q=\Gamma_{(1)}\Lambda_{(1)}^{1/2}$ 和 $F=\Lambda_{(1)}^{-1/2}Y_{(1)}$，我们可以将式 $(1)$ 重写为</p>
 
-<script type="math/tex; mode=display">X=QF+\mu</script>
+\[X=QF+\mu\]
 
 <p>现在，我们有</p>
 
-<script type="math/tex; mode=display">% <![CDATA[
-\begin{align}
-\mathrm{E}(F) &= 0 \\[2ex]
-\mathrm{Var}(F) &= \Lambda_{(1)}^{-1/2}\mathrm{Var}(Y_{(1)})\Lambda_{(1)}^{-1/2}=I_q \\[2ex]
-\Sigma &= \mathrm{Var}(X)=Q\mathrm{Var}(F)Q^{\mathrm T} = QQ^{\mathrm T} = \sum_{j=1}^{q}\lambda_j \gamma_j \gamma_j^{\mathrm T}
-\end{align} %]]></script>
+\[\begin{align}
+\mathrm{E}(F) &amp;= 0 \\[2ex]
+\mathrm{Var}(F) &amp;= \Lambda_{(1)}^{-1/2}\mathrm{Var}(Y_{(1)})\Lambda_{(1)}^{-1/2}=I_q \\[2ex]
+\Sigma &amp;= \mathrm{Var}(X)=Q\mathrm{Var}(F)Q^{\mathrm T} = QQ^{\mathrm T} = \sum_{j=1}^{q}\lambda_j \gamma_j \gamma_j^{\mathrm T}
+\end{align}\]
 
 <p>在这种情况下，$X$ 可以完全由 $F=(F_1,\dots,F_q)^{\mathrm T}$ 中的 $q &lt; p$ 个 <strong>不相关</strong> 因子的加权和确定。</p>
 
@@ -58,7 +57,7 @@
 
 <p>通常，在 <strong>正交因子模型 (orthogonal factor model)</strong> 中，我们假设以下数据生成机制：存在由 $q$ 个 <strong>公共因子 (common factors)</strong> 组成的随机向量 $F =(F_1,\dots,F_q)^{\mathrm T}$ 和 由 $p$ 个 <strong>特定因子 (speciﬁc factors)</strong> 组成的随机向量 $U =(U_1,\dots,U_p)$，使得</p>
 
-<script type="math/tex; mode=display">X=QF+U+\mu</script>
+\[X=QF+U+\mu\]
 
 <p>并且我们假定：</p>
 
@@ -76,7 +75,7 @@
 
 <p>现在，对于 $\Sigma := \mathrm{Var}(X)$，我们有</p>
 
-<script type="math/tex; mode=display">\Sigma = \mathrm{Var}(QF+U)=\mathrm{Var}(QF) + \mathrm{Var}(U)= QQ^{\mathrm T} + \Psi</script>
+\[\Sigma = \mathrm{Var}(QF+U)=\mathrm{Var}(QF) + \mathrm{Var}(U)= QQ^{\mathrm T} + \Psi\]
 
 <p>如果 $q \ll p$，是否实现了降维？是的，$Q$ 和 $\Psi$ 中总共只有 $qp + p$ 项，这要远少于 $p(p + 1)/ 2$。</p>
 
@@ -94,33 +93,33 @@
 
 <p>我们可以依次用各分量表示模型</p>
 
-<script type="math/tex; mode=display">X=QF+U+\mu</script>
+\[X=QF+U+\mu\]
 
 <p>即，对于 $j=1,\dots,p$，</p>
 
-<script type="math/tex; mode=display">X_j = \sum_{\ell=1}^{q}q_{j\ell}F_{\ell} + U_j + \mu_j</script>
+\[X_j = \sum_{\ell=1}^{q}q_{j\ell}F_{\ell} + U_j + \mu_j\]
 
 <p>其中，$q_{j\ell}$ 是 $Q$ 中的第 $(j,\ell)$ 个元素。</p>
 
 <p>回忆 $\mathrm{Cov}(U,F)=0$，$\mathrm{Var}(F)=I_q$，$\mathrm{Var}(U) = \mathrm{diag}(\psi_1,\dots,\psi_p)$，可以推断出</p>
 
-<script type="math/tex; mode=display">\mathrm{Var}(X_j)=\sum_{\ell=1}^{q}q_{j\ell}^2 + \psi_j</script>
+\[\mathrm{Var}(X_j)=\sum_{\ell=1}^{q}q_{j\ell}^2 + \psi_j\]
 
 <p>其中，$\sum_{\ell=1}^{q}q_{j\ell}^2$ 被称为 <strong>公共方差 (communality variance)</strong>，$\psi_j$ 则被称为 <strong>特定方差 (speciﬁc variance)</strong>。</p>
 
 <p>然后，</p>
 
-<script type="math/tex; mode=display">\dfrac{\sum_{\ell=1}^{q}q_{j\ell}^2}{\mathrm{Var}(X_j)} \tag{2}</script>
+\[\dfrac{\sum_{\ell=1}^{q}q_{j\ell}^2}{\mathrm{Var}(X_j)} \tag{2}\]
 
 <p>是 $X_j$ 的方差中由 $q$ 个因子解释的部分所占的比例。其值越接近 $1$，则说明这 $q$ 个因子对 $X_j$ 的方差解释程度越好。</p>
 
 <p>我们可以通过这些因子与 $X_j$ 之间的相关系数将二者联系起来。由于 $X=QF+U+\mu$，我们有</p>
 
-<script type="math/tex; mode=display">\mathrm{Cov}(X,F)=\mathrm{Cov}(QF+U,F)=\mathrm{Cov}(QF,F)=Q\mathrm{Cov}(F,F)=Q</script>
+\[\mathrm{Cov}(X,F)=\mathrm{Cov}(QF+U,F)=\mathrm{Cov}(QF,F)=Q\mathrm{Cov}(F,F)=Q\]
 
 <p>并且，由于 $\mathrm{Var}(X_j)=\sigma_{jj}$ 和 $\mathrm{Var}(F_j)=1$，可以推断出</p>
 
-<script type="math/tex; mode=display">\mathrm{Corr}(X,F)=D^{-1/2}Q</script>
+\[\mathrm{Corr}(X,F)=D^{-1/2}Q\]
 
 <p>其中，$D=\mathrm{diag}(\sigma_{11},\dots,\sigma_{pp})$。</p>
 
@@ -130,15 +129,15 @@
 
 <p>如果我们改变 $X_j$ 的测量尺度会怎样？假设我们使用 $Y = CX$ 来代替 $X$，其中 $C = \mathrm{diag}(c_1,\dots,c_p)$。回想一下</p>
 
-<script type="math/tex; mode=display">X=QF+U+\mu</script>
+\[X=QF+U+\mu\]
 
 <p>可以推断出</p>
 
-<script type="math/tex; mode=display">Y=Q_Y F+U_Y+\mu_Y</script>
+\[Y=Q_Y F+U_Y+\mu_Y\]
 
 <p>其中，$U_Y=CU$，$\mathrm{Var}(U_Y)=\Psi_Y$，并且我们定义</p>
 
-<script type="math/tex; mode=display">Q_Y=CQ, \quad \Psi_Y=C\Psi C^{\mathrm T}, \quad \mu_Y=C\mu \tag{3}</script>
+\[Q_Y=CQ, \quad \Psi_Y=C\Psi C^{\mathrm T}, \quad \mu_Y=C\mu \tag{3}\]
 
 <p>这种情况下，因子 $F$ 并没有改变，并且新模型仍然是一个正交因子模型：</p>
 
@@ -152,13 +151,13 @@
 
 <p>由于缩放不会影响 $F$，因此在许多应用中会使用经过缩放和中心化的数据来搜索载荷，即使用数据</p>
 
-<script type="math/tex; mode=display">Y=D^{-1/2}(X-\mu)</script>
+\[Y=D^{-1/2}(X-\mu)\]
 
 <p>其中，$D=\mathrm{diag}(\sigma_{11},\dots,\sigma_{pp})$。</p>
 
 <p>也就是说，我们在以下模型中搜索 $Q_Y$ 和 $\Psi_Y$，</p>
 
-<script type="math/tex; mode=display">Y=Q_YF+U_Y</script>
+\[Y=Q_YF+U_Y\]
 
 <p>在与以前相同的假设下：</p>
 
@@ -174,29 +173,29 @@
 
 <p>令 $q_{Y,j\ell}$ 表示 $Q_Y$ 的第 $(j,\ell)$ 个元素，那么，对于 $j=1,\dots,p$，</p>
 
-<script type="math/tex; mode=display">\sum_{\ell=1}^{q}q_{Y,j\ell}^2 +\psi_{Y,j}=\mathrm{Var}(Y_j)=1</script>
+\[\sum_{\ell=1}^{q}q_{Y,j\ell}^2 +\psi_{Y,j}=\mathrm{Var}(Y_j)=1\]
 
 <p>如果公共方差 $\sum_{\ell=1}^{q}q_{Y,j\ell}^2$ 接近 $1$，则意味着第 $j$ 个变量 $X_j$ 可以很好地被前 $q$ 个因子所解释。</p>
 
 <p>回忆一下，在 <strong>未缩放</strong> 的情况下，我们发现式 $(2)$，即</p>
 
-<script type="math/tex; mode=display">\dfrac{\sum_{\ell=1}^{q}q_{j\ell}^2}{\mathrm{Var}(X_j)}</script>
+\[\dfrac{\sum_{\ell=1}^{q}q_{j\ell}^2}{\mathrm{Var}(X_j)}\]
 
 <p>是 $X_j$ 的方差中由 $q$ 个因子解释的部分所占的比例。</p>
 
 <p>由于 $q_{Y,j\ell}=q_{j\ell} / \sqrt{\mathrm{Var}(X_j)}$，因此</p>
 
-<script type="math/tex; mode=display">\sum_{\ell=1}^{q}q_{Y,j\ell}^2 = \sum_{\ell=1}^{q}q_{j\ell}^2 / \mathrm{Var}(X_j)</script>
+\[\sum_{\ell=1}^{q}q_{Y,j\ell}^2 = \sum_{\ell=1}^{q}q_{j\ell}^2 / \mathrm{Var}(X_j)\]
 
 <p>实际上是 $X_j$ 的方差中由 $q$ 个因子解释的部分所占的比例。</p>
 
 <p>为了解释这些因子，我们还可以计算相关系数矩阵</p>
 
-<script type="math/tex; mode=display">\mathrm{Corr}(Y,F)=\mathrm{Cov}(Y,F)=\mathrm{Cov}(Q_YF+U_Y,F)=Q_Y</script>
+\[\mathrm{Corr}(Y,F)=\mathrm{Cov}(Y,F)=\mathrm{Cov}(Q_YF+U_Y,F)=Q_Y\]
 
 <p>特别是，上面的 $\mathrm{Corr}$ 也是原始 $X$ 的 $\mathrm{Corr}$：</p>
 
-<script type="math/tex; mode=display">\mathrm{Corr}(X,F)=D^{-1/2}Q:= Q_Y=\mathrm{Corr}(Y,F)</script>
+\[\mathrm{Corr}(X,F)=D^{-1/2}Q:= Q_Y=\mathrm{Corr}(Y,F)\]
 
 <p>总而言之，使用缩放后的数据进行计算更容易，并且它们提供了相同的解释。</p>
 
@@ -206,15 +205,15 @@
 
 <p>因子载荷的矩阵 $Q$ 是否唯一？不是，如果我们有因子模型</p>
 
-<script type="math/tex; mode=display">X=QF+U+\mu</script>
+\[X=QF+U+\mu\]
 
 <p>那么，对于任意 $q\times q$ 的正交矩阵 $G$，我们都有</p>
 
-<script type="math/tex; mode=display">X=QGG^{\mathrm T}F+U+\mu</script>
+\[X=QGG^{\mathrm T}F+U+\mu\]
 
 <p>即</p>
 
-<script type="math/tex; mode=display">X=Q_G F_G+U+\mu</script>
+\[X=Q_G F_G+U+\mu\]
 
 <p>其中，$Q_G=QG$，$F_G=G^{\mathrm T}F$。</p>
 
@@ -230,7 +229,7 @@
 
 <p>更重要的是，</p>
 
-<script type="math/tex; mode=display">\Sigma = QQ^{\mathrm T} +\Psi = Q_G Q_G^{\mathrm T} +\Psi</script>
+\[\Sigma = QQ^{\mathrm T} +\Psi = Q_G Q_G^{\mathrm T} +\Psi\]
 
 <ul>
   <li>从推断的角度来看，这是棘手的，因为我们无法从协方差 $\Sigma$ 中唯一地还原载荷矩阵 $Q$ ($Q$ 和 $\Psi$ 是模型的基本参数)。</li>
@@ -271,15 +270,15 @@
 
 <p>因此，相对于协方差结构，一个因子模型的有效 “维度” (或自由度) 为</p>
 
-<script type="math/tex; mode=display">\underbrace{pq}_{Q \text{ 中元素的数量}} \quad + \quad \underbrace{p}_{\Psi \text{ 中对角线元素的数量}} \quad - \quad \underbrace{q(q-1)/2}_{\text{用于识别 } Q \text{ 的约束数量}}</script>
+\[\underbrace{pq}_{Q \text{ 中元素的数量}} \quad + \quad \underbrace{p}_{\Psi \text{ 中对角线元素的数量}} \quad - \quad \underbrace{q(q-1)/2}_{\text{用于识别 } Q \text{ 的约束数量}}\]
 
 <p>同时，在没有任何模型的情况下，$\Sigma$ 的维度为</p>
 
-<script type="math/tex; mode=display">\underbrace{p(p+1)/2}_{\text{对角线 } + \text{ 严格上三角部分}}</script>
+\[\underbrace{p(p+1)/2}_{\text{对角线 } + \text{ 严格上三角部分}}\]
 
 <p>因子建模的目标是降维。为了避免 <strong>“过度参数化 (over-parametrization)”</strong>，我们通常要求</p>
 
-<script type="math/tex; mode=display">p(p+1)/2 \ge pq + p - q(q-1)/2</script>
+\[p(p+1)/2 \ge pq + p - q(q-1)/2\]
 
 <p>否则，在某些情况下，即使考虑了 $Q$ 的可识别性所需的 $q(q − 1)/2$ 个约束，也可能从相同的 $\Sigma$ 中得到无限多种可能的 $(Q,\Psi)$ 选择。</p>
 
@@ -304,17 +303,16 @@
 
 <p>对于一个包含 $n$ 个样本的数据集 $\mathcal X$，回忆一下，其 <strong>正态对数似然 (normal log likelihood)</strong> 为</p>
 
-<script type="math/tex; mode=display">l(\mathcal X; \mu,\Sigma)=-\dfrac{n}{2} \log |2\pi \Sigma| - \dfrac{1}{2}\sum_{i=1}^{n}(x_i - \mu)^{\mathrm T}\Sigma^{-1}(x_i - \mu)</script>
+\[l(\mathcal X; \mu,\Sigma)=-\dfrac{n}{2} \log |2\pi \Sigma| - \dfrac{1}{2}\sum_{i=1}^{n}(x_i - \mu)^{\mathrm T}\Sigma^{-1}(x_i - \mu)\]
 
 <p>其中，$\overline x$ 是样本均值。</p>
 
 <p>对于 $\mu$，其 MLE 估计总是 $\hat \mu = \overline x$，所以经过一些简单的代数之后，我们只需要最大化</p>
 
-<script type="math/tex; mode=display">% <![CDATA[
-\begin{align}
-l(\mathcal X; \hat \mu,\Sigma) &= -\dfrac{n}{2}\{\log |2\pi \Sigma| + \mathrm{tr}(\Sigma^{-1}S)\} \\[2ex]
-&= -\dfrac{n}{2}\{\log |2\pi (QQ^{\mathrm T} + \Psi)| + \mathrm{tr}((QQ^{\mathrm T} + \Psi)^{-1}S)\}
-\end{align} %]]></script>
+\[\begin{align}
+l(\mathcal X; \hat \mu,\Sigma) &amp;= -\dfrac{n}{2}\{\log |2\pi \Sigma| + \mathrm{tr}(\Sigma^{-1}S)\} \\[2ex]
+&amp;= -\dfrac{n}{2}\{\log |2\pi (QQ^{\mathrm T} + \Psi)| + \mathrm{tr}((QQ^{\mathrm T} + \Psi)^{-1}S)\}
+\end{align}\]
 
 <p>其中，$S$ 是无偏估计的样本协方差矩阵。这里，$l$ 是一个关于 $(Q,\Psi)$ 的函数，并且对于 $Q$ 施加了必要的约束以满足可识别性要求。</p>
 
@@ -324,11 +322,11 @@ l(\mathcal X; \hat \mu,\Sigma) &= -\dfrac{n}{2}\{\log |2\pi \Sigma| + \mathrm{tr
 
 <p>我们还可以使用 <strong>似然比 (LR) 检验</strong> 来确定因子 $q$ 的数量 (在不会导致数据过度参数化的允许范围内)，这可以通过 (对于每个允许的 $q$) 检验零假设完成：</p>
 
-<script type="math/tex; mode=display">H_0：q \text{ 是因子数量}</script>
+\[H_0：q \text{ 是因子数量}\]
 
 <p>对于一个给定的 $q$，其 LR 统计量为</p>
 
-<script type="math/tex; mode=display">-2\log \left(\dfrac{H_0 \text{ 下的最大似然}}{\text{没有模型的情况下的最大似然}}\right)=n\log \left(\dfrac{|\hat Q \hat Q^{\mathrm T} + \hat \Psi|}{|S|}\right) \tag{4}</script>
+\[-2\log \left(\dfrac{H_0 \text{ 下的最大似然}}{\text{没有模型的情况下的最大似然}}\right)=n\log \left(\dfrac{|\hat Q \hat Q^{\mathrm T} + \hat \Psi|}{|S|}\right) \tag{4}\]
 
 <p>其中，$\hat Q$ 和 $\hat \Psi$ 是 MLE 估计量 (对于当前给定的 $q$ 而言)。</p>
 
@@ -344,9 +342,9 @@ l(\mathcal X; \hat \mu,\Sigma) &= -\dfrac{n}{2}\{\log |2\pi \Sigma| + \mathrm{tr
 
 <p>人们经常做的一件有趣的事情是，在已经获得 $Q$ 的估计 $\hat Q$ 之后，对因子进行 <strong>方差最大旋转 (varimax rotation)</strong>。</p>
 
-<p>令 $\hat Q^* = \hat Q G$，其中 $G$ 是需要确定的正交矩阵。我们选择 $G$，使得 $\hat Q^*$ 中每一列的估计平方载荷 <script type="math/tex">(\hat q_{j\ell}^*)^2</script> 的方差之和能够最大化，也就是说，我们选择 $G$ 使得下式最大化：</p>
+<p>令 $\hat Q^* = \hat Q G$，其中 $G$ 是需要确定的正交矩阵。我们选择 $G$，使得 $\hat Q^*$ 中每一列的估计平方载荷 \((\hat q_{j\ell}^*)^2\) 的方差之和能够最大化，也就是说，我们选择 $G$ 使得下式最大化：</p>
 
-<script type="math/tex; mode=display">\sum_{\ell=1}^{q}\left[\sum_{j=1}^{p}(\hat q_{j\ell}^*)^4 - \left \{ \sum_{j=1}^{p} (\hat q_{j\ell}^*)^2\right \}^2 \right]</script>
+\[\sum_{\ell=1}^{q}\left[\sum_{j=1}^{p}(\hat q_{j\ell}^*)^4 - \left \{ \sum_{j=1}^{p} (\hat q_{j\ell}^*)^2\right \}^2 \right]\]
 
 <ul>
   <li>通常，从 $X_j$ 的角度出发，这种方式得到的因子更容易解释。某些组类的 $X_j$ 通常只与较少的几个因子相关。</li>
@@ -399,13 +397,13 @@ l(\mathcal X; \hat \mu,\Sigma) &= -\dfrac{n}{2}\{\log |2\pi \Sigma| + \mathrm{tr
 
 <p>在总体层面，我们的因子模型是</p>
 
-<script type="math/tex; mode=display">X=QF+U+\mu</script>
+\[X=QF+U+\mu\]
 
 <p>其中，$X\in \mathbb R^p$，$F\in \mathbb R^q$，$U\in \mathbb R^p$ 都是随机向量。</p>
 
 <p>在样本 $X_1,\dots,X_n$ 层面，对于 $i=1,\dots,n$，我们记为</p>
 
-<script type="math/tex; mode=display">X_i=Q F_i + U_i + \mu</script>
+\[X_i=Q F_i + U_i + \mu\]
 
 <p>其中，$X_i=(X_{i1},\dots,X_{ip})^{\mathrm T}$，$F_i=(F_{i1},\dots,F_{iq})^{\mathrm T}$，$U_i=(U_{i1},\dots,U_{ip})^{\mathrm T}$.</p>
 

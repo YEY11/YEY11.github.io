@@ -1,4 +1,4 @@
-I"/><h1 id="lecture-01-导论">Lecture 01 导论</h1>
+I"�<<h1 id="lecture-01-导论">Lecture 01 导论</h1>
 
 <p><strong>参考教材</strong>：</p>
 
@@ -89,67 +89,65 @@
 
 <p>一般地，$x_{ij}$ 代表第 $i$ 个观测的第 $j$ 个变量值，$i=1,2,\dots,n$ 并且 $j=1,2,\dots,p$。在本课程中，$i$ 用于索引样本或观测 (从 $1$ 到 $n$)，$j$ 用于索引变量 (从 $1$ 到 $p$)。我们用 $\mathbf{X}$ 表示一个 $n\times p$ 的矩阵，其中位置 $(i,j)$ 上的元素为 $x_{ij}$。即，</p>
 
-<script type="math/tex; mode=display">% <![CDATA[
-\mathbf{X}=\begin{pmatrix}
-x_{11} & x_{12} & \cdots & x_{1p} \\
-x_{21} & x_{22} & \cdots & x_{2p} \\
-\vdots & \vdots & \ddots & \vdots \\
-x_{n1} & x_{n2} & \cdots & x_{np} \\
-\end{pmatrix} %]]></script>
+\[\mathbf{X}=\begin{pmatrix}
+x_{11} &amp; x_{12} &amp; \cdots &amp; x_{1p} \\
+x_{21} &amp; x_{22} &amp; \cdots &amp; x_{2p} \\
+\vdots &amp; \vdots &amp; \ddots &amp; \vdots \\
+x_{n1} &amp; x_{n2} &amp; \cdots &amp; x_{np} \\
+\end{pmatrix}\]
 
 <p>有时，我们会对 $\mathbf{X}$ 的行进行研究，通常将其记为 $x_1,x_2,\dots,x_n$。这里，$x_i$ 是长度为 $p$ 的向量，包含了第 $i$ 个观测中的 $p$ 个变量测量。即，</p>
 
-<script type="math/tex; mode=display">x_i=\begin{pmatrix}
+\[x_i=\begin{pmatrix}
 x_{i1}\\
 x_{i2}\\
 \vdots\\
 x_{ip}\\
-\end{pmatrix}</script>
+\end{pmatrix}\]
 
 <p>向量默认用列表示。例如，对于 <code class="language-plaintext highlighter-rouge">Wage</code> 数据集，$x_i$ 是一个长度为 12 的向量，包含第 $i$ 个个体的 <code class="language-plaintext highlighter-rouge">year</code>、<code class="language-plaintext highlighter-rouge">age</code>、<code class="language-plaintext highlighter-rouge">sex</code> 和其他变量值。</p>
 
 <p>有时，我们也会研究 $\mathbf{X}$ 的列，将其记为 $\mathbf{x}_1,\mathbf{x}_2,\dots,\mathbf{x}_p$。其中每一个都是长度为 $n$ 的向量。即，</p>
 
-<script type="math/tex; mode=display">\mathbf{x}_j=\begin{pmatrix}
+\[\mathbf{x}_j=\begin{pmatrix}
 x_{1j}\\
 x_{2j}\\
 \vdots\\
 x_{nj}\\
-\end{pmatrix}</script>
+\end{pmatrix}\]
 
 <p>例如，在 <code class="language-plaintext highlighter-rouge">Wage</code> 数据集中包含 $n=3000$ 个 <code class="language-plaintext highlighter-rouge">year</code> 的值。</p>
 
 <p>使用这种方式，矩阵 $\mathbf{X}$ 可以写成</p>
 
-<script type="math/tex; mode=display">\mathbf{X}=(\mathbf{x}_1 \quad \mathbf{x}_2 \quad \cdots \quad \mathbf{x}_p)</script>
+\[\mathbf{X}=(\mathbf{x}_1 \quad \mathbf{x}_2 \quad \cdots \quad \mathbf{x}_p)\]
 
 <p>或者</p>
 
-<script type="math/tex; mode=display">\mathbf{X}=\begin{pmatrix}
+\[\mathbf{X}=\begin{pmatrix}
 x_{1}^{\mathrm T}\\
 x_{2}^{\mathrm T}\\
 \vdots\\
 x_{n}^{\mathrm T}\\
-\end{pmatrix}</script>
+\end{pmatrix}\]
 
 <p>右上角记号 $\mathrm T$ 表示矩阵或向量的 <strong>转置 (transpose)</strong>。例如，有 $x_i^{\mathrm T}=(x_{i1} \quad x_{i2} \quad \cdots \quad x_{ip})$，以及</p>
 
-<script type="math/tex; mode=display">% <![CDATA[
-\mathbf{X}=\begin{pmatrix}
-x_{11} & x_{21} & \cdots & x_{n1} \\
-x_{12} & x_{22} & \cdots & x_{n2} \\
-\vdots & \vdots &  & \vdots \\
-x_{1p} & x_{2p} & \cdots & x_{np} \\
-\end{pmatrix} %]]></script>
+\[\mathbf{X}=\begin{pmatrix}
+x_{11} &amp; x_{21} &amp; \cdots &amp; x_{n1} \\
+x_{12} &amp; x_{22} &amp; \cdots &amp; x_{n2} \\
+\vdots &amp; \vdots &amp;  &amp; \vdots \\
+x_{1p} &amp; x_{2p} &amp; \cdots &amp; x_{np} \\
+\end{pmatrix}\]
 
 <p>$y_i$ 表示待预测的变量 (比如 <code class="language-plaintext highlighter-rouge">wage</code>) 的第 $i$ 个观测值。待预测变量的全部 $n$ 个观测值的集合，用如下向量表示：</p>
 
-<script type="math/tex; mode=display">\mathbf{y}=\begin{pmatrix}
+\[\mathbf{y}=\begin{pmatrix}
 y_{1}\\
 y_{2}\\
 \vdots\\
 y_{n}\\
-\end{pmatrix}</script>
+\end{pmatrix}\]
 
 <p>观测数据集为 $\{(x_1,y_1),(x_2,y_2),\dots,(x_n,y_n)\}$，其中每个 $x_i$ 都是一个长度为 $p$ 的向量 (如果 $p=1$，则 $x_i$ 就是一个简单的标量)。</p>
 
@@ -165,37 +163,35 @@ y_{n}\\
 
 <p>有时需要指出对象的维数。记号 $a\in \mathbb R$ 表明对象是一个标量。记号 $a\in \mathbb R^k$ 表明对象是一个向量，其长度为 $k$ (若长度为 $n$，则用 $\mathbf a\in \mathbb R^n$ 表示)。记号 $\mathbf A\in \mathbb R^{r\times s}$ 表明对象是一个 $r\times s$ 的矩阵。</p>
 
-<p>我们尽可能地避免矩阵代数的使用。但在少数情况下，完全回避矩阵代数会使计算变得缓慢冗长。在这些情况下，理解矩阵乘法的概念是很重要的。设 $\mathbf A\in \mathbb R^{r\times d}, \; \mathbf B\in \mathbb R^{d\times s}$，则 $\mathbf A$ 和 $\mathbf B$ 相乘的结果记为 $\mathbf{AB}$。矩阵 $\mathbf{AB}$ 的第 $(i,j)$ 个元素等于 $\mathbf{A}$ 中第 $i$ 行和 $\mathbf{B}$ 中第 $j$ 列的对应元素乘积之和，即 <script type="math/tex">(\mathbf{AB})_{ij}=\sum_{k=1}^{d}a_{ik}b_{kj}</script>。举例来说，设</p>
+<p>我们尽可能地避免矩阵代数的使用。但在少数情况下，完全回避矩阵代数会使计算变得缓慢冗长。在这些情况下，理解矩阵乘法的概念是很重要的。设 $\mathbf A\in \mathbb R^{r\times d}, \; \mathbf B\in \mathbb R^{d\times s}$，则 $\mathbf A$ 和 $\mathbf B$ 相乘的结果记为 $\mathbf{AB}$。矩阵 $\mathbf{AB}$ 的第 $(i,j)$ 个元素等于 $\mathbf{A}$ 中第 $i$ 行和 $\mathbf{B}$ 中第 $j$ 列的对应元素乘积之和，即 \((\mathbf{AB})_{ij}=\sum_{k=1}^{d}a_{ik}b_{kj}\)。举例来说，设</p>
 
-<script type="math/tex; mode=display">% <![CDATA[
-\mathbf{A}=\begin{pmatrix}
-1 & 2 \\
-3 & 4 \\
+\[\mathbf{A}=\begin{pmatrix}
+1 &amp; 2 \\
+3 &amp; 4 \\
 \end{pmatrix}, \quad
 \mathbf{B}=\begin{pmatrix}
-5 & 6 \\
-7 & 8 \\
-\end{pmatrix} %]]></script>
+5 &amp; 6 \\
+7 &amp; 8 \\
+\end{pmatrix}\]
 
 <p>则</p>
 
-<script type="math/tex; mode=display">% <![CDATA[
-\mathbf{AB}=\begin{pmatrix}
-1 & 2 \\
-3 & 4 \\
+\[\mathbf{AB}=\begin{pmatrix}
+1 &amp; 2 \\
+3 &amp; 4 \\
 \end{pmatrix}
 \begin{pmatrix}
-5 & 6 \\
-7 & 8 \\
+5 &amp; 6 \\
+7 &amp; 8 \\
 \end{pmatrix}=
 \begin{pmatrix}
-1\times 5+ 2\times 7 & 1\times 6+ 2\times 8 \\
-3\times 5+ 4\times 7 & 3\times 6+ 4\times 8 \\
+1\times 5+ 2\times 7 &amp; 1\times 6+ 2\times 8 \\
+3\times 5+ 4\times 7 &amp; 3\times 6+ 4\times 8 \\
 \end{pmatrix}=
 \begin{pmatrix}
-19 & 22 \\
-43 & 50 \\
-\end{pmatrix} %]]></script>
+19 &amp; 22 \\
+43 &amp; 50 \\
+\end{pmatrix}\]
 
 <p>注意到运算结果是一个 $r \times s$ 的矩阵。仅当 $\mathbf{A}$ 的列数与 $\mathbf{B}$ 的行数相同时，才能计算 $\mathbf{AB}$。</p>
 

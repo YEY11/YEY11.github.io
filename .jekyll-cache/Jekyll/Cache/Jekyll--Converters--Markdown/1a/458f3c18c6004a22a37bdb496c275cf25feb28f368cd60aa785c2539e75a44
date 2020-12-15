@@ -1,4 +1,4 @@
-I"�Z<h1 id="降维与特征选择">降维与特征选择</h1>
+I"�Y<h1 id="降维与特征选择">降维与特征选择</h1>
 
 <h2 id="1-导论">1. 导论</h2>
 
@@ -41,7 +41,7 @@
 
 <p>Kira 和 Rendell（1992）描述了一种称为 RELIEF 的算法，该算法使用基于实例的学习为每个特征分配相关权重。每个特征的权重反映了其区分类别值的能力。按权重对特征进行排序，并选择那些超过用户指定阈值的特征来构建最终特征子集。该算法通过从训练数据中随机采样实例来工作。对于每个采样的实例，找到与之类别相同 (最近命中) 和相反 (最近未命中) 的最近实例。一个属性的权重将根据其值将采样实例与其最近命中和最近未命中区分开来的程度进行更新。如果一个属性能够区分不同类别的实例，并且对于相同类别的实例具有相同的值，那么算法将给予该属性很高的权重。公式（5.3）显示了 RELIEF 使用的权重更新公式：</p>
 
-<script type="math/tex; mode=display">W_X=W_X-\dfrac{\mathrm{diff} (X,R,H)^2}{m}+\dfrac{\mathrm{diff} (X,R,H)^2}{m}</script>
+\[W_X=W_X-\dfrac{\mathrm{diff} (X,R,H)^2}{m}+\dfrac{\mathrm{diff} (X,R,H)^2}{m}\]
 
 <p>其中，$W_X$ 是属性 $X$ 的权重，$R$ 是一个随机采样实例，$H$ 是最近命中，$M$ 是最近未命中，$m$ 是最近采样实例的数量。</p>
 
@@ -71,7 +71,7 @@
 
 <p>Cherkauer 和 Shavlik (1996) 提出了一种名为 SET-Gen 的算法，该算法致力于提高决策树的可理解性及其准确性。为了实现这一目标，SET-Gen 的遗传搜索使用了一个适应度函数，该函数是准确率项和简明性项的一个线性组合：</p>
 
-<script type="math/tex; mode=display">\mathrm{Fitness}(X)=\dfrac{3}{4}A+\dfrac{1}{4}\left(1-\dfrac{S+F}{2} \right)</script>
+\[\mathrm{Fitness}(X)=\dfrac{3}{4}A+\dfrac{1}{4}\left(1-\dfrac{S+F}{2} \right)\]
 
 <p>其中，$X$ 是一个特征子集，$A$ 是 C4.5 的平均交叉验证准确率，$S$ 是由 C4.5 生成的树的平均大小 (通过训练样本数进行归一化)，$F$ 是子集 $X$ 中的特征数 (通过可选特征的总数进行归一化)。等式 (5.4) 保证了适应度最高的种群成员是那些导致 C4.5 归纳出小而准确的决策树的特征子集。</p>
 
@@ -107,7 +107,7 @@
 
 <p>本节旨在提供对于变量选择的调研。假设 $Y$ 是一个我们感兴趣的变量，而 $X_1,\dots, X_p$ 是一组潜在的解释变量或预测变量，是由 $n$ 个观测值组成的向量。当我们想要对 $Y$ 和 $X_1,\dots, X_p$ 的一个子集之间的关系进行建模时，就会出现变量选择 (或者通常称为子集选择) 的问题，但是对于使用哪个子集存在不确定性。当 $p$ 很大并且 $X_1,\dots, X_p$ 被认为包含许多冗余或不相关的变量时，这种情况尤为令人关注。变量选择问题在线性回归上下文中的正态线性模型中最为常见。令 $q_\gamma$ 索引 $X_1,\dots, X_p$ 的子集，令 $q$ 为第 $\gamma$ 个子集的大小，问题在于选择并拟合一个以下形式的模型：</p>
 
-<script type="math/tex; mode=display">Y=X_{\gamma}\beta_{\gamma} + \boldsymbol \varepsilon</script>
+\[Y=X_{\gamma}\beta_{\gamma} + \boldsymbol \varepsilon\]
 
 <p>其中，$X_\gamma$ 是一个 $n\times q_\gamma$ 矩阵，其列对应于第 $\gamma$ 个子集，$\beta_\gamma$ 是一个 $q_\gamma \times 1$ 的回归系数向量，并且 $\boldsymbol \varepsilon \approx \mathcal N(\mathbf 0, \sigma^2 \boldsymbol I)$。更一般地，变量选择问题是模型选择问题的一个特例，其中所考虑的每个模型对应于 $X_1,\dots, X_p$ 的不同子集。通常，将单个模型类简单地应用于所有可能的子集。</p>
 
@@ -115,7 +115,7 @@
 
 <p>该方法最小化了预测值的均方误差：</p>
 
-<script type="math/tex; mode=display">C_p = \dfrac{\mathrm{RSS}_\gamma}{\hat \sigma^2_{\mathrm{FULL}}}+2q_\gamma - n</script>
+\[C_p = \dfrac{\mathrm{RSS}_\gamma}{\hat \sigma^2_{\mathrm{FULL}}}+2q_\gamma - n\]
 
 <p>其中，$\mathrm{RSS}<em>\gamma$ 是第 $\gamma$ 个模型的残差平方和，$\hat \sigma^2</em>{\mathrm{FULL}}$ 是基于完整模型的 $\sigma^2$ 的通常无偏估计。</p>
 
@@ -127,7 +127,7 @@
 
 <p>对于线性模型，许多流行的选择标准都是一个带惩罚项的平方和标准的特例，这为比较提供了一个统一的框架。为了避免复杂性，假设 $\sigma^2$ 是已知的，则此通用准则选择的子集模型将能够最小化：</p>
 
-<script type="math/tex; mode=display">\mathrm{RSS}_\gamma / \hat \sigma^2 + F q_\gamma</script>
+\[\mathrm{RSS}_\gamma / \hat \sigma^2 + F q_\gamma\]
 
 <p>其中，$F$ 是一个预设的 “维度惩罚项”。从直觉上，上式通过 $F$ 乘以 $q_\gamma$ (第 $\gamma$ 个模型的维度) 对 $\mathrm{RSS}_\gamma / \hat \sigma^2$ 项施加惩罚。AIC 和最小 $C_p$ 本质上是等价的，对应于 $F = 2$ 的情况；而 BIC 则对应于 $F = \log n$ 的情况。通过施加一个较小的惩罚项，AIC 和最小 $C_p$ 将选择比 BIC 更大的模型 (除非 $n$ 非常小)。</p>
 
@@ -135,7 +135,7 @@
 
 <p>对于均方误差，主成分分析 (PCA) 是最好的线性降维技术 (Jackson, 1991; Jolliffe, 1986)。作为基于变量的协方差矩阵，它是一种二阶方法。在各个领域中，它也被称为奇异值分解 (SVD)、Karhunen-Loeve 变换、Hotelling 变换和经验正交函数 (EOF) 方法。从本质上讲，PCA 试图通过以下方法来实现数据降维：寻找具有最大方差的原始变量的一些正交线性组合 (PCs，即主成分)。第一个 PC, $s_1$, 是具有最大方差的线性组合。我们有 $s_1 = \mathbf x^{\mathrm T}\mathbf w_1$，其中 $p$ 维系数向量 $\mathbf w_1 =(w_{1,1},\dots,w_{1,p})^{\mathrm T}$。求解：</p>
 
-<script type="math/tex; mode=display">\mathbf w_1 = \mathop{\operatorname {arg\,max}}\limits_{\|w=1\|}\mathrm{Var}(\mathbf x^{\mathrm T}\mathbf w)</script>
+\[\mathbf w_1 = \mathop{\operatorname {arg\,max}}\limits_{\|w=1\|}\mathrm{Var}(\mathbf x^{\mathrm T}\mathbf w)\]
 
 <p>第二个 PC 是具有第二大方差且与第一个 PC 正交的线性组合，依此类推。PCs 的数量与原始变量的数量一样多。对于许多数据集，前几个 PCs 解释了大部分方差，因此可以在忽略其余 PCs 的情况下将信息损失降至最低。</p>
 

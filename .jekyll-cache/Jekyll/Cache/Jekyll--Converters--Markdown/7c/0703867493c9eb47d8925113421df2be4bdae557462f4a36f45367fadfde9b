@@ -1,4 +1,4 @@
-I"5�<h1 id="lecture-11-聚类分析">Lecture 11 聚类分析</h1>
+I"��<h1 id="lecture-11-聚类分析">Lecture 11 聚类分析</h1>
 
 <p><strong>参考教材</strong>：</p>
 
@@ -44,18 +44,17 @@
 
 <p>我们也可以将相异度视为一个函数，例如</p>
 
-<script type="math/tex; mode=display">\mathcal D: \mathbb R^p \times \mathbb R^p \to \mathbb R^+</script>
+\[\mathcal D: \mathbb R^p \times \mathbb R^p \to \mathbb R^+\]
 
 <p>它衡量了两个个体之间的相异度。具体来说，我们可以记为 $D_{ij}=\mathcal D(\mathcal X_i,\mathcal X_j)$。这里的 $\mathcal D$ 可以是二者的距离，也可是其他度量形式。</p>
 
 <p>回忆一下，$\mathcal D: \mathbb R^p \times \mathbb R^p \to \mathbb R^+$ 是一个距离，当且仅当：</p>
 
-<script type="math/tex; mode=display">% <![CDATA[
-\begin{align}
-&\forall a,b \in \mathbb R^p: \quad \mathcal D(a,b)= \mathcal D(b,a) \\[2ex]
-&\forall a,b \in \mathbb R^p: \quad \mathcal D(a,b)= 0 \quad \Longleftrightarrow \quad a=b \\[2ex]
-&\forall a,b,c \in \mathbb R^p: \quad \mathcal D(a,c) \le \mathcal D(a,b) + \mathcal D(b,c)
-\end{align} %]]></script>
+\[\begin{align}
+&amp;\forall a,b \in \mathbb R^p: \quad \mathcal D(a,b)= \mathcal D(b,a) \\[2ex]
+&amp;\forall a,b \in \mathbb R^p: \quad \mathcal D(a,b)= 0 \quad \Longleftrightarrow \quad a=b \\[2ex]
+&amp;\forall a,b,c \in \mathbb R^p: \quad \mathcal D(a,c) \le \mathcal D(a,b) + \mathcal D(b,c)
+\end{align}\]
 
 <p>如果 $\mathcal D$ 不是真实距离，则不能将基于真实距离的聚类算法应用于矩阵 $D$。</p>
 
@@ -65,13 +64,13 @@
 
 <p>通常，我们将为每个 $X_j$ 定义一个关于个体 $i$ 和 $k$ 之间的相异性度量 $d(\mathcal X_{ij},\mathcal X_{kj})$，并以此创建相异性矩阵。一种简单的方法是将</p>
 
-<script type="math/tex; mode=display">D_{ik} = \mathcal D(\mathcal X_i,\mathcal X_k) = \sum_{j=1}^{p}d(\mathcal X_{ij},\mathcal X_{kj})</script>
+\[D_{ik} = \mathcal D(\mathcal X_i,\mathcal X_k) = \sum_{j=1}^{p}d(\mathcal X_{ij},\mathcal X_{kj})\]
 
 <p>作为相异度矩阵 $D$ 的第 $(i,k)$ 个元素。</p>
 
 <p>当 $\mathcal X_i$ 是 <strong>定量的 (quantitative)</strong> 时，通常会取</p>
 
-<script type="math/tex; mode=display">d(\mathcal X_{ij},\mathcal X_{kj}) = (\mathcal X_{ij} - \mathcal X_{kj})^2</script>
+\[d(\mathcal X_{ij},\mathcal X_{kj}) = (\mathcal X_{ij} - \mathcal X_{kj})^2\]
 
 <p>根据数据性质的不同，我们需要用不同方法来定义 $d()$：</p>
 
@@ -84,19 +83,19 @@
       <li>
         <p>对于两个实数 $x$ 和 $y$ 通常采用以下形式</p>
 
-        <script type="math/tex; mode=display">d(x,y) = \ell (|x - y|)</script>
+\[d(x,y) = \ell (|x - y|)\]
 
         <p>其中，$\ell$ 是一个递增函数，$\| \cdot \|$ 表示绝对值。</p>
       </li>
       <li>
         <p>平方差：</p>
 
-        <script type="math/tex; mode=display">\ell(|x-y|) = (x-y)^2</script>
+\[\ell(|x-y|) = (x-y)^2\]
       </li>
       <li>
         <p>绝对差：</p>
 
-        <script type="math/tex; mode=display">\ell(|x-y|) = |x-y|</script>
+\[\ell(|x-y|) = |x-y|\]
       </li>
     </ul>
 
@@ -106,11 +105,11 @@
       <li>
         <p>另一种可能性：通过 “相关系数” 测量第 $i$ 个和第 $k$ 个个体之间的相似度</p>
 
-        <script type="math/tex; mode=display">\rho (\mathcal X_i,\mathcal X_k) = \dfrac{\sum_{j=1}^{p}(\mathcal X_{ij} - \overline{\mathcal X}_i)(\mathcal X_{kj} - \overline{\mathcal X}_k)}{\sqrt{\sum_{j=1}^{p}(\mathcal X_{ij} - \overline{\mathcal X}_i)^2 \sum_{j=1}^{p}(\mathcal X_{kj} - \overline{\mathcal X}_k)^2}}</script>
+\[\rho (\mathcal X_i,\mathcal X_k) = \dfrac{\sum_{j=1}^{p}(\mathcal X_{ij} - \overline{\mathcal X}_i)(\mathcal X_{kj} - \overline{\mathcal X}_k)}{\sqrt{\sum_{j=1}^{p}(\mathcal X_{ij} - \overline{\mathcal X}_i)^2 \sum_{j=1}^{p}(\mathcal X_{kj} - \overline{\mathcal X}_k)^2}}\]
 
         <p>其中，</p>
 
-        <script type="math/tex; mode=display">\overline{\mathcal X}_i = \sum_{j=1}^{p} \mathcal X_{ij}/p</script>
+\[\overline{\mathcal X}_i = \sum_{j=1}^{p} \mathcal X_{ij}/p\]
 
         <p><strong>注意</strong>：与通常的相关系数不同，这里涉及在个体上的求和计算。实际上这已经超越了分量的概念 $\quad \Longrightarrow \quad$ 我们现在计算的是两个个体而不是两个变量之间的相关系数。</p>
       </li>
@@ -120,18 +119,18 @@
       <li>
         <p>假设我们处于有意义的情况下，我们可以根据相似度 $\rho(\mathcal X_i,\mathcal X_k)$ 来定义相异度，例如，</p>
 
-        <script type="math/tex; mode=display">D_{ik} = \mathcal D(\mathcal X_i,\mathcal X_k) = 1- \rho(\mathcal X_i,\mathcal X_k)</script>
+\[D_{ik} = \mathcal D(\mathcal X_i,\mathcal X_k) = 1- \rho(\mathcal X_i,\mathcal X_k)\]
 
         <p>(这将始终在 $0$ 到 $2$ 之间，并且 $D_{ii}=0$)。</p>
       </li>
       <li>
         <p>如果观测值是预先标准化的，即在计算任何东西之前，我们先将每个 $\mathcal X_i$ 替换为</p>
 
-        <script type="math/tex; mode=display">S^{-1/2}(\mathcal X_i - \overline{\mathcal X})</script>
+\[S^{-1/2}(\mathcal X_i - \overline{\mathcal X})\]
 
         <p>然后，这等价于使用 $\ell (|x - y|) = (x-y)^2$；事实上，我们可以证明</p>
 
-        <script type="math/tex; mode=display">\sum_{j=1}^{p}(\mathcal X_{ij} - \mathcal X_{kj})^2 = \textit{constant} \cdot \{1- \rho(\mathcal X_i,\mathcal X_k)\}</script>
+\[\sum_{j=1}^{p}(\mathcal X_{ij} - \mathcal X_{kj})^2 = \textit{constant} \cdot \{1- \rho(\mathcal X_i,\mathcal X_k)\}\]
 
         <p>相关证明请参阅 <a href="https://cmci.colorado.edu/classes/INFO-1301/files/borgatti.htm">这里</a>。</p>
       </li>
@@ -159,7 +158,7 @@
       <li>
         <p>假设有序数据可以取 $M$ 个不同的值。为了计算相异性度量，通常会将 $M$ 值替换为</p>
 
-        <script type="math/tex; mode=display">\dfrac{i-1/2}{M} \, , \;\; i=1,\dots,M</script>
+\[\dfrac{i-1/2}{M} \, , \;\; i=1,\dots,M\]
 
         <p>其中，$i=1,\dots,M$ 对应于原始 $M$ 值的顺序 (例如：顺序为 $1=$ 优选，$2 =$ 第二优选，依此类推)。然后，我们可以将其视为定量变量对待。</p>
       </li>
@@ -171,11 +170,11 @@
 
 <p>除了</p>
 
-<script type="math/tex; mode=display">D_{ik} = \mathcal D(\mathcal X_i,\mathcal X_k) = \sum_{j=1}^{p}d(\mathcal X_{ij},\mathcal X_{kj})</script>
+\[D_{ik} = \mathcal D(\mathcal X_i,\mathcal X_k) = \sum_{j=1}^{p}d(\mathcal X_{ij},\mathcal X_{kj})\]
 
 <p>之外，我们可能还希望得到一个加权版本，即</p>
 
-<script type="math/tex; mode=display">D_{ik} = \mathcal D(\mathcal X_i,\mathcal X_k) = \sum_{j=1}^{p} w_j d(\mathcal X_{ij},\mathcal X_{kj})</script>
+\[D_{ik} = \mathcal D(\mathcal X_i,\mathcal X_k) = \sum_{j=1}^{p} w_j d(\mathcal X_{ij},\mathcal X_{kj})\]
 
 <p>其中，$w_j$ 是一些正的权重，具体取决于上下文。</p>
 
@@ -185,23 +184,23 @@
 
 <p>例如：如果 $d(x,y)=(x-y)^2$，那么</p>
 
-<script type="math/tex; mode=display">D_{ik} = \mathcal D(\mathcal X_i,\mathcal X_k) = \sum_{j=1}^{p} (\mathcal X_{ij},\mathcal X_{kj})^2</script>
+\[D_{ik} = \mathcal D(\mathcal X_i,\mathcal X_k) = \sum_{j=1}^{p} (\mathcal X_{ij},\mathcal X_{kj})^2\]
 
 <p>然后，方差较大的分量对相异性度量的贡献会更大一些。这并不是因为它们对于聚类更重要，而是因为它们的标度更大，也就是说，它们给 $D_{ik}$ 赋予更高权重是由人为因素导致的。</p>
 
 <p>在这种情况下，为了使所有变量具有同等重要性，我们可以取</p>
 
-<script type="math/tex; mode=display">w_j = 1/ \hat s_{jj}</script>
+\[w_j = 1/ \hat s_{jj}\]
 
 <p>其中，$\hat s_{jj}$ 是根据 $n$ 个观测值计算出的 $X_j$ 的方差的经验估计量。</p>
 
 <p>更一般地，当我们使用度量 $d$ 来计算 $D_{ik}$ 时，赋予一个权重</p>
 
-<script type="math/tex; mode=display">w_j = 1/ \overline d_j</script>
+\[w_j = 1/ \overline d_j\]
 
 <p>其中，</p>
 
-<script type="math/tex; mode=display">\overline d_j =\dfrac{1}{n^2}\sum_{i=1}^{n}\sum_{k=1}^{n} d(\mathcal X_{ij},\mathcal X_{kj})</script>
+\[\overline d_j =\dfrac{1}{n^2}\sum_{i=1}^{n}\sum_{k=1}^{n} d(\mathcal X_{ij},\mathcal X_{kj})\]
 
 <p>通常会导致在计算相异度时，每个分量具有相同的影响力。</p>
 
@@ -231,25 +230,25 @@
 
 <p>组合算法是目前最流行的聚类算法，它将 $n$ 个要聚类的个体中的每一个都分配到一个组或一个簇中，而不考虑描述数据的概率模型。</p>
 
-<p>每个观测值/个体用整数 <script type="math/tex">i\in \{1,\dots,n\}</script> 唯一标记。</p>
+<p>每个观测值/个体用整数 \(i\in \{1,\dots,n\}\) 唯一标记。</p>
 
 <p>开始之前，我们需要先确定簇 $K$ 的数量。</p>
 
-<p>每个个体都被分配到一个且仅一个簇。我们用符号 $\mathcal C$ 表示 <strong>编码器 (encoder)</strong> 函数 (或者 <strong>聚类器 (clusterer)</strong>)，它将个体划分为簇 $\mathcal C_1,\dots,\mathcal C_K$，并且我们用 $k = \mathcal C(i)$ 表示将个体 $i$ 分配给簇 <script type="math/tex">k\in \{1,\dots,K\}</script>。</p>
+<p>每个个体都被分配到一个且仅一个簇。我们用符号 $\mathcal C$ 表示 <strong>编码器 (encoder)</strong> 函数 (或者 <strong>聚类器 (clusterer)</strong>)，它将个体划分为簇 $\mathcal C_1,\dots,\mathcal C_K$，并且我们用 $k = \mathcal C(i)$ 表示将个体 $i$ 分配给簇 \(k\in \{1,\dots,K\}\)。</p>
 
 <p>我们通过最小化一个能够表征聚类未达标程度的损失函数来确定编码器映射 $\mathcal C()$。</p>
 
 <p>一个自然的损失函数可能是</p>
 
-<script type="math/tex; mode=display">W(\mathcal C) = \sum_{k=1}^{K}\sum_{\mathcal C(i)=k}\sum_{\mathcal C(i')=k}D_{ii'}</script>
+\[W(\mathcal C) = \sum_{k=1}^{K}\sum_{\mathcal C(i)=k}\sum_{\mathcal C(i')=k}D_{ii'}\]
 
 <p>尽管我们更倾向于使用</p>
 
-<script type="math/tex; mode=display">W(\mathcal C) = \dfrac{1}{2}\sum_{k=1}^{K} \dfrac{1}{n_k}\sum_{\mathcal C(i)=k}\sum_{\mathcal C(i')=k}D_{ii'}</script>
+\[W(\mathcal C) = \dfrac{1}{2}\sum_{k=1}^{K} \dfrac{1}{n_k}\sum_{\mathcal C(i)=k}\sum_{\mathcal C(i')=k}D_{ii'}\]
 
 <p>其中，</p>
 
-<script type="math/tex; mode=display">n_k = \sum_{i=1}^{n}I\{\mathcal C(i)=k\}</script>
+\[n_k = \sum_{i=1}^{n}I\{\mathcal C(i)=k\}\]
 
 <p>是簇 $k$ 中的个体数量。</p>
 
@@ -265,7 +264,7 @@
 
 <p>根据 <em>Jain and Dubes (1988)</em>，所有可能的不同分配的数量为：</p>
 
-<script type="math/tex; mode=display">S(n,K) = \dfrac{1}{K!}\sum_{k=1}^{K}(-1)^{K-k} {K \choose k} k^n</script>
+\[S(n,K) = \dfrac{1}{K!}\sum_{k=1}^{K}(-1)^{K-k} {K \choose k} k^n\]
 
 <p>例如，$S(10,4)= 34105$ 还不算太大。但是 $S(19,4)\approx 10^{10}$，而大多数聚类问题涉及的数据集通常比 $n = 19$ 还要大得多。</p>
 
@@ -283,7 +282,7 @@
 
 <p>$K\text{-means}$ 算法是一种主流的迭代下降聚类方法。它专用于所有变量类型都是定量的情况，并采用平方欧式距离作为相异度：</p>
 
-<script type="math/tex; mode=display">D_{ii'} = \mathcal D(\mathcal X_i, \mathcal X_{i'}) = \|\mathcal X_i - \mathcal X_{i'}\|^2 = \sum_{j=1}^{p} d(\mathcal X_{ij},\mathcal X_{i'j}) = \sum_{j=1}^{p}(\mathcal X_{ij} - \mathcal X_{i'j})^2</script>
+\[D_{ii'} = \mathcal D(\mathcal X_i, \mathcal X_{i'}) = \|\mathcal X_i - \mathcal X_{i'}\|^2 = \sum_{j=1}^{p} d(\mathcal X_{ij},\mathcal X_{i'j}) = \sum_{j=1}^{p}(\mathcal X_{ij} - \mathcal X_{i'j})^2\]
 
 <p>其中，$\mathcal X_i \in \mathbb R^p\;\; (i=1,\dots,n)$ 是定量变量。</p>
 
@@ -291,7 +290,7 @@
 
 <p>目标：将 $n$ 个个体分配到 $K$ 个簇中，使得下式最小化</p>
 
-<script type="math/tex; mode=display">W(\mathcal C) = \dfrac{1}{2}\sum_{k=1}^{K} \dfrac{1}{n_k}\sum_{\mathcal C(i)=k}\sum_{\mathcal C(i')=k} \|\mathcal X_i - \mathcal X_{i'}\|^2 = \sum_{k=1}^{K} \sum_{\mathcal C(i)=k} \|\mathcal X_i - \overline{\mathcal X}_k\|^2</script>
+\[W(\mathcal C) = \dfrac{1}{2}\sum_{k=1}^{K} \dfrac{1}{n_k}\sum_{\mathcal C(i)=k}\sum_{\mathcal C(i')=k} \|\mathcal X_i - \mathcal X_{i'}\|^2 = \sum_{k=1}^{K} \sum_{\mathcal C(i)=k} \|\mathcal X_i - \overline{\mathcal X}_k\|^2\]
 
 <p>其中，$\overline{\mathcal X}_k = (\overline{\mathcal X}_{k1},\dots,\overline{\mathcal X}_{kp})^{\mathrm T}$ 表示分配给簇 $k$ 的 $\mathcal X_i$ 的均值向量。</p>
 
@@ -299,15 +298,15 @@
 
 <p>注意：我们总是有 $m$ 个观测值 $Y_1,\dots,Y_m$ 经验均值 $\overline Y$ 使得</p>
 
-<script type="math/tex; mode=display">\overline Y =\mathop{\operatorname{arg\,min}}\limits_c \sum_{i=1}^{m}\|Y_i - c\|^2</script>
+\[\overline Y =\mathop{\operatorname{arg\,min}}\limits_c \sum_{i=1}^{m}\|Y_i - c\|^2\]
 
 <p>寻找使得下式最小化的 $\mathcal C$</p>
 
-<script type="math/tex; mode=display">W(\mathcal C) = \sum_{k=1}^{K} \sum_{\mathcal C(i)=k} \|\mathcal X_i - \overline{\mathcal X}_k\|^2</script>
+\[W(\mathcal C) = \sum_{k=1}^{K} \sum_{\mathcal C(i)=k} \|\mathcal X_i - \overline{\mathcal X}_k\|^2\]
 
 <p>等价于寻找 $\mathcal C$ 和常数 $c_1,\dots,c_K$，使得下式在 $\mathcal C$ 和常数 $c_1,\dots,c_K$ 上最小化</p>
 
-<script type="math/tex; mode=display">\sum_{k=1}^{K} \sum_{\mathcal C(i)=k} \|\mathcal X_i - c_k\|^2 \tag{1}\label{eq1}</script>
+\[\sum_{k=1}^{K} \sum_{\mathcal C(i)=k} \|\mathcal X_i - c_k\|^2 \tag{1}\label{eq1}\]
 
 <p><strong>$K\text{-means}$ 算法</strong>：一种 <strong>迭代下降 (iterative descent)</strong> 算法，通过交替在 $\mathcal C$ 上最小化与在 $c_1,\dots,c_K$ 上最小化的方式进行迭代，从而找到最优解的一个近似。</p>
 
@@ -323,11 +322,11 @@
 
     <p>(b) 找到一个新的聚类器 $\mathcal C^{\ell +1}$，使得对于 $i=1,\dots,n$，</p>
 
-    <script type="math/tex; mode=display">\mathcal C^{\ell +1}(i) = \mathop{\operatorname{arg\,min}}\limits_{k=1,\dots,K} \|\mathcal X_i - \overline{\mathcal X}_k^{\ell}\|^2</script>
+\[\mathcal C^{\ell +1}(i) = \mathop{\operatorname{arg\,min}}\limits_{k=1,\dots,K} \|\mathcal X_i - \overline{\mathcal X}_k^{\ell}\|^2\]
 
     <p>$\quad \; \mathcal C^{\ell +1}$ 将 $n$ 个个体分配给 $K$ 个簇，记为</p>
 
-    <script type="math/tex; mode=display">\mathcal C_1^{\ell +1},\dots,\mathcal C_K^{\ell +1}</script>
+\[\mathcal C_1^{\ell +1},\dots,\mathcal C_K^{\ell +1}\]
   </li>
 </ol>
 
@@ -361,8 +360,8 @@
 
 <p>为了查看每个 $\mathcal X_i$ 都已经距离其簇均值最接近，则意味着我们需要同时对这 $4$ 个维度进行可视化。如果我们仅查看 $2$ 个维度，则每个点不一定是最接近其簇的 $2$ 维均值：如果 $x,\mu_1,\dots,\mu_K \in \mathbb R^4$，并且对于一个向量 $v\in \mathbb R^4$，我们令 $\tilde v$ 表示其前两个分量，然后</p>
 
-<script type="math/tex; mode=display">\require{cancel}
-\mu_{\ell} = \mathop{\operatorname{arg\,min}}\limits_{k} \|x - \mu_k\|^2 \quad \cancel{\Longrightarrow} \quad \tilde \mu_{\ell} = \mathop{\operatorname{arg\,min}}\limits_{k} \| \tilde x - \tilde \mu_k\|^2</script>
+\[\require{cancel}
+\mu_{\ell} = \mathop{\operatorname{arg\,min}}\limits_{k} \|x - \mu_k\|^2 \quad \cancel{\Longrightarrow} \quad \tilde \mu_{\ell} = \mathop{\operatorname{arg\,min}}\limits_{k} \| \tilde x - \tilde \mu_k\|^2\]
 
 <p>这是一个简单的示例，因为数据来自 $3$ 个分隔良好的组，并且我们也知道我们希望得到 $3$ 个分组。但是，实际情况并非总是如此，在真正的聚类问题中我们应该如何选择 $K$？</p>
 
@@ -383,7 +382,7 @@
 
 <p>对于 $K\text{- medoids}$，我们需要的只是一个 $n\times n$ 的相异度矩阵 $D$，目的是最小化之前讨论过的更加通用的损失函数：</p>
 
-<script type="math/tex; mode=display">W(\mathcal C) = \dfrac{1}{2}\sum_{k=1}^{K} \dfrac{1}{n_k}\sum_{\mathcal C(i)=k}\sum_{\mathcal C(i')=k}D_{ii'}</script>
+\[W(\mathcal C) = \dfrac{1}{2}\sum_{k=1}^{K} \dfrac{1}{n_k}\sum_{\mathcal C(i)=k}\sum_{\mathcal C(i')=k}D_{ii'}\]
 
 <p>该算法工作流程如下：</p>
 
@@ -395,13 +394,13 @@
     <p>对于 $\ell = 1,2,\dots$ (只要标准发生变化就继续迭代)：<br />
 (a) 对于编码器 $\mathcal C^{\ell}$，对 $k=1,\dots,K$，找到</p>
 
-    <script type="math/tex; mode=display">i_k^{\ell} = \mathop{\operatorname{arg\,min}}\limits_{\{i:\, \mathcal C(i)=k\}} \sum_{\mathcal C(i')=k} D_{ii'}</script>
+\[i_k^{\ell} = \mathop{\operatorname{arg\,min}}\limits_{\{i:\, \mathcal C(i)=k\}} \sum_{\mathcal C(i')=k} D_{ii'}\]
 
     <p>$\quad \;$并且将第 $i_k^{\ell}$ 个个体选为簇 $k$ 的中心个体。</p>
 
     <p>(b) 找到一个新的聚类器 $\mathcal C^{\ell +1}$，使得对于 $i=1,\dots,n$，</p>
 
-    <script type="math/tex; mode=display">\mathcal C^{\ell +1}(i) = \mathop{\operatorname{arg\,min}}\limits_{k=1,\dots,K} D_{i i_k^{\ell}}</script>
+\[\mathcal C^{\ell +1}(i) = \mathop{\operatorname{arg\,min}}\limits_{k=1,\dots,K} D_{i i_k^{\ell}}\]
 
     <p>$\quad \; \mathcal C^{\ell +1}$ 会将我们的数据重新分配给 $K$ 个新的簇。</p>
   </li>
@@ -436,12 +435,11 @@
 
 <p>在应用 $K\text{-means}$ 或者 $K\text{-medoids}$ 算法之前，我们必须先确定簇的数量 $K$。对于大多数问题，这通常需要根据实际数据进行估算，除非某些特定应用已经给出了 $K$ 的自然值建议。</p>
 
-<p>一种启发式方法：对范围 <script type="math/tex">\{1,\dots,K_{\max}\}</script> 的 $K$ 执行聚类，这将生成一系列簇内变化值 $W_1,\dots,W_{\max}$，通常将随着 $K$ 的增加而逐渐减小。</p>
+<p>一种启发式方法：对范围 \(\{1,\dots,K_{\max}\}\) 的 $K$ 执行聚类，这将生成一系列簇内变化值 $W_1,\dots,W_{\max}$，通常将随着 $K$ 的增加而逐渐减小。</p>
 
 <p>从直觉上看，如果在数据之下存在一个 “真实” 的簇数量 $K^*$，我们期望</p>
 
-<script type="math/tex; mode=display">% <![CDATA[
-\{W_K - W_{K+1} \mid K < K^*\} \gg \{W_K - W_{K+1} \mid K \ge K^* \} %]]></script>
+\[\{W_K - W_{K+1} \mid K &lt; K^*\} \gg \{W_K - W_{K+1} \mid K \ge K^* \}\]
 
 <p>如果将 $W_K$ 绘制为一个关于 $K$ 的函数，我们可以期望在真实值 $K^*$ 附近将出现 <strong>“扭结 (kink)”</strong>。</p>
 
@@ -521,21 +519,21 @@
       <li>
         <p><strong>单连接凝聚聚类 (Single linkage agglomerative clustering, SL)</strong>：将最小成对相异度作为组间相异度：</p>
 
-        <script type="math/tex; mode=display">d(H,G) = \min \limits_{i\in G, i' \in H} D_{ii'}</script>
+\[d(H,G) = \min \limits_{i\in G, i' \in H} D_{ii'}\]
 
         <p>(也被称为最近邻技术)</p>
       </li>
       <li>
         <p><strong>全连接凝聚聚类 (Complete linkage agglomerative clustering, CL)</strong>：将最大成对相异度作为组间相异度：</p>
 
-        <script type="math/tex; mode=display">d(H,G) = \max \limits_{i\in G, i' \in H} D_{ii'}</script>
+\[d(H,G) = \max \limits_{i\in G, i' \in H} D_{ii'}\]
 
         <p>(也被称为最远邻技术)</p>
       </li>
       <li>
         <p><strong>组平均凝聚聚类 (Group average agglomerative clustering, GA)</strong>：使用组间平均相异度：</p>
 
-        <script type="math/tex; mode=display">d(H,G) = \dfrac{1}{n_H}\dfrac{1}{n_G} \sum_{i\in G, i' \in H} D_{ii'}</script>
+\[d(H,G) = \dfrac{1}{n_H}\dfrac{1}{n_G} \sum_{i\in G, i' \in H} D_{ii'}\]
 
         <p>其中，$n_H$ 和 $n_G$ 分别为 $H$ 和 $G$ 中的观测数量。</p>
       </li>

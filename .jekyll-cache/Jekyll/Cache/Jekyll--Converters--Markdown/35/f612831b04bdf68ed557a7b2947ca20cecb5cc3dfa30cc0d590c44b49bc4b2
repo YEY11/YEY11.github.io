@@ -1,4 +1,4 @@
-I"�<h1 id="lecture-02-统计学习">Lecture 02 统计学习</h1>
+I"��<h1 id="lecture-02-统计学习">Lecture 02 统计学习</h1>
 
 <p><strong>参考教材</strong>：</p>
 
@@ -21,7 +21,7 @@
 
 <p>一般情况，假设观察到一个定量的响应变量 $Y$，以及 $p$ 个不同的预测变量 $X_1,X_2,\dots,X_p$。假设 $Y$ 和 $X=(X_1,X_2,\dots,X_p)$ 之间存在某种关系，可以用下面的一般形式表示:</p>
 
-<script type="math/tex; mode=display">Y=f(X)+\epsilon</script>
+\[Y=f(X)+\epsilon\]
 
 <p>这里，$f$ 是某个关于 $X_1,X_2,\dots,X_p$ 的固定的未知函数，并且 $\epsilon$ 是一个独立于 $X$ 且均值为零的随机 <strong>误差项 (error term)</strong>。这种形式下，$f$ 代表了由 $X$ 提供的关于 $Y$ 的 <strong>系统 (systematic)</strong> 信息。</p>
 
@@ -49,7 +49,7 @@
 
 <p>许多情形下，输入集 $X$ 是现成的，但输出 $Y$ 是不易获得的。这时，由于误差项的均值是 $0$ ，那么可通过下式预测 $Y$：</p>
 
-<script type="math/tex; mode=display">\hat Y=\hat f(X)</script>
+\[\hat Y=\hat f(X)\]
 
 <p>这里 $\hat f$ 表示 $f$ 的估计，$\hat Y$ 表示 $Y$ 的预测值。在这种设定下，$\hat f$ 通常被视为一个 <strong>黑箱 (black box)</strong>，这表示一般意义下，如果该黑箱能提供准确的关于 $Y$ 的预测，则并不十分追求 $\hat f$ 的确切形式。</p>
 
@@ -57,11 +57,10 @@
 
 <p>考虑一个给定的估计 $\hat f$ 和一组预测变量 $X$，将产生预测 $\hat Y=\hat f(X)$。假设 $\hat f$ 和 $X$ 是固定的，于是很容易证明：</p>
 
-<script type="math/tex; mode=display">% <![CDATA[
-\begin{align}
-E(Y-\hat Y)^2 &= E[\,f(X)+\epsilon -\hat f(X)]^2 \\
-&= \underbrace{[\,f(X)-\hat f(X)]^2}_{可减小误差} + \underbrace{\mathrm{Var}(\epsilon)}_{不可减小误差}
-\end{align} %]]></script>
+\[\begin{align}
+E(Y-\hat Y)^2 &amp;= E[\,f(X)+\epsilon -\hat f(X)]^2 \\
+&amp;= \underbrace{[\,f(X)-\hat f(X)]^2}_{可减小误差} + \underbrace{\mathrm{Var}(\epsilon)}_{不可减小误差}
+\end{align}\]
 
 <p>其中，$E(Y-\hat Y)^2$ 代表了 $Y$ 的预测值和实际值之差的平方的均值，或者 <strong>期望值</strong>，而 $\mathrm{Var}(\epsilon)$ 代表了和误差项 $\epsilon$ 相关的 <strong>方差</strong>。</p>
 
@@ -104,14 +103,14 @@ E(Y-\hat Y)^2 &= E[\,f(X)+\epsilon -\hat f(X)]^2 \\
   <li>
     <p>首先，我们对函数 $f$ 的形式或形状给出一个假设。例如，一个常用假设是 $f$ 关于 $X$ 是线性的：</p>
 
-    <script type="math/tex; mode=display">f(X)=\beta_0+\beta_1 X_1 +\beta_2 X_2 +\cdots + \beta_p X_p</script>
+\[f(X)=\beta_0+\beta_1 X_1 +\beta_2 X_2 +\cdots + \beta_p X_p\]
 
     <p>这是一个 <strong>线性模型 (linear model)</strong>，我们将在下节课展开讨论。一旦假设 $f$ 是线性的，估计 $f$ 的问题将被大大简化：我们不必去估计一个完全任意的 $p$ 维函数 $f(X)$，而只需估计 $p+1$ 个系数 $\beta_0,\beta_1,\dots,\beta_p$。</p>
   </li>
   <li>
     <p>在选定一个模型后，我们需要用训练数据集去 <strong>拟合</strong> 或 <strong>训练</strong> 模型。在上面的线性模型中，我们需要估计参数 $\beta_0,\beta_1,\dots,\beta_p$。这就是说，我们希望找到这些参数的值使得：</p>
 
-    <script type="math/tex; mode=display">Y\approx \beta_0+\beta_1 X_1 +\beta_2 X_2 +\cdots + \beta_p X_p</script>
+\[Y\approx \beta_0+\beta_1 X_1 +\beta_2 X_2 +\cdots + \beta_p X_p\]
 
     <p>对于该模型，最常用的拟合方法称是 <strong>普通最小二乘法 (ordinary least squares, OLS)</strong>，具体细节将在下节课中讨论。然而，最小二乘法只是众多用于拟合线性模型的方法中的一种，在后面的课程中，我们会讨论一些其他用来估计该模型参数的方法。</p>
   </li>
@@ -121,7 +120,7 @@ E(Y-\hat Y)^2 &= E[\,f(X)+\epsilon -\hat f(X)]^2 \\
 
 <p>图 4 给出了一个参数模型的例子，其中数据来自于图 3 中的 <code class="language-plaintext highlighter-rouge">Income</code> 数据集。一个线性拟合如下所示:</p>
 
-<script type="math/tex; mode=display">\texttt {income} \approx \beta_0+\beta_1 \times \texttt{education}+\beta_2 \times \texttt{seniority}</script>
+\[\texttt {income} \approx \beta_0+\beta_1 \times \texttt{education}+\beta_2 \times \texttt{seniority}\]
 
 <p><img src="http://andy-blog.oss-cn-beijing.aliyuncs.com/blog/2020-08-17-WX20200817-135823%402x.png" width="60%" /></p>
 
@@ -201,11 +200,11 @@ E(Y-\hat Y)^2 &= E[\,f(X)+\epsilon -\hat f(X)]^2 \\
 
 <p><strong>训练 MSE：</strong></p>
 
-<script type="math/tex; mode=display">\mathrm{MSE}=\dfrac{1}{n}\sum_{i=1}^{n}(y_i-\hat f(x_i))^2</script>
+\[\mathrm{MSE}=\dfrac{1}{n}\sum_{i=1}^{n}(y_i-\hat f(x_i))^2\]
 
 <p><strong>测试 MSE：</strong></p>
 
-<script type="math/tex; mode=display">\mathrm{Ave} (y_0-\hat f(x_0))^2</script>
+\[\mathrm{Ave} (y_0-\hat f(x_0))^2\]
 
 <p>我们并不十分关心该方法在 <strong>训练数据</strong> 上的效果如何。相反，我们感兴趣的是该方法在 <strong>测试数据 (未来数据)</strong> 上预测结果的准确率。测试数据不会用于统计学习方法的训练过程。</p>
 
@@ -239,7 +238,7 @@ E(Y-\hat Y)^2 &= E[\,f(X)+\epsilon -\hat f(X)]^2 \\
 
 <p>测试 MSE 的 U 形曲线反映了统计学习方法两种性质之间的博弈。可以证明，对于一个给定的 $x_0$，<strong>期望测试 MSE</strong> 总是可以分解为三个基本量的和：$\hat f(x_0)$ 的 <strong>方差</strong>，$\hat f(x_0)$ 的 <strong>偏差</strong> 的平方，以及误差项 $\epsilon$ 的方差。即，</p>
 
-<script type="math/tex; mode=display">E\left(y_0 - \hat f(x_0)\right)^2=\mathrm{Var}(\hat f(x_0))+[\mathrm{Bias}(\hat f(x_0))]^2 + \mathrm{Var}(\epsilon)</script>
+\[E\left(y_0 - \hat f(x_0)\right)^2=\mathrm{Var}(\hat f(x_0))+[\mathrm{Bias}(\hat f(x_0))]^2 + \mathrm{Var}(\epsilon)\]
 
 <p>这里，$E\left(y_0 - \hat f(x_0)\right)^2$ 表示 <strong>期望测试 MSE</strong>，它实际上是通过使用大量训 练数据重复估计 $f$，然后在 $x_0$ 上测试得到的 <strong>平均测试 MSE</strong>。另外，<strong>总体期望测试 MSE</strong> 可以通过对测试集中 $x_0$ 的所有可能取值计算出的 $E\left(y_0 - \hat f(x_0)\right)^2$ 取平均值得到。</p>
 
@@ -268,13 +267,13 @@ E(Y-\hat Y)^2 &= E[\,f(X)+\epsilon -\hat f(X)]^2 \\
 
 <p>目前，对模型准确率的讨论主要集中在回归模型。这里，由于 $y_i$ 不再是数值变量，之前提到的一些基本概念 (例如：偏差-方差权衡) 仅需要略做修改就可以移植到分类模型中。假定我们要在训练集 $\{(x_1,y_1),\dots,(x_n,y_n)\}$ 上估计 $f$，其中 $y_1,\dots,y_n$ 现在是定性变量。量化估计 $\hat f$ 准确率最常用的方法是 <strong>训练错误率</strong>，即当我们将估计 $f$ 应用于训练观测数据时的错误比例：</p>
 
-<script type="math/tex; mode=display">\dfrac{1}{n}\sum_{i=1}^{n}I(y_i \ne \hat y_i)</script>
+\[\dfrac{1}{n}\sum_{i=1}^{n}I(y_i \ne \hat y_i)\]
 
 <p>其中，$\hat y_i$ 是使用 $\hat f$ 对第 $i$ 个观测点进行预测的类别标签。$I(y_i \ne \hat y_i)$ 是一个 <strong>指示变量</strong>：当 $y_i \ne \hat y_i$ 时，其值为 $1$；当 $y_i = \hat y_i$ 时，其值为 $0$。如果 $I(y_i \ne \hat y_i)=0$，则说明第 $i$ 个观测数据点在该模型下实现了正确分类，否则说明它被错误分类了。因此，上式计算了训练集上的错误分类比例。</p>
 
 <p>类似于回归模型，我们真正感兴趣的是将分类器应用于未在训练中使用的测试观测所产生的错误率。对于一组形式为 $(x_0,y_0)$ 的测试观测，其 <strong>测试错误率</strong> 为：</p>
 
-<script type="math/tex; mode=display">\mathrm{Ave}(I(y_0 \ne \hat y_0))</script>
+\[\mathrm{Ave}(I(y_0 \ne \hat y_0))\]
 
 <p>其中，$\hat y_0$ 是将模型应用于预测变量为 $x_0$ 的测试观测所得到的预测类别标签。<strong>一个好的分类器应使测试错误率最小</strong>。</p>
 
@@ -282,7 +281,7 @@ E(Y-\hat Y)^2 &= E[\,f(X)+\epsilon -\hat f(X)]^2 \\
 
 <p>通过一个非常简单的分类器，可以将测试错误率平均最小化：将每个观测值分配到它最大可能所在类别中，将这个类作为它的预测值即可。换句话说，将一个待判的 $x_0$ 分配到下式最大的那个 $j$ 类上是合理的：</p>
 
-<script type="math/tex; mode=display">\Pr (Y=j\mid X=x_0)</script>
+\[\Pr (Y=j\mid X=x_0)\]
 
 <p>注意，这是一个 <strong>条件概率</strong>。它是给定了观测向量 $x_0$ 条件下 $Y=j$ 的概率。这就是 <strong>贝叶斯分类器 (Bayes classifier)</strong>。</p>
 
@@ -296,7 +295,7 @@ E(Y-\hat Y)^2 &= E[\,f(X)+\epsilon -\hat f(X)]^2 \\
 
 <p>贝叶斯分类器将产生最低的可能的测试错误率，称为 <strong>贝叶斯错误率</strong>。因为贝叶斯分类器总是选择条件概率最大的类，在 $X=x_0$ 处的错误率为 $1-\max_j \Pr(Y=j\mid X=x_0)$。一般情况下，整体贝叶斯错误率为：</p>
 
-<script type="math/tex; mode=display">1-E\left(\max_j \Pr(Y=j\mid X)\right)</script>
+\[1-E\left(\max_j \Pr(Y=j\mid X)\right)\]
 
 <p>其中，期望平均了 $X$ 的所有可能取值上的概率。这里，模拟数据的贝叶斯错误率为 $0.1304&gt;0$，因为真实群体中的类别之间存在重叠区域，因此对于某些 $x_0$ 值，$\max_j \Pr(Y=j\mid X=x_0)&lt;1$。贝叶斯错误率在概念上类似于先前讨论的不可减小误差。</p>
 
@@ -306,7 +305,7 @@ E(Y-\hat Y)^2 &= E[\,f(X)+\epsilon -\hat f(X)]^2 \\
 
 <p>给一个正整数 $K$ 和一个测试观测值 $x_0$，KNN 分类器首先识别出训练集中最靠近 $x_0$ 的 $K$ 个点的集合，记为 $\mathcal N_0$。然后对于每个类别 $j$，使用 $\mathcal N_0$ 中真实类别为 $j$ 的点所占比例作为该类别的条件概率的估计：</p>
 
-<script type="math/tex; mode=display">\Pr(Y=j\mid X=x_0)=\dfrac{1}{K}\sum_{i\in \mathcal N_0} I(y_i=j)</script>
+\[\Pr(Y=j\mid X=x_0)=\dfrac{1}{K}\sum_{i\in \mathcal N_0} I(y_i=j)\]
 
 <p>最终，KNN 将应用贝叶斯规则，并且将测试观测 $x_0$ 分配给概率最大的类别。</p>
 

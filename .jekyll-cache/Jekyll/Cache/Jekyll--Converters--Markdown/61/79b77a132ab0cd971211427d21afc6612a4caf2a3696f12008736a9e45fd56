@@ -1,4 +1,4 @@
-I"��<h1 id="lecture-02-数据的访问存储和事务处理基础">Lecture 02 数据的访问、存储和事务处理基础</h1>
+I"m�<h1 id="lecture-02-数据的访问存储和事务处理基础">Lecture 02 数据的访问、存储和事务处理基础</h1>
 
 <p><strong>参考教材</strong>：<em>Transaction Processing: Concepts and Techniques, Jim Gray and Andreas Reuter, Morgan Kaufmann, 1993</em></p>
 
@@ -9,7 +9,7 @@
   <li>
     <p><strong>摩尔定律 (Moore’s law)</strong>：内存芯片容量 (memory chip capacity) 以一定速度增长（自 1970 年以来每 18 个月翻一番）</p>
 
-    <script type="math/tex; mode=display">=2^{(\text{year}-1970)\times2 / 3} \text{ Kb}/\text{chip}</script>
+\[=2^{(\text{year}-1970)\times2 / 3} \text{ Kb}/\text{chip}\]
 
     <p><img src="http://andy-blog.oss-cn-beijing.aliyuncs.com/blog/2020-07-14-WX20200714-172400%402x.png" width="60%" /></p>
   </li>
@@ -24,7 +24,7 @@
   <li>
     <p><strong>乔伊定律 (Joy’s law)</strong>：处理器性能以一定速度增长（自 1984 年以来，每两年翻一番）</p>
 
-    <script type="math/tex; mode=display">=2^{(\text{year}-1970) / 2} \text{ mips}</script>
+\[=2^{(\text{year}-1970) / 2} \text{ mips}\]
   </li>
   <li>IBM 的超级计算机 Blue Gene/P 每秒可以进行 1 PB（$2^{50}=10^{15}$ 个字节）的浮点运算，它使用了大约 300,000 个 CPU。</li>
   <li>IBM 的超级计算机 Summit 的峰值性能达到 200 petaflop，即每秒 20 万亿次计算，Summit 的最高速度是 TaihuLight (神威·太湖之光) 的两倍以上。</li>
@@ -61,7 +61,7 @@
 <h3 id="21-访问内存数据">2.1 访问内存数据</h3>
 <p><strong>命中率 (Hit Ratio)</strong>：对于需要访问的数据，已经存在于缓存中的字节数占需要访问的总字节数的比重。我们可以基于缓存命中率来估计访问这些数据所需要的时间。</p>
 
-<script type="math/tex; mode=display">\text{Hit ratio}=\dfrac{\text{references satisfied by cache}}{\text{total references}}</script>
+\[\text{Hit ratio}=\dfrac{\text{references satisfied by cache}}{\text{total references}}\]
 
 <ul>
   <li>命中：直接从缓存中读取到想要的数据。</li>
@@ -72,7 +72,7 @@
 
 <p><strong>有效内存访问时间 (Effective Memory Access Time)</strong> 为：</p>
 
-<script type="math/tex; mode=display">\textit{EA} =H\cdot C+(1-H)\cdot S</script>
+\[\textit{EA} =H\cdot C+(1-H)\cdot S\]
 
 <ul>
   <li>$H$ 为缓存命中率</li>
@@ -147,7 +147,7 @@
 
 <p><strong>磁盘访问时间 (Disk Access Time)</strong> 为：</p>
 
-<script type="math/tex; mode=display">\text{Disk access time} =\text{seek time}+\text{rotational time}+\dfrac{\text{transferlength}}{\text{bandwidth}}</script>
+\[\text{Disk access time} =\text{seek time}+\text{rotational time}+\dfrac{\text{transferlength}}{\text{bandwidth}}\]
 
 <p>它可以分为两部分：</p>
 <ul>
@@ -157,7 +157,7 @@
 
 <p><strong>有效磁盘缓冲区高速缓存访问时间 (Effective Disk Buffer Cache Access Time)</strong> 为：</p>
 
-<script type="math/tex; mode=display">\textit{EA} =H\cdot C+(1-H)\cdot S</script>
+\[\textit{EA} =H\cdot C+(1-H)\cdot S\]
 
 <ul>
   <li>$H$ 为缓存命中率</li>
@@ -453,7 +453,7 @@
 
 <p>下面的公式描述了从一个磁盘到系统的传输时间：</p>
 
-<script type="math/tex; mode=display">\text{transmit time} = \text{distance}/\text{Cm} + \text{message}_\text{bits}/\text{bandwidth}</script>
+\[\text{transmit time} = \text{distance}/\text{Cm} + \text{message}_\text{bits}/\text{bandwidth}\]
 
 <p>其中，$\text{Cm}$ 为媒介中的光速（约 $200 \text{ million meters}/\text{sec}$）</p>
 

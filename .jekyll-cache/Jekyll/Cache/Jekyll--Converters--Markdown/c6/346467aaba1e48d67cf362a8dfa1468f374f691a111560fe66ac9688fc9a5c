@@ -1,4 +1,4 @@
-I"��<h1 id="lecture-08-线性和二次分类">Lecture 08 线性和二次分类</h1>
+I"ǆ<h1 id="lecture-08-线性和二次分类">Lecture 08 线性和二次分类</h1>
 
 <p><strong>参考教材</strong>：</p>
 
@@ -36,15 +36,15 @@
 
 <p>对于 $k=1,\dots, K$，使用训练数据来估计在给定 $X$ 等于 $x$ 的情况下，一个个体来自组 $k$ 的概率：</p>
 
-<script type="math/tex; mode=display">P(G=k\mid X=x)</script>
+\[P(G=k\mid X=x)\]
 
 <p>将其估计值表示为：</p>
 
-<script type="math/tex; mode=display">\hat P(G=k\mid X=x)</script>
+\[\hat P(G=k\mid X=x)\]
 
 <p>然后，将这个新个体分类到组 $k$，如果</p>
 
-<script type="math/tex; mode=display">\hat P(G=k\mid X=x) > \max_{j=1,\dots,K,j\ne k} \hat P(G=j\mid X=x)</script>
+\[\hat P(G=k\mid X=x) &gt; \max_{j=1,\dots,K,j\ne k} \hat P(G=j\mid X=x)\]
 
 <p>存在许多不同的分类方法，但它们本质上都对应于估计上述概率的各种方式。</p>
 
@@ -63,7 +63,7 @@
 
 <p>假设所有个体都只来自 $K=2$ 个分组，那么我们可以将一个新个体分到组 $1$，如果</p>
 
-<script type="math/tex; mode=display">P(G=1\mid X=x) > P(G=2\mid X=x)</script>
+\[P(G=1\mid X=x) &gt; P(G=2\mid X=x)\]
 
 <p>在实践中：仅给定样本 $(X_1,G_1),\dots,(X_n, G_n)$，我们需要寻找 $P(G=k\mid X=x), k=1,2$ 的估计量。</p>
 
@@ -71,40 +71,38 @@
 
 <p>为此，我们需要根据 $G$ 定义一个新的变量。对于 $k=1,2$，令</p>
 
-<script type="math/tex; mode=display">% <![CDATA[
-Y_k=I\{G=k\}=\begin{cases}1 & \text{if } G=k \\[2ex] 0 & \text{otherwise}\end{cases} %]]></script>
+\[Y_k=I\{G=k\}=\begin{cases}1 &amp; \text{if } G=k \\[2ex] 0 &amp; \text{otherwise}\end{cases}\]
 
 <p>在样本级别，这意味着对于 $i=1,\dots,n$，我们定义</p>
 
-<script type="math/tex; mode=display">Y_{ik}=I\{G_i=k\}</script>
+\[Y_{ik}=I\{G_i=k\}\]
 
 <p>例如：假设我们观测到的训练样本大小为 $n=7$，其中 $G_i$ 为</p>
 
-<script type="math/tex; mode=display">(G_1,\dots,G_7)=(1,1,1,2,2,2,1)</script>
+\[(G_1,\dots,G_7)=(1,1,1,2,2,2,1)\]
 
 <p>那么，对于 $i=1,\dots,n$ 和 $k=1,2$，$Y_{ik}$ 由下式给出：</p>
 
-<script type="math/tex; mode=display">% <![CDATA[
-\begin{align}(Y_{11},\dots,Y_{71}) &= (1,1,1,0,0,0,1) \\[2ex]
-(Y_{12},\dots,Y_{72}) &= (0,0,0,1,1,1,0)\end{align} %]]></script>
+\[\begin{align}(Y_{11},\dots,Y_{71}) &amp;= (1,1,1,0,0,0,1) \\[2ex]
+(Y_{12},\dots,Y_{72}) &amp;= (0,0,0,1,1,1,0)\end{align}\]
 
 <p>如果我们定义回归曲线</p>
 
-<script type="math/tex; mode=display">m_k(x)=E(Y_k \mid X=x)</script>
+\[m_k(x)=E(Y_k \mid X=x)\]
 
 <p>那么，我们有</p>
 
-<script type="math/tex; mode=display">P(G=k\mid X=x)=E\left(I\{G=k\} \mid X=x\right)=m_k(x)</script>
+\[P(G=k\mid X=x)=E\left(I\{G=k\} \mid X=x\right)=m_k(x)\]
 
 <p>我们可以使用标准回归估计技术来估计 $m_k$。</p>
 
 <p>由于每个个体都必须属于两组之一，因此，对于所有 $x\in \mathbb R^p$，我们有</p>
 
-<script type="math/tex; mode=display">P(G=1\mid X=x) + P(G=2\mid X=x) = 1</script>
+\[P(G=1\mid X=x) + P(G=2\mid X=x) = 1\]
 
 <p>即，</p>
 
-<script type="math/tex; mode=display">m_2(x) = 1- m_1(x)</script>
+\[m_2(x) = 1- m_1(x)\]
 
 <p>因此，我们只需要估计 $m_1$ (然后 $m_2$ 可由上述关系推得)。</p>
 
@@ -112,17 +110,17 @@ Y_k=I\{G=k\}=\begin{cases}1 & \text{if } G=k \\[2ex] 0 & \text{otherwise}\end{ca
 
 <p>当我们使用线性回归分类器时，我们假设</p>
 
-<script type="math/tex; mode=display">m_1(x)=E(Y_1\mid X=x)=P(G=1\mid X=x) = \beta_0 + \beta^{\mathrm T}x</script>
+\[m_1(x)=E(Y_1\mid X=x)=P(G=1\mid X=x) = \beta_0 + \beta^{\mathrm T}x\]
 
 <p>使用 $\beta_0$ 和 $\beta$ 的 LS 估计量 (或者 PCR 或者 PLS；关于如何计算分类的 CV，请参见教材第 35 页) 来估计 $m_1$</p>
 
-<script type="math/tex; mode=display">\hat m_1(x) = \hat \beta_0 + \hat \beta^{\mathrm T} x</script>
+\[\hat m_1(x) = \hat \beta_0 + \hat \beta^{\mathrm T} x\]
 
 <p>可以推得 $\hat m_2=1-\hat m_1$。</p>
 
 <p>将一个新的 $x$ 分类到组 $1$，如果</p>
 
-<script type="math/tex; mode=display">\hat m_1(x) > \hat m_2(x) \quad \Longleftrightarrow \quad \hat \beta_0 + \hat \beta^{\mathrm T} x > 1- \hat \beta_0 - \hat \beta^{\mathrm T} x \quad \Longleftrightarrow \quad \color{red}{\hat \beta_0 + \hat \beta^{\mathrm T} x > 1/2}</script>
+\[\hat m_1(x) &gt; \hat m_2(x) \quad \Longleftrightarrow \quad \hat \beta_0 + \hat \beta^{\mathrm T} x &gt; 1- \hat \beta_0 - \hat \beta^{\mathrm T} x \quad \Longleftrightarrow \quad \color{red}{\hat \beta_0 + \hat \beta^{\mathrm T} x &gt; 1/2}\]
 
 <p>否则，将 $x$ 分类到组 $2$。</p>
 
@@ -139,11 +137,10 @@ Y_k=I\{G=k\}=\begin{cases}1 & \text{if } G=k \\[2ex] 0 & \text{otherwise}\end{ca
 
 <p>根据估计的线性模型，我们可以得到</p>
 
-<script type="math/tex; mode=display">% <![CDATA[
-\begin{align}
-\hat m_1(x) &= 0.9231 + 0.2454 x_1− 0.4800 x_2 \\[2ex]
-\hat m_2(x) &= 0.07691 − 0.24542 x_1+ 0.47999 x_2 \approx 1 − \hat m_1(x)
-\end{align} %]]></script>
+\[\begin{align}
+\hat m_1(x) &amp;= 0.9231 + 0.2454 x_1− 0.4800 x_2 \\[2ex]
+\hat m_2(x) &amp;= 0.07691 − 0.24542 x_1+ 0.47999 x_2 \approx 1 − \hat m_1(x)
+\end{align}\]
 
 <p>(其中，“$\approx$” 是由于数值误差)</p>
 
@@ -151,19 +148,19 @@ Y_k=I\{G=k\}=\begin{cases}1 & \text{if } G=k \\[2ex] 0 & \text{otherwise}\end{ca
 
 <p>分类边界是分到组 $1$ 的数据区域和分到组 $2$ 的数据区域之间的边界。它是通过求解以下方程式得到的</p>
 
-<script type="math/tex; mode=display">\hat m_1(x) - \hat m_2(x) = 0</script>
+\[\hat m_1(x) - \hat m_2(x) = 0\]
 
 <p>对于线性回归分类器而言，上式等价于</p>
 
-<script type="math/tex; mode=display">\hat m_1(x)=1/2</script>
+\[\hat m_1(x)=1/2\]
 
 <p>在 Golub 数据的例子中，分类边界是通过求解下式得到的</p>
 
-<script type="math/tex; mode=display">0.9231 + 0.2454 x_1 − 0.4800 x_2 = 1/2</script>
+\[0.9231 + 0.2454 x_1 − 0.4800 x_2 = 1/2\]
 
 <p>可以将其用以下直线表示</p>
 
-<script type="math/tex; mode=display">x_2 = \dfrac{0.9231 − 0.5}{0.4800} + \dfrac{0.2454}{0.4800} x_1 = 0.8815 + 0.5113 x_1</script>
+\[x_2 = \dfrac{0.9231 − 0.5}{0.4800} + \dfrac{0.2454}{0.4800} x_1 = 0.8815 + 0.5113 x_1\]
 
 <p>我们将在该直线某一侧的数据分为一类，将直线另一侧的数据分为另一类。</p>
 
@@ -182,7 +179,7 @@ Y_k=I\{G=k\}=\begin{cases}1 & \text{if } G=k \\[2ex] 0 & \text{otherwise}\end{ca
 
 <p>绿色直线表示根据训练集 $X_i$ 构造的决策边界：</p>
 
-<script type="math/tex; mode=display">\hat \beta_0 + \hat \beta_1 x_1 + \hat \beta_2 x_2 = 1/2</script>
+\[\hat \beta_0 + \hat \beta_1 x_1 + \hat \beta_2 x_2 = 1/2\]
 
 <p>如果新数据落在该直线上方，则将其分类到组 $1$；如果落在该直线下方，则将其分类到组 $2$ (可以发现，分类器也会犯一些错误：直线上方也有一些来自蓝色组的数据)。</p>
 
@@ -194,11 +191,11 @@ Y_k=I\{G=k\}=\begin{cases}1 & \text{if } G=k \\[2ex] 0 & \text{otherwise}\end{ca
 
 <p>建议：使用逻辑回归，即假设</p>
 
-<script type="math/tex; mode=display">m_1(x)=P(G=1\mid X=x)=E(Y_1\mid X=x) =\dfrac{\exp(\beta_0 + \beta^{\mathrm T}x)}{1+ \exp(\beta_0 + \beta^{\mathrm T}x)}</script>
+\[m_1(x)=P(G=1\mid X=x)=E(Y_1\mid X=x) =\dfrac{\exp(\beta_0 + \beta^{\mathrm T}x)}{1+ \exp(\beta_0 + \beta^{\mathrm T}x)}\]
 
 <p>使用根据以下训练数据得到的最大似然估计量 (MLE) $\hat \beta_0, \hat \beta$ 来估计 $\beta_0, \beta$</p>
 
-<script type="math/tex; mode=display">(X_1, Y_{11}),\dots,(X_n, Y_{n1})</script>
+\[(X_1, Y_{11}),\dots,(X_n, Y_{n1})\]
 
 <p>(或者，可以根据需要将数据替换为其 PCA 或 PLS 成分，有关如何在分类中计算 CV，请参阅第教材第 35 页)。</p>
 
@@ -206,21 +203,20 @@ Y_k=I\{G=k\}=\begin{cases}1 & \text{if } G=k \\[2ex] 0 & \text{otherwise}\end{ca
 
 <p>如前所述，$m_2 = 1- m_1$，即在此模型中：</p>
 
-<script type="math/tex; mode=display">% <![CDATA[
-\begin{align}
-m_1(x) &= P(G=1\mid X=x) = \dfrac{\exp(\beta_0 + \beta^{\mathrm T}x)}{1+ \exp(\beta_0 + \beta^{\mathrm T}x)} \\[2ex]
-m_2(x) &= P(G=2\mid X=x) = 1-m_1(x) = \dfrac{1}{1+ \exp(\beta_0 + \beta^{\mathrm T}x)}
-\end{align} %]]></script>
+\[\begin{align}
+m_1(x) &amp;= P(G=1\mid X=x) = \dfrac{\exp(\beta_0 + \beta^{\mathrm T}x)}{1+ \exp(\beta_0 + \beta^{\mathrm T}x)} \\[2ex]
+m_2(x) &amp;= P(G=2\mid X=x) = 1-m_1(x) = \dfrac{1}{1+ \exp(\beta_0 + \beta^{\mathrm T}x)}
+\end{align}\]
 
 <p>将一个新的 $x$ 分类到组 $1$，如果</p>
 
-<script type="math/tex; mode=display">\hat m_1(x) > \hat m_2(x) \quad \Longleftrightarrow \quad \exp(\hat \beta_0 + \hat \beta^{\mathrm T}x) > 1 \quad \Longleftrightarrow \quad \color{red}{\hat \beta_0 + \hat \beta^{\mathrm T}x > 0}</script>
+\[\hat m_1(x) &gt; \hat m_2(x) \quad \Longleftrightarrow \quad \exp(\hat \beta_0 + \hat \beta^{\mathrm T}x) &gt; 1 \quad \Longleftrightarrow \quad \color{red}{\hat \beta_0 + \hat \beta^{\mathrm T}x &gt; 0}\]
 
 <p>否则，将 $x$ 分类到组 $2$。</p>
 
 <p>分类边界可以通过求解以下方程得到</p>
 
-<script type="math/tex; mode=display">\hat m_1(x) - \hat m_2(x) = 0 \quad \Longleftrightarrow \quad \exp(\hat \beta_0 + \hat \beta^{\mathrm T}x) = 1 \quad \Longleftrightarrow \quad \hat \beta_0 + \hat \beta^{\mathrm T}x = 0</script>
+\[\hat m_1(x) - \hat m_2(x) = 0 \quad \Longleftrightarrow \quad \exp(\hat \beta_0 + \hat \beta^{\mathrm T}x) = 1 \quad \Longleftrightarrow \quad \hat \beta_0 + \hat \beta^{\mathrm T}x = 0\]
 
 <h4 id="例子golub-数据-1">例子：Golub 数据</h4>
 
@@ -231,15 +227,15 @@ m_2(x) &= P(G=2\mid X=x) = 1-m_1(x) = \dfrac{1}{1+ \exp(\beta_0 + \beta^{\mathrm
 
 <p>根据估计的逻辑回归模型，我们可以得到</p>
 
-<script type="math/tex; mode=display">\hat m_1(x)=\dfrac{\exp(0.9432 + 0.5487 x_1− 10.714 x_2)}{1+ \exp(0.9432 + 0.5487 x_1− 10.714 x_2)}</script>
+\[\hat m_1(x)=\dfrac{\exp(0.9432 + 0.5487 x_1− 10.714 x_2)}{1+ \exp(0.9432 + 0.5487 x_1− 10.714 x_2)}\]
 
 <p>在此示例中，分类边界可以通过求解下式得到</p>
 
-<script type="math/tex; mode=display">0.9432 + 0.5487 x_1 − 10.714 x_2 = 0</script>
+\[0.9432 + 0.5487 x_1 − 10.714 x_2 = 0\]
 
 <p>可以将其用以下直线表示</p>
 
-<script type="math/tex; mode=display">x_2 = \dfrac{0.9432}{10.714} + \dfrac{0.5487}{10.714} x_1 = 0.08803435 + 0.05121337 x_1</script>
+\[x_2 = \dfrac{0.9432}{10.714} + \dfrac{0.5487}{10.714} x_1 = 0.08803435 + 0.05121337 x_1\]
 
 <h4 id="其他例子-1">其他例子</h4>
 
@@ -252,7 +248,7 @@ m_2(x) &= P(G=2\mid X=x) = 1-m_1(x) = \dfrac{1}{1+ \exp(\beta_0 + \beta^{\mathrm
 
 <p>青色直线表示根据训练集 $X_i$ 构造的决策边界：</p>
 
-<script type="math/tex; mode=display">\hat \beta_0 + \hat \beta_1 x_1 + \hat \beta_2 x_2 = 0</script>
+\[\hat \beta_0 + \hat \beta_1 x_1 + \hat \beta_2 x_2 = 0\]
 
 <p>如果新数据落在该直线上方，则将其分类到组 $1$；如果落在该直线下方，则将其分类到组 $2$ (可以发现，分类器也会犯一些错误：直线上方也有一些来自蓝色组的数据)。</p>
 
@@ -270,11 +266,11 @@ m_2(x) &= P(G=2\mid X=x) = 1-m_1(x) = \dfrac{1}{1+ \exp(\beta_0 + \beta^{\mathrm
 
 <p>利用贝叶斯定理，我们有</p>
 
-<script type="math/tex; mode=display">P(G=k\mid X=x) = \dfrac{P(X=x\mid G=k)\pi_k}{P(X=x)}</script>
+\[P(G=k\mid X=x) = \dfrac{P(X=x\mid G=k)\pi_k}{P(X=x)}\]
 
 <p>其中，</p>
 
-<script type="math/tex; mode=display">\pi_k=P(G=k)</script>
+\[\pi_k=P(G=k)\]
 
 <p>需要估计训练数据集中的所有概率 $\pi_k$。</p>
 
@@ -284,23 +280,22 @@ m_2(x) &= P(G=2\mid X=x) = 1-m_1(x) = \dfrac{1}{1+ \exp(\beta_0 + \beta^{\mathrm
 
 <p>回忆一下，$p$ 维正态分布 $N_p(\mu_k,\Sigma)$ 的概率密度函数被定义为</p>
 
-<script type="math/tex; mode=display">f_k(x)=(2\pi)^{-p/2} \{\mathrm{det}(\Sigma)\}^{-1/2} \exp \{-0.5(x-\mu_k)^{\mathrm T}\Sigma^{-1}(x-\mu_k)\}</script>
+\[f_k(x)=(2\pi)^{-p/2} \{\mathrm{det}(\Sigma)\}^{-1/2} \exp \{-0.5(x-\mu_k)^{\mathrm T}\Sigma^{-1}(x-\mu_k)\}\]
 
 <p>利用前面的贝叶斯定理，可以推得一个新的个体 $X=x$ 更有可能来自组 $1$，而不是组 $2$，当且仅当</p>
 
-<script type="math/tex; mode=display">% <![CDATA[
-\begin{align}
-& P(G=1\mid X=x) > P(G=2\mid X=x) \\[2ex]
-\Longleftrightarrow \quad & P(X=x\mid G=1)\pi_1 > P(X=x\mid G=2)\pi_2 \\[2ex]
-\Longleftrightarrow \quad & \exp \{-0.5(x-\mu_1)^{\mathrm T}\Sigma^{-1}(x-\mu_1)\} \pi_1 > \exp \{-0.5(x-\mu_2)^{\mathrm T}\Sigma^{-1}(x-\mu_2)\} \pi_2 \\[2ex]
-\Longleftrightarrow \quad & 2\log(\pi_1/ \pi_2) + 2x^{\mathrm T} \Sigma^{-1}(\mu_1-\mu_2) - \mu_1^{\mathrm T} \Sigma^{-1}\mu_1 +\mu_2^{\mathrm T} \Sigma^{-1}\mu_2 > 0
-\end{align} %]]></script>
+\[\begin{align}
+&amp; P(G=1\mid X=x) &gt; P(G=2\mid X=x) \\[2ex]
+\Longleftrightarrow \quad &amp; P(X=x\mid G=1)\pi_1 &gt; P(X=x\mid G=2)\pi_2 \\[2ex]
+\Longleftrightarrow \quad &amp; \exp \{-0.5(x-\mu_1)^{\mathrm T}\Sigma^{-1}(x-\mu_1)\} \pi_1 &gt; \exp \{-0.5(x-\mu_2)^{\mathrm T}\Sigma^{-1}(x-\mu_2)\} \pi_2 \\[2ex]
+\Longleftrightarrow \quad &amp; 2\log(\pi_1/ \pi_2) + 2x^{\mathrm T} \Sigma^{-1}(\mu_1-\mu_2) - \mu_1^{\mathrm T} \Sigma^{-1}\mu_1 +\mu_2^{\mathrm T} \Sigma^{-1}\mu_2 &gt; 0
+\end{align}\]
 
 <p>如果上式条件满足，则将 $x$ 分类到组 $1$；否则将其分类到组 $2$。</p>
 
 <p>这里，决策规则</p>
 
-<script type="math/tex; mode=display">2\log(\pi_1/ \pi_2) + 2x^{\mathrm T} \Sigma^{-1}(\mu_1-\mu_2) - \mu_1^{\mathrm T} \Sigma^{-1}\mu_1 +\mu_2^{\mathrm T} \Sigma^{-1}\mu_2 > 0</script>
+\[2\log(\pi_1/ \pi_2) + 2x^{\mathrm T} \Sigma^{-1}(\mu_1-\mu_2) - \mu_1^{\mathrm T} \Sigma^{-1}\mu_1 +\mu_2^{\mathrm T} \Sigma^{-1}\mu_2 &gt; 0\]
 
 <p>是一个关于 $x$ 的线性函数，因此被称为线性判别。</p>
 
@@ -308,7 +303,7 @@ m_2(x) &= P(G=2\mid X=x) = 1-m_1(x) = \dfrac{1}{1+ \exp(\beta_0 + \beta^{\mathrm
 
 <p>在实践中，我们并不知道 $\pi_k, \mu_k, \Sigma$，但是我们可以利用训练集数据来估计它们：</p>
 
-<script type="math/tex; mode=display">\hat \pi_k = n_k / n</script>
+\[\hat \pi_k = n_k / n\]
 
 <p>其中，$n_k$ 为来自组 $k$ 的训练数据的数量。</p>
 
@@ -316,21 +311,20 @@ m_2(x) &= P(G=2\mid X=x) = 1-m_1(x) = \dfrac{1}{1+ \exp(\beta_0 + \beta^{\mathrm
 
 <p>相反，在这种情况下，我们通常使用下式来估计 $\pi_k$：</p>
 
-<script type="math/tex; mode=display">\hat \pi_k = 1/K</script>
+\[\hat \pi_k = 1/K\]
 
 <p>(在这种情况下，对于 $K=2$，我们有 $\hat \pi_1=\hat \pi_2 = 1/2$)。</p>
 
 <p>为了估计 $\mu_k$ 和 $\Sigma$，我们需要重新标记数据 $X_i$，以区分它们来自哪个组：令 $X_{i,k} \;(i=1,\dots,n_k)$ 表示所有来自组 $k$ 的 $X_i$。然后，我们有</p>
 
-<script type="math/tex; mode=display">% <![CDATA[
-\begin{align}
-\hat \mu_k &= \overline X_k = \dfrac{1}{n_k}\sum_{i=1}^{n_k}X_{i,k} \\[2ex]
-\hat \Sigma &= \dfrac{1}{n_1+n_2 -2}\sum_{k=1}^{2}\sum_{i=1}^{n_k}(X_{i,k}-\hat \mu_k)(X_{i,k}-\hat \mu_k)^{\mathrm T}
-\end{align} %]]></script>
+\[\begin{align}
+\hat \mu_k &amp;= \overline X_k = \dfrac{1}{n_k}\sum_{i=1}^{n_k}X_{i,k} \\[2ex]
+\hat \Sigma &amp;= \dfrac{1}{n_1+n_2 -2}\sum_{k=1}^{2}\sum_{i=1}^{n_k}(X_{i,k}-\hat \mu_k)(X_{i,k}-\hat \mu_k)^{\mathrm T}
+\end{align}\]
 
 <p>分类/决策边界可以通过求解下式得到：</p>
 
-<script type="math/tex; mode=display">\hat m_1(x) - \hat m_2(x)=0 \quad \Longleftrightarrow \quad 2\log(\hat \pi_1/ \hat \pi_2) + 2x^{\mathrm T} \hat \Sigma^{-1}(\hat \mu_1- \hat \mu_2) - \hat \mu_1^{\mathrm T} \hat \Sigma^{-1}\hat \mu_1 + \hat \mu_2^{\mathrm T}\hat  \Sigma^{-1}\hat \mu_2 = 0</script>
+\[\hat m_1(x) - \hat m_2(x)=0 \quad \Longleftrightarrow \quad 2\log(\hat \pi_1/ \hat \pi_2) + 2x^{\mathrm T} \hat \Sigma^{-1}(\hat \mu_1- \hat \mu_2) - \hat \mu_1^{\mathrm T} \hat \Sigma^{-1}\hat \mu_1 + \hat \mu_2^{\mathrm T}\hat  \Sigma^{-1}\hat \mu_2 = 0\]
 
 <h4 id="例子golub-数据-2">例子：Golub 数据</h4>
 
@@ -352,7 +346,7 @@ m_2(x) &= P(G=2\mid X=x) = 1-m_1(x) = \dfrac{1}{1+ \exp(\beta_0 + \beta^{\mathrm
 
 <p>洋红色直线表示根据训练集 $X_i$ 构造的决策边界：</p>
 
-<script type="math/tex; mode=display">2\log(\hat \pi_1/ \hat \pi_2) + 2x^{\mathrm T} \hat \Sigma^{-1}(\hat \mu_1- \hat \mu_2) - \hat \mu_1^{\mathrm T} \hat \Sigma^{-1}\hat \mu_1 + \hat \mu_2^{\mathrm T}\hat  \Sigma^{-1}\hat \mu_2 = 0</script>
+\[2\log(\hat \pi_1/ \hat \pi_2) + 2x^{\mathrm T} \hat \Sigma^{-1}(\hat \mu_1- \hat \mu_2) - \hat \mu_1^{\mathrm T} \hat \Sigma^{-1}\hat \mu_1 + \hat \mu_2^{\mathrm T}\hat  \Sigma^{-1}\hat \mu_2 = 0\]
 
 <p>如果新数据落在该直线上方，则将其分类到组 $1$；如果落在该直线下方，则将其分类到组 $2$ (可以发现，分类器也会犯一些错误：直线上方也有一些来自蓝色组的数据)。</p>
 
@@ -362,23 +356,22 @@ m_2(x) &= P(G=2\mid X=x) = 1-m_1(x) = \dfrac{1}{1+ \exp(\beta_0 + \beta^{\mathrm
 
 <p>如果我们令</p>
 
-<script type="math/tex; mode=display">% <![CDATA[
-\begin{align}
-\hat \beta_0 &= 2\log(\hat \pi_1 /\hat \pi_2) - \hat \mu_1^{\mathrm T} \hat \Sigma^{-1}\hat \mu_1 + \hat \mu_2^{\mathrm T}\hat  \Sigma^{-1}\hat \mu_2 \\[2ex]
-\hat \beta &= 2 \hat \Sigma^{-1}(\hat \mu_1- \hat \mu_2)
-\end{align} %]]></script>
+\[\begin{align}
+\hat \beta_0 &amp;= 2\log(\hat \pi_1 /\hat \pi_2) - \hat \mu_1^{\mathrm T} \hat \Sigma^{-1}\hat \mu_1 + \hat \mu_2^{\mathrm T}\hat  \Sigma^{-1}\hat \mu_2 \\[2ex]
+\hat \beta &amp;= 2 \hat \Sigma^{-1}(\hat \mu_1- \hat \mu_2)
+\end{align}\]
 
 <p>那么 LD 可以写为：将 $x$ 分类到组 $1$，当且仅当</p>
 
-<script type="math/tex; mode=display">\hat \beta_0 + x^{\mathrm T}\hat \beta > 0</script>
+\[\hat \beta_0 + x^{\mathrm T}\hat \beta &gt; 0\]
 
 <p>对于线性回归，我们有：将 $x$ 分类到组 $1$，当且仅当</p>
 
-<script type="math/tex; mode=display">\hat \beta_0 + x^{\mathrm T}\hat \beta > 1/2</script>
+\[\hat \beta_0 + x^{\mathrm T}\hat \beta &gt; 1/2\]
 
 <p>对于逻辑回归，我们有：将 $x$ 分类到组 $1$，当且仅当</p>
 
-<script type="math/tex; mode=display">\hat \beta_0 + x^{\mathrm T}\hat \beta > 0</script>
+\[\hat \beta_0 + x^{\mathrm T}\hat \beta &gt; 0\]
 
 <p>这三种方法似乎看上去都一样，但是它们在构造 $\beta_0$ 和 $\beta$ 的方式上有差别。</p>
 
@@ -388,17 +381,17 @@ m_2(x) &= P(G=2\mid X=x) = 1-m_1(x) = \dfrac{1}{1+ \exp(\beta_0 + \beta^{\mathrm
   <li>
     <p>LD：两个类别落在以下直线的两侧</p>
 
-    <script type="math/tex; mode=display">\hat \beta_0 + x^{\mathrm T}\hat \beta = 0</script>
+\[\hat \beta_0 + x^{\mathrm T}\hat \beta = 0\]
   </li>
   <li>
     <p>线性回归：两个类别落在以下直线的两侧</p>
 
-    <script type="math/tex; mode=display">\hat \beta_0 + x^{\mathrm T}\hat \beta = 1/2</script>
+\[\hat \beta_0 + x^{\mathrm T}\hat \beta = 1/2\]
   </li>
   <li>
     <p>逻辑回归：两个类别落在以下直线的两侧</p>
 
-    <script type="math/tex; mode=display">\hat \beta_0 + x^{\mathrm T}\hat \beta = 0</script>
+\[\hat \beta_0 + x^{\mathrm T}\hat \beta = 0\]
   </li>
 </ul>
 
@@ -440,37 +433,34 @@ m_2(x) &= P(G=2\mid X=x) = 1-m_1(x) = \dfrac{1}{1+ \exp(\beta_0 + \beta^{\mathrm
 
 <p>因此，在 QD 中，组 $k$ 中的 $X$ 的概率密度函数 $P(X=x \mid G=k)$ 为</p>
 
-<script type="math/tex; mode=display">f_k(x)=(2\pi)^{-p/2} \{\mathrm{det}(\Sigma_k)\}^{-1/2} \exp \{-0.5(x-\mu_k)^{\mathrm T}\Sigma_k^{-1}(x-\mu_k)\}</script>
+\[f_k(x)=(2\pi)^{-p/2} \{\mathrm{det}(\Sigma_k)\}^{-1/2} \exp \{-0.5(x-\mu_k)^{\mathrm T}\Sigma_k^{-1}(x-\mu_k)\}\]
 
 <p>这里，$x$ 更有可能来自组 $1$，而不是组 $2$，当且仅当</p>
 
-<script type="math/tex; mode=display">% <![CDATA[
-\begin{align}
-& P(G=1\mid X=x) > P(G=2\mid X=x) \\[2ex]
-\Longleftrightarrow \quad & P(X=x\mid G=1)\pi_1 > P(X=x\mid G=2)\pi_2 \\[2ex]
-\Longleftrightarrow \quad & \{\mathrm{det}(\Sigma_1)\}^{-1/2} \exp \{-0.5(x-\mu_1)^{\mathrm T}\Sigma_1^{-1}(x-\mu_1)\} \pi_1 \\
-& \qquad > \{\mathrm{det}(\Sigma_2)\}^{-1/2} \exp \{-0.5(x-\mu_2)^{\mathrm T}\Sigma_2^{-1}(x-\mu_2)\} \pi_2 \\[2ex]
-\Longleftrightarrow \quad & -2\log(\pi_1) + \log \{\mathrm{det}(\Sigma_1)\} + (x-\mu_1)^{\mathrm T}\Sigma_1^{-1}(x-\mu_1) \\
-& \qquad < -2\log(\pi_2) + \log \{\mathrm{det}(\Sigma_2)\} + (x-\mu_2)^{\mathrm T}\Sigma_2^{-1}(x-\mu_2)
-\end{align} %]]></script>
+\[\begin{align}
+&amp; P(G=1\mid X=x) &gt; P(G=2\mid X=x) \\[2ex]
+\Longleftrightarrow \quad &amp; P(X=x\mid G=1)\pi_1 &gt; P(X=x\mid G=2)\pi_2 \\[2ex]
+\Longleftrightarrow \quad &amp; \{\mathrm{det}(\Sigma_1)\}^{-1/2} \exp \{-0.5(x-\mu_1)^{\mathrm T}\Sigma_1^{-1}(x-\mu_1)\} \pi_1 \\
+&amp; \qquad &gt; \{\mathrm{det}(\Sigma_2)\}^{-1/2} \exp \{-0.5(x-\mu_2)^{\mathrm T}\Sigma_2^{-1}(x-\mu_2)\} \pi_2 \\[2ex]
+\Longleftrightarrow \quad &amp; -2\log(\pi_1) + \log \{\mathrm{det}(\Sigma_1)\} + (x-\mu_1)^{\mathrm T}\Sigma_1^{-1}(x-\mu_1) \\
+&amp; \qquad &lt; -2\log(\pi_2) + \log \{\mathrm{det}(\Sigma_2)\} + (x-\mu_2)^{\mathrm T}\Sigma_2^{-1}(x-\mu_2)
+\end{align}\]
 
 <p>这里，决策规则</p>
 
-<script type="math/tex; mode=display">% <![CDATA[
-\begin{align}
-\, & -2\log(\pi_1) + \log \{\mathrm{det}(\Sigma_1)\} + (x-\mu_1)^{\mathrm T}\Sigma_1^{-1}(x-\mu_1) \\
-\, & \qquad < -2\log(\pi_2) + \log \{\mathrm{det}(\Sigma_2)\} + (x-\mu_2)^{\mathrm T}\Sigma_2^{-1}(x-\mu_2)
-\end{align} %]]></script>
+\[\begin{align}
+\, &amp; -2\log(\pi_1) + \log \{\mathrm{det}(\Sigma_1)\} + (x-\mu_1)^{\mathrm T}\Sigma_1^{-1}(x-\mu_1) \\
+\, &amp; \qquad &lt; -2\log(\pi_2) + \log \{\mathrm{det}(\Sigma_2)\} + (x-\mu_2)^{\mathrm T}\Sigma_2^{-1}(x-\mu_2)
+\end{align}\]
 
 <p>是一个关于 $x$ 的二次函数，因此被称为二次判别。</p>
 
 <p>在实践中，我们通过下式估计未知的 $\mu_k$ 和 $\Sigma_k$</p>
 
-<script type="math/tex; mode=display">% <![CDATA[
-\begin{align}
-\hat \mu_k &= \overline X_k = \dfrac{1}{n_k}\sum_{i=1}^{n_k}X_{i,k} \\[2ex]
-\hat \Sigma_k &= \dfrac{1}{n_k -1}\sum_{i=1}^{n_k}(X_{i,k}-\hat \mu_k)(X_{i,k}-\hat \mu_k)^{\mathrm T}
-\end{align} %]]></script>
+\[\begin{align}
+\hat \mu_k &amp;= \overline X_k = \dfrac{1}{n_k}\sum_{i=1}^{n_k}X_{i,k} \\[2ex]
+\hat \Sigma_k &amp;= \dfrac{1}{n_k -1}\sum_{i=1}^{n_k}(X_{i,k}-\hat \mu_k)(X_{i,k}-\hat \mu_k)^{\mathrm T}
+\end{align}\]
 
 <p>如果我们知道样本中的组大小反映了总体中的组大小，则可以通过 $\hat \pi_k = n_k / n$ 来估计 $\pi_k$，其中，$n_k$ 为来自组 $k$ 的训练数据的数量。否则，我们将取 $\hat \pi_k = 1/K$。</p>
 
@@ -521,13 +511,13 @@ m_2(x) &= P(G=2\mid X=x) = 1-m_1(x) = \dfrac{1}{1+ \exp(\beta_0 + \beta^{\mathrm
 
 <p>某些版本的 QD 分析 (称为正则化 QD 分析) 会在 LD 和 QD 之间进行权衡，通过选择 $k$ 组协方差矩阵</p>
 
-<script type="math/tex; mode=display">\tilde \Sigma_k = \alpha \hat \Sigma_k + (1-\alpha) \hat \Sigma</script>
+\[\tilde \Sigma_k = \alpha \hat \Sigma_k + (1-\alpha) \hat \Sigma\]
 
 <p>其中，$\alpha \in [0, 1]$ 可以通过 <strong>交叉验证 (cross-validation, CV)</strong> 进行选择。</p>
 
 <p>当 $p$ 很大时，即使是 $\Sigma$ 也可能涉及太多参数。这种情况下，一种正则化的版本是在 $\Sigma$ 和一个常数方差 (对于 $X$ 的所有分量都相同) 之间进行权衡</p>
 
-<script type="math/tex; mode=display">\tilde \Sigma = \alpha \hat \Sigma + (1-\alpha) \hat \sigma^2 I_p</script>
+\[\tilde \Sigma = \alpha \hat \Sigma + (1-\alpha) \hat \sigma^2 I_p\]
 
 <p>其中，$\alpha \in [0, 1]$ 可以通过 CV 进行选择。</p>
 
@@ -537,13 +527,13 @@ m_2(x) &= P(G=2\mid X=x) = 1-m_1(x) = \dfrac{1}{1+ \exp(\beta_0 + \beta^{\mathrm
 
 <p>什么是分类误差？令 $\hat G$ 为一个分类器，它将值为 $X$ 的个体分配给组 $\hat G$ (一个关于 $X$ 的函数)；并且，令 $G$ 为该个体的真实分组。那么，该分类器的错误率为</p>
 
-<script type="math/tex; mode=display">\text{error} = P(\hat G\ne G) = P(\hat G \ne G \mid G=1)\pi_1 + P(\hat G \ne G \mid G=2)\pi_2</script>
+\[\text{error} = P(\hat G\ne G) = P(\hat G \ne G \mid G=1)\pi_1 + P(\hat G \ne G \mid G=2)\pi_2\]
 
 <p>当然，在实践中我们无法这样计算，因为我们并不知道 $G$ (这就是为什么我们要对其进行估计的原因)。</p>
 
 <p>相反，我们使用分类误差的 CV 估计量。令 $G_1,\dots, G_n$ 表示训练集中 $n$ 个个体的真实组类，并假设尽管我们知道他们的真实组，但仍将其应用于分类器，并将它们分别分类为 $\hat G_1,\dots, \hat G_n$。然后，分类误差的 <strong>留一法 (leave-one-out) CV</strong> 估计量被定义为</p>
 
-<script type="math/tex; mode=display">CV= \dfrac{1}{n}\sum_{i=1}^{n}I(\hat G_i^{(-i)} \ne G_i)</script>
+\[CV= \dfrac{1}{n}\sum_{i=1}^{n}I(\hat G_i^{(-i)} \ne G_i)\]
 
 <p>这里，$\hat G_i^{(-i)}$ 表示在不使用第 $i$ 个个体计算出分类器 $\hat G^{(-i)}$ 的情况下，$G_i$ (训练数据中第 $i$ 个个体的分类器) 的留一法估计量。例如，在 QD 方法中，我们使用除第 $i$ 个观测值外的所有观测值来估计 $\mu_k$ 和 $\Sigma_k$。</p>
 
@@ -558,7 +548,7 @@ m_2(x) &= P(G=2\mid X=x) = 1-m_1(x) = \dfrac{1}{1+ \exp(\beta_0 + \beta^{\mathrm
 
 <p>换而言之，我们计算</p>
 
-<script type="math/tex; mode=display">CV=\dfrac{1}{n}\sum_{b=1}^{B}\sum_{i=1}^{n}I(\hat G_i^{(-b)} \ne G_i) \cdot I\{i\text{-th individual is in block } b\}</script>
+\[CV=\dfrac{1}{n}\sum_{b=1}^{B}\sum_{i=1}^{n}I(\hat G_i^{(-b)} \ne G_i) \cdot I\{i\text{-th individual is in block } b\}\]
 
 <p>这种方法的好处是我们将同样的分类器 $\hat G^{(-b)}$ 重复使用多次。</p>
 
@@ -568,7 +558,7 @@ m_2(x) &= P(G=2\mid X=x) = 1-m_1(x) = \dfrac{1}{1+ \exp(\beta_0 + \beta^{\mathrm
 
 <p>我们最终选择的分类器将基于最小化 CV 估计值进行调参，例如：如果对于教材第 33 页的正则化方案，我们有</p>
 
-<script type="math/tex; mode=display">\hat \alpha =\mathop{\operatorname{arg\,min}}\limits_{\alpha \in [0, 1]}CV(\alpha)</script>
+\[\hat \alpha =\mathop{\operatorname{arg\,min}}\limits_{\alpha \in [0, 1]}CV(\alpha)\]
 
 <p>那么，基于该特定值 $\hat \alpha$，最后的 QD 分类器将具有 $\tilde \Sigma_k$。对于 PCA/PLS，我们也会类似地选择 $\hat q$。</p>
 
@@ -578,32 +568,31 @@ m_2(x) &= P(G=2\mid X=x) = 1-m_1(x) = \dfrac{1}{1+ \exp(\beta_0 + \beta^{\mathrm
 
 <p>重新编码 $G_i$：对于 $k=1,\dots,K$，令</p>
 
-<script type="math/tex; mode=display">% <![CDATA[
-Y_{ik}=I\{G_i=k\}=\begin{cases}1 & \text{if } G_i=k \\[2ex] 0 & \text{otherwise}\end{cases} %]]></script>
+\[Y_{ik}=I\{G_i=k\}=\begin{cases}1 &amp; \text{if } G_i=k \\[2ex] 0 &amp; \text{otherwise}\end{cases}\]
 
 <p>例如，如果有 $K=3$ 和 $n=5$，并且我们观测到</p>
 
-<script type="math/tex; mode=display">(G_1,G_2,G_3,G_4,G_5)=(2,3,1,1,2)</script>
+\[(G_1,G_2,G_3,G_4,G_5)=(2,3,1,1,2)\]
 
 <p>那么，我们可以创建</p>
 
-<script type="math/tex; mode=display">\begin{pmatrix}Y_{11} \\ Y_{21} \\ Y_{31} \\ Y_{41} \\ Y_{51} \end{pmatrix}=\begin{pmatrix}0 \\ 0 \\ 1 \\ 1 \\ 0 \end{pmatrix},\quad \begin{pmatrix}Y_{12} \\ Y_{22} \\ Y_{32} \\ Y_{42} \\ Y_{52} \end{pmatrix}=\begin{pmatrix}1 \\ 0 \\ 0 \\ 0 \\ 1 \end{pmatrix},\quad \begin{pmatrix}Y_{13} \\ Y_{23} \\ Y_{33} \\ Y_{43} \\ Y_{53} \end{pmatrix}=\begin{pmatrix}0 \\ 1 \\ 0 \\ 0 \\ 0 \end{pmatrix}</script>
+\[\begin{pmatrix}Y_{11} \\ Y_{21} \\ Y_{31} \\ Y_{41} \\ Y_{51} \end{pmatrix}=\begin{pmatrix}0 \\ 0 \\ 1 \\ 1 \\ 0 \end{pmatrix},\quad \begin{pmatrix}Y_{12} \\ Y_{22} \\ Y_{32} \\ Y_{42} \\ Y_{52} \end{pmatrix}=\begin{pmatrix}1 \\ 0 \\ 0 \\ 0 \\ 1 \end{pmatrix},\quad \begin{pmatrix}Y_{13} \\ Y_{23} \\ Y_{33} \\ Y_{43} \\ Y_{53} \end{pmatrix}=\begin{pmatrix}0 \\ 1 \\ 0 \\ 0 \\ 0 \end{pmatrix}\]
 
 <p>定义 $K$ 个回归曲线：对于 $k=1,\dots,K$，</p>
 
-<script type="math/tex; mode=display">m_k(x) = E(Y_k \mid X=x) = P(G=k\mid X=x)</script>
+\[m_k(x) = E(Y_k \mid X=x) = P(G=k\mid X=x)\]
 
 <p>由于 $x$ 必须来自 $K$ 个分组中的某一个 (且仅一个)，我们有</p>
 
-<script type="math/tex; mode=display">\sum_{k=1}^{K}m_k(x)=\sum_{k=1}^{K}P(G=k \mid X=x)=1</script>
+\[\sum_{k=1}^{K}m_k(x)=\sum_{k=1}^{K}P(G=k \mid X=x)=1\]
 
 <p>因此，我们有</p>
 
-<script type="math/tex; mode=display">m_K(x) = 1- \sum_{j=1}^{K-1}m_j(x)</script>
+\[m_K(x) = 1- \sum_{j=1}^{K-1}m_j(x)\]
 
 <p>我们只需要通过 $\hat m_1,\dots,\hat m_{K-1}$ 估计 $m_1,\dots,m_{K-1}$，并且取</p>
 
-<script type="math/tex; mode=display">\hat m_K(x)=1- \sum_{j=1}^{K-1}\hat m_j(x)</script>
+\[\hat m_K(x)=1- \sum_{j=1}^{K-1}\hat m_j(x)\]
 
 <p>将新的 $x$ 分类到具有最大 $\hat m_k(x)$ 的组。</p>
 
@@ -613,16 +602,15 @@ Y_{ik}=I\{G_i=k\}=\begin{cases}1 & \text{if } G_i=k \\[2ex] 0 & \text{otherwise}
 
 <p>定义 $K$ 个线性回归曲线：对于 $k=1,\dots,K$，</p>
 
-<script type="math/tex; mode=display">m_k(x) = E(Y_k\mid X=x)= \beta_{0k} + \beta_k^{\mathrm T}x = \beta_{0k} + \beta_{1k}x_1 + \cdots + \beta_{pk}x_p</script>
+\[m_k(x) = E(Y_k\mid X=x)= \beta_{0k} + \beta_k^{\mathrm T}x = \beta_{0k} + \beta_{1k}x_1 + \cdots + \beta_{pk}x_p\]
 
 <p>利用 LS、PLS、PCA 或者其他方法估计 $\beta_{jk}$。例如，对于标准 LS：</p>
 
-<script type="math/tex; mode=display">(\hat \beta_{0k},\hat \beta_{1k},\dots,\hat \beta_{pk})^{\mathrm T} = (\mathcal X^{\mathrm T}\mathcal X)^{-1}\mathcal X^{\mathrm T}Y_k</script>
+\[(\hat \beta_{0k},\hat \beta_{1k},\dots,\hat \beta_{pk})^{\mathrm T} = (\mathcal X^{\mathrm T}\mathcal X)^{-1}\mathcal X^{\mathrm T}Y_k\]
 
 <p>其中，</p>
 
-<script type="math/tex; mode=display">% <![CDATA[
-\mathcal X=\begin{pmatrix}1 & X_{11} & \cdots & X_{1p} \\ \vdots & \vdots & & \vdots \\ 1 & X_{n1} & \cdots & X_{np}\end{pmatrix},\quad Y_k = \begin{pmatrix}Y_{1k} \\ \vdots \\ Y_{nk}\end{pmatrix} %]]></script>
+\[\mathcal X=\begin{pmatrix}1 &amp; X_{11} &amp; \cdots &amp; X_{1p} \\ \vdots &amp; \vdots &amp; &amp; \vdots \\ 1 &amp; X_{n1} &amp; \cdots &amp; X_{np}\end{pmatrix},\quad Y_k = \begin{pmatrix}Y_{1k} \\ \vdots \\ Y_{nk}\end{pmatrix}\]
 
 <p>对于一个 $X$ 的值为 $x=(x_1,\dots,x_p)^{\mathrm T}$ 的新个体：</p>
 
@@ -630,16 +618,16 @@ Y_{ik}=I\{G_i=k\}=\begin{cases}1 & \text{if } G_i=k \\[2ex] 0 & \text{otherwise}
   <li>
     <p>计算 $\hat m_1(x),\dots,\hat m_K(x)$，其中，对于 $k=1,\dots,K-1$，</p>
 
-    <script type="math/tex; mode=display">\hat m_k(x)=\hat \beta_{0k} +\hat \beta_{1k}x_1 + \cdots + \hat \beta_{pk}x_p</script>
+\[\hat m_k(x)=\hat \beta_{0k} +\hat \beta_{1k}x_1 + \cdots + \hat \beta_{pk}x_p\]
 
     <p>以及</p>
 
-    <script type="math/tex; mode=display">\hat m_K(x) = 1- \sum_{j=1}^{K-1}\hat m_j(x)</script>
+\[\hat m_K(x) = 1- \sum_{j=1}^{K-1}\hat m_j(x)\]
   </li>
   <li>
     <p>将该新个体分类到 $\hat m_1(x),\dots,\hat m_K(x)$ 中的最大值 $\hat G$：</p>
 
-    <script type="math/tex; mode=display">\hat G = \mathop{\operatorname{arg\,max}}\limits_{k=1,\dots,K} \hat m_k(x)</script>
+\[\hat G = \mathop{\operatorname{arg\,max}}\limits_{k=1,\dots,K} \hat m_k(x)\]
   </li>
 </ul>
 
@@ -647,46 +635,44 @@ Y_{ik}=I\{G_i=k\}=\begin{cases}1 & \text{if } G_i=k \\[2ex] 0 & \text{otherwise}
 
 <p>在逻辑回归中，基于 $K = 2$ 的情况，似乎可以进一步假设：对于 $k = 1,\dots,K$，</p>
 
-<script type="math/tex; mode=display">m_k(x)=E(Y_k \mid X=x) = P(G=k \mid X=x) = \dfrac{\exp(\beta_{0k} + \beta_k^{\mathrm T}x)}{1 + \exp(\beta_{0k} + \beta_k^{\mathrm T}x)}</script>
+\[m_k(x)=E(Y_k \mid X=x) = P(G=k \mid X=x) = \dfrac{\exp(\beta_{0k} + \beta_k^{\mathrm T}x)}{1 + \exp(\beta_{0k} + \beta_k^{\mathrm T}x)}\]
 
 <p>然而，如前所述，我们必须满足 $m_1(x) + \cdots + m_K(x)=1$。</p>
 
 <p>这可以通过使用以下略经修改的模型实现：对于 $k=1,\dots,K-1$，</p>
 
-<script type="math/tex; mode=display">m_k(x) = \dfrac{\exp(\beta_{0k} + \beta_k^{\mathrm T}x)}{1 + \sum_{\ell =1}^{K-1} \exp(\beta_{0\ell} + \beta_{\ell}^{\mathrm T}x)}</script>
+\[m_k(x) = \dfrac{\exp(\beta_{0k} + \beta_k^{\mathrm T}x)}{1 + \sum_{\ell =1}^{K-1} \exp(\beta_{0\ell} + \beta_{\ell}^{\mathrm T}x)}\]
 
 <p>然后，我们取</p>
 
-<script type="math/tex; mode=display">m_K(x) = 1- \sum_{k=1}^{K-1}m_k(x) = 1 - \dfrac{\sum_{k=1}^{K-1} \exp(\beta_{0k} + \beta_k^{\mathrm T}x)}{1 + \sum_{\ell =1}^{K-1} \exp(\beta_{0\ell} + \beta_{\ell}^{\mathrm T}x)} = \dfrac{1}{1 + \sum_{\ell =1}^{K-1} \exp(\beta_{0\ell} + \beta_{\ell}^{\mathrm T}x)}</script>
+\[m_K(x) = 1- \sum_{k=1}^{K-1}m_k(x) = 1 - \dfrac{\sum_{k=1}^{K-1} \exp(\beta_{0k} + \beta_k^{\mathrm T}x)}{1 + \sum_{\ell =1}^{K-1} \exp(\beta_{0\ell} + \beta_{\ell}^{\mathrm T}x)} = \dfrac{1}{1 + \sum_{\ell =1}^{K-1} \exp(\beta_{0\ell} + \beta_{\ell}^{\mathrm T}x)}\]
 
 <p>对于 $k=1, \dots, K-1$，使用最大似然估计量 $\hat \beta_{0k}$ 和 $\hat \beta_k$ 来估计 $\beta_{0k}$ 和 $\beta_k$ (同样，可以使用 PLS 成分代替)，并推断出 $m_k$ 的估计量 $\hat m_k$。然后通过下式估计 $m_K(x)$</p>
 
-<script type="math/tex; mode=display">\hat m_K(x) = 1- \sum_{k=1}^{K-1}\hat m_k(x)</script>
+\[\hat m_K(x) = 1- \sum_{k=1}^{K-1}\hat m_k(x)\]
 
 <p>将新个体分类到 $\hat m_1(x),\dots,\hat m_K(x)$ 中的最大值 $\hat G$：</p>
 
-<script type="math/tex; mode=display">\hat G = \mathop{\operatorname{arg\,max}}\limits_{k=1,\dots,K} \hat m_k(x)</script>
+\[\hat G = \mathop{\operatorname{arg\,max}}\limits_{k=1,\dots,K} \hat m_k(x)\]
 
 <p>但是，实际上我们并不需要计算 $\hat m_k$，因此也不需要计算指数。其实，要找到最大值，我们可以在不同组之间进行两两比较。</p>
 
 <p>我们可以计算</p>
 
-<script type="math/tex; mode=display">% <![CDATA[
-\begin{align}
-\log \dfrac{P(G=1\mid X=x)}{P(G=K \mid X=x)} &= \log \dfrac{m_1(x)}{m_K(x)} = \beta_{01} + \beta_1^{\mathrm T}x \\[2ex]
-\log \dfrac{P(G=2\mid X=x)}{P(G=K \mid X=x)} &= \log \dfrac{m_2(x)}{m_K(x)} = \beta_{02} + \beta_2^{\mathrm T}x \\[2ex]
+\[\begin{align}
+\log \dfrac{P(G=1\mid X=x)}{P(G=K \mid X=x)} &amp;= \log \dfrac{m_1(x)}{m_K(x)} = \beta_{01} + \beta_1^{\mathrm T}x \\[2ex]
+\log \dfrac{P(G=2\mid X=x)}{P(G=K \mid X=x)} &amp;= \log \dfrac{m_2(x)}{m_K(x)} = \beta_{02} + \beta_2^{\mathrm T}x \\[2ex]
 \vdots \\[2ex]
-\log \dfrac{P(G=K-1\mid X=x)}{P(G=K \mid X=x)} &= \log \dfrac{m_{K-1}(x)}{m_K(x)} = \beta_{0,K-1} + \beta_{K-1}^{\mathrm T}x
-\end{align} %]]></script>
+\log \dfrac{P(G=K-1\mid X=x)}{P(G=K \mid X=x)} &amp;= \log \dfrac{m_{K-1}(x)}{m_K(x)} = \beta_{0,K-1} + \beta_{K-1}^{\mathrm T}x
+\end{align}\]
 
 <p>例如，假设 $K &gt; 5$ 并且 $P(G=5 \mid X=x)$ 是最大值。然后我们将有</p>
 
-<script type="math/tex; mode=display">m_5(x) > m_K(x) \quad \Longleftrightarrow \quad \log \dfrac{m_5(x)}{m_K(x)} > 0</script>
+\[m_5(x) &gt; m_K(x) \quad \Longleftrightarrow \quad \log \dfrac{m_5(x)}{m_K(x)} &gt; 0\]
 
 <p>并且，对于所有 $k\ne 5$，</p>
 
-<script type="math/tex; mode=display">% <![CDATA[
-m_k(x) < m_5(x) \quad \Longleftrightarrow \quad \dfrac{m_k(x)}{m_K(x)} < \dfrac{m_5(x)}{m_K(x)} \quad \Longleftrightarrow \quad \log \dfrac{m_k(x)}{m_K(x)} < \log \dfrac{m_5(x)}{m_K(x)} %]]></script>
+\[m_k(x) &lt; m_5(x) \quad \Longleftrightarrow \quad \dfrac{m_k(x)}{m_K(x)} &lt; \dfrac{m_5(x)}{m_K(x)} \quad \Longleftrightarrow \quad \log \dfrac{m_k(x)}{m_K(x)} &lt; \log \dfrac{m_5(x)}{m_K(x)}\]
 
 <p>因此，我们可以仅根据这些对数比做出决策。</p>
 
@@ -702,12 +688,12 @@ m_k(x) < m_5(x) \quad \Longleftrightarrow \quad \dfrac{m_k(x)}{m_K(x)} < \dfrac{
   <li>
     <p>LD：将一个新观测 $x$ 分类到能够最大化下式的组 $k$ 中</p>
 
-    <script type="math/tex; mode=display">\delta_k(x) = x^{\mathrm T}\hat \Sigma^{-1} \hat \mu_k - \dfrac{1}{2}\hat \mu_k^{\mathrm T} \hat \Sigma^{-1} \hat \mu_k + \log \hat \pi_k</script>
+\[\delta_k(x) = x^{\mathrm T}\hat \Sigma^{-1} \hat \mu_k - \dfrac{1}{2}\hat \mu_k^{\mathrm T} \hat \Sigma^{-1} \hat \mu_k + \log \hat \pi_k\]
   </li>
   <li>
     <p>QD：将一个新观测 $x$ 分类到能够最大化下式的组 $k$ 中</p>
 
-    <script type="math/tex; mode=display">\delta_k(x) = \log(\hat \pi_k) - \dfrac{1}{2}\log\{\mathrm{det}(\hat \Sigma_k)\} - \dfrac{1}{2}(x-\hat \mu_k)^{\mathrm T} \hat \Sigma_k^{-1}(x-\hat \mu_k)</script>
+\[\delta_k(x) = \log(\hat \pi_k) - \dfrac{1}{2}\log\{\mathrm{det}(\hat \Sigma_k)\} - \dfrac{1}{2}(x-\hat \mu_k)^{\mathrm T} \hat \Sigma_k^{-1}(x-\hat \mu_k)\]
   </li>
 </ul>
 
@@ -715,12 +701,11 @@ m_k(x) < m_5(x) \quad \Longleftrightarrow \quad \dfrac{m_k(x)}{m_K(x)} < \dfrac{
 
 <p>$\hat \pi_k = n_k/ n$ 是整个训练数据集中来自组 $k$ 的数据所占比例，</p>
 
-<script type="math/tex; mode=display">% <![CDATA[
-\begin{align}
-\hat \mu_k &= \overline X_k = \dfrac{1}{n_k} \sum_{i=1}^{n_k} X_{i,k} \\[2ex]
-\hat \Sigma_k &= \dfrac{1}{n_k-1} \sum_{i=1}^{n_k} (X_{i,k} - \hat \mu_k)(X_{i,k} - \hat \mu_k)^{\mathrm T} \\[2ex]
-\hat \Sigma &= \dfrac{1}{n_1 + \cdots + n_K - K} \sum_{k=1}^{K} \sum_{i=1}^{n_k} (X_{i,k} - \hat \mu_k)(X_{i,k} - \hat \mu_k)^{\mathrm T}
-\end{align} %]]></script>
+\[\begin{align}
+\hat \mu_k &amp;= \overline X_k = \dfrac{1}{n_k} \sum_{i=1}^{n_k} X_{i,k} \\[2ex]
+\hat \Sigma_k &amp;= \dfrac{1}{n_k-1} \sum_{i=1}^{n_k} (X_{i,k} - \hat \mu_k)(X_{i,k} - \hat \mu_k)^{\mathrm T} \\[2ex]
+\hat \Sigma &amp;= \dfrac{1}{n_1 + \cdots + n_K - K} \sum_{k=1}^{K} \sum_{i=1}^{n_k} (X_{i,k} - \hat \mu_k)(X_{i,k} - \hat \mu_k)^{\mathrm T}
+\end{align}\]
 
 <p>下节内容：分类和回归树 (CART)</p>
 :ET

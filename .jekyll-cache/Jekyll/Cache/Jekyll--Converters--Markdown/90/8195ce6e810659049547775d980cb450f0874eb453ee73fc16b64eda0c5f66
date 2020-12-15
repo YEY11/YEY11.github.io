@@ -1,4 +1,4 @@
-I"��<h1 id="lecture-05-主成分分析-二">Lecture 05 主成分分析 (二)</h1>
+I"V�<h1 id="lecture-05-主成分分析-二">Lecture 05 主成分分析 (二)</h1>
 
 <p><strong>参考教材</strong>：</p>
 
@@ -13,15 +13,15 @@
 
 <p>并且，我们有</p>
 
-<script type="math/tex; mode=display">\mathrm{Var}(Y_{ij}) = \lambda_j, \quad \text{for}\; j=1,\dots,p</script>
+\[\mathrm{Var}(Y_{ij}) = \lambda_j, \quad \text{for}\; j=1,\dots,p\]
 
 <p>以及</p>
 
-<script type="math/tex; mode=display">\sum_{j=1}^{p}\lambda_j = \sum_{j=1}^{p} \mathrm{Var}(Y_{ij}) = \mathrm{tr}(\Sigma) = \sum_{j=1}^{p} \mathrm{Var}(X_{ij})</script>
+\[\sum_{j=1}^{p}\lambda_j = \sum_{j=1}^{p} \mathrm{Var}(Y_{ij}) = \mathrm{tr}(\Sigma) = \sum_{j=1}^{p} \mathrm{Var}(X_{ij})\]
 
 <p>所以，前 $q$ 个主成分能够在多大程度上解释数据的变化可以通过以下比例来度量：</p>
 
-<script type="math/tex; mode=display">\psi_q = \dfrac{\sum_{j=1}^{q}\lambda_j}{\sum_{j=1}^{p}\lambda_j}</script>
+\[\psi_q = \dfrac{\sum_{j=1}^{q}\lambda_j}{\sum_{j=1}^{p}\lambda_j}\]
 
 <p>在上节课的瑞士纸币的例子中，我们有：</p>
 
@@ -31,7 +31,7 @@
 
 <p>因此，我们有</p>
 
-<script type="math/tex; mode=display">\psi_1 = 0.668, \;\psi_2 = 0.876,\; \psi_3 = 0.930,\; \psi_4 = 0.973,\; \psi_5 = 0.992,\; \psi_6 = 1.000</script>
+\[\psi_1 = 0.668, \;\psi_2 = 0.876,\; \psi_3 = 0.930,\; \psi_4 = 0.973,\; \psi_5 = 0.992,\; \psi_6 = 1.000\]
 
 <p>也就是说，第一个主成分解释了数据中 $66.8\%$ 的变化，前两个主成分一起解释了 $87.6\%$ 的变化，前三个主成分一起解释了 $93\%$ 的变化。</p>
 
@@ -62,7 +62,7 @@
 
 <p>由于我们可以构造多达 $p$ 个主成分，我们可以将 $X_i$ 的 $p$ 个 PC 表示为：</p>
 
-<script type="math/tex; mode=display">Y_i = (Y_{i1},\dots, Y_{ip})^{\mathrm T}</script>
+\[Y_i = (Y_{i1},\dots, Y_{ip})^{\mathrm T}\]
 
 <p>其中，$Y_{ik} = \gamma_k^{\mathrm T} (X_i - \mu)$。</p>
 
@@ -78,49 +78,49 @@
   <li>
     <p>我们有</p>
 
-    <script type="math/tex; mode=display">\mathrm{Cov}(X_i,Y_i) = \Gamma \Lambda</script>
+\[\mathrm{Cov}(X_i,Y_i) = \Gamma \Lambda\]
 
     <p>所以</p>
 
-    <script type="math/tex; mode=display">\mathrm{Cov}(X_{ij}, Y_{ik}) = \gamma_{kj}\lambda_k</script>
+\[\mathrm{Cov}(X_{ij}, Y_{ik}) = \gamma_{kj}\lambda_k\]
 
     <p>因此，</p>
 
-    <script type="math/tex; mode=display">\rho_{X_{ij}, Y_{ik}} = \dfrac{\gamma_{kj}\lambda_k}{(\sigma_{jj}\lambda_k)^{1/2}} = \gamma_{kj} \dfrac{\lambda_k^{1/2}}{(\sigma_{jj})^{1/2}}</script>
+\[\rho_{X_{ij}, Y_{ik}} = \dfrac{\gamma_{kj}\lambda_k}{(\sigma_{jj}\lambda_k)^{1/2}} = \gamma_{kj} \dfrac{\lambda_k^{1/2}}{(\sigma_{jj})^{1/2}}\]
 
     <p>注意：在实践中，这些量均由其经验版本代替。</p>
   </li>
   <li>
     <p>然后，我们有</p>
 
-    <script type="math/tex; mode=display">\sum_{k=1}^{p} \rho_{X_{ij}, Y_{ik}}^2 = \dfrac{\sum_{k=1}^{p}\gamma_{kj}^2 \lambda_k}{\sigma_{jj}} = \dfrac{\sigma_{jj}}{\sigma_{jj}} = 1</script>
+\[\sum_{k=1}^{p} \rho_{X_{ij}, Y_{ik}}^2 = \dfrac{\sum_{k=1}^{p}\gamma_{kj}^2 \lambda_k}{\sigma_{jj}} = \dfrac{\sigma_{jj}}{\sigma_{jj}} = 1\]
 
     <p><strong>推导过程</strong>：</p>
 
     <p>我们用 $Y$ 表示 PC 向量，$X$ 表示原始数据向量：</p>
 
-    <script type="math/tex; mode=display">Y = \begin{pmatrix}Y_1 \\ \vdots \\ Y_p \end{pmatrix}\quad \text{and} \quad X = \begin{pmatrix}X_1 \\ \vdots \\ X_p \end{pmatrix}</script>
+\[Y = \begin{pmatrix}Y_1 \\ \vdots \\ Y_p \end{pmatrix}\quad \text{and} \quad X = \begin{pmatrix}X_1 \\ \vdots \\ X_p \end{pmatrix}\]
 
     <p>$\Gamma$ 表示特征向量矩阵：</p>
 
-    <script type="math/tex; mode=display">\Gamma = (\gamma_1,\dots,\gamma_p) \quad \text{where} \; \gamma_j = \begin{pmatrix}\gamma_{j1} \\ \vdots \\ \gamma_{jp} \end{pmatrix}</script>
+\[\Gamma = (\gamma_1,\dots,\gamma_p) \quad \text{where} \; \gamma_j = \begin{pmatrix}\gamma_{j1} \\ \vdots \\ \gamma_{jp} \end{pmatrix}\]
 
     <p>由于 $\Gamma$ 是一个正交矩阵，$\Gamma \Gamma^{\mathrm T} = \mathcal I_p$，我们有</p>
 
-    <script type="math/tex; mode=display">Y = \Gamma^{\mathrm T} X \quad \Longrightarrow \quad X = \Gamma Y \quad \Longrightarrow \quad X_j = \sum_{k=1}^{p} \gamma_{kj} Y_k</script>
+\[Y = \Gamma^{\mathrm T} X \quad \Longrightarrow \quad X = \Gamma Y \quad \Longrightarrow \quad X_j = \sum_{k=1}^{p} \gamma_{kj} Y_k\]
 
     <p>所以，</p>
 
-    <script type="math/tex; mode=display">\sigma_{jj} = \mathrm{Var}(X_j) = \sum_{k=1}^{p}\gamma_{kj}^2 \mathrm{Var}(Y_k) = \sum_{k=1}^{p} \gamma_{kj}^2 \lambda_k</script>
+\[\sigma_{jj} = \mathrm{Var}(X_j) = \sum_{k=1}^{p}\gamma_{kj}^2 \mathrm{Var}(Y_k) = \sum_{k=1}^{p} \gamma_{kj}^2 \lambda_k\]
 
     <p>因此，$X_j$ 的方差中可以由 $Y_k$ 解释的部分所占比例为：</p>
 
-    <script type="math/tex; mode=display">\dfrac{\gamma_{kj}^2 \lambda_k}{\sum_{k=1}^{p} \gamma_{kj}^2 \lambda_k} = \dfrac{\gamma_{kj}^2 \lambda_k}{\sigma_{jj}}</script>
+\[\dfrac{\gamma_{kj}^2 \lambda_k}{\sum_{k=1}^{p} \gamma_{kj}^2 \lambda_k} = \dfrac{\gamma_{kj}^2 \lambda_k}{\sigma_{jj}}\]
   </li>
   <li>
     <p>所以，相关系数的平方</p>
 
-    <script type="math/tex; mode=display">\rho_{X_{ij},Y_{ik}}^2 = \dfrac{\gamma_{kj}^2 \lambda_k}{\sigma_{jj}}</script>
+\[\rho_{X_{ij},Y_{ik}}^2 = \dfrac{\gamma_{kj}^2 \lambda_k}{\sigma_{jj}}\]
 
     <p>可以被解释为 $X_j$ 的方差中由 $Y_k$ 解释的部分所占的比例。</p>
   </li>
@@ -128,7 +128,7 @@
 
 <p>由于 $\sum_{k=1}^{p} \rho_{X_{ij}, Y_{ik}}^2 = 1$，我们有</p>
 
-<script type="math/tex; mode=display">\rho_{X_{ij}, Y_{i1}}^2 + \rho_{X_{ij}, Y_{i2}}^2 \le 1</script>
+\[\rho_{X_{ij}, Y_{i1}}^2 + \rho_{X_{ij}, Y_{i2}}^2 \le 1\]
 
 <p>所以，相关系数对 $(\rho_{X_{ij}, Y_{i1}},\rho_{X_{ij}, Y_{i2}})$ 落在一个半径为 $1$ 的圆内。如果 $X_{ij}$ 与 $(Y_{i1},Y_{i2})$ 强相关，那么 $(\rho_{X_{ij}, Y_{i1}},\rho_{X_{ij}, Y_{i2}})$ 将落在非常接近圆周的地方。</p>
 
@@ -136,17 +136,16 @@
 
 <p><strong>注意</strong>：对于一个给定的 $j$，只有一个 $(\rho_{X_{ij}, Y_{i1}},\rho_{X_{ij}, Y_{i2}})$，对于所有的 $i$ 都是一样的。回忆一下，$\rho_{X_{ij}, Y_{ik}}$ 与 $i$ 无关：</p>
 
-<script type="math/tex; mode=display">\rho_{X_{ij}, Y_{ik}} =\gamma_{kj} \dfrac{\lambda_k^{1/2}}{(\sigma_{jj})^{1/2}}</script>
+\[\rho_{X_{ij}, Y_{ik}} =\gamma_{kj} \dfrac{\lambda_k^{1/2}}{(\sigma_{jj})^{1/2}}\]
 
 <p>在实践中，我们通过使用经验协方差矩阵 $S$ 代替理论上的 $\Sigma$ 得到的经验估计量来代替  $\gamma_{kj}$、$\lambda_k$ 和 $\sigma_{jj}$，从而计算相关系数。</p>
 
 <p>回忆一下，在之前瑞士纸币的例子中，我们有</p>
 
-<script type="math/tex; mode=display">% <![CDATA[
-\begin{align}
-Y_{i1} &= 0.044X_{i1}− 0.112X_{i2}− 0.139X_{i3}− 0.768X_{i4}− 0.202X_{i5}+ 0.579X_{i6} \\[2ex]
-Y_{i2} &= −0.011X_{i1} − 0.071X_{i2} − 0.066X_{i3} + 0.563X_{i4} − 0.659X_{i5} + 0.489X_{i6}
-\end{align} %]]></script>
+\[\begin{align}
+Y_{i1} &amp;= 0.044X_{i1}− 0.112X_{i2}− 0.139X_{i3}− 0.768X_{i4}− 0.202X_{i5}+ 0.579X_{i6} \\[2ex]
+Y_{i2} &amp;= −0.011X_{i1} − 0.071X_{i2} − 0.066X_{i3} + 0.563X_{i4} − 0.659X_{i5} + 0.489X_{i6}
+\end{align}\]
 
 <p>其中，$X_{i1}$ 到 $X_{i6}$ 分别是 <code class="language-plaintext highlighter-rouge">Length</code>、<code class="language-plaintext highlighter-rouge">Left</code>、<code class="language-plaintext highlighter-rouge">Right</code>、<code class="language-plaintext highlighter-rouge">Bottom</code>、<code class="language-plaintext highlighter-rouge">Top</code>、<code class="language-plaintext highlighter-rouge">Diagonal</code>：</p>
 
@@ -228,13 +227,13 @@ Y_{i2} &= −0.011X_{i1} − 0.071X_{i2} − 0.066X_{i3} + 0.563X_{i4} − 0.659
 
 <p>当各变量的标度非常不同时，为了避免前几个 PC 将时间浪费在仅捕获少数几个变量的标度，更好的做法是在执行 PC 分析之前对所有变量进行重新缩放使其方差为 $1$：即将 $X_i =(X_{i1},\dots,X_{ip})^{\mathrm T}$ 替换为</p>
 
-<script type="math/tex; mode=display">D^{-1/2} X_i</script>
+\[D^{-1/2} X_i\]
 
 <p>其中，$D = \mathrm{diag}(\sigma_{11},\dots,\sigma_{pp})$。</p>
 
 <p>等效地，我们对相关系数矩阵而不是协方差矩阵进行特征分析：</p>
 
-<script type="math/tex; mode=display">\mathrm{Var}(D^{-1/2} X_i) = D^{-1/2} \mathrm{Var}(X_i) D^{-1/2} =  D^{-1/2} \Sigma D^{-1/2} = P</script>
+\[\mathrm{Var}(D^{-1/2} X_i) = D^{-1/2} \mathrm{Var}(X_i) D^{-1/2} =  D^{-1/2} \Sigma D^{-1/2} = P\]
 
 <p>我们可以计算该相关系数矩阵，然后执行 PC 分析。</p>
 
@@ -297,29 +296,29 @@ Y_{i2} &= −0.011X_{i1} − 0.071X_{i2} − 0.066X_{i3} + 0.563X_{i4} − 0.659
 
 <p>例如，考虑一个线性回归问题，对于一个变量 $Z$ 和一个 $p$ 维向量 $X$，我们假设一个线性模型</p>
 
-<script type="math/tex; mode=display">Z = m(X) + \epsilon</script>
+\[Z = m(X) + \epsilon\]
 
 <p>其中，</p>
 
-<script type="math/tex; mode=display">m(x) = E(Z\mid X=x) = \alpha + \beta^{\mathrm T}x</script>
+\[m(x) = E(Z\mid X=x) = \alpha + \beta^{\mathrm T}x\]
 
 <p>是回归函数，$E(\epsilon)=0$，并且 $X$ 和 $\epsilon$ 相互独立。</p>
 
 <p>出于简化考虑，这里我们假设 $Z$ 和 $X$ 都已经 <strong>中心化</strong>，因此上面的模型中不再有截距项 $\alpha$，我们有</p>
 
-<script type="math/tex; mode=display">Z=m(X) + \epsilon\; , \quad m(x)= E(Z\mid X=x) =  \beta^{\mathrm T}x</script>
+\[Z=m(X) + \epsilon\; , \quad m(x)= E(Z\mid X=x) =  \beta^{\mathrm T}x\]
 
 <p>其中，$\beta \in \mathbb R^p$ 是未知的。</p>
 
 <p>假设我们从上面的模型中观测到一组 i.i.d. 数据</p>
 
-<script type="math/tex; mode=display">(X_1,Z_1),\dots, (X_n,Z_n)</script>
+\[(X_1,Z_1),\dots, (X_n,Z_n)\]
 
 <p>并且 $\beta$ 是未知的。通常在这种情况下，我们想要估计 $\beta$，从而提供回归函数 $m$ 的估计，并且能够根据新的 $X$ 值预测 $Z$ 值。</p>
 
 <p>从之前的统计课程中，我们知道根据观测数据计算得到的 $\beta$ 的最小二乘估计为：</p>
 
-<script type="math/tex; mode=display">\hat \beta = \mathop{\operatorname{arg\,min}}\limits_{b\in \mathbb R^p}\sum_{i=1}^{n}(Z_i - b^{\mathrm T}X_i)^2 = (\mathcal X^{\mathrm T}\mathcal X)^{-1}\mathcal X^{\mathrm T}\mathcal Z</script>
+\[\hat \beta = \mathop{\operatorname{arg\,min}}\limits_{b\in \mathbb R^p}\sum_{i=1}^{n}(Z_i - b^{\mathrm T}X_i)^2 = (\mathcal X^{\mathrm T}\mathcal X)^{-1}\mathcal X^{\mathrm T}\mathcal Z\]
 
 <p>其中，$\mathcal X$ 是 $n \times p$ 的数据矩阵，$\mathcal Z = (Z_1,\dots,Z_n)^{\mathrm T}$ 是一个 $n$ 维向量。</p>
 
@@ -339,7 +338,7 @@ Y_{i2} &= −0.011X_{i1} − 0.071X_{i2} − 0.066X_{i3} + 0.563X_{i4} − 0.659
 
 <p>这种情况下，</p>
 
-<script type="math/tex; mode=display">\hat \beta = (\mathcal X^{\mathrm T}\mathcal X)^{-1}\mathcal X^{\mathrm T}\mathcal Z</script>
+\[\hat \beta = (\mathcal X^{\mathrm T}\mathcal X)^{-1}\mathcal X^{\mathrm T}\mathcal Z\]
 
 <p>对于 $\beta$ 而言可能是一个非常差的估计量。</p>
 
@@ -353,169 +352,165 @@ Y_{i2} &= −0.011X_{i1} − 0.071X_{i2} − 0.066X_{i3} + 0.563X_{i4} − 0.659
 
 <p>例如，如果 $X=(X_1,X_2)^{\mathrm T}$，并且 $X_2 =c X_1$，其中 $c$ 是一个常数，那么我们有</p>
 
-<script type="math/tex; mode=display">% <![CDATA[
-\Sigma = \begin{pmatrix}\mathrm{Var}(X_1) & c\cdot \mathrm{Var}(X_1) \\ c\cdot \mathrm{Var}(X_1) & c^2 \cdot \mathrm{Var}(X_1)\end{pmatrix} %]]></script>
+\[\Sigma = \begin{pmatrix}\mathrm{Var}(X_1) &amp; c\cdot \mathrm{Var}(X_1) \\ c\cdot \mathrm{Var}(X_1) &amp; c^2 \cdot \mathrm{Var}(X_1)\end{pmatrix}\]
 
 <p>所以，$\Sigma$ 中的第二列等于第一列乘以 $c$。因此，$|\Sigma |=0$，并且 $\Sigma$ 有一个零特征值。</p>
 
 <p>更一般地，假设 $\Sigma$ 中只有前 $q$ 个特征值非零，并且回忆一下，对于 $j=1,\dots,p$，$X$ 的 PC 的方差满足</p>
 
-<script type="math/tex; mode=display">\mathrm{Var}(Y_j) =\lambda_j\;, \quad \text{for}\; j=1,\dots,p</script>
+\[\mathrm{Var}(Y_j) =\lambda_j\;, \quad \text{for}\; j=1,\dots,p\]
 
 <p>所以，</p>
 
-<script type="math/tex; mode=display">\mathrm{Var}(Y_j) = 0\;, \quad \text{for}\; j=q+1,\dots,p</script>
+\[\mathrm{Var}(Y_j) = 0\;, \quad \text{for}\; j=q+1,\dots,p\]
 
 <p>现在，回忆一下，当 $E(X)=0$ 时，我们可以将 $p$ 维 PC 向量写为</p>
 
-<script type="math/tex; mode=display">Y=\Gamma^{\mathrm T}X</script>
+\[Y=\Gamma^{\mathrm T}X\]
 
 <p>结合上面的 $\Sigma$，由于 $Y_j$ 之间是不相关的，我们有</p>
 
-<script type="math/tex; mode=display">\mathrm{Var}(Y) = \Lambda</script>
+\[\mathrm{Var}(Y) = \Lambda\]
 
 <p>其中，</p>
 
-<script type="math/tex; mode=display">% <![CDATA[
-\Lambda = \begin{pmatrix}\Lambda_1 & 0 \\ 0 & 0\end{pmatrix} %]]></script>
+\[\Lambda = \begin{pmatrix}\Lambda_1 &amp; 0 \\ 0 &amp; 0\end{pmatrix}\]
 
 <p>这里的 $0$ 都表示零矩阵，并且</p>
 
-<script type="math/tex; mode=display">% <![CDATA[
-\Lambda_1 = \begin{pmatrix}\lambda_1 & 0 & \cdots & 0\\ 0 & \lambda_2 & \cdots & 0\\ \vdots & \vdots & \ddots & \vdots \\ 0 & \cdots & 0 & \lambda_q\end{pmatrix} %]]></script>
+\[\Lambda_1 = \begin{pmatrix}\lambda_1 &amp; 0 &amp; \cdots &amp; 0\\ 0 &amp; \lambda_2 &amp; \cdots &amp; 0\\ \vdots &amp; \vdots &amp; \ddots &amp; \vdots \\ 0 &amp; \cdots &amp; 0 &amp; \lambda_q\end{pmatrix}\]
 
 <p>换而言之，</p>
 
-<script type="math/tex; mode=display">Y \sim (0,\Lambda)</script>
+\[Y \sim (0,\Lambda)\]
 
 <p>所以，$Y$ 具有零均值，并且 $Y$ 的最后 $p-q$ 个分量具有零方差。</p>
 
 <p>如果我们将 $p$ 维向量 $Y$ 写为</p>
 
-<script type="math/tex; mode=display">Y^{\mathrm T} = (Y_{(1)}^{\mathrm T}, Y_{(2)}^{\mathrm T})</script>
+\[Y^{\mathrm T} = (Y_{(1)}^{\mathrm T}, Y_{(2)}^{\mathrm T})\]
 
 <p>其中，</p>
 
-<script type="math/tex; mode=display">Y_{(1)}= (Y_1,\dots,Y_q)^{\mathrm T} \quad \text{and} \quad Y_{(2)}= (Y_{q+1},\dots,Y_p)^{\mathrm T}</script>
+\[Y_{(1)}= (Y_1,\dots,Y_q)^{\mathrm T} \quad \text{and} \quad Y_{(2)}= (Y_{q+1},\dots,Y_p)^{\mathrm T}\]
 
 <p>那么，我们有</p>
 
-<script type="math/tex; mode=display">Y_{(1)} \sim (0,\Lambda_1) \quad \text{and} \quad Y_{(2)} \sim (0,0)</script>
+\[Y_{(1)} \sim (0,\Lambda_1) \quad \text{and} \quad Y_{(2)} \sim (0,0)\]
 
 <p>换而言之，$Y_{(2)}$ 是一个具有零均值和零方差的向量 $\quad \Longrightarrow \quad$ 它退化为一个零向量。</p>
 
 <p>现在，由于</p>
 
-<script type="math/tex; mode=display">Y= \Gamma^{\mathrm T}X</script>
+\[Y= \Gamma^{\mathrm T}X\]
 
 <p>并且 $\Gamma$ 是正交的，然后我们有</p>
 
-<script type="math/tex; mode=display">X=\Gamma Y = \Gamma_{(1)} Y_{(1)} + \Gamma_{(2)} Y_{(2)}</script>
+\[X=\Gamma Y = \Gamma_{(1)} Y_{(1)} + \Gamma_{(2)} Y_{(2)}\]
 
 <p>其中，</p>
 
-<script type="math/tex; mode=display">\Gamma_{(1)} = (\gamma_1,\dots,\gamma_q) \;, \;\; \Gamma_{(2)} = (\gamma_{q+1},\dots,\gamma_p)</script>
+\[\Gamma_{(1)} = (\gamma_1,\dots,\gamma_q) \;, \;\; \Gamma_{(2)} = (\gamma_{q+1},\dots,\gamma_p)\]
 
 <p>并且</p>
 
-<script type="math/tex; mode=display">\Gamma_{(2)} Y_{(2)} \sim (0,0)</script>
+\[\Gamma_{(2)} Y_{(2)} \sim (0,0)\]
 
 <p>因此，$X$ 可以直接表示为</p>
 
-<script type="math/tex; mode=display">X= \Gamma_{(1)} Y_{(1)}</script>
+\[X= \Gamma_{(1)} Y_{(1)}\]
 
 <p>这意味着 $X$ 包含了很多冗余信息，我们只需要使用前 $q$ 个 PC 的向量 $Y_{(1)}$ 即可。</p>
 
 <p>现在，回到我们的线性回归问题：</p>
 
-<script type="math/tex; mode=display">Z=m(X) + \epsilon =  \beta^{\mathrm T}X + \epsilon</script>
+\[Z=m(X) + \epsilon =  \beta^{\mathrm T}X + \epsilon\]
 
 <p>我们希望在 $Z$ 和 $X$ 均值为零且 $X$ 的成分之间接近共线性的情况下，对 $m$ 进行估计。</p>
 
 <p>在上面我们讨论过的精确共线性的情况下，我们看到如果 $\Sigma$ 仅具有 $q$ 个非零特征值，则</p>
 
-<script type="math/tex; mode=display">X= \Gamma_{(1)} Y_{(1)}</script>
+\[X= \Gamma_{(1)} Y_{(1)}\]
 
 <p>其中，$Y_{(1)}$ 是由前 $q$ 个 PC 组成的向量。</p>
 
 <p>然后，我们可以将回归模型写为</p>
 
-<script type="math/tex; mode=display">Z = m_{\mathrm{PC}} (Y_{(1)}) + \epsilon</script>
+\[Z = m_{\mathrm{PC}} (Y_{(1)}) + \epsilon\]
 
 <p>其中，</p>
 
-<script type="math/tex; mode=display">m_{\mathrm{PC}} (Y_{(1)}) = \beta_{\mathrm{PC}}^{\mathrm T} Y_{(1)} \quad \text{and} \quad \beta_{\mathrm{PC}}^{\mathrm T} = \beta^{\mathrm T} \Gamma_{(1)}</script>
+\[m_{\mathrm{PC}} (Y_{(1)}) = \beta_{\mathrm{PC}}^{\mathrm T} Y_{(1)} \quad \text{and} \quad \beta_{\mathrm{PC}}^{\mathrm T} = \beta^{\mathrm T} \Gamma_{(1)}\]
 
 <p>换而言之，如果 $\Sigma$ 只有 $q &lt; p$ 个非零特征值，那么相比求解一个关于 $p$ 维向量 $X$ 的线性模型，我们可以求解一个关于 $q$ 维向量 $Y_{(1)}$ 的线性模型作为替代。</p>
 
 <p>的确，我们刚才看到了</p>
 
-<script type="math/tex; mode=display">\beta^{\mathrm T}X = m(X) = m_{\mathrm{PC}}(Y_{(1)}) = \beta_{\mathrm{PC}}^{\mathrm T} Y_{(1)}</script>
+\[\beta^{\mathrm T}X = m(X) = m_{\mathrm{PC}}(Y_{(1)}) = \beta_{\mathrm{PC}}^{\mathrm T} Y_{(1)}\]
 
 <p>这里，$m_{\mathrm{PC}}$ 要比 $m$ 更容易估计一些，因为现在我们只需要估计一个 $q$ 维参数 $\beta_{\mathrm{PC}}$，而不是一个 $q$ 维参数 $\beta$。</p>
 
 <p>为了估计 $\beta_{\mathrm{PC}}$，我们可以使用最小二乘估计量</p>
 
-<script type="math/tex; mode=display">\hat \beta_{\mathrm{PC}} = \mathop{\operatorname{arg\,min}}\limits_{b\in \mathbb R^q} \sum_{i=1}^{n}(Z_i - b^{\mathrm T}Y_{(1),i})^2 = (\mathcal Y_{(1)}^{\mathrm T}\mathcal Y_{(1)})^{-1} \mathcal Y_{(1)}^{\mathrm T} \mathcal Z</script>
+\[\hat \beta_{\mathrm{PC}} = \mathop{\operatorname{arg\,min}}\limits_{b\in \mathbb R^q} \sum_{i=1}^{n}(Z_i - b^{\mathrm T}Y_{(1),i})^2 = (\mathcal Y_{(1)}^{\mathrm T}\mathcal Y_{(1)})^{-1} \mathcal Y_{(1)}^{\mathrm T} \mathcal Z\]
 
 <p>其中，$Y_{(1),i} = (Y_{i1},\dots,Y_{iq})^{\mathrm T}$ 表示第 $i$ 个个体的 $Y_{(1)}$ 版本，并且</p>
 
-<script type="math/tex; mode=display">% <![CDATA[
-\mathcal Y_{(1)} = \begin{pmatrix}Y_{11} & \cdots & Y_{1q}\\ \vdots & \ddots & \vdots \\ Y_{n1} & \cdots & Y_{nq} \end{pmatrix} %]]></script>
+\[\mathcal Y_{(1)} = \begin{pmatrix}Y_{11} &amp; \cdots &amp; Y_{1q}\\ \vdots &amp; \ddots &amp; \vdots \\ Y_{n1} &amp; \cdots &amp; Y_{nq} \end{pmatrix}\]
 
 <p>更常见的情况是，$p$ 个分量中只有某几个分量之间接近共线性，因此 $\Sigma$ 的特征值可能全部非零，但其中某些可能接近于零。</p>
 
 <p>假设 $\lambda_{q+1},\dots,\lambda_p$ 都非常小，并且令</p>
 
-<script type="math/tex; mode=display">Y^{\mathrm T} = (Y_{(1)}^{\mathrm T}, Y_{(2)}^{\mathrm T})\, , \;\; Y_{(1)}= (Y_1,\dots,Y_q)^{\mathrm T} \, , \;\; Y_{(2)}= (Y_{q+1},\dots,Y_p)^{\mathrm T}</script>
+\[Y^{\mathrm T} = (Y_{(1)}^{\mathrm T}, Y_{(2)}^{\mathrm T})\, , \;\; Y_{(1)}= (Y_1,\dots,Y_q)^{\mathrm T} \, , \;\; Y_{(2)}= (Y_{q+1},\dots,Y_p)^{\mathrm T}\]
 
 <p>然后，$Y_{q+1},\dots,Y_p$ 的方差都将非常小：</p>
 
-<script type="math/tex; mode=display">\mathrm{Var}(Y_{q+1}) = \lambda_{q+1} \, , \dots,\, \mathrm{Var}(Y_{p}) = \lambda_{p}</script>
+\[\mathrm{Var}(Y_{q+1}) = \lambda_{q+1} \, , \dots,\, \mathrm{Var}(Y_{p}) = \lambda_{p}\]
 
 <p>这种情况下，移除特征值很小的 PC 只能得到一个近似结果：</p>
 
-<script type="math/tex; mode=display">X=\Gamma Y = \Gamma_{(1)}Y_{(1)} + \Gamma_{(2)}Y_{(2)} \approx \Gamma_{(1)}Y_{(1)}</script>
+\[X=\Gamma Y = \Gamma_{(1)}Y_{(1)} + \Gamma_{(2)}Y_{(2)} \approx \Gamma_{(1)}Y_{(1)}\]
 
 <p>回忆一下，</p>
 
-<script type="math/tex; mode=display">Y=(Y_1,\dots,Y_p)^{\mathrm T} = \Gamma^{\mathrm T}X \, , \;\; Y_{(1)}=(Y_1,\dots,Y_q)^{\mathrm T}</script>
+\[Y=(Y_1,\dots,Y_p)^{\mathrm T} = \Gamma^{\mathrm T}X \, , \;\; Y_{(1)}=(Y_1,\dots,Y_q)^{\mathrm T}\]
 
 <p>并且对于任何 $x\in \mathbb R^p$，令</p>
 
-<script type="math/tex; mode=display">y=(y_1,\dots,y_p)^{\mathrm T} = \Gamma^{\mathrm T}x \, , \;\; y_{(1)}=(y_1,\dots,y_q)^{\mathrm T}</script>
+\[y=(y_1,\dots,y_p)^{\mathrm T} = \Gamma^{\mathrm T}x \, , \;\; y_{(1)}=(y_1,\dots,y_q)^{\mathrm T}\]
 
 <p>现在，我们考虑关于 $Y_{(1)}$ 而不是关于 $X$ 的线性模型：</p>
 
-<script type="math/tex; mode=display">Z = m_{\mathrm{PC}}(Y_{(1)}) + \eta</script>
+\[Z = m_{\mathrm{PC}}(Y_{(1)}) + \eta\]
 
 <p>其中，</p>
 
-<script type="math/tex; mode=display">m_{\mathrm{PC}}(y_{(1)})= E(Z \mid Y_{(1)}=y_{(1)}) = \beta_{\mathrm{PC}}^{\mathrm T} y_{(1)}</script>
+\[m_{\mathrm{PC}}(y_{(1)})= E(Z \mid Y_{(1)}=y_{(1)}) = \beta_{\mathrm{PC}}^{\mathrm T} y_{(1)}\]
 
 <p>并且 $E(\eta)=0$。</p>
 
 <p>$m_{\mathrm{PC}}$ 要比 $m$ 更容易估计，因为 $\beta_{\mathrm{PC}}$ 的维度要比 $\beta$ 更低。然而，这里由于我们只有 $X\approx \Gamma_{(1)} Y_{(1)}$，所以我们只能得到</p>
 
-<script type="math/tex; mode=display">m(x) \approx m_{\mathrm{PC}}(y_{(1)})</script>
+\[m(x) \approx m_{\mathrm{PC}}(y_{(1)})\]
 
 <p>如上所述，$\beta_{\mathrm{PC}}$ 的最小二乘估计量等于</p>
 
-<script type="math/tex; mode=display">\hat \beta_{\mathrm{PC}} = \mathop{\operatorname{arg\,min}}\limits_{b\in \mathbb R^q} \sum_{i=1}^{n}(Z_i - b^{\mathrm T}Y_{(1),i})^2 = (\mathcal Y_{(1)}^{\mathrm T}\mathcal Y_{(1)})^{-1} \mathcal Y_{(1)}^{\mathrm T} \mathcal Z</script>
+\[\hat \beta_{\mathrm{PC}} = \mathop{\operatorname{arg\,min}}\limits_{b\in \mathbb R^q} \sum_{i=1}^{n}(Z_i - b^{\mathrm T}Y_{(1),i})^2 = (\mathcal Y_{(1)}^{\mathrm T}\mathcal Y_{(1)})^{-1} \mathcal Y_{(1)}^{\mathrm T} \mathcal Z\]
 
 <p>我们希望这种近似能得到较好的结果，因此我们就可以将 $m(x)$ 估计为</p>
 
-<script type="math/tex; mode=display">\hat m_{\mathrm{PC}}(y_{(1)}) = \hat \beta_{\mathrm{PC}}^{\mathrm T} y_{(1)}</script>
+\[\hat m_{\mathrm{PC}}(y_{(1)}) = \hat \beta_{\mathrm{PC}}^{\mathrm T} y_{(1)}\]
 
 <p>那么，应该如何选择 $q$ 呢？选择能够使最小二乘估计量最小化的 $q$ 将无法工作 (这会造成过拟合，我们选择的 $q$ 太大了)。</p>
 
 <p>通常使用的一种选择要使用的 PC 数量 $q$ 的标准是交叉验证 (CV)。在最简形式下，它将选择</p>
 
-<script type="math/tex; mode=display">q = \mathop{\operatorname{arg\,min}}\limits_{k=1,\dots,p} CV(k)</script>
+\[q = \mathop{\operatorname{arg\,min}}\limits_{k=1,\dots,p} CV(k)\]
 
 <p>其中，</p>
 
-<script type="math/tex; mode=display">CV(k)=\sum_{i=1}^{n}(Z_i - \hat \beta_{\mathrm{PC},k}^{-i} Y_{(1),i})^2</script>
+\[CV(k)=\sum_{i=1}^{n}(Z_i - \hat \beta_{\mathrm{PC},k}^{-i} Y_{(1),i})^2\]
 
 <p>并且 $\hat \beta_{\mathrm{PC},k}^{-i}$ 表示按照之前给出的公式取 $q=k$ 计算出的 $\beta_{\mathrm{PC}}$ 的 LS 估计量，只是这里我们将第 $i$ 个个体从 $\mathcal Z$ 和 $\mathcal Y_{(1)}$ 中移除了。</p>
 

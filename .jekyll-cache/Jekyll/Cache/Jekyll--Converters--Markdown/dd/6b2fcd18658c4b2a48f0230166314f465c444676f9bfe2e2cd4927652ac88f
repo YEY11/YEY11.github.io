@@ -1,4 +1,4 @@
-I"m<h1 id="lecture-06-隔离性">Lecture 06 隔离性</h1>
+I"B<h1 id="lecture-06-隔离性">Lecture 06 隔离性</h1>
 
 <p><strong>参考教材</strong>：<em>Transaction Processing: Concepts and Techniques, Jim Gray and Andreas Reuter, Morgan Kaufmann, 1993</em></p>
 
@@ -63,7 +63,7 @@
 
 <p>对于所有的并发事务，为了维持一致性，必须满足：</p>
 
-<script type="math/tex; mode=display">O_i\cap (I_j \cup O_j)=\emptyset \quad \forall \,i\neq j</script>
+\[O_i\cap (I_j \cup O_j)=\emptyset \quad \forall \,i\neq j\]
 
 <p>注意，$O_j$ 和 $I_j$ 不一定是不相交的，即允许 $O_j\cap I_j \neq \emptyset$。</p>
 

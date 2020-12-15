@@ -1,0 +1,24 @@
+I"i<h1 id="lecture-11-核方法">Lecture 11 核方法</h1>
+<h2 id="主要内容">主要内容</h2>
+<ul>
+  <li><strong>核化</strong>
+    <ul>
+      <li>SVM 对偶公式的基扩展</li>
+      <li>“核技巧”；特征空间点积的快速计算</li>
+    </ul>
+  </li>
+  <li><strong>模块化学习</strong>
+    <ul>
+      <li>从特征变换中分离出“学习模块”</li>
+      <li>表示定理</li>
+    </ul>
+  </li>
+  <li><strong>构造核函数</strong>
+    <ul>
+      <li>常见核函数及其特性概述</li>
+      <li>Mercer 定理</li>
+      <li>学习非常规数据类型</li>
+    </ul>
+  </li>
+</ul>
+:ET
