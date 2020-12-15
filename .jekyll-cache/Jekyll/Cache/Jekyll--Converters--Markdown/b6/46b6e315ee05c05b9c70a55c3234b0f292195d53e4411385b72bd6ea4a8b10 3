@@ -1,0 +1,214 @@
+I"D<h1 id="workshop-01-利用-nltk-进行预处理">Workshop 01 利用 NLTK 进行预处理</h1>
+
+<p>首先，如果你从来没有使用过 iPython notebooks，为了能够在此工作册上运行代码，你可以选中一个 code cell 之后，点击 Cell 菜单里的运行命令，或者按一下键盘上的 <code class="language-plaintext highlighter-rouge">shift</code> + <code class="language-plaintext highlighter-rouge">enter</code>。通常，为了使代码能够正常工作，你需要按照程序的顺序运行 cells。一个给定的 cell 的输出（包括图表在内的任何结果）会在代码运行完毕之后显示在代码下方。为了确保一切顺利，请尝试运行下面的代码：</p>
+
+<div class="language-python highlighter-rouge"><div class="highlight"><pre class="highlight"><code><table class="rouge-table"><tbody><tr><td class="rouge-gutter gl"><pre class="lineno">1
+</pre></td><td class="rouge-code"><pre><span class="k">print</span><span class="p">(</span><span class="s">"hello world"</span><span class="p">)</span>
+</pre></td></tr></tbody></table></code></pre></div></div>
+
+<p>输出：</p>
+
+<div class="language-plaintext highlighter-rouge"><div class="highlight"><pre class="highlight"><code><table class="rouge-table"><tbody><tr><td class="rouge-gutter gl"><pre class="lineno">1
+</pre></td><td class="rouge-code"><pre>hello world
+</pre></td></tr></tbody></table></code></pre></div></div>
+
+<p>好的，现在让我们对一段来自班级课程网站的 html 片段进行一些简单的预处理：</p>
+
+<div class="language-html highlighter-rouge"><div class="highlight"><pre class="highlight"><code><table class="rouge-table"><tbody><tr><td class="rouge-gutter gl"><pre class="lineno">1
+2
+3
+4
+5
+6
+7
+8
+9
+10
+11
+12
+13
+14
+15
+16
+17
+18
+19
+20
+</pre></td><td class="rouge-code"><pre>text = '''
+<span class="nt">&lt;body&gt;</span>
+    <span class="c">&lt;!-- JavaScript plugins (requires jQuery) --&gt;</span>
+    <span class="nt">&lt;script </span><span class="na">src=</span><span class="s">"http://code.jquery.com/jquery.js"</span><span class="nt">&gt;&lt;/script&gt;</span>
+    <span class="c">&lt;!-- Include all compiled plugins (below), or include individual files as needed --&gt;</span>
+    <span class="nt">&lt;script </span><span class="na">src=</span><span class="s">"js/bootstrap.min.js"</span><span class="nt">&gt;&lt;/script&gt;</span>
+
+    <span class="nt">&lt;div</span> <span class="na">class=</span><span class="s">"container"</span><span class="nt">&gt;</span>
+      <span class="nt">&lt;div</span> <span class="na">class=</span><span class="s">"page-header"</span><span class="nt">&gt;</span>
+  <span class="nt">&lt;h3&gt;</span>COMP90042 Natural Language Processing<span class="nt">&lt;/h3&gt;</span>
+<span class="nt">&lt;/div&gt;</span>
+
+The aims for this subject is for students to develop an understanding of the main algorithms used in natural 
+language processing, for use in a diverse range of applications including text classification, machine 
+translation, and question answering. Topics to be covered include part-of-speech tagging, n-gram language 
+modelling, syntactic parsing and deep learning. The programming language used is Python, see 
+<span class="nt">&lt;a</span> <span class="na">href=</span><span class="s">"python.html"</span><span class="nt">&gt;</span>the detailed configuration instructions<span class="nt">&lt;/a&gt;</span> for more information on its use in the 
+workshops, assignments and installation at home.
+<span class="nt">&lt;/body&gt;</span>
+'''
+</pre></td></tr></tbody></table></code></pre></div></div>
+
+<p>首先，让我们利用正则表达式移除 html 标记：</p>
+
+<div class="language-python highlighter-rouge"><div class="highlight"><pre class="highlight"><code><table class="rouge-table"><tbody><tr><td class="rouge-gutter gl"><pre class="lineno">1
+2
+3
+4
+</pre></td><td class="rouge-code"><pre><span class="kn">import</span> <span class="nn">re</span>
+
+<span class="n">text</span> <span class="o">=</span> <span class="n">re</span><span class="p">.</span><span class="n">sub</span><span class="p">(</span><span class="s">"&lt;[^&gt;]+&gt;"</span><span class="p">,</span> <span class="s">""</span><span class="p">,</span> <span class="n">text</span><span class="p">).</span><span class="n">strip</span><span class="p">()</span>
+<span class="k">print</span><span class="p">(</span><span class="n">text</span><span class="p">)</span>
+</pre></td></tr></tbody></table></code></pre></div></div>
+
+<p>输出：</p>
+
+<div class="language-plaintext highlighter-rouge"><div class="highlight"><pre class="highlight"><code><table class="rouge-table"><tbody><tr><td class="rouge-gutter gl"><pre class="lineno">1
+2
+3
+4
+5
+6
+7
+8
+9
+</pre></td><td class="rouge-code"><pre>COMP90042 Natural Language Processing
+
+
+The aims for this subject is for students to develop an understanding of the main algorithms used in natural 
+language processing, for use in a diverse range of applications including text classification, machine 
+translation, and question answering. Topics to be covered include part-of-speech tagging, n-gram language 
+modelling, syntactic parsing and deep learning. The programming language used is Python, see 
+the detailed configuration instructions for more information on its use in the 
+workshops, assignments and installation at home.
+</pre></td></tr></tbody></table></code></pre></div></div>
+
+<p>现在，我们可以更清楚地看到：在标题和正文之间有三个换行符，并且文本内也有一些换行符。我们的句子分割器（sentence tokenizer）将无法正确地处理标题，因此我们将其删除，然后将其他换行符更改为空格：</p>
+
+<div class="language-python highlighter-rouge"><div class="highlight"><pre class="highlight"><code><table class="rouge-table"><tbody><tr><td class="rouge-gutter gl"><pre class="lineno">1
+2
+</pre></td><td class="rouge-code"><pre><span class="n">text</span> <span class="o">=</span> <span class="n">text</span><span class="p">.</span><span class="n">split</span><span class="p">(</span><span class="s">"</span><span class="se">\n\n\n</span><span class="s">"</span><span class="p">)[</span><span class="mi">1</span><span class="p">].</span><span class="n">replace</span><span class="p">(</span><span class="s">"</span><span class="se">\n</span><span class="s">"</span><span class="p">,</span> <span class="s">" "</span><span class="p">)</span>
+<span class="k">print</span><span class="p">(</span><span class="n">text</span><span class="p">)</span>
+</pre></td></tr></tbody></table></code></pre></div></div>
+
+<p>输出：</p>
+
+<div class="language-plaintext highlighter-rouge"><div class="highlight"><pre class="highlight"><code><table class="rouge-table"><tbody><tr><td class="rouge-gutter gl"><pre class="lineno">1
+</pre></td><td class="rouge-code"><pre>The aims for this subject is for students to develop an understanding of the main algorithms used in natural  language processing, for use in a diverse range of applications including text classification, machine  translation, and question answering. Topics to be covered include part-of-speech tagging, n-gram language  modelling, syntactic parsing and deep learning. The programming language used is Python, see  the detailed configuration instructions for more information on its use in the  workshops, assignments and installation at home.
+</pre></td></tr></tbody></table></code></pre></div></div>
+
+<p>接下来，让我们将文本分割成句子。虽然在这个例子中，像 “按照句号进行分割 <code class="language-plaintext highlighter-rouge">split(".")</code>” 这种简单的方法已经完全够用了，但是，让我们尝试一下 NLTK 中 <code class="language-plaintext highlighter-rouge">punkt</code> 下的英文分句模块 <code class="language-plaintext highlighter-rouge">pickle</code>，它可以处理文本中可能出现的更加复杂的情况：</p>
+
+<div class="language-python highlighter-rouge"><div class="highlight"><pre class="highlight"><code><table class="rouge-table"><tbody><tr><td class="rouge-gutter gl"><pre class="lineno">1
+2
+3
+4
+5
+6
+</pre></td><td class="rouge-code"><pre><span class="kn">import</span> <span class="nn">nltk</span>
+<span class="n">nltk</span><span class="p">.</span><span class="n">download</span><span class="p">(</span><span class="s">'punkt'</span><span class="p">)</span>
+<span class="n">sent_segmenter</span> <span class="o">=</span> <span class="n">nltk</span><span class="p">.</span><span class="n">data</span><span class="p">.</span><span class="n">load</span><span class="p">(</span><span class="s">'tokenizers/punkt/english.pickle'</span><span class="p">)</span>
+
+<span class="n">sentences</span> <span class="o">=</span> <span class="n">sent_segmenter</span><span class="p">.</span><span class="n">tokenize</span><span class="p">(</span><span class="n">text</span><span class="p">)</span>
+<span class="k">print</span><span class="p">(</span><span class="n">sentences</span><span class="p">)</span>
+</pre></td></tr></tbody></table></code></pre></div></div>
+
+<p>输出：</p>
+
+<div class="language-plaintext highlighter-rouge"><div class="highlight"><pre class="highlight"><code><table class="rouge-table"><tbody><tr><td class="rouge-gutter gl"><pre class="lineno">1
+2
+3
+4
+5
+</pre></td><td class="rouge-code"><pre>['The aims for this subject is for students to develop an understanding of the main algorithms used in natural  language processing, for use in a diverse range of applications including text classification, machine  translation, and question answering.', 'Topics to be covered include part-of-speech tagging, n-gram language  modelling, syntactic parsing and deep learning.', 'The programming language used is Python, see  the detailed configuration instructions for more information on its use in the  workshops, assignments and installation at home.']
+
+
+[nltk_data] Downloading package punkt to /Users/laujh/nltk_data...
+[nltk_data]   Package punkt is already up-to-date!
+</pre></td></tr></tbody></table></code></pre></div></div>
+
+<p>NLTK 也提供了分词器（word tokenizer）。对于第一个句子，让我们对比一下简单的空格 <code class="language-plaintext highlighter-rouge">split()</code> 方法和 NLTK 中的正则分词器（regex tokenizer）模块 <code class="language-plaintext highlighter-rouge">WordPunctTokenizer()</code>：</p>
+
+<div class="language-python highlighter-rouge"><div class="highlight"><pre class="highlight"><code><table class="rouge-table"><tbody><tr><td class="rouge-gutter gl"><pre class="lineno">1
+2
+3
+4
+5
+</pre></td><td class="rouge-code"><pre><span class="n">word_tokenizer</span> <span class="o">=</span> <span class="n">nltk</span><span class="p">.</span><span class="n">tokenize</span><span class="p">.</span><span class="n">regexp</span><span class="p">.</span><span class="n">WordPunctTokenizer</span><span class="p">()</span>
+
+<span class="n">tokenized_sentence</span> <span class="o">=</span> <span class="n">word_tokenizer</span><span class="p">.</span><span class="n">tokenize</span><span class="p">(</span><span class="n">sentences</span><span class="p">[</span><span class="mi">1</span><span class="p">])</span>
+<span class="k">print</span><span class="p">(</span><span class="n">tokenized_sentence</span><span class="p">)</span>
+<span class="k">print</span><span class="p">(</span><span class="n">sentences</span><span class="p">[</span><span class="mi">1</span><span class="p">].</span><span class="n">split</span><span class="p">(</span><span class="s">" "</span><span class="p">))</span>
+</pre></td></tr></tbody></table></code></pre></div></div>
+
+<p>输出：</p>
+
+<div class="language-plaintext highlighter-rouge"><div class="highlight"><pre class="highlight"><code><table class="rouge-table"><tbody><tr><td class="rouge-gutter gl"><pre class="lineno">1
+2
+</pre></td><td class="rouge-code"><pre>['Topics', 'to', 'be', 'covered', 'include', 'part', '-', 'of', '-', 'speech', 'tagging', ',', 'n', '-', 'gram', 'language', 'modelling', ',', 'syntactic', 'parsing', 'and', 'deep', 'learning', '.']
+['Topics', 'to', 'be', 'covered', 'include', 'part-of-speech', 'tagging,', 'n-gram', 'language', '', 'modelling,', 'syntactic', 'parsing', 'and', 'deep', 'learning.']
+</pre></td></tr></tbody></table></code></pre></div></div>
+
+<p>可以看到，NLTK 的分词器（tokenizer）正确地将词尾的逗号 <code class="language-plaintext highlighter-rouge">,</code> 和句号 <code class="language-plaintext highlighter-rouge">.</code> 分离出去了。另外，它还对带连字符的词 “part-of-speech” 也进行了分割，这种做法在某些应用中可能是正确的，而在另外一些应用中可能是错误的。</p>
+
+<p>让我们尝试一下词形还原（lemmatization）。NLTK 的 <code class="language-plaintext highlighter-rouge">wordnet</code> 模块中也提供了一个自带的词形还原器（lemmatizer）方法 <code class="language-plaintext highlighter-rouge">WordNetLemmatizer()</code>，然而想要使用它，我们需要知道单词的词性部分。在这个例子中，我们将仅尝试动词（verb）词形还原，然后如果单词没有发生变化，我们会继续尝试名词（noun）：</p>
+
+<div class="language-python highlighter-rouge"><div class="highlight"><pre class="highlight"><code><table class="rouge-table"><tbody><tr><td class="rouge-gutter gl"><pre class="lineno">1
+2
+3
+4
+5
+6
+7
+8
+9
+10
+</pre></td><td class="rouge-code"><pre><span class="n">nltk</span><span class="p">.</span><span class="n">download</span><span class="p">(</span><span class="s">'wordnet'</span><span class="p">)</span>
+<span class="n">lemmatizer</span> <span class="o">=</span> <span class="n">nltk</span><span class="p">.</span><span class="n">stem</span><span class="p">.</span><span class="n">wordnet</span><span class="p">.</span><span class="n">WordNetLemmatizer</span><span class="p">()</span>
+
+<span class="k">def</span> <span class="nf">lemmatize</span><span class="p">(</span><span class="n">word</span><span class="p">):</span>
+    <span class="n">lemma</span> <span class="o">=</span> <span class="n">lemmatizer</span><span class="p">.</span><span class="n">lemmatize</span><span class="p">(</span><span class="n">word</span><span class="p">,</span><span class="s">'v'</span><span class="p">)</span>
+    <span class="k">if</span> <span class="n">lemma</span> <span class="o">==</span> <span class="n">word</span><span class="p">:</span>
+        <span class="n">lemma</span> <span class="o">=</span> <span class="n">lemmatizer</span><span class="p">.</span><span class="n">lemmatize</span><span class="p">(</span><span class="n">word</span><span class="p">,</span><span class="s">'n'</span><span class="p">)</span>
+    <span class="k">return</span> <span class="n">lemma</span>
+
+<span class="k">print</span><span class="p">([</span><span class="n">lemmatize</span><span class="p">(</span><span class="n">token</span><span class="p">)</span> <span class="k">for</span> <span class="n">token</span> <span class="ow">in</span> <span class="n">tokenized_sentence</span><span class="p">])</span>
+</pre></td></tr></tbody></table></code></pre></div></div>
+
+<p>输出：</p>
+
+<div class="language-plaintext highlighter-rouge"><div class="highlight"><pre class="highlight"><code><table class="rouge-table"><tbody><tr><td class="rouge-gutter gl"><pre class="lineno">1
+2
+3
+4
+5
+</pre></td><td class="rouge-code"><pre>[nltk_data] Downloading package wordnet to /Users/laujh/nltk_data...
+[nltk_data]   Package wordnet is already up-to-date!
+
+
+['Topics', 'to', 'be', 'cover', 'include', 'part', '-', 'of', '-', 'speech', 'tag', ',', 'n', '-', 'gram', 'language', 'model', ',', 'syntactic', 'parse', 'and', 'deep', 'learn', '.']
+</pre></td></tr></tbody></table></code></pre></div></div>
+
+<p>将上面的输出结果与基于 Porter Stemmer 的词干提取（stemming）结果进行对比：</p>
+
+<div class="language-python highlighter-rouge"><div class="highlight"><pre class="highlight"><code><table class="rouge-table"><tbody><tr><td class="rouge-gutter gl"><pre class="lineno">1
+2
+</pre></td><td class="rouge-code"><pre><span class="n">stemmer</span> <span class="o">=</span> <span class="n">nltk</span><span class="p">.</span><span class="n">stem</span><span class="p">.</span><span class="n">porter</span><span class="p">.</span><span class="n">PorterStemmer</span><span class="p">()</span>
+<span class="k">print</span><span class="p">([</span><span class="n">stemmer</span><span class="p">.</span><span class="n">stem</span><span class="p">(</span><span class="n">token</span><span class="p">)</span> <span class="k">for</span> <span class="n">token</span> <span class="ow">in</span> <span class="n">tokenized_sentence</span><span class="p">])</span>
+</pre></td></tr></tbody></table></code></pre></div></div>
+
+<p>输出：</p>
+
+<div class="language-plaintext highlighter-rouge"><div class="highlight"><pre class="highlight"><code><table class="rouge-table"><tbody><tr><td class="rouge-gutter gl"><pre class="lineno">1
+</pre></td><td class="rouge-code"><pre>['topic', 'to', 'be', 'cover', 'includ', 'vector', 'space', 'model', ',', 'part', '-', 'of', '-', 'speech', 'tag', ',', 'n', '-', 'gram', 'languag', 'model', ',', 'syntact', 'pars', 'and', 'neural', 'sequenc', 'model', '.']
+</pre></td></tr></tbody></table></code></pre></div></div>
+
+<p>下节内容：BPE 算法</p>
+:ET

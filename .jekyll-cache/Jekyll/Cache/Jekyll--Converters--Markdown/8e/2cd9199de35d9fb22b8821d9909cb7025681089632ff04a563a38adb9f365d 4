@@ -1,0 +1,388 @@
+I"�Y<h1 id="lecture-02-搜索算法-1">Lecture 02 搜索算法 (1)</h1>
+<h2 id="1-基本模型算法">1. 基本模型算法</h2>
+<h3 id="11-基本状态模型经典规划">1.1 基本状态模型：经典规划</h3>
+<p><strong>追求的目标</strong>：</p>
+<center><span style="color:red">写出一个能够解决所有经典搜索问题的程序。</span></center>
+
+<p><strong>状态模型 $S(P)$</strong>：</p>
+<ul>
+  <li>有限离散状态空间 $S$</li>
+  <li>一个 <span style="color:blue">已知的初始状态</span> $s_0\in S$</li>
+  <li>一个目标状态的集合 $S_G\subseteq S$</li>
+  <li>每个 $s\in S$ 中可以采取的行动 $A(s)\subseteq A$</li>
+  <li><span style="color:blue">确定性转移函数（deterministic transition function）</span> $s’=f(a,s) \;\;\text{for}\;\; a\in A(s)$</li>
+  <li>正的 <span style="color:blue">行动代价（action costs）</span> $c(a,s)$</li>
+</ul>
+
+<p>$\color{blue}{\to}$ 一个 <strong>解</strong> 是将 $s_0$ 映射到 $S_G$ 内部的一个可行的行动序列，如果它能够最小化 <strong>行动代价之和</strong>（例<br />
+$\quad$如：移动步数），我们称其为 <strong>最优解</strong>。</p>
+
+<p>$\color{blue}{\to}$ 通过放松 <span style="color:blue">蓝色</span> 部分的假设，我们可以得到不同的 <strong>模型</strong> 和 <strong>控制器</strong><br />
+$\quad$例如：假设我们的转移函数不是确定性的（deterministic），而是概率性的（probabilistic），所<br />
+$\quad$以基于某个变量，某种情况下可能发生一种转移，而其他情况下可能发生另一种转移。我们并不<br />
+$\quad$知道到底会发生哪种情况，这其中存在着一些概率。</p>
+
+<h3 id="12-求解状态模型图里面的寻路">1.2 求解状态模型：图里面的寻路</h3>
+<p>用于规划的 <strong>搜索算法</strong> 利用了（经典）状态模型 $S(P)$ 与有向图之间的对应关系：</p>
+<ul>
+  <li>图中的 <strong>结点</strong> 代表模型中的 <strong>状态</strong> $s$</li>
+  <li>图中的 <strong>边</strong> $(s,s’)$ 代表模型中对应的具有相同代价的 <strong>转移</strong></li>
+</ul>
+
+<p>在 <strong>启发式搜索规划</strong> 中，问题 $P$ 通过在与模型 $S(P)$ 关联的 <strong>图</strong> 上的 <strong>路径查找</strong> 算法得以解决。</p>
+
+<h3 id="13-搜索算法的分类">1.3 搜索算法的分类</h3>
+<p><strong><span style="color:red">盲目</span> 搜索 vs. <span style="color:red">启发式</span>（或者 <span style="color:red">有信息</span>）搜索</strong>：</p>
+<ul>
+  <li><span style="color:blue">盲目搜索算法</span>：在一般搜索算法中仅使用基本的原始信息。
+    <ul>
+      <li>例如：深度优先搜索（DFS）、宽度优先搜索（BFS）、一致代价搜索（Uniform Cost Search, UCS，例如：Dijkstra）、迭代深化搜索（Iterative Deepening Search, IDS）</li>
+    </ul>
+  </li>
+  <li><span style="color:blue">启发式搜索算法</span>：额外使用 <span style="color:blue">启发式函数</span> 估计到目标的距离（或剩余代价）。
+    <ul>
+      <li>例如：A$^*$ 搜索、IDA$^*$ 搜索、爬山算法（Hill Climbing）、最佳优先搜索（Best First）、WA$^*$ 搜索、DFS B&amp;B 算法、LRTA$^*$ 搜索……</li>
+    </ul>
+  </li>
+</ul>
+
+<p><strong><span style="color:red">系统</span> 搜索 vs. <span style="color:red">局部</span> 搜索</strong>：</p>
+<ul>
+  <li><span style="color:blue">系统搜索算法</span>：同时考虑大量搜索结点。</li>
+  <li><span style="color:blue">局部搜索算法</span>：一次处理一个（或几个）候选解（搜索结点）。<br />
+$\to$ 这不是非黑即白的区别，可以存在混杂的情况。（例如，<span style="color:blue">enforced hill-climbing</span>）</li>
+</ul>
+
+<h3 id="14-是什么在规划中起作用">1.4 是什么在规划中起作用</h3>
+<ul>
+  <li><strong>盲目搜索 vs. 启发式搜索</strong>：
+    <ul>
+      <li>对于达到最低满意度要求的规划，启发式搜索在任何情况下都大大优于盲目算法。</li>
+      <li>对于最优规划，启发式搜索也更好。（但差异不太明显）</li>
+    </ul>
+  </li>
+  <li><strong>系统搜索 vs. 局部搜索</strong>：
+    <ul>
+      <li>对于达到最低满意度要求的规划，两者都有一些成功的案例。</li>
+      <li>对于最优规划，需要系统算法。</li>
+    </ul>
+  </li>
+</ul>
+
+<p><span style="color:red">$\to$ 在这里，我们介绍了在规划中最成功的搜索算法的子集。仅涵盖了某些盲搜索算法。（为此，请<br />
+$\quad$参阅 Russel＆Norvig 第 3 和 4 章）</span></p>
+
+<h3 id="15-搜索算法中的术语">1.5 搜索算法中的术语</h3>
+
+<table>
+  <thead>
+    <tr>
+      <th style="text-align: center">术语</th>
+      <th>定义</th>
+    </tr>
+  </thead>
+  <tbody>
+    <tr>
+      <td style="text-align: center"><span style="color:blue">搜索结点 $n$</span></td>
+      <td>包含搜索所到达的 <strong>状态 (states)</strong>，以及有关如何到达该状态的信息。</td>
+    </tr>
+    <tr>
+      <td style="text-align: center"><span style="color:blue">路径代价 $g(n)$</span></td>
+      <td>到达 $n$ 的路径代价。</td>
+    </tr>
+    <tr>
+      <td style="text-align: center"><span style="color:blue">最优代价 $g^*$</span></td>
+      <td>一个最优解路径的代价。对于一个状态 $s$，$g^*(s)$ 是到达 $s$ 的最便宜路径的代价。</td>
+    </tr>
+    <tr>
+      <td style="text-align: center"><span style="color:blue">结点扩展</span></td>
+      <td>生成一个结点的所有后继结点，通过应用适用于该结点状态的所有行动来实现。<br />在此之后，<em>状态</em> $s$ 本身也被称为扩展过的（expanded）。</td>
+    </tr>
+    <tr>
+      <td style="text-align: center"><span style="color:blue">搜索策略</span></td>
+      <td>决定下一次扩展哪个结点的方法。</td>
+    </tr>
+    <tr>
+      <td style="text-align: center"><span style="color:blue">Open List</span></td>
+      <td>当前所有的候选待扩展 <strong>结点 (nodes)</strong> 的集合。又称 <span style="color:blue">frontier（边缘）</span>。</td>
+    </tr>
+    <tr>
+      <td style="text-align: center"><span style="color:blue">Closed List</span></td>
+      <td>所有已经扩展过的 <strong>状态 (states)</strong> 的集合。仅用于 <span style="color:red">图搜索</span>，而不用于 <span style="color:red">树搜索</span>。<br />又称 <span style="color:blue">探索集（explored set）</span></td>
+    </tr>
+  </tbody>
+</table>
+
+<h3 id="16-世界状态-vs-搜索状态">1.6 世界状态 vs. 搜索状态</h3>
+<p>一个（经典）<span style="color:blue">搜索空间</span> 通过下面三种操作定义：</p>
+<ul>
+  <li><span style="color:blue">$\textrm{start}(\,)$</span>：生成初始（搜索）状态。</li>
+  <li><span style="color:blue">$\textrm{is-target} (s)$</span>：测试一个给定的搜索状态是否是一个目标状态。</li>
+  <li><span style="color:blue">$\textrm{succ} (s)$</span>：生成搜索状态 $s$ 的后继状态 $(a,s’)$，其中 $a$ 是在生成该后继状态中所采取的行动。</li>
+</ul>
+
+<p><strong><span style="color:red">搜索状态 $\ne$ 世界状态</span></strong>：</p>
+<ul>
+  <li><span style="color:blue">前进（Progression）规划</span>
+    <ul>
+      <li>是，搜索状态 $=$ 世界状态<br />
+首先从问题的初始状态出发，考虑行动序列，直到找到一个能够得到目标状态的序列。</li>
+    </ul>
+  </li>
+  <li><span style="color:blue">后退（Regression）规划</span>
+    <ul>
+      <li>否，搜索状态 $=$ 世界状态的集合，表示为合取子目标（conjunctive sub-goals）<br />
+我们从目标状态开始，向后应用行动，直到找到一个能够达到初始状态的行动序列。</li>
+    </ul>
+  </li>
+</ul>
+
+<p><span style="color:red">$\to$ 在整个课程中，除非另外说明，否则我们只考虑前进（Progression）规划。<br />
+$\quad$我们用 “$s$” 交替地表示 世界状态 / 搜索状态。</span></p>
+
+<h3 id="17-搜索状态-vs-搜索结点">1.7 搜索状态 vs. 搜索结点</h3>
+<ul>
+  <li><strong><span style="color:blue">搜索状态 $s$</span></strong>：搜索空间中的状态（顶点）</li>
+  <li><strong><span style="color:blue">搜索结点 $\sigma$</span></strong>：搜索状态，加上关于在搜索过程中在何处 / 何时 / 如何遇到这些状态的信息。</li>
+</ul>
+
+<p><strong>一个搜索结点中包含哪些信息？</strong><br />
+不同的搜索算法在一个搜索结点 $\sigma$ 中存储了不同的信息，但是一般都包含以下几种典型的信息：</p>
+<ul>
+  <li><span style="color:blue">$\textrm{state} (\sigma)$</span>：关联的搜索状态。</li>
+  <li><span style="color:blue">$\textrm{parent} (\sigma)$</span>：指向该搜索结点 $\sigma$ 的来源（即父结点）的指针。</li>
+  <li><span style="color:blue">$\textrm{action} (\sigma)$</span>：一个导致 $\textrm{state} ( \textrm{parent} (\sigma))$ 变为 $\textrm{state} (\sigma)$ 行动。</li>
+  <li><span style="color:blue">$g(\sigma)$</span>：$\sigma$ 的代价。（从根结点到 $\sigma$ 的路径代价）</li>
+</ul>
+
+<p>对于根结点，$\textrm{parent} (\sigma)$ 和 $\textrm{action} (\sigma)$ 无定义。</p>
+
+<h3 id="18-搜索策略的评估指标">1.8 搜索策略的评估指标</h3>
+<ul>
+  <li><strong>保证</strong>
+    <ul>
+      <li><span style="color:blue">完整性</span>：当一个解存在的时候，我们的策略能够保证找到这个解吗？</li>
+      <li><span style="color:blue">最优性</span>：返回的解能够保证是最优解吗？</li>
+    </ul>
+  </li>
+  <li><strong>复杂度</strong>
+    <ul>
+      <li><span style="color:blue">时间复杂度</span>：找到一个解需要花费多长时间？（在 <span style="color:red">生成状态</span> 下进行测量）</li>
+      <li><span style="color:blue">空间复杂度</span>：搜索需要占用多少内存？（在 <span style="color:red">状态</span> 下进行测量）</li>
+    </ul>
+  </li>
+  <li><strong>典型状态空间特征控制复杂度</strong>
+    <ul>
+      <li><span style="color:blue">分支因子 $b$</span>：每个状态有多少个继任者？</li>
+      <li><span style="color:blue">目标深度 $d$</span>：到达最浅的目标状态所需行动的数量。</li>
+    </ul>
+  </li>
+</ul>
+
+<h2 id="2-盲目系统搜索算法">2. 盲目系统搜索算法</h2>
+<h3 id="21-在我们开始之前">2.1 在我们开始之前</h3>
+<ul>
+  <li><strong>盲目搜索 vs. 有信息搜索</strong>
+    <ul>
+      <li><span style="color:blue">盲目搜索</span> 不需要除了问题本身以外的任何输入。
+        <ul>
+          <li><span style="color:red">优点</span>：可以简单地直接从问题开始，不需要额外信息，不需要考虑启发函数等等。</li>
+          <li><span style="color:red">缺点</span>：求解过程比较盲目，会生成大量扩展，实践中计算量很大，效率很低。</li>
+        </ul>
+      </li>
+      <li><span style="color:blue">有信息搜索</span> 需要额外输入一个 <span style="color:red">启发函数 $h$</span>，该函数将状态映射到它们 <span style="color:red">目标距离</span> 的估计
+        <ul>
+          <li><span style="color:red">优点</span>：在实践中，通常比盲目搜索更加高效</li>
+          <li><span style="color:red">缺点</span>：需要 找到 / 实现 启发函数 $h$</li>
+          <li>注意：在 <span style="color:red">规划</span> 中，启发函数 $h$ 是从声明式问题描述中自动生成的。</li>
+        </ul>
+      </li>
+    </ul>
+  </li>
+  <li><strong>关于盲目搜索，我们将讨论</strong>：
+    <ul>
+      <li><span style="color:blue">宽度优先搜索</span>
+        <ul>
+          <li>优势：时间复杂度</li>
+          <li>变体：<span style="color:blue">一致代价搜索（Uniform cost search）</span></li>
+        </ul>
+      </li>
+      <li><span style="color:blue">深度优先搜索</span>
+        <ul>
+          <li>优势：空间复杂度</li>
+        </ul>
+      </li>
+      <li><span style="color:blue">迭代加深搜索（Iterative deepening search.）</span>
+        <ul>
+          <li>结合了宽度优先搜索和使得优先搜索的优势</li>
+          <li>子过程中使用了 <span style="color:blue">深度受限搜索（depth-limited search）</span></li>
+        </ul>
+      </li>
+    </ul>
+  </li>
+  <li><strong>关于盲目搜索，我们不会讨论</strong>：
+    <ul>
+      <li><span style="color:blue">双向搜索（Bi-directional search）</span>
+        <ul>
+          <li>两个单独的搜索空间，一个从初始状态开始向前搜索，另一个从目标开始向后搜索。当两个搜索空间重叠时停止。</li>
+        </ul>
+      </li>
+    </ul>
+  </li>
+</ul>
+
+<h3 id="22-宽度优先搜索">2.2 宽度优先搜索</h3>
+<p><strong>策略</strong>：按照生成顺序扩展结点（FIFO frontier）。</p>
+<ul>
+  <li>也就是说，先扩展根节点，接着扩展根节点的所有后继，然后再扩展它们的后继，以此类推。一般地，在下一层的任何结点扩展之前，搜索树上本层深度的所有结点都应该已经扩展过。</li>
+  <li>每次总是扩展深度最浅的结点，这可以通过将边缘（frontier）组织成 FIFO 队列来实现。</li>
+</ul>
+
+<p><strong>图例</strong>：</p>
+
+<p><img src="http://andy-blog.oss-cn-beijing.aliyuncs.com/blog/2020-03-10-WX20200310-213249%402x.png" /></p>
+
+<p><strong><center><span style="font-size:10pt">图 1：一棵简单二叉树上的宽度优先搜索。在每个阶段，用一个记号指出下一个将要扩展的结点。</span></center></strong></p>
+
+<p><strong>保证</strong>：</p>
+<ul>
+  <li><span style="color:red">完整性</span> 可以保证吗？
+    <ul>
+      <li>可以</li>
+    </ul>
+  </li>
+  <li><span style="color:red">最优性</span> 可以保证吗？
+    <ul>
+      <li>对于一致行动代价（即每条边对应的代价都是一样的）而言，可以保证能够找到最优解。宽度优先搜索总是寻找一个最浅的目标状态。</li>
+      <li>如果每条边的代价不是一致的，则宽度优先搜索找到的解不一定是最优解。<br />
+例如：假如 B、F 都是目标状态，A 到 B 的代价是 5，而 A 到 C 和 C 到 F 的代价都是 1，宽度优先搜索会得到路径 A $\to$ B，而不是代价更小的 A $\to$ C $\to$ F。</li>
+    </ul>
+  </li>
+</ul>
+
+<p><strong>动画演示：</strong></p>
+
+<video width="705" controls="">
+  <source src="http://andy-blog.oss-cn-beijing.aliyuncs.com/blog/2020-03-11-BFS.mp4" type="video/mp4" />
+</video>
+
+<p><strong>时间复杂度</strong>：假设 $b$ 是最大分支因子，$d$ 是目标深度（最浅目标状态的深度）</p>
+<ul>
+  <li><span style="color:red">生成结点数量的上界是多少？</span>
+    <ul>
+      <li>$b+b^2+b^3+\cdots +b^d$：在最坏情况下，该算法会生成第一个 $d$ 层中的所有结点。</li>
+      <li>所以，时间复杂度为 $O(b^d)$</li>
+      <li><span style="color:red">如果算法是在选择要扩展的结点时而不是在结点生成时进行目标检测，那么时间复杂度为多少呢？</span><br />
+$O(b^{d+1})$，因为在目标被检测到之前，最坏情况下，之前深度 $d$ 上的其他结点已经被扩展，我们会生成第一个 $d+1$ 层中的所有结点。</li>
+    </ul>
+  </li>
+</ul>
+
+<p><strong>空间复杂度</strong>：和时间复杂度相同，因为所有的生成结点都保留在内存中。</p>
+
+<p><strong>例子</strong></p>
+<ul>
+  <li><strong>设定</strong>：$b=10\; ;\quad 10000 \;\text{nodes/second}\; ;\quad 1000 \;\text{bytes/node}$</li>
+  <li>
+    <p><strong>数据</strong>：</p>
+
+    <p><img src="http://andy-blog.oss-cn-beijing.aliyuncs.com/blog/2020-03-10-Picture1.png" /></p>
+
+    <p><strong><center><span style="font-size:10pt">表 1：宽度优先搜索的时间和内存代价</span></center></strong></p>
+  </li>
+</ul>
+
+<p><span style="color:red">$\to$ 所以，哪种问题更严重，时间还是内存？</span></p>
+<ul>
+  <li>内存。（根据我自身的经验，通常 RAM 内存在几分钟以内就会耗尽。）<br />
+从上表可以看出，内存需求是宽度优先搜索算法中相比它的执行时间更令人头疼的问题。要求解一个重要问题，人们可以忍受等待 13 天搜索到第 12 层，但是很少有计算机能具备高达 P 字节的内存支持其存储要求。幸运的是，我们还有其他对内存需求较小的搜索策略。</li>
+  <li>但是，时间需求依然是一个重要的因素。如果你的问题在第 16 层有一个解，那么（按照我们给的假定）宽度优先搜索（或者事实上任一盲目搜索算法）需要花费 350 年的时间来求解。一般来讲，指数级别复杂度的搜索问题不能采用盲目搜索算法求解，除非是规模很小的实例。</li>
+</ul>
+
+<h3 id="23-深度优先搜索">2.3 深度优先搜索</h3>
+<p><strong>策略</strong>：扩展（LIFO frontier）中最近的结点。</p>
+<ul>
+  <li>深度优先搜索总是扩展搜索树的当前边缘结点集中最深的结点。搜索过程如图例所示，搜索很快推进到搜索树的最深层，那里的结点没有后继。当那些结点扩展完之后（如果还没有搜索到解），就从边缘结点集中去掉（减少内存资源的占用），然后搜索算法回溯到下一个还有未扩展后继的深度稍浅的结点。</li>
+  <li>相比宽度优先搜索使用的 FIFO 队列，深度优先搜索使用 LIFO 队列，即最新生成的结点最早被选择扩展。该结点一定是最深的未被扩展的结点，因为它比它的父结点深。</li>
+</ul>
+
+<p><strong>图例</strong>：</p>
+
+<p><img src="http://andy-blog.oss-cn-beijing.aliyuncs.com/blog/2020-03-10-WX20200310-232214%402x.png" /></p>
+
+<p><strong><span style="font-size:10pt">图 2：二叉树的深度优先搜索。未探索区域用浅灰色虚线表示。已经被探索并且在边缘中没有后代的结点可以从内存中删除。第三层的结点没有后继并且 M 是唯一的目标结点。</span></strong></p>
+
+<p><strong>保证</strong>：</p>
+<ul>
+  <li><span style="color:red">完整性</span> 可以保证吗？
+    <ul>
+      <li>不能，因为搜索分支可能无限长度：没有检查沿分支方向上是否存在环（cycles）。<br />
+$\to$ 深度优先搜索可以保证完整性的前提是：状态空间是 <span style="color:red">无环的（acyclic）</span>，例如：<span style="color:red">约束满足问题（Constraint Satisfaction Problems, CSPs）</span>。如果我们增加一个检查是否存在环的流程，那么该算法将能够保证在有限状态空间内的完整性。</li>
+    </ul>
+  </li>
+  <li><span style="color:red">最优性</span> 可以保证吗？
+    <ul>
+      <li>不能。最终，算法只是 “选择某个方向并希望最优解在该方向上”。（深度优先搜索是一种 “希望依赖好运” 的方法。）</li>
+    </ul>
+  </li>
+</ul>
+
+<p><strong>空间复杂度</strong>：存储（从当前结点出发）路径上的结点和可应用的行动。所以如果 $m$ 是到达的最大深度，空间复杂度为 $O(bm)$。（其中 $b$ 是分支因子）</p>
+
+<p><strong>时间复杂度</strong>：如果在状态空间中具有长度为 $m$ 的路径，将生成 $O(b^m)$ 个结点。即使可能存在深度仅为 $1$ 的解。<br />
+$\to$ 如果我们碰巧选择了 “正确的方向”，那么无论状态空间有多大，我们都可以在 $O(bl)$ 的时间复杂度内找到一个长度为 $l$ 的解。</p>
+
+<h3 id="24-迭代加深搜索">2.4 迭代加深搜索</h3>
+<p><strong>策略</strong>：
+迭代加深的深度优先搜索（iterative deepening search）是一种常用策略，它经常和深度优先搜索结合使用来确定最佳深度界限。做法是不断地增加深度限制 —— 首先为 $0$，接着为 $1$，然后为 $2$，以此类推 —— 直到找到目标。当深度界限达到 $d$，即最浅的目标结点所在深度时，就能找到目标结点。</p>
+
+<p><strong>图例</strong>：</p>
+
+<p><img src="http://andy-blog.oss-cn-beijing.aliyuncs.com/blog/2020-03-11-WX20200311-152127%402x.png" /></p>
+
+<p><strong><center><span style="font-size:10pt">图 3：二叉树迭代加深搜索算法的四次迭代。</span></center></strong></p>
+
+<p><em><center>“迭代加深搜索 $\,=$ 不断重复同样的工作直到找到一个解”</center></em></p>
+
+<p>迭代加深搜索看上去是一个糟糕的算法，因为它似乎做了很多重复的工作。但事实上，这种算法有诸多优势。</p>
+
+<p><strong>保证</strong>：</p>
+<ul>
+  <li><span style="color:red">完整性</span> 可以保证吗？
+    <ul>
+      <li>可以（在假设分支因子 $d$ 有限的情况下）</li>
+    </ul>
+  </li>
+  <li><span style="color:red">最优性</span> 可以保证吗？
+    <ul>
+      <li>可以（在假设一致代价的前提下）</li>
+    </ul>
+  </li>
+</ul>
+
+<p><strong>空间复杂度</strong>：$O(bd)$。（其中 $b$ 是分支因子，$d$ 是最浅目标状态的深度）</p>
+
+<p><strong>时间复杂度</strong>：$O(b^d)$，与宽度优先搜索相近，重复生成上层结点需要付出额外代价，但不是很大。</p>
+<ul>
+  <li>也许迭代加深搜索看起来比较浪费：状态被多次重复生成。但是，事实上这种代价并没有多大，原因是在分支因子相同（或者近似）的搜索树中，绝大多数的结点都在底层，所以上层的结点重复生成多次影响不大。</li>
+  <li>
+    <p>在迭代加深的深度优先搜索中，底层（深度 $d$）结点只被生成一次，倒数第二层结点被生成两次，以此类推，一直到根结点的子结点，它被生成 $d$ 次。因此，生成结点的总数为：</p>
+
+\[N(\text{IDS})=(d)b+(d-1)b^2+\cdots +(1)b^d\]
+  </li>
+  <li>
+    <p>对比宽度优先搜索：</p>
+
+    <p><img src="http://andy-blog.oss-cn-beijing.aliyuncs.com/blog/2020-03-11-WX20200311-155808%402x.png" /></p>
+  </li>
+  <li>
+    <p>例子：$b=10,\,d=5$</p>
+
+    <p><img src="http://andy-blog.oss-cn-beijing.aliyuncs.com/blog/2020-03-11-WX20200311-155851%402x.png" /></p>
+  </li>
+</ul>
+
+<p>$\to$ 迭代加深搜索（IDS）结合了宽度优先和深度优先搜索的优势。当搜索空间较大并且解所在的深度未知时， IDS 是首选的盲目搜索方法。另外，如果你确实担忧状态的重复生成，可以先用宽度优先搜索直到有效内存耗尽，然后对边缘集中的所有结点应用迭代加深的深度优先搜索。</p>
+
+<p>下节内容：搜索算法 (2)</p>
+:ET

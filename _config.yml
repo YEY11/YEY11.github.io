@@ -1,7 +1,7 @@
 # Site settings
 title: YEY Blog
 SEOTitle: YEY 的博客 | YEY Blog
-header-img: img/home-bg-coffee.jpg
+header-img: /img/home-bg-coffee.jpg
 email: yangye0329@gmail.com
 description: "Every failure is leading towards success."
 keyword: "YEY Blog, YEY 的博客, Data Science"

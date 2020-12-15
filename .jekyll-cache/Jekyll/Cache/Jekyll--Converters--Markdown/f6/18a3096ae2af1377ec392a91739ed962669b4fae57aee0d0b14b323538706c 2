@@ -1,0 +1,1503 @@
+I"w�<h1 id="workshop-02-bpe-算法">Workshop 02 BPE 算法</h1>
+<p>在一个实验文本例子上训练 BPE 算法：</p>
+
+<p>代码改编自: <a href="https://leimao.github.io/blog/Byte-Pair-Encoding/">https://leimao.github.io/blog/Byte-Pair-Encoding/</a>
+BPE 算法: <a href="https://web.stanford.edu/~jurafsky/slp3/2.pdf">https://web.stanford.edu/~jurafsky/slp3/2.pdf</a> (2.4.3)</p>
+
+<div class="language-python highlighter-rouge"><div class="highlight"><pre class="highlight"><code><table class="rouge-table"><tbody><tr><td class="rouge-gutter gl"><pre class="lineno">1
+2
+3
+4
+5
+6
+7
+8
+9
+10
+11
+12
+13
+14
+15
+16
+17
+18
+19
+20
+21
+22
+23
+24
+25
+26
+27
+28
+29
+30
+31
+32
+33
+34
+35
+36
+37
+38
+39
+40
+41
+42
+43
+44
+45
+46
+47
+48
+49
+50
+51
+52
+53
+54
+55
+56
+57
+58
+59
+60
+61
+62
+63
+64
+65
+66
+67
+68
+69
+70
+71
+72
+73
+74
+75
+76
+77
+78
+79
+80
+81
+82
+83
+84
+85
+86
+87
+88
+89
+90
+91
+92
+93
+94
+95
+96
+97
+98
+99
+100
+101
+102
+103
+104
+105
+106
+107
+108
+109
+110
+111
+112
+</pre></td><td class="rouge-code"><pre>
+<span class="kn">import</span> <span class="nn">re</span><span class="p">,</span> <span class="n">collections</span>
+
+<span class="n">text</span> <span class="o">=</span> <span class="s">"The aims for this subject is for students to develop an understanding of the main algorithms used in natural language processing, for use in a diverse range of applications including text classification, machine translation, and question answering. Topics to be covered include part-of-speech tagging, n-gram language modelling, syntactic parsing and deep learning. The programming language used is Python, see for more information on its use in the workshops, assignments and installation at home."</span>
+
+
+<span class="k">def</span> <span class="nf">get_vocab</span><span class="p">(</span><span class="n">text</span><span class="p">):</span>
+    <span class="n">vocab</span> <span class="o">=</span> <span class="n">collections</span><span class="p">.</span><span class="n">defaultdict</span><span class="p">(</span><span class="nb">int</span><span class="p">)</span>
+    <span class="k">for</span> <span class="n">word</span> <span class="ow">in</span> <span class="n">text</span><span class="p">.</span><span class="n">strip</span><span class="p">().</span><span class="n">split</span><span class="p">():</span>
+        <span class="c1">#注意: 这里我们用一个特殊的 token "&lt;/w&gt;"（代替讲义中的下划线 "_"）来表示一个词的结束。  
+</span>
+        <span class="n">vocab</span><span class="p">[</span><span class="s">' '</span><span class="p">.</span><span class="n">join</span><span class="p">(</span><span class="nb">list</span><span class="p">(</span><span class="n">word</span><span class="p">))</span> <span class="o">+</span> <span class="s">' &lt;/w&gt;'</span><span class="p">]</span> <span class="o">+=</span> <span class="mi">1</span>
+    <span class="k">return</span> <span class="n">vocab</span>
+
+
+
+<span class="c1">#This function iterates through all words in the vocabulary and count pair of tokens which are next to each other.  
+</span>
+<span class="c1"># EXAMPLE:  
+</span>
+<span class="c1"># word = 'T h e &lt;\w&gt;'  
+</span>
+<span class="c1">#    pairs of tokens in this word [('T', 'h'), ('h', 'e'), ('e', '&lt;\w&gt;')]  
+</span>
+<span class="c1"># INPUT:  
+</span>
+<span class="c1">#    vocab: Dict[str, int]  # The vocabulary, a counter for word frequency  
+</span>
+<span class="c1"># OUTPUT:  
+</span>
+<span class="c1">#    pairs: Dict[Tuple[str, str], int] # Word pairs, a counter for pair frequency
+</span>
+
+<span class="k">def</span> <span class="nf">get_stats</span><span class="p">(</span><span class="n">vocab</span><span class="p">):</span>
+    <span class="n">pairs</span> <span class="o">=</span> <span class="n">collections</span><span class="p">.</span><span class="n">defaultdict</span><span class="p">(</span><span class="nb">int</span><span class="p">)</span>
+    <span class="c1">###
+</span>    <span class="c1"># Your answer BEGINS HERE
+</span>    <span class="c1">###
+</span>    
+    
+    <span class="c1">###
+</span>    <span class="c1"># Your answer ENDS HERE
+</span>    <span class="c1">###
+</span>    <span class="k">return</span> <span class="n">pairs</span>
+
+
+<span class="s">"""
+This function merges a given pair of tokens in all words in the vocabulary
+
+EXAMPLE:
+    word = 'T h e &lt;\w&gt;'
+    pair = ('e', '&lt;\w&gt;')
+    word_after_merge = 'T h e&lt;\w&gt;'
+    
+INPUT:
+    pair: Tuple[str, str] # the pair of tokens need to be merged
+    v_in: Dict[str, int]  # vocabulary before merge
+    
+OUTPUT:
+    v_out: Dict[str, int] # vocabulary after merge
+    
+HINT:
+    When merging pair ('h', 'e') for word 'Th e&lt;\w&gt;', the two tokens in this word 'Th' and 'e&lt;\w&gt;' shouldn't be merged.
+
+"""</span> 
+
+<span class="k">def</span> <span class="nf">merge_vocab</span><span class="p">(</span><span class="n">pair</span><span class="p">,</span> <span class="n">v_in</span><span class="p">):</span>
+    <span class="n">v_out</span> <span class="o">=</span> <span class="p">{}</span>
+    <span class="c1">###
+</span>    <span class="c1"># Your answer BEGINS HERE
+</span>    <span class="c1">###
+</span>    
+    
+    <span class="c1">###
+</span>    <span class="c1"># Your answer ENDS HERE
+</span>    <span class="c1">###
+</span>    <span class="k">return</span> <span class="n">v_out</span>
+
+<span class="k">def</span> <span class="nf">get_tokens</span><span class="p">(</span><span class="n">vocab</span><span class="p">):</span>
+    <span class="n">tokens</span> <span class="o">=</span> <span class="n">collections</span><span class="p">.</span><span class="n">defaultdict</span><span class="p">(</span><span class="nb">int</span><span class="p">)</span>
+    <span class="k">for</span> <span class="n">word</span><span class="p">,</span> <span class="n">freq</span> <span class="ow">in</span> <span class="n">vocab</span><span class="p">.</span><span class="n">items</span><span class="p">():</span>
+        <span class="n">word_tokens</span> <span class="o">=</span> <span class="n">word</span><span class="p">.</span><span class="n">split</span><span class="p">()</span>
+        <span class="k">for</span> <span class="n">token</span> <span class="ow">in</span> <span class="n">word_tokens</span><span class="p">:</span>
+            <span class="n">tokens</span><span class="p">[</span><span class="n">token</span><span class="p">]</span> <span class="o">+=</span> <span class="n">freq</span>
+    <span class="k">return</span> <span class="n">tokens</span>
+ <span class="n">comment</span> <span class="o">%</span><span class="p">}</span>
+<span class="n">这是注释</span>
+ <span class="n">endcomment</span> <span class="o">%</span><span class="p">}</span>
+
+<span class="n">vocab</span> <span class="o">=</span> <span class="n">get_vocab</span><span class="p">(</span><span class="n">text</span><span class="p">)</span>
+<span class="k">print</span><span class="p">(</span><span class="s">"Vocab ="</span><span class="p">,</span> <span class="n">vocab</span><span class="p">)</span>
+<span class="k">print</span><span class="p">(</span><span class="s">'=========='</span><span class="p">)</span>
+<span class="k">print</span><span class="p">(</span><span class="s">'Tokens Before BPE'</span><span class="p">)</span>
+<span class="n">tokens</span> <span class="o">=</span> <span class="n">get_tokens</span><span class="p">(</span><span class="n">vocab</span><span class="p">)</span>
+<span class="k">print</span><span class="p">(</span><span class="s">'Tokens: {}'</span><span class="p">.</span><span class="nb">format</span><span class="p">(</span><span class="n">tokens</span><span class="p">))</span>
+<span class="k">print</span><span class="p">(</span><span class="s">'Number of tokens: {}'</span><span class="p">.</span><span class="nb">format</span><span class="p">(</span><span class="nb">len</span><span class="p">(</span><span class="n">tokens</span><span class="p">)))</span>
+<span class="k">print</span><span class="p">(</span><span class="s">'=========='</span><span class="p">)</span>
+
+<span class="c1">#about 100 merges we start to see common words
+</span><span class="n">num_merges</span> <span class="o">=</span> <span class="mi">100</span>
+<span class="k">for</span> <span class="n">i</span> <span class="ow">in</span> <span class="nb">range</span><span class="p">(</span><span class="n">num_merges</span><span class="p">):</span>
+    <span class="n">pairs</span> <span class="o">=</span> <span class="n">get_stats</span><span class="p">(</span><span class="n">vocab</span><span class="p">)</span>
+    <span class="k">if</span> <span class="ow">not</span> <span class="n">pairs</span><span class="p">:</span>
+        <span class="k">break</span>
+    <span class="n">best</span> <span class="o">=</span> <span class="nb">max</span><span class="p">(</span><span class="n">pairs</span><span class="p">,</span> <span class="n">key</span><span class="o">=</span><span class="n">pairs</span><span class="p">.</span><span class="n">get</span><span class="p">)</span>
+    <span class="n">vocab</span> <span class="o">=</span> <span class="n">merge_vocab</span><span class="p">(</span><span class="n">best</span><span class="p">,</span> <span class="n">vocab</span><span class="p">)</span>
+    <span class="k">print</span><span class="p">(</span><span class="s">'Iter: {}'</span><span class="p">.</span><span class="nb">format</span><span class="p">(</span><span class="n">i</span><span class="p">))</span>
+    <span class="k">print</span><span class="p">(</span><span class="s">'Best pair: {}'</span><span class="p">.</span><span class="nb">format</span><span class="p">(</span><span class="n">best</span><span class="p">))</span>
+    <span class="n">tokens</span> <span class="o">=</span> <span class="n">get_tokens</span><span class="p">(</span><span class="n">vocab</span><span class="p">)</span>
+    <span class="k">print</span><span class="p">(</span><span class="s">'Tokens: {}'</span><span class="p">.</span><span class="nb">format</span><span class="p">(</span><span class="n">tokens</span><span class="p">))</span>
+    <span class="k">print</span><span class="p">(</span><span class="s">'Number of tokens: {}'</span><span class="p">.</span><span class="nb">format</span><span class="p">(</span><span class="nb">len</span><span class="p">(</span><span class="n">tokens</span><span class="p">)))</span>
+    <span class="k">print</span><span class="p">(</span><span class="s">'=========='</span><span class="p">)</span>
+</pre></td></tr></tbody></table></code></pre></div></div>
+
+<p>输出：</p>
+
+<div class="language-plaintext highlighter-rouge"><div class="highlight"><pre class="highlight"><code><table class="rouge-table"><tbody><tr><td class="rouge-gutter gl"><pre class="lineno">1
+2
+3
+4
+5
+6
+7
+8
+9
+10
+11
+12
+13
+14
+15
+16
+17
+18
+19
+20
+21
+22
+23
+24
+25
+26
+27
+28
+29
+30
+31
+32
+33
+34
+35
+36
+37
+38
+39
+40
+41
+42
+43
+44
+45
+46
+47
+48
+49
+50
+51
+52
+53
+54
+55
+56
+57
+58
+59
+60
+61
+62
+63
+64
+65
+66
+67
+68
+69
+70
+71
+72
+73
+74
+75
+76
+77
+78
+79
+80
+81
+82
+83
+84
+85
+86
+87
+88
+89
+90
+91
+92
+93
+94
+95
+96
+97
+98
+99
+100
+101
+102
+103
+104
+105
+106
+107
+108
+109
+110
+111
+112
+113
+114
+115
+116
+117
+118
+119
+120
+121
+122
+123
+124
+125
+126
+127
+128
+129
+130
+131
+132
+133
+134
+135
+136
+137
+138
+139
+140
+141
+142
+143
+144
+145
+146
+147
+148
+149
+150
+151
+152
+153
+154
+155
+156
+157
+158
+159
+160
+161
+162
+163
+164
+165
+166
+167
+168
+169
+170
+171
+172
+173
+174
+175
+176
+177
+178
+179
+180
+181
+182
+183
+184
+185
+186
+187
+188
+189
+190
+191
+192
+193
+194
+195
+196
+197
+198
+199
+200
+201
+202
+203
+204
+205
+206
+207
+208
+209
+210
+211
+212
+213
+214
+215
+216
+217
+218
+219
+220
+221
+222
+223
+224
+225
+226
+227
+228
+229
+230
+231
+232
+233
+234
+235
+236
+237
+238
+239
+240
+241
+242
+243
+244
+245
+246
+247
+248
+249
+250
+251
+252
+253
+254
+255
+256
+257
+258
+259
+260
+261
+262
+263
+264
+265
+266
+267
+268
+269
+270
+271
+272
+273
+274
+275
+276
+277
+278
+279
+280
+281
+282
+283
+284
+285
+286
+287
+288
+289
+290
+291
+292
+293
+294
+295
+296
+297
+298
+299
+300
+301
+302
+303
+304
+305
+306
+307
+308
+309
+310
+311
+312
+313
+314
+315
+316
+317
+318
+319
+320
+321
+322
+323
+324
+325
+326
+327
+328
+329
+330
+331
+332
+333
+334
+335
+336
+337
+338
+339
+340
+341
+342
+343
+344
+345
+346
+347
+348
+349
+350
+351
+352
+353
+354
+355
+356
+357
+358
+359
+360
+361
+362
+363
+364
+365
+366
+367
+368
+369
+370
+371
+372
+373
+374
+375
+376
+377
+378
+379
+380
+381
+382
+383
+384
+385
+386
+387
+388
+389
+390
+391
+392
+393
+394
+395
+396
+397
+398
+399
+400
+401
+402
+403
+404
+405
+406
+407
+408
+409
+410
+411
+412
+413
+414
+415
+416
+417
+418
+419
+420
+421
+422
+423
+424
+425
+426
+427
+428
+429
+430
+431
+432
+433
+434
+435
+436
+437
+438
+439
+440
+441
+442
+443
+444
+445
+446
+447
+448
+449
+450
+451
+452
+453
+454
+455
+456
+457
+458
+459
+460
+461
+462
+463
+464
+465
+466
+467
+468
+469
+470
+471
+472
+473
+474
+475
+476
+477
+478
+479
+480
+481
+482
+483
+484
+485
+486
+487
+488
+489
+490
+491
+492
+493
+494
+495
+496
+497
+498
+499
+500
+501
+502
+503
+504
+505
+506
+</pre></td><td class="rouge-code"><pre>Vocab = defaultdict(&lt;class 'int'&gt;, {'T h e &lt;/w&gt;': 2, 'a i m s &lt;/w&gt;': 1, 'f o r &lt;/w&gt;': 4, 't h i s &lt;/w&gt;': 1, 's u b j e c t &lt;/w&gt;': 1, 'i s &lt;/w&gt;': 2, 's t u d e n t s &lt;/w&gt;': 1, 't o &lt;/w&gt;': 2, 'd e v e l o p &lt;/w&gt;': 1, 'a n &lt;/w&gt;': 1, 'u n d e r s t a n d i n g &lt;/w&gt;': 1, 'o f &lt;/w&gt;': 2, 't h e &lt;/w&gt;': 2, 'm a i n &lt;/w&gt;': 1, 'a l g o r i t h m s &lt;/w&gt;': 1, 'u s e d &lt;/w&gt;': 2, 'i n &lt;/w&gt;': 3, 'n a t u r a l l a n g u a g e &lt;/w&gt;': 1, 'p r o c e s s i n g , &lt;/w&gt;': 1, 'u s e &lt;/w&gt;': 2, 'a &lt;/w&gt;': 1, 'd i v e r s e &lt;/w&gt;': 1, 'r a n g e &lt;/w&gt;': 1, 'a p p l i c a t i o n s &lt;/w&gt;': 1, 'i n c l u d i n g &lt;/w&gt;': 1, 't e x t &lt;/w&gt;': 1, 'c l a s s i f i c a t i o n , &lt;/w&gt;': 1, 'm a c h i n e &lt;/w&gt;': 1, 't r a n s l a t i o n , &lt;/w&gt;': 1, 'a n d &lt;/w&gt;': 3, 'q u e s t i o n &lt;/w&gt;': 1, 'a n s w e r i n g . &lt;/w&gt;': 1, 'T o p i c s &lt;/w&gt;': 1, 'b e &lt;/w&gt;': 1, 'c o v e r e d &lt;/w&gt;': 1, 'i n c l u d e &lt;/w&gt;': 1, 'p a r t - o f - s p e e c h &lt;/w&gt;': 1, 't a g g i n g , &lt;/w&gt;': 1, 'n - g r a m &lt;/w&gt;': 1, 'l a n g u a g e &lt;/w&gt;': 2, 'm o d e l l i n g , &lt;/w&gt;': 1, 's y n t a c t i c &lt;/w&gt;': 1, 'p a r s i n g &lt;/w&gt;': 1, 'd e e p &lt;/w&gt;': 1, 'l e a r n i n g . &lt;/w&gt;': 1, 'p r o g r a m m i n g &lt;/w&gt;': 1, 'P y t h o n , &lt;/w&gt;': 1, 's e e &lt;/w&gt;': 1, 'm o r e &lt;/w&gt;': 1, 'i n f o r m a t i o n &lt;/w&gt;': 1, 'o n &lt;/w&gt;': 1, 'i t s &lt;/w&gt;': 1, 'w o r k s h o p s , &lt;/w&gt;': 1, 'a s s i g n m e n t s &lt;/w&gt;': 1, 'i n s t a l l a t i o n &lt;/w&gt;': 1, 'a t &lt;/w&gt;': 1, 'h o m e . &lt;/w&gt;': 1})
+==========
+Tokens Before BPE
+Tokens: defaultdict(&lt;class 'int'&gt;, {'T': 3, 'h': 11, 'e': 39, '&lt;/w&gt;': 72, 'a': 38, 'i': 37, 'm': 12, 's': 34, 'f': 9, 'o': 29, 'r': 22, 't': 29, 'u': 14, 'b': 2, 'j': 1, 'c': 13, 'd': 15, 'n': 45, 'v': 3, 'l': 16, 'p': 11, 'g': 22, ',': 7, 'x': 1, 'q': 1, 'w': 2, '.': 3, '-': 3, 'y': 2, 'P': 1, 'k': 1})
+Number of tokens: 31
+==========
+Iter: 0
+Best pair: ('i', 'n')
+Tokens: defaultdict(&lt;class 'int'&gt;, {'T': 3, 'h': 11, 'e': 39, '&lt;/w&gt;': 72, 'a': 38, 'i': 19, 'm': 12, 's': 34, 'f': 9, 'o': 29, 'r': 22, 't': 29, 'u': 14, 'b': 2, 'j': 1, 'c': 13, 'd': 15, 'n': 27, 'v': 3, 'l': 16, 'p': 11, 'in': 18, 'g': 22, ',': 7, 'x': 1, 'q': 1, 'w': 2, '.': 3, '-': 3, 'y': 2, 'P': 1, 'k': 1})
+Number of tokens: 32
+==========
+Iter: 1
+Best pair: ('e', '&lt;/w&gt;')
+Tokens: defaultdict(&lt;class 'int'&gt;, {'T': 3, 'h': 11, 'e&lt;/w&gt;': 16, 'a': 38, 'i': 19, 'm': 12, 's': 34, '&lt;/w&gt;': 56, 'f': 9, 'o': 29, 'r': 22, 't': 29, 'u': 14, 'b': 2, 'j': 1, 'e': 23, 'c': 13, 'd': 15, 'n': 27, 'v': 3, 'l': 16, 'p': 11, 'in': 18, 'g': 22, ',': 7, 'x': 1, 'q': 1, 'w': 2, '.': 3, '-': 3, 'y': 2, 'P': 1, 'k': 1})
+Number of tokens: 33
+==========
+Iter: 2
+Best pair: ('a', 'n')
+Tokens: defaultdict(&lt;class 'int'&gt;, {'T': 3, 'h': 11, 'e&lt;/w&gt;': 16, 'a': 27, 'i': 19, 'm': 12, 's': 34, '&lt;/w&gt;': 56, 'f': 9, 'o': 29, 'r': 22, 't': 29, 'u': 14, 'b': 2, 'j': 1, 'e': 23, 'c': 13, 'd': 15, 'n': 16, 'v': 3, 'l': 16, 'p': 11, 'an': 11, 'in': 18, 'g': 22, ',': 7, 'x': 1, 'q': 1, 'w': 2, '.': 3, '-': 3, 'y': 2, 'P': 1, 'k': 1})
+Number of tokens: 34
+==========
+Iter: 3
+Best pair: ('s', '&lt;/w&gt;')
+Tokens: defaultdict(&lt;class 'int'&gt;, {'T': 3, 'h': 11, 'e&lt;/w&gt;': 16, 'a': 27, 'i': 19, 'm': 12, 's&lt;/w&gt;': 10, 'f': 9, 'o': 29, 'r': 22, '&lt;/w&gt;': 46, 't': 29, 's': 24, 'u': 14, 'b': 2, 'j': 1, 'e': 23, 'c': 13, 'd': 15, 'n': 16, 'v': 3, 'l': 16, 'p': 11, 'an': 11, 'in': 18, 'g': 22, ',': 7, 'x': 1, 'q': 1, 'w': 2, '.': 3, '-': 3, 'y': 2, 'P': 1, 'k': 1})
+Number of tokens: 35
+==========
+Iter: 4
+Best pair: ('in', 'g')
+Tokens: defaultdict(&lt;class 'int'&gt;, {'T': 3, 'h': 11, 'e&lt;/w&gt;': 16, 'a': 27, 'i': 19, 'm': 12, 's&lt;/w&gt;': 10, 'f': 9, 'o': 29, 'r': 22, '&lt;/w&gt;': 46, 't': 29, 's': 24, 'u': 14, 'b': 2, 'j': 1, 'e': 23, 'c': 13, 'd': 15, 'n': 16, 'v': 3, 'l': 16, 'p': 11, 'an': 11, 'ing': 9, 'in': 9, 'g': 13, ',': 7, 'x': 1, 'q': 1, 'w': 2, '.': 3, '-': 3, 'y': 2, 'P': 1, 'k': 1})
+Number of tokens: 36
+==========
+Iter: 5
+Best pair: ('o', 'r')
+Tokens: defaultdict(&lt;class 'int'&gt;, {'T': 3, 'h': 11, 'e&lt;/w&gt;': 16, 'a': 27, 'i': 19, 'm': 12, 's&lt;/w&gt;': 10, 'f': 9, 'or': 8, '&lt;/w&gt;': 46, 't': 29, 's': 24, 'u': 14, 'b': 2, 'j': 1, 'e': 23, 'c': 13, 'd': 15, 'n': 16, 'o': 21, 'v': 3, 'l': 16, 'p': 11, 'an': 11, 'r': 14, 'ing': 9, 'in': 9, 'g': 13, ',': 7, 'x': 1, 'q': 1, 'w': 2, '.': 3, '-': 3, 'y': 2, 'P': 1, 'k': 1})
+Number of tokens: 37
+==========
+Iter: 6
+Best pair: ('o', 'n')
+Tokens: defaultdict(&lt;class 'int'&gt;, {'T': 3, 'h': 11, 'e&lt;/w&gt;': 16, 'a': 27, 'i': 19, 'm': 12, 's&lt;/w&gt;': 10, 'f': 9, 'or': 8, '&lt;/w&gt;': 46, 't': 29, 's': 24, 'u': 14, 'b': 2, 'j': 1, 'e': 23, 'c': 13, 'd': 15, 'n': 8, 'o': 13, 'v': 3, 'l': 16, 'p': 11, 'an': 11, 'r': 14, 'ing': 9, 'in': 9, 'g': 13, ',': 7, 'on': 8, 'x': 1, 'q': 1, 'w': 2, '.': 3, '-': 3, 'y': 2, 'P': 1, 'k': 1})
+Number of tokens: 38
+==========
+Iter: 7
+Best pair: ('a', 't')
+Tokens: defaultdict(&lt;class 'int'&gt;, {'T': 3, 'h': 11, 'e&lt;/w&gt;': 16, 'a': 20, 'i': 19, 'm': 12, 's&lt;/w&gt;': 10, 'f': 9, 'or': 8, '&lt;/w&gt;': 46, 't': 22, 's': 24, 'u': 14, 'b': 2, 'j': 1, 'e': 23, 'c': 13, 'd': 15, 'n': 8, 'o': 13, 'v': 3, 'l': 16, 'p': 11, 'an': 11, 'r': 14, 'ing': 9, 'in': 9, 'g': 13, 'at': 7, ',': 7, 'on': 8, 'x': 1, 'q': 1, 'w': 2, '.': 3, '-': 3, 'y': 2, 'P': 1, 'k': 1})
+Number of tokens: 39
+==========
+Iter: 8
+Best pair: (',', '&lt;/w&gt;')
+Tokens: defaultdict(&lt;class 'int'&gt;, {'T': 3, 'h': 11, 'e&lt;/w&gt;': 16, 'a': 20, 'i': 19, 'm': 12, 's&lt;/w&gt;': 10, 'f': 9, 'or': 8, '&lt;/w&gt;': 39, 't': 22, 's': 24, 'u': 14, 'b': 2, 'j': 1, 'e': 23, 'c': 13, 'd': 15, 'n': 8, 'o': 13, 'v': 3, 'l': 16, 'p': 11, 'an': 11, 'r': 14, 'ing': 9, 'in': 9, 'g': 13, 'at': 7, ',&lt;/w&gt;': 7, 'on': 8, 'x': 1, 'q': 1, 'w': 2, '.': 3, '-': 3, 'y': 2, 'P': 1, 'k': 1})
+Number of tokens: 39
+==========
+Iter: 9
+Best pair: ('d', '&lt;/w&gt;')
+Tokens: defaultdict(&lt;class 'int'&gt;, {'T': 3, 'h': 11, 'e&lt;/w&gt;': 16, 'a': 20, 'i': 19, 'm': 12, 's&lt;/w&gt;': 10, 'f': 9, 'or': 8, '&lt;/w&gt;': 33, 't': 22, 's': 24, 'u': 14, 'b': 2, 'j': 1, 'e': 23, 'c': 13, 'd': 9, 'n': 8, 'o': 13, 'v': 3, 'l': 16, 'p': 11, 'an': 11, 'r': 14, 'ing': 9, 'in': 9, 'g': 13, 'd&lt;/w&gt;': 6, 'at': 7, ',&lt;/w&gt;': 7, 'on': 8, 'x': 1, 'q': 1, 'w': 2, '.': 3, '-': 3, 'y': 2, 'P': 1, 'k': 1})
+Number of tokens: 40
+==========
+Iter: 10
+Best pair: ('i', 'on')
+Tokens: defaultdict(&lt;class 'int'&gt;, {'T': 3, 'h': 11, 'e&lt;/w&gt;': 16, 'a': 20, 'i': 13, 'm': 12, 's&lt;/w&gt;': 10, 'f': 9, 'or': 8, '&lt;/w&gt;': 33, 't': 22, 's': 24, 'u': 14, 'b': 2, 'j': 1, 'e': 23, 'c': 13, 'd': 9, 'n': 8, 'o': 13, 'v': 3, 'l': 16, 'p': 11, 'an': 11, 'r': 14, 'ing': 9, 'in': 9, 'g': 13, 'd&lt;/w&gt;': 6, 'at': 7, ',&lt;/w&gt;': 7, 'ion': 6, 'x': 1, 'q': 1, 'w': 2, '.': 3, '-': 3, 'y': 2, 'P': 1, 'on': 2, 'k': 1})
+Number of tokens: 41
+==========
+Iter: 11
+Best pair: ('f', 'or')
+Tokens: defaultdict(&lt;class 'int'&gt;, {'T': 3, 'h': 11, 'e&lt;/w&gt;': 16, 'a': 20, 'i': 13, 'm': 12, 's&lt;/w&gt;': 10, 'for': 5, '&lt;/w&gt;': 33, 't': 22, 's': 24, 'u': 14, 'b': 2, 'j': 1, 'e': 23, 'c': 13, 'd': 9, 'n': 8, 'o': 13, 'v': 3, 'l': 16, 'p': 11, 'an': 11, 'r': 14, 'ing': 9, 'f': 4, 'in': 9, 'g': 13, 'or': 3, 'd&lt;/w&gt;': 6, 'at': 7, ',&lt;/w&gt;': 7, 'ion': 6, 'x': 1, 'q': 1, 'w': 2, '.': 3, '-': 3, 'y': 2, 'P': 1, 'on': 2, 'k': 1})
+Number of tokens: 42
+==========
+Iter: 12
+Best pair: ('t', 'h')
+Tokens: defaultdict(&lt;class 'int'&gt;, {'T': 3, 'h': 6, 'e&lt;/w&gt;': 16, 'a': 20, 'i': 13, 'm': 12, 's&lt;/w&gt;': 10, 'for': 5, '&lt;/w&gt;': 33, 'th': 5, 's': 24, 'u': 14, 'b': 2, 'j': 1, 'e': 23, 'c': 13, 't': 17, 'd': 9, 'n': 8, 'o': 13, 'v': 3, 'l': 16, 'p': 11, 'an': 11, 'r': 14, 'ing': 9, 'f': 4, 'in': 9, 'g': 13, 'or': 3, 'd&lt;/w&gt;': 6, 'at': 7, ',&lt;/w&gt;': 7, 'ion': 6, 'x': 1, 'q': 1, 'w': 2, '.': 3, '-': 3, 'y': 2, 'P': 1, 'on': 2, 'k': 1})
+Number of tokens: 43
+==========
+Iter: 13
+Best pair: ('d', 'e')
+Tokens: defaultdict(&lt;class 'int'&gt;, {'T': 3, 'h': 6, 'e&lt;/w&gt;': 16, 'a': 20, 'i': 13, 'm': 12, 's&lt;/w&gt;': 10, 'for': 5, '&lt;/w&gt;': 33, 'th': 5, 's': 24, 'u': 14, 'b': 2, 'j': 1, 'e': 18, 'c': 13, 't': 17, 'de': 5, 'n': 8, 'o': 13, 'v': 3, 'l': 16, 'p': 11, 'an': 11, 'r': 14, 'd': 4, 'ing': 9, 'f': 4, 'in': 9, 'g': 13, 'or': 3, 'd&lt;/w&gt;': 6, 'at': 7, ',&lt;/w&gt;': 7, 'ion': 6, 'x': 1, 'q': 1, 'w': 2, '.': 3, '-': 3, 'y': 2, 'P': 1, 'on': 2, 'k': 1})
+Number of tokens: 44
+==========
+Iter: 14
+Best pair: ('at', 'ion')
+Tokens: defaultdict(&lt;class 'int'&gt;, {'T': 3, 'h': 6, 'e&lt;/w&gt;': 16, 'a': 20, 'i': 13, 'm': 12, 's&lt;/w&gt;': 10, 'for': 5, '&lt;/w&gt;': 33, 'th': 5, 's': 24, 'u': 14, 'b': 2, 'j': 1, 'e': 18, 'c': 13, 't': 17, 'de': 5, 'n': 8, 'o': 13, 'v': 3, 'l': 16, 'p': 11, 'an': 11, 'r': 14, 'd': 4, 'ing': 9, 'f': 4, 'in': 9, 'g': 13, 'or': 3, 'd&lt;/w&gt;': 6, 'at': 2, ',&lt;/w&gt;': 7, 'ation': 5, 'x': 1, 'q': 1, 'ion': 1, 'w': 2, '.': 3, '-': 3, 'y': 2, 'P': 1, 'on': 2, 'k': 1})
+Number of tokens: 45
+==========
+Iter: 15
+Best pair: ('for', '&lt;/w&gt;')
+Tokens: defaultdict(&lt;class 'int'&gt;, {'T': 3, 'h': 6, 'e&lt;/w&gt;': 16, 'a': 20, 'i': 13, 'm': 12, 's&lt;/w&gt;': 10, 'for&lt;/w&gt;': 4, 'th': 5, 's': 24, 'u': 14, 'b': 2, 'j': 1, 'e': 18, 'c': 13, 't': 17, '&lt;/w&gt;': 29, 'de': 5, 'n': 8, 'o': 13, 'v': 3, 'l': 16, 'p': 11, 'an': 11, 'r': 14, 'd': 4, 'ing': 9, 'f': 4, 'in': 9, 'g': 13, 'or': 3, 'd&lt;/w&gt;': 6, 'at': 2, ',&lt;/w&gt;': 7, 'ation': 5, 'x': 1, 'q': 1, 'ion': 1, 'w': 2, '.': 3, '-': 3, 'y': 2, 'P': 1, 'on': 2, 'for': 1, 'k': 1})
+Number of tokens: 46
+==========
+Iter: 16
+Best pair: ('s', 't')
+Tokens: defaultdict(&lt;class 'int'&gt;, {'T': 3, 'h': 6, 'e&lt;/w&gt;': 16, 'a': 20, 'i': 13, 'm': 12, 's&lt;/w&gt;': 10, 'for&lt;/w&gt;': 4, 'th': 5, 's': 20, 'u': 14, 'b': 2, 'j': 1, 'e': 18, 'c': 13, 't': 13, '&lt;/w&gt;': 29, 'st': 4, 'de': 5, 'n': 8, 'o': 13, 'v': 3, 'l': 16, 'p': 11, 'an': 11, 'r': 14, 'd': 4, 'ing': 9, 'f': 4, 'in': 9, 'g': 13, 'or': 3, 'd&lt;/w&gt;': 6, 'at': 2, ',&lt;/w&gt;': 7, 'ation': 5, 'x': 1, 'q': 1, 'ion': 1, 'w': 2, '.': 3, '-': 3, 'y': 2, 'P': 1, 'on': 2, 'for': 1, 'k': 1})
+Number of tokens: 47
+==========
+Iter: 17
+Best pair: ('ing', '&lt;/w&gt;')
+Tokens: defaultdict(&lt;class 'int'&gt;, {'T': 3, 'h': 6, 'e&lt;/w&gt;': 16, 'a': 20, 'i': 13, 'm': 12, 's&lt;/w&gt;': 10, 'for&lt;/w&gt;': 4, 'th': 5, 's': 20, 'u': 14, 'b': 2, 'j': 1, 'e': 18, 'c': 13, 't': 13, '&lt;/w&gt;': 25, 'st': 4, 'de': 5, 'n': 8, 'o': 13, 'v': 3, 'l': 16, 'p': 11, 'an': 11, 'r': 14, 'd': 4, 'ing&lt;/w&gt;': 4, 'f': 4, 'in': 9, 'g': 13, 'or': 3, 'd&lt;/w&gt;': 6, 'at': 2, 'ing': 5, ',&lt;/w&gt;': 7, 'ation': 5, 'x': 1, 'q': 1, 'ion': 1, 'w': 2, '.': 3, '-': 3, 'y': 2, 'P': 1, 'on': 2, 'for': 1, 'k': 1})
+Number of tokens: 48
+==========
+Iter: 18
+Best pair: ('in', '&lt;/w&gt;')
+Tokens: defaultdict(&lt;class 'int'&gt;, {'T': 3, 'h': 6, 'e&lt;/w&gt;': 16, 'a': 20, 'i': 13, 'm': 12, 's&lt;/w&gt;': 10, 'for&lt;/w&gt;': 4, 'th': 5, 's': 20, 'u': 14, 'b': 2, 'j': 1, 'e': 18, 'c': 13, 't': 13, '&lt;/w&gt;': 21, 'st': 4, 'de': 5, 'n': 8, 'o': 13, 'v': 3, 'l': 16, 'p': 11, 'an': 11, 'r': 14, 'd': 4, 'ing&lt;/w&gt;': 4, 'f': 4, 'in&lt;/w&gt;': 4, 'g': 13, 'or': 3, 'd&lt;/w&gt;': 6, 'at': 2, 'ing': 5, ',&lt;/w&gt;': 7, 'ation': 5, 'in': 5, 'x': 1, 'q': 1, 'ion': 1, 'w': 2, '.': 3, '-': 3, 'y': 2, 'P': 1, 'on': 2, 'for': 1, 'k': 1})
+Number of tokens: 49
+==========
+Iter: 19
+Best pair: ('u', 's')
+Tokens: defaultdict(&lt;class 'int'&gt;, {'T': 3, 'h': 6, 'e&lt;/w&gt;': 16, 'a': 20, 'i': 13, 'm': 12, 's&lt;/w&gt;': 10, 'for&lt;/w&gt;': 4, 'th': 5, 's': 16, 'u': 10, 'b': 2, 'j': 1, 'e': 18, 'c': 13, 't': 13, '&lt;/w&gt;': 21, 'st': 4, 'de': 5, 'n': 8, 'o': 13, 'v': 3, 'l': 16, 'p': 11, 'an': 11, 'r': 14, 'd': 4, 'ing&lt;/w&gt;': 4, 'f': 4, 'in&lt;/w&gt;': 4, 'g': 13, 'or': 3, 'us': 4, 'd&lt;/w&gt;': 6, 'at': 2, 'ing': 5, ',&lt;/w&gt;': 7, 'ation': 5, 'in': 5, 'x': 1, 'q': 1, 'ion': 1, 'w': 2, '.': 3, '-': 3, 'y': 2, 'P': 1, 'on': 2, 'for': 1, 'k': 1})
+Number of tokens: 50
+==========
+Iter: 20
+Best pair: ('an', 'g')
+Tokens: defaultdict(&lt;class 'int'&gt;, {'T': 3, 'h': 6, 'e&lt;/w&gt;': 16, 'a': 20, 'i': 13, 'm': 12, 's&lt;/w&gt;': 10, 'for&lt;/w&gt;': 4, 'th': 5, 's': 16, 'u': 10, 'b': 2, 'j': 1, 'e': 18, 'c': 13, 't': 13, '&lt;/w&gt;': 21, 'st': 4, 'de': 5, 'n': 8, 'o': 13, 'v': 3, 'l': 16, 'p': 11, 'an': 7, 'r': 14, 'd': 4, 'ing&lt;/w&gt;': 4, 'f': 4, 'in&lt;/w&gt;': 4, 'g': 9, 'or': 3, 'us': 4, 'd&lt;/w&gt;': 6, 'at': 2, 'ang': 4, 'ing': 5, ',&lt;/w&gt;': 7, 'ation': 5, 'in': 5, 'x': 1, 'q': 1, 'ion': 1, 'w': 2, '.': 3, '-': 3, 'y': 2, 'P': 1, 'on': 2, 'for': 1, 'k': 1})
+Number of tokens: 51
+==========
+Iter: 21
+Best pair: ('a', 'g')
+Tokens: defaultdict(&lt;class 'int'&gt;, {'T': 3, 'h': 6, 'e&lt;/w&gt;': 16, 'a': 16, 'i': 13, 'm': 12, 's&lt;/w&gt;': 10, 'for&lt;/w&gt;': 4, 'th': 5, 's': 16, 'u': 10, 'b': 2, 'j': 1, 'e': 18, 'c': 13, 't': 13, '&lt;/w&gt;': 21, 'st': 4, 'de': 5, 'n': 8, 'o': 13, 'v': 3, 'l': 16, 'p': 11, 'an': 7, 'r': 14, 'd': 4, 'ing&lt;/w&gt;': 4, 'f': 4, 'in&lt;/w&gt;': 4, 'g': 5, 'or': 3, 'us': 4, 'd&lt;/w&gt;': 6, 'at': 2, 'ang': 4, 'ag': 4, 'ing': 5, ',&lt;/w&gt;': 7, 'ation': 5, 'in': 5, 'x': 1, 'q': 1, 'ion': 1, 'w': 2, '.': 3, '-': 3, 'y': 2, 'P': 1, 'on': 2, 'for': 1, 'k': 1})
+Number of tokens: 52
+==========
+Iter: 22
+Best pair: ('i', 'c')
+Tokens: defaultdict(&lt;class 'int'&gt;, {'T': 3, 'h': 6, 'e&lt;/w&gt;': 16, 'a': 16, 'i': 9, 'm': 12, 's&lt;/w&gt;': 10, 'for&lt;/w&gt;': 4, 'th': 5, 's': 16, 'u': 10, 'b': 2, 'j': 1, 'e': 18, 'c': 9, 't': 13, '&lt;/w&gt;': 21, 'st': 4, 'de': 5, 'n': 8, 'o': 13, 'v': 3, 'l': 16, 'p': 11, 'an': 7, 'r': 14, 'd': 4, 'ing&lt;/w&gt;': 4, 'f': 4, 'in&lt;/w&gt;': 4, 'g': 5, 'or': 3, 'us': 4, 'd&lt;/w&gt;': 6, 'at': 2, 'ang': 4, 'ag': 4, 'ing': 5, ',&lt;/w&gt;': 7, 'ic': 4, 'ation': 5, 'in': 5, 'x': 1, 'q': 1, 'ion': 1, 'w': 2, '.': 3, '-': 3, 'y': 2, 'P': 1, 'on': 2, 'for': 1, 'k': 1})
+Number of tokens: 53
+==========
+Iter: 23
+Best pair: ('i', 's&lt;/w&gt;')
+Tokens: defaultdict(&lt;class 'int'&gt;, {'T': 3, 'h': 6, 'e&lt;/w&gt;': 16, 'a': 16, 'i': 6, 'm': 12, 's&lt;/w&gt;': 7, 'for&lt;/w&gt;': 4, 'th': 5, 'is&lt;/w&gt;': 3, 's': 16, 'u': 10, 'b': 2, 'j': 1, 'e': 18, 'c': 9, 't': 13, '&lt;/w&gt;': 21, 'st': 4, 'de': 5, 'n': 8, 'o': 13, 'v': 3, 'l': 16, 'p': 11, 'an': 7, 'r': 14, 'd': 4, 'ing&lt;/w&gt;': 4, 'f': 4, 'in&lt;/w&gt;': 4, 'g': 5, 'or': 3, 'us': 4, 'd&lt;/w&gt;': 6, 'at': 2, 'ang': 4, 'ag': 4, 'ing': 5, ',&lt;/w&gt;': 7, 'ic': 4, 'ation': 5, 'in': 5, 'x': 1, 'q': 1, 'ion': 1, 'w': 2, '.': 3, '-': 3, 'y': 2, 'P': 1, 'on': 2, 'for': 1, 'k': 1})
+Number of tokens: 54
+==========
+Iter: 24
+Best pair: ('n', 't')
+Tokens: defaultdict(&lt;class 'int'&gt;, {'T': 3, 'h': 6, 'e&lt;/w&gt;': 16, 'a': 16, 'i': 6, 'm': 12, 's&lt;/w&gt;': 7, 'for&lt;/w&gt;': 4, 'th': 5, 'is&lt;/w&gt;': 3, 's': 16, 'u': 10, 'b': 2, 'j': 1, 'e': 18, 'c': 9, 't': 10, '&lt;/w&gt;': 21, 'st': 4, 'de': 5, 'nt': 3, 'o': 13, 'v': 3, 'l': 16, 'p': 11, 'an': 7, 'n': 5, 'r': 14, 'd': 4, 'ing&lt;/w&gt;': 4, 'f': 4, 'in&lt;/w&gt;': 4, 'g': 5, 'or': 3, 'us': 4, 'd&lt;/w&gt;': 6, 'at': 2, 'ang': 4, 'ag': 4, 'ing': 5, ',&lt;/w&gt;': 7, 'ic': 4, 'ation': 5, 'in': 5, 'x': 1, 'q': 1, 'ion': 1, 'w': 2, '.': 3, '-': 3, 'y': 2, 'P': 1, 'on': 2, 'for': 1, 'k': 1})
+Number of tokens: 55
+==========
+Iter: 25
+Best pair: ('v', 'e')
+Tokens: defaultdict(&lt;class 'int'&gt;, {'T': 3, 'h': 6, 'e&lt;/w&gt;': 16, 'a': 16, 'i': 6, 'm': 12, 's&lt;/w&gt;': 7, 'for&lt;/w&gt;': 4, 'th': 5, 'is&lt;/w&gt;': 3, 's': 16, 'u': 10, 'b': 2, 'j': 1, 'e': 15, 'c': 9, 't': 10, '&lt;/w&gt;': 21, 'st': 4, 'de': 5, 'nt': 3, 'o': 13, 've': 3, 'l': 16, 'p': 11, 'an': 7, 'n': 5, 'r': 14, 'd': 4, 'ing&lt;/w&gt;': 4, 'f': 4, 'in&lt;/w&gt;': 4, 'g': 5, 'or': 3, 'us': 4, 'd&lt;/w&gt;': 6, 'at': 2, 'ang': 4, 'ag': 4, 'ing': 5, ',&lt;/w&gt;': 7, 'ic': 4, 'ation': 5, 'in': 5, 'x': 1, 'q': 1, 'ion': 1, 'w': 2, '.': 3, '-': 3, 'y': 2, 'P': 1, 'on': 2, 'for': 1, 'k': 1})
+Number of tokens: 55
+==========
+Iter: 26
+Best pair: ('o', 'p')
+Tokens: defaultdict(&lt;class 'int'&gt;, {'T': 3, 'h': 6, 'e&lt;/w&gt;': 16, 'a': 16, 'i': 6, 'm': 12, 's&lt;/w&gt;': 7, 'for&lt;/w&gt;': 4, 'th': 5, 'is&lt;/w&gt;': 3, 's': 16, 'u': 10, 'b': 2, 'j': 1, 'e': 15, 'c': 9, 't': 10, '&lt;/w&gt;': 21, 'st': 4, 'de': 5, 'nt': 3, 'o': 10, 've': 3, 'l': 16, 'op': 3, 'an': 7, 'n': 5, 'r': 14, 'd': 4, 'ing&lt;/w&gt;': 4, 'f': 4, 'in&lt;/w&gt;': 4, 'g': 5, 'or': 3, 'us': 4, 'd&lt;/w&gt;': 6, 'at': 2, 'ang': 4, 'ag': 4, 'p': 8, 'ing': 5, ',&lt;/w&gt;': 7, 'ic': 4, 'ation': 5, 'in': 5, 'x': 1, 'q': 1, 'ion': 1, 'w': 2, '.': 3, '-': 3, 'y': 2, 'P': 1, 'on': 2, 'for': 1, 'k': 1})
+Number of tokens: 56
+==========
+Iter: 27
+Best pair: ('o', 'f')
+Tokens: defaultdict(&lt;class 'int'&gt;, {'T': 3, 'h': 6, 'e&lt;/w&gt;': 16, 'a': 16, 'i': 6, 'm': 12, 's&lt;/w&gt;': 7, 'for&lt;/w&gt;': 4, 'th': 5, 'is&lt;/w&gt;': 3, 's': 16, 'u': 10, 'b': 2, 'j': 1, 'e': 15, 'c': 9, 't': 10, '&lt;/w&gt;': 21, 'st': 4, 'de': 5, 'nt': 3, 'o': 7, 've': 3, 'l': 16, 'op': 3, 'an': 7, 'n': 5, 'r': 14, 'd': 4, 'ing&lt;/w&gt;': 4, 'of': 3, 'in&lt;/w&gt;': 4, 'g': 5, 'or': 3, 'us': 4, 'd&lt;/w&gt;': 6, 'at': 2, 'ang': 4, 'ag': 4, 'p': 8, 'ing': 5, ',&lt;/w&gt;': 7, 'ic': 4, 'ation': 5, 'in': 5, 'x': 1, 'f': 1, 'q': 1, 'ion': 1, 'w': 2, '.': 3, '-': 3, 'y': 2, 'P': 1, 'on': 2, 'for': 1, 'k': 1})
+Number of tokens: 57
+==========
+Iter: 28
+Best pair: ('a', 'l')
+Tokens: defaultdict(&lt;class 'int'&gt;, {'T': 3, 'h': 6, 'e&lt;/w&gt;': 16, 'a': 13, 'i': 6, 'm': 12, 's&lt;/w&gt;': 7, 'for&lt;/w&gt;': 4, 'th': 5, 'is&lt;/w&gt;': 3, 's': 16, 'u': 10, 'b': 2, 'j': 1, 'e': 15, 'c': 9, 't': 10, '&lt;/w&gt;': 21, 'st': 4, 'de': 5, 'nt': 3, 'o': 7, 've': 3, 'l': 13, 'op': 3, 'an': 7, 'n': 5, 'r': 14, 'd': 4, 'ing&lt;/w&gt;': 4, 'of': 3, 'in&lt;/w&gt;': 4, 'al': 3, 'g': 5, 'or': 3, 'us': 4, 'd&lt;/w&gt;': 6, 'at': 2, 'ang': 4, 'ag': 4, 'p': 8, 'ing': 5, ',&lt;/w&gt;': 7, 'ic': 4, 'ation': 5, 'in': 5, 'x': 1, 'f': 1, 'q': 1, 'ion': 1, 'w': 2, '.': 3, '-': 3, 'y': 2, 'P': 1, 'on': 2, 'for': 1, 'k': 1})
+Number of tokens: 58
+==========
+Iter: 29
+Best pair: ('e', 'd&lt;/w&gt;')
+Tokens: defaultdict(&lt;class 'int'&gt;, {'T': 3, 'h': 6, 'e&lt;/w&gt;': 16, 'a': 13, 'i': 6, 'm': 12, 's&lt;/w&gt;': 7, 'for&lt;/w&gt;': 4, 'th': 5, 'is&lt;/w&gt;': 3, 's': 16, 'u': 10, 'b': 2, 'j': 1, 'e': 12, 'c': 9, 't': 10, '&lt;/w&gt;': 21, 'st': 4, 'de': 5, 'nt': 3, 'o': 7, 've': 3, 'l': 13, 'op': 3, 'an': 7, 'n': 5, 'r': 14, 'd': 4, 'ing&lt;/w&gt;': 4, 'of': 3, 'in&lt;/w&gt;': 4, 'al': 3, 'g': 5, 'or': 3, 'us': 4, 'ed&lt;/w&gt;': 3, 'at': 2, 'ang': 4, 'ag': 4, 'p': 8, 'ing': 5, ',&lt;/w&gt;': 7, 'ic': 4, 'ation': 5, 'in': 5, 'x': 1, 'f': 1, 'd&lt;/w&gt;': 3, 'q': 1, 'ion': 1, 'w': 2, '.': 3, '-': 3, 'y': 2, 'P': 1, 'on': 2, 'for': 1, 'k': 1})
+Number of tokens: 59
+==========
+Iter: 30
+Best pair: ('l', 'ang')
+Tokens: defaultdict(&lt;class 'int'&gt;, {'T': 3, 'h': 6, 'e&lt;/w&gt;': 16, 'a': 13, 'i': 6, 'm': 12, 's&lt;/w&gt;': 7, 'for&lt;/w&gt;': 4, 'th': 5, 'is&lt;/w&gt;': 3, 's': 16, 'u': 10, 'b': 2, 'j': 1, 'e': 12, 'c': 9, 't': 10, '&lt;/w&gt;': 21, 'st': 4, 'de': 5, 'nt': 3, 'o': 7, 've': 3, 'l': 10, 'op': 3, 'an': 7, 'n': 5, 'r': 14, 'd': 4, 'ing&lt;/w&gt;': 4, 'of': 3, 'in&lt;/w&gt;': 4, 'al': 3, 'g': 5, 'or': 3, 'us': 4, 'ed&lt;/w&gt;': 3, 'at': 2, 'lang': 3, 'ag': 4, 'p': 8, 'ing': 5, ',&lt;/w&gt;': 7, 'ang': 1, 'ic': 4, 'ation': 5, 'in': 5, 'x': 1, 'f': 1, 'd&lt;/w&gt;': 3, 'q': 1, 'ion': 1, 'w': 2, '.': 3, '-': 3, 'y': 2, 'P': 1, 'on': 2, 'for': 1, 'k': 1})
+Number of tokens: 60
+==========
+Iter: 31
+Best pair: ('lang', 'u')
+Tokens: defaultdict(&lt;class 'int'&gt;, {'T': 3, 'h': 6, 'e&lt;/w&gt;': 16, 'a': 13, 'i': 6, 'm': 12, 's&lt;/w&gt;': 7, 'for&lt;/w&gt;': 4, 'th': 5, 'is&lt;/w&gt;': 3, 's': 16, 'u': 7, 'b': 2, 'j': 1, 'e': 12, 'c': 9, 't': 10, '&lt;/w&gt;': 21, 'st': 4, 'de': 5, 'nt': 3, 'o': 7, 've': 3, 'l': 10, 'op': 3, 'an': 7, 'n': 5, 'r': 14, 'd': 4, 'ing&lt;/w&gt;': 4, 'of': 3, 'in&lt;/w&gt;': 4, 'al': 3, 'g': 5, 'or': 3, 'us': 4, 'ed&lt;/w&gt;': 3, 'at': 2, 'langu': 3, 'ag': 4, 'p': 8, 'ing': 5, ',&lt;/w&gt;': 7, 'ang': 1, 'ic': 4, 'ation': 5, 'in': 5, 'x': 1, 'f': 1, 'd&lt;/w&gt;': 3, 'q': 1, 'ion': 1, 'w': 2, '.': 3, '-': 3, 'y': 2, 'P': 1, 'on': 2, 'for': 1, 'k': 1})
+Number of tokens: 60
+==========
+Iter: 32
+Best pair: ('langu', 'ag')
+Tokens: defaultdict(&lt;class 'int'&gt;, {'T': 3, 'h': 6, 'e&lt;/w&gt;': 16, 'a': 13, 'i': 6, 'm': 12, 's&lt;/w&gt;': 7, 'for&lt;/w&gt;': 4, 'th': 5, 'is&lt;/w&gt;': 3, 's': 16, 'u': 7, 'b': 2, 'j': 1, 'e': 12, 'c': 9, 't': 10, '&lt;/w&gt;': 21, 'st': 4, 'de': 5, 'nt': 3, 'o': 7, 've': 3, 'l': 10, 'op': 3, 'an': 7, 'n': 5, 'r': 14, 'd': 4, 'ing&lt;/w&gt;': 4, 'of': 3, 'in&lt;/w&gt;': 4, 'al': 3, 'g': 5, 'or': 3, 'us': 4, 'ed&lt;/w&gt;': 3, 'at': 2, 'languag': 3, 'p': 8, 'ing': 5, ',&lt;/w&gt;': 7, 'ang': 1, 'ic': 4, 'ation': 5, 'in': 5, 'x': 1, 'f': 1, 'd&lt;/w&gt;': 3, 'q': 1, 'ion': 1, 'w': 2, '.': 3, '-': 3, 'ag': 1, 'y': 2, 'P': 1, 'on': 2, 'for': 1, 'k': 1})
+Number of tokens: 60
+==========
+Iter: 33
+Best pair: ('languag', 'e&lt;/w&gt;')
+Tokens: defaultdict(&lt;class 'int'&gt;, {'T': 3, 'h': 6, 'e&lt;/w&gt;': 13, 'a': 13, 'i': 6, 'm': 12, 's&lt;/w&gt;': 7, 'for&lt;/w&gt;': 4, 'th': 5, 'is&lt;/w&gt;': 3, 's': 16, 'u': 7, 'b': 2, 'j': 1, 'e': 12, 'c': 9, 't': 10, '&lt;/w&gt;': 21, 'st': 4, 'de': 5, 'nt': 3, 'o': 7, 've': 3, 'l': 10, 'op': 3, 'an': 7, 'n': 5, 'r': 14, 'd': 4, 'ing&lt;/w&gt;': 4, 'of': 3, 'in&lt;/w&gt;': 4, 'al': 3, 'g': 5, 'or': 3, 'us': 4, 'ed&lt;/w&gt;': 3, 'at': 2, 'language&lt;/w&gt;': 3, 'p': 8, 'ing': 5, ',&lt;/w&gt;': 7, 'ang': 1, 'ic': 4, 'ation': 5, 'in': 5, 'x': 1, 'f': 1, 'd&lt;/w&gt;': 3, 'q': 1, 'ion': 1, 'w': 2, '.': 3, '-': 3, 'ag': 1, 'y': 2, 'P': 1, 'on': 2, 'for': 1, 'k': 1})
+Number of tokens: 60
+==========
+Iter: 34
+Best pair: ('s', 's')
+Tokens: defaultdict(&lt;class 'int'&gt;, {'T': 3, 'h': 6, 'e&lt;/w&gt;': 13, 'a': 13, 'i': 6, 'm': 12, 's&lt;/w&gt;': 7, 'for&lt;/w&gt;': 4, 'th': 5, 'is&lt;/w&gt;': 3, 's': 10, 'u': 7, 'b': 2, 'j': 1, 'e': 12, 'c': 9, 't': 10, '&lt;/w&gt;': 21, 'st': 4, 'de': 5, 'nt': 3, 'o': 7, 've': 3, 'l': 10, 'op': 3, 'an': 7, 'n': 5, 'r': 14, 'd': 4, 'ing&lt;/w&gt;': 4, 'of': 3, 'in&lt;/w&gt;': 4, 'al': 3, 'g': 5, 'or': 3, 'us': 4, 'ed&lt;/w&gt;': 3, 'at': 2, 'language&lt;/w&gt;': 3, 'p': 8, 'ss': 3, 'ing': 5, ',&lt;/w&gt;': 7, 'ang': 1, 'ic': 4, 'ation': 5, 'in': 5, 'x': 1, 'f': 1, 'd&lt;/w&gt;': 3, 'q': 1, 'ion': 1, 'w': 2, '.': 3, '-': 3, 'ag': 1, 'y': 2, 'P': 1, 'on': 2, 'for': 1, 'k': 1})
+Number of tokens: 61
+==========
+Iter: 35
+Best pair: ('ing', ',&lt;/w&gt;')
+Tokens: defaultdict(&lt;class 'int'&gt;, {'T': 3, 'h': 6, 'e&lt;/w&gt;': 13, 'a': 13, 'i': 6, 'm': 12, 's&lt;/w&gt;': 7, 'for&lt;/w&gt;': 4, 'th': 5, 'is&lt;/w&gt;': 3, 's': 10, 'u': 7, 'b': 2, 'j': 1, 'e': 12, 'c': 9, 't': 10, '&lt;/w&gt;': 21, 'st': 4, 'de': 5, 'nt': 3, 'o': 7, 've': 3, 'l': 10, 'op': 3, 'an': 7, 'n': 5, 'r': 14, 'd': 4, 'ing&lt;/w&gt;': 4, 'of': 3, 'in&lt;/w&gt;': 4, 'al': 3, 'g': 5, 'or': 3, 'us': 4, 'ed&lt;/w&gt;': 3, 'at': 2, 'language&lt;/w&gt;': 3, 'p': 8, 'ss': 3, 'ing,&lt;/w&gt;': 3, 'ang': 1, 'ic': 4, 'ation': 5, 'in': 5, 'x': 1, 'f': 1, ',&lt;/w&gt;': 4, 'd&lt;/w&gt;': 3, 'q': 1, 'ion': 1, 'w': 2, 'ing': 2, '.': 3, '-': 3, 'ag': 1, 'y': 2, 'P': 1, 'on': 2, 'for': 1, 'k': 1})
+Number of tokens: 62
+==========
+Iter: 36
+Best pair: ('c', 'l')
+Tokens: defaultdict(&lt;class 'int'&gt;, {'T': 3, 'h': 6, 'e&lt;/w&gt;': 13, 'a': 13, 'i': 6, 'm': 12, 's&lt;/w&gt;': 7, 'for&lt;/w&gt;': 4, 'th': 5, 'is&lt;/w&gt;': 3, 's': 10, 'u': 7, 'b': 2, 'j': 1, 'e': 12, 'c': 6, 't': 10, '&lt;/w&gt;': 21, 'st': 4, 'de': 5, 'nt': 3, 'o': 7, 've': 3, 'l': 7, 'op': 3, 'an': 7, 'n': 5, 'r': 14, 'd': 4, 'ing&lt;/w&gt;': 4, 'of': 3, 'in&lt;/w&gt;': 4, 'al': 3, 'g': 5, 'or': 3, 'us': 4, 'ed&lt;/w&gt;': 3, 'at': 2, 'language&lt;/w&gt;': 3, 'p': 8, 'ss': 3, 'ing,&lt;/w&gt;': 3, 'ang': 1, 'ic': 4, 'ation': 5, 'in': 5, 'cl': 3, 'x': 1, 'f': 1, ',&lt;/w&gt;': 4, 'd&lt;/w&gt;': 3, 'q': 1, 'ion': 1, 'w': 2, 'ing': 2, '.': 3, '-': 3, 'ag': 1, 'y': 2, 'P': 1, 'on': 2, 'for': 1, 'k': 1})
+Number of tokens: 63
+==========
+Iter: 37
+Best pair: ('an', 'd&lt;/w&gt;')
+Tokens: defaultdict(&lt;class 'int'&gt;, {'T': 3, 'h': 6, 'e&lt;/w&gt;': 13, 'a': 13, 'i': 6, 'm': 12, 's&lt;/w&gt;': 7, 'for&lt;/w&gt;': 4, 'th': 5, 'is&lt;/w&gt;': 3, 's': 10, 'u': 7, 'b': 2, 'j': 1, 'e': 12, 'c': 6, 't': 10, '&lt;/w&gt;': 21, 'st': 4, 'de': 5, 'nt': 3, 'o': 7, 've': 3, 'l': 7, 'op': 3, 'an': 4, 'n': 5, 'r': 14, 'd': 4, 'ing&lt;/w&gt;': 4, 'of': 3, 'in&lt;/w&gt;': 4, 'al': 3, 'g': 5, 'or': 3, 'us': 4, 'ed&lt;/w&gt;': 3, 'at': 2, 'language&lt;/w&gt;': 3, 'p': 8, 'ss': 3, 'ing,&lt;/w&gt;': 3, 'ang': 1, 'ic': 4, 'ation': 5, 'in': 5, 'cl': 3, 'x': 1, 'f': 1, ',&lt;/w&gt;': 4, 'and&lt;/w&gt;': 3, 'q': 1, 'ion': 1, 'w': 2, 'ing': 2, '.': 3, '-': 3, 'ag': 1, 'y': 2, 'P': 1, 'on': 2, 'for': 1, 'k': 1})
+Number of tokens: 63
+==========
+Iter: 38
+Best pair: ('.', '&lt;/w&gt;')
+Tokens: defaultdict(&lt;class 'int'&gt;, {'T': 3, 'h': 6, 'e&lt;/w&gt;': 13, 'a': 13, 'i': 6, 'm': 12, 's&lt;/w&gt;': 7, 'for&lt;/w&gt;': 4, 'th': 5, 'is&lt;/w&gt;': 3, 's': 10, 'u': 7, 'b': 2, 'j': 1, 'e': 12, 'c': 6, 't': 10, '&lt;/w&gt;': 18, 'st': 4, 'de': 5, 'nt': 3, 'o': 7, 've': 3, 'l': 7, 'op': 3, 'an': 4, 'n': 5, 'r': 14, 'd': 4, 'ing&lt;/w&gt;': 4, 'of': 3, 'in&lt;/w&gt;': 4, 'al': 3, 'g': 5, 'or': 3, 'us': 4, 'ed&lt;/w&gt;': 3, 'at': 2, 'language&lt;/w&gt;': 3, 'p': 8, 'ss': 3, 'ing,&lt;/w&gt;': 3, 'ang': 1, 'ic': 4, 'ation': 5, 'in': 5, 'cl': 3, 'x': 1, 'f': 1, ',&lt;/w&gt;': 4, 'and&lt;/w&gt;': 3, 'q': 1, 'ion': 1, 'w': 2, 'ing': 2, '.&lt;/w&gt;': 3, '-': 3, 'ag': 1, 'y': 2, 'P': 1, 'on': 2, 'for': 1, 'k': 1})
+Number of tokens: 63
+==========
+Iter: 39
+Best pair: ('a', 'r')
+Tokens: defaultdict(&lt;class 'int'&gt;, {'T': 3, 'h': 6, 'e&lt;/w&gt;': 13, 'a': 10, 'i': 6, 'm': 12, 's&lt;/w&gt;': 7, 'for&lt;/w&gt;': 4, 'th': 5, 'is&lt;/w&gt;': 3, 's': 10, 'u': 7, 'b': 2, 'j': 1, 'e': 12, 'c': 6, 't': 10, '&lt;/w&gt;': 18, 'st': 4, 'de': 5, 'nt': 3, 'o': 7, 've': 3, 'l': 7, 'op': 3, 'an': 4, 'n': 5, 'r': 11, 'd': 4, 'ing&lt;/w&gt;': 4, 'of': 3, 'in&lt;/w&gt;': 4, 'al': 3, 'g': 5, 'or': 3, 'us': 4, 'ed&lt;/w&gt;': 3, 'at': 2, 'language&lt;/w&gt;': 3, 'p': 8, 'ss': 3, 'ing,&lt;/w&gt;': 3, 'ang': 1, 'ic': 4, 'ation': 5, 'in': 5, 'cl': 3, 'x': 1, 'f': 1, ',&lt;/w&gt;': 4, 'and&lt;/w&gt;': 3, 'q': 1, 'ion': 1, 'w': 2, 'ing': 2, '.&lt;/w&gt;': 3, 'ar': 3, '-': 3, 'ag': 1, 'y': 2, 'P': 1, 'on': 2, 'for': 1, 'k': 1})
+Number of tokens: 64
+==========
+Iter: 40
+Best pair: ('T', 'h')
+Tokens: defaultdict(&lt;class 'int'&gt;, {'Th': 2, 'e&lt;/w&gt;': 13, 'a': 10, 'i': 6, 'm': 12, 's&lt;/w&gt;': 7, 'for&lt;/w&gt;': 4, 'th': 5, 'is&lt;/w&gt;': 3, 's': 10, 'u': 7, 'b': 2, 'j': 1, 'e': 12, 'c': 6, 't': 10, '&lt;/w&gt;': 18, 'st': 4, 'de': 5, 'nt': 3, 'o': 7, 've': 3, 'l': 7, 'op': 3, 'an': 4, 'n': 5, 'r': 11, 'd': 4, 'ing&lt;/w&gt;': 4, 'of': 3, 'in&lt;/w&gt;': 4, 'al': 3, 'g': 5, 'or': 3, 'us': 4, 'ed&lt;/w&gt;': 3, 'at': 2, 'language&lt;/w&gt;': 3, 'p': 8, 'ss': 3, 'ing,&lt;/w&gt;': 3, 'ang': 1, 'ic': 4, 'ation': 5, 'in': 5, 'cl': 3, 'x': 1, 'f': 1, ',&lt;/w&gt;': 4, 'h': 4, 'and&lt;/w&gt;': 3, 'q': 1, 'ion': 1, 'w': 2, 'ing': 2, '.&lt;/w&gt;': 3, 'T': 1, 'ar': 3, '-': 3, 'ag': 1, 'y': 2, 'P': 1, 'on': 2, 'for': 1, 'k': 1})
+Number of tokens: 65
+==========
+Iter: 41
+Best pair: ('Th', 'e&lt;/w&gt;')
+Tokens: defaultdict(&lt;class 'int'&gt;, {'The&lt;/w&gt;': 2, 'a': 10, 'i': 6, 'm': 12, 's&lt;/w&gt;': 7, 'for&lt;/w&gt;': 4, 'th': 5, 'is&lt;/w&gt;': 3, 's': 10, 'u': 7, 'b': 2, 'j': 1, 'e': 12, 'c': 6, 't': 10, '&lt;/w&gt;': 18, 'st': 4, 'de': 5, 'nt': 3, 'o': 7, 've': 3, 'l': 7, 'op': 3, 'an': 4, 'n': 5, 'r': 11, 'd': 4, 'ing&lt;/w&gt;': 4, 'of': 3, 'e&lt;/w&gt;': 11, 'in&lt;/w&gt;': 4, 'al': 3, 'g': 5, 'or': 3, 'us': 4, 'ed&lt;/w&gt;': 3, 'at': 2, 'language&lt;/w&gt;': 3, 'p': 8, 'ss': 3, 'ing,&lt;/w&gt;': 3, 'ang': 1, 'ic': 4, 'ation': 5, 'in': 5, 'cl': 3, 'x': 1, 'f': 1, ',&lt;/w&gt;': 4, 'h': 4, 'and&lt;/w&gt;': 3, 'q': 1, 'ion': 1, 'w': 2, 'ing': 2, '.&lt;/w&gt;': 3, 'T': 1, 'ar': 3, '-': 3, 'ag': 1, 'y': 2, 'P': 1, 'on': 2, 'for': 1, 'k': 1})
+Number of tokens: 65
+==========
+Iter: 42
+Best pair: ('m', 's&lt;/w&gt;')
+Tokens: defaultdict(&lt;class 'int'&gt;, {'The&lt;/w&gt;': 2, 'a': 10, 'i': 6, 'ms&lt;/w&gt;': 2, 'for&lt;/w&gt;': 4, 'th': 5, 'is&lt;/w&gt;': 3, 's': 10, 'u': 7, 'b': 2, 'j': 1, 'e': 12, 'c': 6, 't': 10, '&lt;/w&gt;': 18, 'st': 4, 'de': 5, 'nt': 3, 's&lt;/w&gt;': 5, 'o': 7, 've': 3, 'l': 7, 'op': 3, 'an': 4, 'n': 5, 'r': 11, 'd': 4, 'ing&lt;/w&gt;': 4, 'of': 3, 'e&lt;/w&gt;': 11, 'm': 10, 'in&lt;/w&gt;': 4, 'al': 3, 'g': 5, 'or': 3, 'us': 4, 'ed&lt;/w&gt;': 3, 'at': 2, 'language&lt;/w&gt;': 3, 'p': 8, 'ss': 3, 'ing,&lt;/w&gt;': 3, 'ang': 1, 'ic': 4, 'ation': 5, 'in': 5, 'cl': 3, 'x': 1, 'f': 1, ',&lt;/w&gt;': 4, 'h': 4, 'and&lt;/w&gt;': 3, 'q': 1, 'ion': 1, 'w': 2, 'ing': 2, '.&lt;/w&gt;': 3, 'T': 1, 'ar': 3, '-': 3, 'ag': 1, 'y': 2, 'P': 1, 'on': 2, 'for': 1, 'k': 1})
+Number of tokens: 66
+==========
+Iter: 43
+Best pair: ('e', 'c')
+Tokens: defaultdict(&lt;class 'int'&gt;, {'The&lt;/w&gt;': 2, 'a': 10, 'i': 6, 'ms&lt;/w&gt;': 2, 'for&lt;/w&gt;': 4, 'th': 5, 'is&lt;/w&gt;': 3, 's': 10, 'u': 7, 'b': 2, 'j': 1, 'ec': 2, 't': 10, '&lt;/w&gt;': 18, 'st': 4, 'de': 5, 'nt': 3, 's&lt;/w&gt;': 5, 'o': 7, 've': 3, 'l': 7, 'op': 3, 'an': 4, 'n': 5, 'r': 11, 'd': 4, 'ing&lt;/w&gt;': 4, 'of': 3, 'e&lt;/w&gt;': 11, 'm': 10, 'in&lt;/w&gt;': 4, 'al': 3, 'g': 5, 'or': 3, 'us': 4, 'ed&lt;/w&gt;': 3, 'at': 2, 'language&lt;/w&gt;': 3, 'p': 8, 'c': 4, 'e': 10, 'ss': 3, 'ing,&lt;/w&gt;': 3, 'ang': 1, 'ic': 4, 'ation': 5, 'in': 5, 'cl': 3, 'x': 1, 'f': 1, ',&lt;/w&gt;': 4, 'h': 4, 'and&lt;/w&gt;': 3, 'q': 1, 'ion': 1, 'w': 2, 'ing': 2, '.&lt;/w&gt;': 3, 'T': 1, 'ar': 3, '-': 3, 'ag': 1, 'y': 2, 'P': 1, 'on': 2, 'for': 1, 'k': 1})
+Number of tokens: 67
+==========
+Iter: 44
+Best pair: ('t', '&lt;/w&gt;')
+Tokens: defaultdict(&lt;class 'int'&gt;, {'The&lt;/w&gt;': 2, 'a': 10, 'i': 6, 'ms&lt;/w&gt;': 2, 'for&lt;/w&gt;': 4, 'th': 5, 'is&lt;/w&gt;': 3, 's': 10, 'u': 7, 'b': 2, 'j': 1, 'ec': 2, 't&lt;/w&gt;': 2, 'st': 4, 'de': 5, 'nt': 3, 's&lt;/w&gt;': 5, 't': 8, 'o': 7, '&lt;/w&gt;': 16, 've': 3, 'l': 7, 'op': 3, 'an': 4, 'n': 5, 'r': 11, 'd': 4, 'ing&lt;/w&gt;': 4, 'of': 3, 'e&lt;/w&gt;': 11, 'm': 10, 'in&lt;/w&gt;': 4, 'al': 3, 'g': 5, 'or': 3, 'us': 4, 'ed&lt;/w&gt;': 3, 'at': 2, 'language&lt;/w&gt;': 3, 'p': 8, 'c': 4, 'e': 10, 'ss': 3, 'ing,&lt;/w&gt;': 3, 'ang': 1, 'ic': 4, 'ation': 5, 'in': 5, 'cl': 3, 'x': 1, 'f': 1, ',&lt;/w&gt;': 4, 'h': 4, 'and&lt;/w&gt;': 3, 'q': 1, 'ion': 1, 'w': 2, 'ing': 2, '.&lt;/w&gt;': 3, 'T': 1, 'ar': 3, '-': 3, 'ag': 1, 'y': 2, 'P': 1, 'on': 2, 'for': 1, 'k': 1})
+Number of tokens: 68
+==========
+Iter: 45
+Best pair: ('nt', 's&lt;/w&gt;')
+Tokens: defaultdict(&lt;class 'int'&gt;, {'The&lt;/w&gt;': 2, 'a': 10, 'i': 6, 'ms&lt;/w&gt;': 2, 'for&lt;/w&gt;': 4, 'th': 5, 'is&lt;/w&gt;': 3, 's': 10, 'u': 7, 'b': 2, 'j': 1, 'ec': 2, 't&lt;/w&gt;': 2, 'st': 4, 'de': 5, 'nts&lt;/w&gt;': 2, 't': 8, 'o': 7, '&lt;/w&gt;': 16, 've': 3, 'l': 7, 'op': 3, 'an': 4, 'n': 5, 'r': 11, 'd': 4, 'ing&lt;/w&gt;': 4, 'of': 3, 'e&lt;/w&gt;': 11, 'm': 10, 'in&lt;/w&gt;': 4, 'al': 3, 'g': 5, 'or': 3, 'us': 4, 'ed&lt;/w&gt;': 3, 'at': 2, 'language&lt;/w&gt;': 3, 'p': 8, 'c': 4, 'e': 10, 'ss': 3, 'ing,&lt;/w&gt;': 3, 'ang': 1, 'ic': 4, 'ation': 5, 's&lt;/w&gt;': 3, 'in': 5, 'cl': 3, 'x': 1, 'f': 1, ',&lt;/w&gt;': 4, 'h': 4, 'and&lt;/w&gt;': 3, 'q': 1, 'ion': 1, 'w': 2, 'ing': 2, '.&lt;/w&gt;': 3, 'T': 1, 'ar': 3, '-': 3, 'ag': 1, 'y': 2, 'nt': 1, 'P': 1, 'on': 2, 'for': 1, 'k': 1})
+Number of tokens: 69
+==========
+Iter: 46
+Best pair: ('t', 'o')
+Tokens: defaultdict(&lt;class 'int'&gt;, {'The&lt;/w&gt;': 2, 'a': 10, 'i': 6, 'ms&lt;/w&gt;': 2, 'for&lt;/w&gt;': 4, 'th': 5, 'is&lt;/w&gt;': 3, 's': 10, 'u': 7, 'b': 2, 'j': 1, 'ec': 2, 't&lt;/w&gt;': 2, 'st': 4, 'de': 5, 'nts&lt;/w&gt;': 2, 'to': 2, '&lt;/w&gt;': 16, 've': 3, 'l': 7, 'op': 3, 'an': 4, 'n': 5, 'r': 11, 'd': 4, 'ing&lt;/w&gt;': 4, 'of': 3, 'e&lt;/w&gt;': 11, 'm': 10, 'in&lt;/w&gt;': 4, 'al': 3, 'g': 5, 'or': 3, 'us': 4, 'ed&lt;/w&gt;': 3, 'at': 2, 'language&lt;/w&gt;': 3, 'p': 8, 'o': 5, 'c': 4, 'e': 10, 'ss': 3, 'ing,&lt;/w&gt;': 3, 'ang': 1, 'ic': 4, 'ation': 5, 's&lt;/w&gt;': 3, 'in': 5, 'cl': 3, 't': 6, 'x': 1, 'f': 1, ',&lt;/w&gt;': 4, 'h': 4, 'and&lt;/w&gt;': 3, 'q': 1, 'ion': 1, 'w': 2, 'ing': 2, '.&lt;/w&gt;': 3, 'T': 1, 'ar': 3, '-': 3, 'ag': 1, 'y': 2, 'nt': 1, 'P': 1, 'on': 2, 'for': 1, 'k': 1})
+Number of tokens: 70
+==========
+Iter: 47
+Best pair: ('to', '&lt;/w&gt;')
+Tokens: defaultdict(&lt;class 'int'&gt;, {'The&lt;/w&gt;': 2, 'a': 10, 'i': 6, 'ms&lt;/w&gt;': 2, 'for&lt;/w&gt;': 4, 'th': 5, 'is&lt;/w&gt;': 3, 's': 10, 'u': 7, 'b': 2, 'j': 1, 'ec': 2, 't&lt;/w&gt;': 2, 'st': 4, 'de': 5, 'nts&lt;/w&gt;': 2, 'to&lt;/w&gt;': 2, 've': 3, 'l': 7, 'op': 3, '&lt;/w&gt;': 14, 'an': 4, 'n': 5, 'r': 11, 'd': 4, 'ing&lt;/w&gt;': 4, 'of': 3, 'e&lt;/w&gt;': 11, 'm': 10, 'in&lt;/w&gt;': 4, 'al': 3, 'g': 5, 'or': 3, 'us': 4, 'ed&lt;/w&gt;': 3, 'at': 2, 'language&lt;/w&gt;': 3, 'p': 8, 'o': 5, 'c': 4, 'e': 10, 'ss': 3, 'ing,&lt;/w&gt;': 3, 'ang': 1, 'ic': 4, 'ation': 5, 's&lt;/w&gt;': 3, 'in': 5, 'cl': 3, 't': 6, 'x': 1, 'f': 1, ',&lt;/w&gt;': 4, 'h': 4, 'and&lt;/w&gt;': 3, 'q': 1, 'ion': 1, 'w': 2, 'ing': 2, '.&lt;/w&gt;': 3, 'T': 1, 'ar': 3, '-': 3, 'ag': 1, 'y': 2, 'nt': 1, 'P': 1, 'on': 2, 'for': 1, 'k': 1})
+Number of tokens: 70
+==========
+Iter: 48
+Best pair: ('d', 'ing&lt;/w&gt;')
+Tokens: defaultdict(&lt;class 'int'&gt;, {'The&lt;/w&gt;': 2, 'a': 10, 'i': 6, 'ms&lt;/w&gt;': 2, 'for&lt;/w&gt;': 4, 'th': 5, 'is&lt;/w&gt;': 3, 's': 10, 'u': 7, 'b': 2, 'j': 1, 'ec': 2, 't&lt;/w&gt;': 2, 'st': 4, 'de': 5, 'nts&lt;/w&gt;': 2, 'to&lt;/w&gt;': 2, 've': 3, 'l': 7, 'op': 3, '&lt;/w&gt;': 14, 'an': 4, 'n': 5, 'r': 11, 'ding&lt;/w&gt;': 2, 'of': 3, 'e&lt;/w&gt;': 11, 'm': 10, 'in&lt;/w&gt;': 4, 'al': 3, 'g': 5, 'or': 3, 'us': 4, 'ed&lt;/w&gt;': 3, 'at': 2, 'language&lt;/w&gt;': 3, 'p': 8, 'o': 5, 'c': 4, 'e': 10, 'ss': 3, 'ing,&lt;/w&gt;': 3, 'd': 2, 'ang': 1, 'ic': 4, 'ation': 5, 's&lt;/w&gt;': 3, 'in': 5, 'cl': 3, 't': 6, 'x': 1, 'f': 1, ',&lt;/w&gt;': 4, 'h': 4, 'and&lt;/w&gt;': 3, 'q': 1, 'ion': 1, 'w': 2, 'ing': 2, '.&lt;/w&gt;': 3, 'T': 1, 'ar': 3, '-': 3, 'ag': 1, 'y': 2, 'nt': 1, 'ing&lt;/w&gt;': 2, 'P': 1, 'on': 2, 'for': 1, 'k': 1})
+Number of tokens: 71
+==========
+Iter: 49
+Best pair: ('of', '&lt;/w&gt;')
+Tokens: defaultdict(&lt;class 'int'&gt;, {'The&lt;/w&gt;': 2, 'a': 10, 'i': 6, 'ms&lt;/w&gt;': 2, 'for&lt;/w&gt;': 4, 'th': 5, 'is&lt;/w&gt;': 3, 's': 10, 'u': 7, 'b': 2, 'j': 1, 'ec': 2, 't&lt;/w&gt;': 2, 'st': 4, 'de': 5, 'nts&lt;/w&gt;': 2, 'to&lt;/w&gt;': 2, 've': 3, 'l': 7, 'op': 3, '&lt;/w&gt;': 12, 'an': 4, 'n': 5, 'r': 11, 'ding&lt;/w&gt;': 2, 'of&lt;/w&gt;': 2, 'e&lt;/w&gt;': 11, 'm': 10, 'in&lt;/w&gt;': 4, 'al': 3, 'g': 5, 'or': 3, 'us': 4, 'ed&lt;/w&gt;': 3, 'at': 2, 'language&lt;/w&gt;': 3, 'p': 8, 'o': 5, 'c': 4, 'e': 10, 'ss': 3, 'ing,&lt;/w&gt;': 3, 'd': 2, 'ang': 1, 'ic': 4, 'ation': 5, 's&lt;/w&gt;': 3, 'in': 5, 'cl': 3, 't': 6, 'x': 1, 'f': 1, ',&lt;/w&gt;': 4, 'h': 4, 'and&lt;/w&gt;': 3, 'q': 1, 'ion': 1, 'w': 2, 'ing': 2, '.&lt;/w&gt;': 3, 'T': 1, 'ar': 3, '-': 3, 'of': 1, 'ag': 1, 'y': 2, 'nt': 1, 'ing&lt;/w&gt;': 2, 'P': 1, 'on': 2, 'for': 1, 'k': 1})
+Number of tokens: 72
+==========
+Iter: 50
+Best pair: ('th', 'e&lt;/w&gt;')
+Tokens: defaultdict(&lt;class 'int'&gt;, {'The&lt;/w&gt;': 2, 'a': 10, 'i': 6, 'ms&lt;/w&gt;': 2, 'for&lt;/w&gt;': 4, 'th': 3, 'is&lt;/w&gt;': 3, 's': 10, 'u': 7, 'b': 2, 'j': 1, 'ec': 2, 't&lt;/w&gt;': 2, 'st': 4, 'de': 5, 'nts&lt;/w&gt;': 2, 'to&lt;/w&gt;': 2, 've': 3, 'l': 7, 'op': 3, '&lt;/w&gt;': 12, 'an': 4, 'n': 5, 'r': 11, 'ding&lt;/w&gt;': 2, 'of&lt;/w&gt;': 2, 'the&lt;/w&gt;': 2, 'm': 10, 'in&lt;/w&gt;': 4, 'al': 3, 'g': 5, 'or': 3, 'us': 4, 'ed&lt;/w&gt;': 3, 'at': 2, 'language&lt;/w&gt;': 3, 'p': 8, 'o': 5, 'c': 4, 'e': 10, 'ss': 3, 'ing,&lt;/w&gt;': 3, 'e&lt;/w&gt;': 9, 'd': 2, 'ang': 1, 'ic': 4, 'ation': 5, 's&lt;/w&gt;': 3, 'in': 5, 'cl': 3, 't': 6, 'x': 1, 'f': 1, ',&lt;/w&gt;': 4, 'h': 4, 'and&lt;/w&gt;': 3, 'q': 1, 'ion': 1, 'w': 2, 'ing': 2, '.&lt;/w&gt;': 3, 'T': 1, 'ar': 3, '-': 3, 'of': 1, 'ag': 1, 'y': 2, 'nt': 1, 'ing&lt;/w&gt;': 2, 'P': 1, 'on': 2, 'for': 1, 'k': 1})
+Number of tokens: 73
+==========
+Iter: 51
+Best pair: ('m', 'a')
+Tokens: defaultdict(&lt;class 'int'&gt;, {'The&lt;/w&gt;': 2, 'a': 8, 'i': 6, 'ms&lt;/w&gt;': 2, 'for&lt;/w&gt;': 4, 'th': 3, 'is&lt;/w&gt;': 3, 's': 10, 'u': 7, 'b': 2, 'j': 1, 'ec': 2, 't&lt;/w&gt;': 2, 'st': 4, 'de': 5, 'nts&lt;/w&gt;': 2, 'to&lt;/w&gt;': 2, 've': 3, 'l': 7, 'op': 3, '&lt;/w&gt;': 12, 'an': 4, 'n': 5, 'r': 11, 'ding&lt;/w&gt;': 2, 'of&lt;/w&gt;': 2, 'the&lt;/w&gt;': 2, 'ma': 2, 'in&lt;/w&gt;': 4, 'al': 3, 'g': 5, 'or': 3, 'us': 4, 'ed&lt;/w&gt;': 3, 'at': 2, 'language&lt;/w&gt;': 3, 'p': 8, 'o': 5, 'c': 4, 'e': 10, 'ss': 3, 'ing,&lt;/w&gt;': 3, 'e&lt;/w&gt;': 9, 'd': 2, 'ang': 1, 'ic': 4, 'ation': 5, 's&lt;/w&gt;': 3, 'in': 5, 'cl': 3, 't': 6, 'x': 1, 'f': 1, ',&lt;/w&gt;': 4, 'h': 4, 'and&lt;/w&gt;': 3, 'q': 1, 'ion': 1, 'w': 2, 'ing': 2, '.&lt;/w&gt;': 3, 'T': 1, 'ar': 3, '-': 3, 'of': 1, 'ag': 1, 'm': 8, 'y': 2, 'nt': 1, 'ing&lt;/w&gt;': 2, 'P': 1, 'on': 2, 'for': 1, 'k': 1})
+Number of tokens: 74
+==========
+Iter: 52
+Best pair: ('us', 'ed&lt;/w&gt;')
+Tokens: defaultdict(&lt;class 'int'&gt;, {'The&lt;/w&gt;': 2, 'a': 8, 'i': 6, 'ms&lt;/w&gt;': 2, 'for&lt;/w&gt;': 4, 'th': 3, 'is&lt;/w&gt;': 3, 's': 10, 'u': 7, 'b': 2, 'j': 1, 'ec': 2, 't&lt;/w&gt;': 2, 'st': 4, 'de': 5, 'nts&lt;/w&gt;': 2, 'to&lt;/w&gt;': 2, 've': 3, 'l': 7, 'op': 3, '&lt;/w&gt;': 12, 'an': 4, 'n': 5, 'r': 11, 'ding&lt;/w&gt;': 2, 'of&lt;/w&gt;': 2, 'the&lt;/w&gt;': 2, 'ma': 2, 'in&lt;/w&gt;': 4, 'al': 3, 'g': 5, 'or': 3, 'used&lt;/w&gt;': 2, 'at': 2, 'language&lt;/w&gt;': 3, 'p': 8, 'o': 5, 'c': 4, 'e': 10, 'ss': 3, 'ing,&lt;/w&gt;': 3, 'us': 2, 'e&lt;/w&gt;': 9, 'd': 2, 'ang': 1, 'ic': 4, 'ation': 5, 's&lt;/w&gt;': 3, 'in': 5, 'cl': 3, 't': 6, 'x': 1, 'f': 1, ',&lt;/w&gt;': 4, 'h': 4, 'and&lt;/w&gt;': 3, 'q': 1, 'ion': 1, 'w': 2, 'ing': 2, '.&lt;/w&gt;': 3, 'T': 1, 'ed&lt;/w&gt;': 1, 'ar': 3, '-': 3, 'of': 1, 'ag': 1, 'm': 8, 'y': 2, 'nt': 1, 'ing&lt;/w&gt;': 2, 'P': 1, 'on': 2, 'for': 1, 'k': 1})
+Number of tokens: 75
+==========
+Iter: 53
+Best pair: ('p', 'r')
+Tokens: defaultdict(&lt;class 'int'&gt;, {'The&lt;/w&gt;': 2, 'a': 8, 'i': 6, 'ms&lt;/w&gt;': 2, 'for&lt;/w&gt;': 4, 'th': 3, 'is&lt;/w&gt;': 3, 's': 10, 'u': 7, 'b': 2, 'j': 1, 'ec': 2, 't&lt;/w&gt;': 2, 'st': 4, 'de': 5, 'nts&lt;/w&gt;': 2, 'to&lt;/w&gt;': 2, 've': 3, 'l': 7, 'op': 3, '&lt;/w&gt;': 12, 'an': 4, 'n': 5, 'r': 9, 'ding&lt;/w&gt;': 2, 'of&lt;/w&gt;': 2, 'the&lt;/w&gt;': 2, 'ma': 2, 'in&lt;/w&gt;': 4, 'al': 3, 'g': 5, 'or': 3, 'used&lt;/w&gt;': 2, 'at': 2, 'language&lt;/w&gt;': 3, 'pr': 2, 'o': 5, 'c': 4, 'e': 10, 'ss': 3, 'ing,&lt;/w&gt;': 3, 'us': 2, 'e&lt;/w&gt;': 9, 'd': 2, 'ang': 1, 'p': 6, 'ic': 4, 'ation': 5, 's&lt;/w&gt;': 3, 'in': 5, 'cl': 3, 't': 6, 'x': 1, 'f': 1, ',&lt;/w&gt;': 4, 'h': 4, 'and&lt;/w&gt;': 3, 'q': 1, 'ion': 1, 'w': 2, 'ing': 2, '.&lt;/w&gt;': 3, 'T': 1, 'ed&lt;/w&gt;': 1, 'ar': 3, '-': 3, 'of': 1, 'ag': 1, 'm': 8, 'y': 2, 'nt': 1, 'ing&lt;/w&gt;': 2, 'P': 1, 'on': 2, 'for': 1, 'k': 1})
+Number of tokens: 76
+==========
+Iter: 54
+Best pair: ('pr', 'o')
+Tokens: defaultdict(&lt;class 'int'&gt;, {'The&lt;/w&gt;': 2, 'a': 8, 'i': 6, 'ms&lt;/w&gt;': 2, 'for&lt;/w&gt;': 4, 'th': 3, 'is&lt;/w&gt;': 3, 's': 10, 'u': 7, 'b': 2, 'j': 1, 'ec': 2, 't&lt;/w&gt;': 2, 'st': 4, 'de': 5, 'nts&lt;/w&gt;': 2, 'to&lt;/w&gt;': 2, 've': 3, 'l': 7, 'op': 3, '&lt;/w&gt;': 12, 'an': 4, 'n': 5, 'r': 9, 'ding&lt;/w&gt;': 2, 'of&lt;/w&gt;': 2, 'the&lt;/w&gt;': 2, 'ma': 2, 'in&lt;/w&gt;': 4, 'al': 3, 'g': 5, 'or': 3, 'used&lt;/w&gt;': 2, 'at': 2, 'language&lt;/w&gt;': 3, 'pro': 2, 'c': 4, 'e': 10, 'ss': 3, 'ing,&lt;/w&gt;': 3, 'us': 2, 'e&lt;/w&gt;': 9, 'd': 2, 'ang': 1, 'p': 6, 'ic': 4, 'ation': 5, 's&lt;/w&gt;': 3, 'in': 5, 'cl': 3, 't': 6, 'x': 1, 'f': 1, ',&lt;/w&gt;': 4, 'h': 4, 'and&lt;/w&gt;': 3, 'q': 1, 'ion': 1, 'w': 2, 'ing': 2, '.&lt;/w&gt;': 3, 'T': 1, 'o': 3, 'ed&lt;/w&gt;': 1, 'ar': 3, '-': 3, 'of': 1, 'ag': 1, 'm': 8, 'y': 2, 'nt': 1, 'ing&lt;/w&gt;': 2, 'P': 1, 'on': 2, 'for': 1, 'k': 1})
+Number of tokens: 76
+==========
+Iter: 55
+Best pair: ('us', 'e&lt;/w&gt;')
+Tokens: defaultdict(&lt;class 'int'&gt;, {'The&lt;/w&gt;': 2, 'a': 8, 'i': 6, 'ms&lt;/w&gt;': 2, 'for&lt;/w&gt;': 4, 'th': 3, 'is&lt;/w&gt;': 3, 's': 10, 'u': 7, 'b': 2, 'j': 1, 'ec': 2, 't&lt;/w&gt;': 2, 'st': 4, 'de': 5, 'nts&lt;/w&gt;': 2, 'to&lt;/w&gt;': 2, 've': 3, 'l': 7, 'op': 3, '&lt;/w&gt;': 12, 'an': 4, 'n': 5, 'r': 9, 'ding&lt;/w&gt;': 2, 'of&lt;/w&gt;': 2, 'the&lt;/w&gt;': 2, 'ma': 2, 'in&lt;/w&gt;': 4, 'al': 3, 'g': 5, 'or': 3, 'used&lt;/w&gt;': 2, 'at': 2, 'language&lt;/w&gt;': 3, 'pro': 2, 'c': 4, 'e': 10, 'ss': 3, 'ing,&lt;/w&gt;': 3, 'use&lt;/w&gt;': 2, 'd': 2, 'e&lt;/w&gt;': 7, 'ang': 1, 'p': 6, 'ic': 4, 'ation': 5, 's&lt;/w&gt;': 3, 'in': 5, 'cl': 3, 't': 6, 'x': 1, 'f': 1, ',&lt;/w&gt;': 4, 'h': 4, 'and&lt;/w&gt;': 3, 'q': 1, 'ion': 1, 'w': 2, 'ing': 2, '.&lt;/w&gt;': 3, 'T': 1, 'o': 3, 'ed&lt;/w&gt;': 1, 'ar': 3, '-': 3, 'of': 1, 'ag': 1, 'm': 8, 'y': 2, 'nt': 1, 'ing&lt;/w&gt;': 2, 'P': 1, 'on': 2, 'for': 1, 'k': 1})
+Number of tokens: 76
+==========
+Iter: 56
+Best pair: ('ve', 'r')
+Tokens: defaultdict(&lt;class 'int'&gt;, {'The&lt;/w&gt;': 2, 'a': 8, 'i': 6, 'ms&lt;/w&gt;': 2, 'for&lt;/w&gt;': 4, 'th': 3, 'is&lt;/w&gt;': 3, 's': 10, 'u': 7, 'b': 2, 'j': 1, 'ec': 2, 't&lt;/w&gt;': 2, 'st': 4, 'de': 5, 'nts&lt;/w&gt;': 2, 'to&lt;/w&gt;': 2, 've': 1, 'l': 7, 'op': 3, '&lt;/w&gt;': 12, 'an': 4, 'n': 5, 'r': 7, 'ding&lt;/w&gt;': 2, 'of&lt;/w&gt;': 2, 'the&lt;/w&gt;': 2, 'ma': 2, 'in&lt;/w&gt;': 4, 'al': 3, 'g': 5, 'or': 3, 'used&lt;/w&gt;': 2, 'at': 2, 'language&lt;/w&gt;': 3, 'pro': 2, 'c': 4, 'e': 10, 'ss': 3, 'ing,&lt;/w&gt;': 3, 'use&lt;/w&gt;': 2, 'd': 2, 'ver': 2, 'e&lt;/w&gt;': 7, 'ang': 1, 'p': 6, 'ic': 4, 'ation': 5, 's&lt;/w&gt;': 3, 'in': 5, 'cl': 3, 't': 6, 'x': 1, 'f': 1, ',&lt;/w&gt;': 4, 'h': 4, 'and&lt;/w&gt;': 3, 'q': 1, 'ion': 1, 'w': 2, 'ing': 2, '.&lt;/w&gt;': 3, 'T': 1, 'o': 3, 'ed&lt;/w&gt;': 1, 'ar': 3, '-': 3, 'of': 1, 'ag': 1, 'm': 8, 'y': 2, 'nt': 1, 'ing&lt;/w&gt;': 2, 'P': 1, 'on': 2, 'for': 1, 'k': 1})
+Number of tokens: 77
+==========
+Iter: 57
+Best pair: ('ic', 'ation')
+Tokens: defaultdict(&lt;class 'int'&gt;, {'The&lt;/w&gt;': 2, 'a': 8, 'i': 6, 'ms&lt;/w&gt;': 2, 'for&lt;/w&gt;': 4, 'th': 3, 'is&lt;/w&gt;': 3, 's': 10, 'u': 7, 'b': 2, 'j': 1, 'ec': 2, 't&lt;/w&gt;': 2, 'st': 4, 'de': 5, 'nts&lt;/w&gt;': 2, 'to&lt;/w&gt;': 2, 've': 1, 'l': 7, 'op': 3, '&lt;/w&gt;': 12, 'an': 4, 'n': 5, 'r': 7, 'ding&lt;/w&gt;': 2, 'of&lt;/w&gt;': 2, 'the&lt;/w&gt;': 2, 'ma': 2, 'in&lt;/w&gt;': 4, 'al': 3, 'g': 5, 'or': 3, 'used&lt;/w&gt;': 2, 'at': 2, 'language&lt;/w&gt;': 3, 'pro': 2, 'c': 4, 'e': 10, 'ss': 3, 'ing,&lt;/w&gt;': 3, 'use&lt;/w&gt;': 2, 'd': 2, 'ver': 2, 'e&lt;/w&gt;': 7, 'ang': 1, 'p': 6, 'ication': 2, 's&lt;/w&gt;': 3, 'in': 5, 'cl': 3, 't': 6, 'x': 1, 'f': 1, ',&lt;/w&gt;': 4, 'h': 4, 'ation': 3, 'and&lt;/w&gt;': 3, 'q': 1, 'ion': 1, 'w': 2, 'ing': 2, '.&lt;/w&gt;': 3, 'T': 1, 'ic': 2, 'o': 3, 'ed&lt;/w&gt;': 1, 'ar': 3, '-': 3, 'of': 1, 'ag': 1, 'm': 8, 'y': 2, 'nt': 1, 'ing&lt;/w&gt;': 2, 'P': 1, 'on': 2, 'for': 1, 'k': 1})
+Number of tokens: 78
+==========
+Iter: 58
+Best pair: ('in', 'cl')
+Tokens: defaultdict(&lt;class 'int'&gt;, {'The&lt;/w&gt;': 2, 'a': 8, 'i': 6, 'ms&lt;/w&gt;': 2, 'for&lt;/w&gt;': 4, 'th': 3, 'is&lt;/w&gt;': 3, 's': 10, 'u': 7, 'b': 2, 'j': 1, 'ec': 2, 't&lt;/w&gt;': 2, 'st': 4, 'de': 5, 'nts&lt;/w&gt;': 2, 'to&lt;/w&gt;': 2, 've': 1, 'l': 7, 'op': 3, '&lt;/w&gt;': 12, 'an': 4, 'n': 5, 'r': 7, 'ding&lt;/w&gt;': 2, 'of&lt;/w&gt;': 2, 'the&lt;/w&gt;': 2, 'ma': 2, 'in&lt;/w&gt;': 4, 'al': 3, 'g': 5, 'or': 3, 'used&lt;/w&gt;': 2, 'at': 2, 'language&lt;/w&gt;': 3, 'pro': 2, 'c': 4, 'e': 10, 'ss': 3, 'ing,&lt;/w&gt;': 3, 'use&lt;/w&gt;': 2, 'd': 2, 'ver': 2, 'e&lt;/w&gt;': 7, 'ang': 1, 'p': 6, 'ication': 2, 's&lt;/w&gt;': 3, 'incl': 2, 't': 6, 'x': 1, 'cl': 1, 'f': 1, ',&lt;/w&gt;': 4, 'h': 4, 'in': 3, 'ation': 3, 'and&lt;/w&gt;': 3, 'q': 1, 'ion': 1, 'w': 2, 'ing': 2, '.&lt;/w&gt;': 3, 'T': 1, 'ic': 2, 'o': 3, 'ed&lt;/w&gt;': 1, 'ar': 3, '-': 3, 'of': 1, 'ag': 1, 'm': 8, 'y': 2, 'nt': 1, 'ing&lt;/w&gt;': 2, 'P': 1, 'on': 2, 'for': 1, 'k': 1})
+Number of tokens: 79
+==========
+Iter: 59
+Best pair: ('incl', 'u')
+Tokens: defaultdict(&lt;class 'int'&gt;, {'The&lt;/w&gt;': 2, 'a': 8, 'i': 6, 'ms&lt;/w&gt;': 2, 'for&lt;/w&gt;': 4, 'th': 3, 'is&lt;/w&gt;': 3, 's': 10, 'u': 5, 'b': 2, 'j': 1, 'ec': 2, 't&lt;/w&gt;': 2, 'st': 4, 'de': 5, 'nts&lt;/w&gt;': 2, 'to&lt;/w&gt;': 2, 've': 1, 'l': 7, 'op': 3, '&lt;/w&gt;': 12, 'an': 4, 'n': 5, 'r': 7, 'ding&lt;/w&gt;': 2, 'of&lt;/w&gt;': 2, 'the&lt;/w&gt;': 2, 'ma': 2, 'in&lt;/w&gt;': 4, 'al': 3, 'g': 5, 'or': 3, 'used&lt;/w&gt;': 2, 'at': 2, 'language&lt;/w&gt;': 3, 'pro': 2, 'c': 4, 'e': 10, 'ss': 3, 'ing,&lt;/w&gt;': 3, 'use&lt;/w&gt;': 2, 'd': 2, 'ver': 2, 'e&lt;/w&gt;': 7, 'ang': 1, 'p': 6, 'ication': 2, 's&lt;/w&gt;': 3, 'inclu': 2, 't': 6, 'x': 1, 'cl': 1, 'f': 1, ',&lt;/w&gt;': 4, 'h': 4, 'in': 3, 'ation': 3, 'and&lt;/w&gt;': 3, 'q': 1, 'ion': 1, 'w': 2, 'ing': 2, '.&lt;/w&gt;': 3, 'T': 1, 'ic': 2, 'o': 3, 'ed&lt;/w&gt;': 1, 'ar': 3, '-': 3, 'of': 1, 'ag': 1, 'm': 8, 'y': 2, 'nt': 1, 'ing&lt;/w&gt;': 2, 'P': 1, 'on': 2, 'for': 1, 'k': 1})
+Number of tokens: 79
+==========
+Iter: 60
+Best pair: ('a', 'ss')
+Tokens: defaultdict(&lt;class 'int'&gt;, {'The&lt;/w&gt;': 2, 'a': 6, 'i': 6, 'ms&lt;/w&gt;': 2, 'for&lt;/w&gt;': 4, 'th': 3, 'is&lt;/w&gt;': 3, 's': 10, 'u': 5, 'b': 2, 'j': 1, 'ec': 2, 't&lt;/w&gt;': 2, 'st': 4, 'de': 5, 'nts&lt;/w&gt;': 2, 'to&lt;/w&gt;': 2, 've': 1, 'l': 7, 'op': 3, '&lt;/w&gt;': 12, 'an': 4, 'n': 5, 'r': 7, 'ding&lt;/w&gt;': 2, 'of&lt;/w&gt;': 2, 'the&lt;/w&gt;': 2, 'ma': 2, 'in&lt;/w&gt;': 4, 'al': 3, 'g': 5, 'or': 3, 'used&lt;/w&gt;': 2, 'at': 2, 'language&lt;/w&gt;': 3, 'pro': 2, 'c': 4, 'e': 10, 'ss': 1, 'ing,&lt;/w&gt;': 3, 'use&lt;/w&gt;': 2, 'd': 2, 'ver': 2, 'e&lt;/w&gt;': 7, 'ang': 1, 'p': 6, 'ication': 2, 's&lt;/w&gt;': 3, 'inclu': 2, 't': 6, 'x': 1, 'cl': 1, 'ass': 2, 'f': 1, ',&lt;/w&gt;': 4, 'h': 4, 'in': 3, 'ation': 3, 'and&lt;/w&gt;': 3, 'q': 1, 'ion': 1, 'w': 2, 'ing': 2, '.&lt;/w&gt;': 3, 'T': 1, 'ic': 2, 'o': 3, 'ed&lt;/w&gt;': 1, 'ar': 3, '-': 3, 'of': 1, 'ag': 1, 'm': 8, 'y': 2, 'nt': 1, 'ing&lt;/w&gt;': 2, 'P': 1, 'on': 2, 'for': 1, 'k': 1})
+Number of tokens: 80
+==========
+Iter: 61
+Best pair: ('ass', 'i')
+Tokens: defaultdict(&lt;class 'int'&gt;, {'The&lt;/w&gt;': 2, 'a': 6, 'i': 4, 'ms&lt;/w&gt;': 2, 'for&lt;/w&gt;': 4, 'th': 3, 'is&lt;/w&gt;': 3, 's': 10, 'u': 5, 'b': 2, 'j': 1, 'ec': 2, 't&lt;/w&gt;': 2, 'st': 4, 'de': 5, 'nts&lt;/w&gt;': 2, 'to&lt;/w&gt;': 2, 've': 1, 'l': 7, 'op': 3, '&lt;/w&gt;': 12, 'an': 4, 'n': 5, 'r': 7, 'ding&lt;/w&gt;': 2, 'of&lt;/w&gt;': 2, 'the&lt;/w&gt;': 2, 'ma': 2, 'in&lt;/w&gt;': 4, 'al': 3, 'g': 5, 'or': 3, 'used&lt;/w&gt;': 2, 'at': 2, 'language&lt;/w&gt;': 3, 'pro': 2, 'c': 4, 'e': 10, 'ss': 1, 'ing,&lt;/w&gt;': 3, 'use&lt;/w&gt;': 2, 'd': 2, 'ver': 2, 'e&lt;/w&gt;': 7, 'ang': 1, 'p': 6, 'ication': 2, 's&lt;/w&gt;': 3, 'inclu': 2, 't': 6, 'x': 1, 'cl': 1, 'assi': 2, 'f': 1, ',&lt;/w&gt;': 4, 'h': 4, 'in': 3, 'ation': 3, 'and&lt;/w&gt;': 3, 'q': 1, 'ion': 1, 'w': 2, 'ing': 2, '.&lt;/w&gt;': 3, 'T': 1, 'ic': 2, 'o': 3, 'ed&lt;/w&gt;': 1, 'ar': 3, '-': 3, 'of': 1, 'ag': 1, 'm': 8, 'y': 2, 'nt': 1, 'ing&lt;/w&gt;': 2, 'P': 1, 'on': 2, 'for': 1, 'k': 1})
+Number of tokens: 80
+==========
+Iter: 62
+Best pair: ('an', 's')
+Tokens: defaultdict(&lt;class 'int'&gt;, {'The&lt;/w&gt;': 2, 'a': 6, 'i': 4, 'ms&lt;/w&gt;': 2, 'for&lt;/w&gt;': 4, 'th': 3, 'is&lt;/w&gt;': 3, 's': 8, 'u': 5, 'b': 2, 'j': 1, 'ec': 2, 't&lt;/w&gt;': 2, 'st': 4, 'de': 5, 'nts&lt;/w&gt;': 2, 'to&lt;/w&gt;': 2, 've': 1, 'l': 7, 'op': 3, '&lt;/w&gt;': 12, 'an': 2, 'n': 5, 'r': 7, 'ding&lt;/w&gt;': 2, 'of&lt;/w&gt;': 2, 'the&lt;/w&gt;': 2, 'ma': 2, 'in&lt;/w&gt;': 4, 'al': 3, 'g': 5, 'or': 3, 'used&lt;/w&gt;': 2, 'at': 2, 'language&lt;/w&gt;': 3, 'pro': 2, 'c': 4, 'e': 10, 'ss': 1, 'ing,&lt;/w&gt;': 3, 'use&lt;/w&gt;': 2, 'd': 2, 'ver': 2, 'e&lt;/w&gt;': 7, 'ang': 1, 'p': 6, 'ication': 2, 's&lt;/w&gt;': 3, 'inclu': 2, 't': 6, 'x': 1, 'cl': 1, 'assi': 2, 'f': 1, ',&lt;/w&gt;': 4, 'h': 4, 'in': 3, 'ans': 2, 'ation': 3, 'and&lt;/w&gt;': 3, 'q': 1, 'ion': 1, 'w': 2, 'ing': 2, '.&lt;/w&gt;': 3, 'T': 1, 'ic': 2, 'o': 3, 'ed&lt;/w&gt;': 1, 'ar': 3, '-': 3, 'of': 1, 'ag': 1, 'm': 8, 'y': 2, 'nt': 1, 'ing&lt;/w&gt;': 2, 'P': 1, 'on': 2, 'for': 1, 'k': 1})
+Number of tokens: 81
+==========
+Iter: 63
+Best pair: ('l', 'ation')
+Tokens: defaultdict(&lt;class 'int'&gt;, {'The&lt;/w&gt;': 2, 'a': 6, 'i': 4, 'ms&lt;/w&gt;': 2, 'for&lt;/w&gt;': 4, 'th': 3, 'is&lt;/w&gt;': 3, 's': 8, 'u': 5, 'b': 2, 'j': 1, 'ec': 2, 't&lt;/w&gt;': 2, 'st': 4, 'de': 5, 'nts&lt;/w&gt;': 2, 'to&lt;/w&gt;': 2, 've': 1, 'l': 5, 'op': 3, '&lt;/w&gt;': 12, 'an': 2, 'n': 5, 'r': 7, 'ding&lt;/w&gt;': 2, 'of&lt;/w&gt;': 2, 'the&lt;/w&gt;': 2, 'ma': 2, 'in&lt;/w&gt;': 4, 'al': 3, 'g': 5, 'or': 3, 'used&lt;/w&gt;': 2, 'at': 2, 'language&lt;/w&gt;': 3, 'pro': 2, 'c': 4, 'e': 10, 'ss': 1, 'ing,&lt;/w&gt;': 3, 'use&lt;/w&gt;': 2, 'd': 2, 'ver': 2, 'e&lt;/w&gt;': 7, 'ang': 1, 'p': 6, 'ication': 2, 's&lt;/w&gt;': 3, 'inclu': 2, 't': 6, 'x': 1, 'cl': 1, 'assi': 2, 'f': 1, ',&lt;/w&gt;': 4, 'h': 4, 'in': 3, 'ans': 2, 'lation': 2, 'and&lt;/w&gt;': 3, 'q': 1, 'ion': 1, 'w': 2, 'ing': 2, '.&lt;/w&gt;': 3, 'T': 1, 'ic': 2, 'o': 3, 'ed&lt;/w&gt;': 1, 'ar': 3, '-': 3, 'of': 1, 'ag': 1, 'm': 8, 'y': 2, 'nt': 1, 'ing&lt;/w&gt;': 2, 'P': 1, 'on': 2, 'for': 1, 'ation': 1, 'k': 1})
+Number of tokens: 82
+==========
+Iter: 64
+Best pair: ('ing', '.&lt;/w&gt;')
+Tokens: defaultdict(&lt;class 'int'&gt;, {'The&lt;/w&gt;': 2, 'a': 6, 'i': 4, 'ms&lt;/w&gt;': 2, 'for&lt;/w&gt;': 4, 'th': 3, 'is&lt;/w&gt;': 3, 's': 8, 'u': 5, 'b': 2, 'j': 1, 'ec': 2, 't&lt;/w&gt;': 2, 'st': 4, 'de': 5, 'nts&lt;/w&gt;': 2, 'to&lt;/w&gt;': 2, 've': 1, 'l': 5, 'op': 3, '&lt;/w&gt;': 12, 'an': 2, 'n': 5, 'r': 7, 'ding&lt;/w&gt;': 2, 'of&lt;/w&gt;': 2, 'the&lt;/w&gt;': 2, 'ma': 2, 'in&lt;/w&gt;': 4, 'al': 3, 'g': 5, 'or': 3, 'used&lt;/w&gt;': 2, 'at': 2, 'language&lt;/w&gt;': 3, 'pro': 2, 'c': 4, 'e': 10, 'ss': 1, 'ing,&lt;/w&gt;': 3, 'use&lt;/w&gt;': 2, 'd': 2, 'ver': 2, 'e&lt;/w&gt;': 7, 'ang': 1, 'p': 6, 'ication': 2, 's&lt;/w&gt;': 3, 'inclu': 2, 't': 6, 'x': 1, 'cl': 1, 'assi': 2, 'f': 1, ',&lt;/w&gt;': 4, 'h': 4, 'in': 3, 'ans': 2, 'lation': 2, 'and&lt;/w&gt;': 3, 'q': 1, 'ion': 1, 'w': 2, 'ing.&lt;/w&gt;': 2, 'T': 1, 'ic': 2, 'o': 3, 'ed&lt;/w&gt;': 1, 'ar': 3, '-': 3, 'of': 1, 'ag': 1, 'm': 8, 'y': 2, 'nt': 1, 'ing&lt;/w&gt;': 2, 'P': 1, 'on': 2, 'for': 1, 'ation': 1, 'k': 1, '.&lt;/w&gt;': 1})
+Number of tokens: 82
+==========
+Iter: 65
+Best pair: ('p', 'ar')
+Tokens: defaultdict(&lt;class 'int'&gt;, {'The&lt;/w&gt;': 2, 'a': 6, 'i': 4, 'ms&lt;/w&gt;': 2, 'for&lt;/w&gt;': 4, 'th': 3, 'is&lt;/w&gt;': 3, 's': 8, 'u': 5, 'b': 2, 'j': 1, 'ec': 2, 't&lt;/w&gt;': 2, 'st': 4, 'de': 5, 'nts&lt;/w&gt;': 2, 'to&lt;/w&gt;': 2, 've': 1, 'l': 5, 'op': 3, '&lt;/w&gt;': 12, 'an': 2, 'n': 5, 'r': 7, 'ding&lt;/w&gt;': 2, 'of&lt;/w&gt;': 2, 'the&lt;/w&gt;': 2, 'ma': 2, 'in&lt;/w&gt;': 4, 'al': 3, 'g': 5, 'or': 3, 'used&lt;/w&gt;': 2, 'at': 2, 'language&lt;/w&gt;': 3, 'pro': 2, 'c': 4, 'e': 10, 'ss': 1, 'ing,&lt;/w&gt;': 3, 'use&lt;/w&gt;': 2, 'd': 2, 'ver': 2, 'e&lt;/w&gt;': 7, 'ang': 1, 'p': 4, 'ication': 2, 's&lt;/w&gt;': 3, 'inclu': 2, 't': 6, 'x': 1, 'cl': 1, 'assi': 2, 'f': 1, ',&lt;/w&gt;': 4, 'h': 4, 'in': 3, 'ans': 2, 'lation': 2, 'and&lt;/w&gt;': 3, 'q': 1, 'ion': 1, 'w': 2, 'ing.&lt;/w&gt;': 2, 'T': 1, 'ic': 2, 'o': 3, 'ed&lt;/w&gt;': 1, 'par': 2, '-': 3, 'of': 1, 'ag': 1, 'm': 8, 'y': 2, 'nt': 1, 'ing&lt;/w&gt;': 2, 'ar': 1, 'P': 1, 'on': 2, 'for': 1, 'ation': 1, 'k': 1, '.&lt;/w&gt;': 1})
+Number of tokens: 83
+==========
+Iter: 66
+Best pair: ('g', 'r')
+Tokens: defaultdict(&lt;class 'int'&gt;, {'The&lt;/w&gt;': 2, 'a': 6, 'i': 4, 'ms&lt;/w&gt;': 2, 'for&lt;/w&gt;': 4, 'th': 3, 'is&lt;/w&gt;': 3, 's': 8, 'u': 5, 'b': 2, 'j': 1, 'ec': 2, 't&lt;/w&gt;': 2, 'st': 4, 'de': 5, 'nts&lt;/w&gt;': 2, 'to&lt;/w&gt;': 2, 've': 1, 'l': 5, 'op': 3, '&lt;/w&gt;': 12, 'an': 2, 'n': 5, 'r': 5, 'ding&lt;/w&gt;': 2, 'of&lt;/w&gt;': 2, 'the&lt;/w&gt;': 2, 'ma': 2, 'in&lt;/w&gt;': 4, 'al': 3, 'g': 3, 'or': 3, 'used&lt;/w&gt;': 2, 'at': 2, 'language&lt;/w&gt;': 3, 'pro': 2, 'c': 4, 'e': 10, 'ss': 1, 'ing,&lt;/w&gt;': 3, 'use&lt;/w&gt;': 2, 'd': 2, 'ver': 2, 'e&lt;/w&gt;': 7, 'ang': 1, 'p': 4, 'ication': 2, 's&lt;/w&gt;': 3, 'inclu': 2, 't': 6, 'x': 1, 'cl': 1, 'assi': 2, 'f': 1, ',&lt;/w&gt;': 4, 'h': 4, 'in': 3, 'ans': 2, 'lation': 2, 'and&lt;/w&gt;': 3, 'q': 1, 'ion': 1, 'w': 2, 'ing.&lt;/w&gt;': 2, 'T': 1, 'ic': 2, 'o': 3, 'ed&lt;/w&gt;': 1, 'par': 2, '-': 3, 'of': 1, 'ag': 1, 'gr': 2, 'm': 8, 'y': 2, 'nt': 1, 'ing&lt;/w&gt;': 2, 'ar': 1, 'P': 1, 'on': 2, 'for': 1, 'ation': 1, 'k': 1, '.&lt;/w&gt;': 1})
+Number of tokens: 84
+==========
+Iter: 67
+Best pair: ('gr', 'a')
+Tokens: defaultdict(&lt;class 'int'&gt;, {'The&lt;/w&gt;': 2, 'a': 4, 'i': 4, 'ms&lt;/w&gt;': 2, 'for&lt;/w&gt;': 4, 'th': 3, 'is&lt;/w&gt;': 3, 's': 8, 'u': 5, 'b': 2, 'j': 1, 'ec': 2, 't&lt;/w&gt;': 2, 'st': 4, 'de': 5, 'nts&lt;/w&gt;': 2, 'to&lt;/w&gt;': 2, 've': 1, 'l': 5, 'op': 3, '&lt;/w&gt;': 12, 'an': 2, 'n': 5, 'r': 5, 'ding&lt;/w&gt;': 2, 'of&lt;/w&gt;': 2, 'the&lt;/w&gt;': 2, 'ma': 2, 'in&lt;/w&gt;': 4, 'al': 3, 'g': 3, 'or': 3, 'used&lt;/w&gt;': 2, 'at': 2, 'language&lt;/w&gt;': 3, 'pro': 2, 'c': 4, 'e': 10, 'ss': 1, 'ing,&lt;/w&gt;': 3, 'use&lt;/w&gt;': 2, 'd': 2, 'ver': 2, 'e&lt;/w&gt;': 7, 'ang': 1, 'p': 4, 'ication': 2, 's&lt;/w&gt;': 3, 'inclu': 2, 't': 6, 'x': 1, 'cl': 1, 'assi': 2, 'f': 1, ',&lt;/w&gt;': 4, 'h': 4, 'in': 3, 'ans': 2, 'lation': 2, 'and&lt;/w&gt;': 3, 'q': 1, 'ion': 1, 'w': 2, 'ing.&lt;/w&gt;': 2, 'T': 1, 'ic': 2, 'o': 3, 'ed&lt;/w&gt;': 1, 'par': 2, '-': 3, 'of': 1, 'ag': 1, 'gra': 2, 'm': 8, 'y': 2, 'nt': 1, 'ing&lt;/w&gt;': 2, 'ar': 1, 'P': 1, 'on': 2, 'for': 1, 'ation': 1, 'k': 1, '.&lt;/w&gt;': 1})
+Number of tokens: 84
+==========
+Iter: 68
+Best pair: ('gra', 'm')
+Tokens: defaultdict(&lt;class 'int'&gt;, {'The&lt;/w&gt;': 2, 'a': 4, 'i': 4, 'ms&lt;/w&gt;': 2, 'for&lt;/w&gt;': 4, 'th': 3, 'is&lt;/w&gt;': 3, 's': 8, 'u': 5, 'b': 2, 'j': 1, 'ec': 2, 't&lt;/w&gt;': 2, 'st': 4, 'de': 5, 'nts&lt;/w&gt;': 2, 'to&lt;/w&gt;': 2, 've': 1, 'l': 5, 'op': 3, '&lt;/w&gt;': 12, 'an': 2, 'n': 5, 'r': 5, 'ding&lt;/w&gt;': 2, 'of&lt;/w&gt;': 2, 'the&lt;/w&gt;': 2, 'ma': 2, 'in&lt;/w&gt;': 4, 'al': 3, 'g': 3, 'or': 3, 'used&lt;/w&gt;': 2, 'at': 2, 'language&lt;/w&gt;': 3, 'pro': 2, 'c': 4, 'e': 10, 'ss': 1, 'ing,&lt;/w&gt;': 3, 'use&lt;/w&gt;': 2, 'd': 2, 'ver': 2, 'e&lt;/w&gt;': 7, 'ang': 1, 'p': 4, 'ication': 2, 's&lt;/w&gt;': 3, 'inclu': 2, 't': 6, 'x': 1, 'cl': 1, 'assi': 2, 'f': 1, ',&lt;/w&gt;': 4, 'h': 4, 'in': 3, 'ans': 2, 'lation': 2, 'and&lt;/w&gt;': 3, 'q': 1, 'ion': 1, 'w': 2, 'ing.&lt;/w&gt;': 2, 'T': 1, 'ic': 2, 'o': 3, 'ed&lt;/w&gt;': 1, 'par': 2, '-': 3, 'of': 1, 'ag': 1, 'gram': 2, 'm': 6, 'y': 2, 'nt': 1, 'ing&lt;/w&gt;': 2, 'ar': 1, 'P': 1, 'on': 2, 'for': 1, 'ation': 1, 'k': 1, '.&lt;/w&gt;': 1})
+Number of tokens: 84
+==========
+Iter: 69
+Best pair: ('m', 'e')
+Tokens: defaultdict(&lt;class 'int'&gt;, {'The&lt;/w&gt;': 2, 'a': 4, 'i': 4, 'ms&lt;/w&gt;': 2, 'for&lt;/w&gt;': 4, 'th': 3, 'is&lt;/w&gt;': 3, 's': 8, 'u': 5, 'b': 2, 'j': 1, 'ec': 2, 't&lt;/w&gt;': 2, 'st': 4, 'de': 5, 'nts&lt;/w&gt;': 2, 'to&lt;/w&gt;': 2, 've': 1, 'l': 5, 'op': 3, '&lt;/w&gt;': 12, 'an': 2, 'n': 5, 'r': 5, 'ding&lt;/w&gt;': 2, 'of&lt;/w&gt;': 2, 'the&lt;/w&gt;': 2, 'ma': 2, 'in&lt;/w&gt;': 4, 'al': 3, 'g': 3, 'or': 3, 'used&lt;/w&gt;': 2, 'at': 2, 'language&lt;/w&gt;': 3, 'pro': 2, 'c': 4, 'e': 8, 'ss': 1, 'ing,&lt;/w&gt;': 3, 'use&lt;/w&gt;': 2, 'd': 2, 'ver': 2, 'e&lt;/w&gt;': 7, 'ang': 1, 'p': 4, 'ication': 2, 's&lt;/w&gt;': 3, 'inclu': 2, 't': 6, 'x': 1, 'cl': 1, 'assi': 2, 'f': 1, ',&lt;/w&gt;': 4, 'h': 4, 'in': 3, 'ans': 2, 'lation': 2, 'and&lt;/w&gt;': 3, 'q': 1, 'ion': 1, 'w': 2, 'ing.&lt;/w&gt;': 2, 'T': 1, 'ic': 2, 'o': 3, 'ed&lt;/w&gt;': 1, 'par': 2, '-': 3, 'of': 1, 'ag': 1, 'gram': 2, 'm': 4, 'y': 2, 'nt': 1, 'ing&lt;/w&gt;': 2, 'ar': 1, 'P': 1, 'on': 2, 'for': 1, 'ation': 1, 'k': 1, 'me': 2, '.&lt;/w&gt;': 1})
+Number of tokens: 85
+==========
+Iter: 70
+Best pair: ('a', 'i')
+Tokens: defaultdict(&lt;class 'int'&gt;, {'The&lt;/w&gt;': 2, 'ai': 1, 'ms&lt;/w&gt;': 2, 'for&lt;/w&gt;': 4, 'th': 3, 'is&lt;/w&gt;': 3, 's': 8, 'u': 5, 'b': 2, 'j': 1, 'ec': 2, 't&lt;/w&gt;': 2, 'st': 4, 'de': 5, 'nts&lt;/w&gt;': 2, 'to&lt;/w&gt;': 2, 've': 1, 'l': 5, 'op': 3, '&lt;/w&gt;': 12, 'an': 2, 'n': 5, 'r': 5, 'ding&lt;/w&gt;': 2, 'of&lt;/w&gt;': 2, 'the&lt;/w&gt;': 2, 'ma': 2, 'in&lt;/w&gt;': 4, 'al': 3, 'g': 3, 'or': 3, 'i': 3, 'used&lt;/w&gt;': 2, 'at': 2, 'language&lt;/w&gt;': 3, 'pro': 2, 'c': 4, 'e': 8, 'ss': 1, 'ing,&lt;/w&gt;': 3, 'use&lt;/w&gt;': 2, 'a': 3, 'd': 2, 'ver': 2, 'e&lt;/w&gt;': 7, 'ang': 1, 'p': 4, 'ication': 2, 's&lt;/w&gt;': 3, 'inclu': 2, 't': 6, 'x': 1, 'cl': 1, 'assi': 2, 'f': 1, ',&lt;/w&gt;': 4, 'h': 4, 'in': 3, 'ans': 2, 'lation': 2, 'and&lt;/w&gt;': 3, 'q': 1, 'ion': 1, 'w': 2, 'ing.&lt;/w&gt;': 2, 'T': 1, 'ic': 2, 'o': 3, 'ed&lt;/w&gt;': 1, 'par': 2, '-': 3, 'of': 1, 'ag': 1, 'gram': 2, 'm': 4, 'y': 2, 'nt': 1, 'ing&lt;/w&gt;': 2, 'ar': 1, 'P': 1, 'on': 2, 'for': 1, 'ation': 1, 'k': 1, 'me': 2, '.&lt;/w&gt;': 1})
+Number of tokens: 86
+==========
+Iter: 71
+Best pair: ('ai', 'ms&lt;/w&gt;')
+Tokens: defaultdict(&lt;class 'int'&gt;, {'The&lt;/w&gt;': 2, 'aims&lt;/w&gt;': 1, 'for&lt;/w&gt;': 4, 'th': 3, 'is&lt;/w&gt;': 3, 's': 8, 'u': 5, 'b': 2, 'j': 1, 'ec': 2, 't&lt;/w&gt;': 2, 'st': 4, 'de': 5, 'nts&lt;/w&gt;': 2, 'to&lt;/w&gt;': 2, 've': 1, 'l': 5, 'op': 3, '&lt;/w&gt;': 12, 'an': 2, 'n': 5, 'r': 5, 'ding&lt;/w&gt;': 2, 'of&lt;/w&gt;': 2, 'the&lt;/w&gt;': 2, 'ma': 2, 'in&lt;/w&gt;': 4, 'al': 3, 'g': 3, 'or': 3, 'i': 3, 'ms&lt;/w&gt;': 1, 'used&lt;/w&gt;': 2, 'at': 2, 'language&lt;/w&gt;': 3, 'pro': 2, 'c': 4, 'e': 8, 'ss': 1, 'ing,&lt;/w&gt;': 3, 'use&lt;/w&gt;': 2, 'a': 3, 'd': 2, 'ver': 2, 'e&lt;/w&gt;': 7, 'ang': 1, 'p': 4, 'ication': 2, 's&lt;/w&gt;': 3, 'inclu': 2, 't': 6, 'x': 1, 'cl': 1, 'assi': 2, 'f': 1, ',&lt;/w&gt;': 4, 'h': 4, 'in': 3, 'ans': 2, 'lation': 2, 'and&lt;/w&gt;': 3, 'q': 1, 'ion': 1, 'w': 2, 'ing.&lt;/w&gt;': 2, 'T': 1, 'ic': 2, 'o': 3, 'ed&lt;/w&gt;': 1, 'par': 2, '-': 3, 'of': 1, 'ag': 1, 'gram': 2, 'm': 4, 'y': 2, 'nt': 1, 'ing&lt;/w&gt;': 2, 'ar': 1, 'P': 1, 'on': 2, 'for': 1, 'ation': 1, 'k': 1, 'me': 2, '.&lt;/w&gt;': 1})
+Number of tokens: 86
+==========
+Iter: 72
+Best pair: ('th', 'is&lt;/w&gt;')
+Tokens: defaultdict(&lt;class 'int'&gt;, {'The&lt;/w&gt;': 2, 'aims&lt;/w&gt;': 1, 'for&lt;/w&gt;': 4, 'this&lt;/w&gt;': 1, 's': 8, 'u': 5, 'b': 2, 'j': 1, 'ec': 2, 't&lt;/w&gt;': 2, 'is&lt;/w&gt;': 2, 'st': 4, 'de': 5, 'nts&lt;/w&gt;': 2, 'to&lt;/w&gt;': 2, 've': 1, 'l': 5, 'op': 3, '&lt;/w&gt;': 12, 'an': 2, 'n': 5, 'r': 5, 'ding&lt;/w&gt;': 2, 'of&lt;/w&gt;': 2, 'the&lt;/w&gt;': 2, 'ma': 2, 'in&lt;/w&gt;': 4, 'al': 3, 'g': 3, 'or': 3, 'i': 3, 'th': 2, 'ms&lt;/w&gt;': 1, 'used&lt;/w&gt;': 2, 'at': 2, 'language&lt;/w&gt;': 3, 'pro': 2, 'c': 4, 'e': 8, 'ss': 1, 'ing,&lt;/w&gt;': 3, 'use&lt;/w&gt;': 2, 'a': 3, 'd': 2, 'ver': 2, 'e&lt;/w&gt;': 7, 'ang': 1, 'p': 4, 'ication': 2, 's&lt;/w&gt;': 3, 'inclu': 2, 't': 6, 'x': 1, 'cl': 1, 'assi': 2, 'f': 1, ',&lt;/w&gt;': 4, 'h': 4, 'in': 3, 'ans': 2, 'lation': 2, 'and&lt;/w&gt;': 3, 'q': 1, 'ion': 1, 'w': 2, 'ing.&lt;/w&gt;': 2, 'T': 1, 'ic': 2, 'o': 3, 'ed&lt;/w&gt;': 1, 'par': 2, '-': 3, 'of': 1, 'ag': 1, 'gram': 2, 'm': 4, 'y': 2, 'nt': 1, 'ing&lt;/w&gt;': 2, 'ar': 1, 'P': 1, 'on': 2, 'for': 1, 'ation': 1, 'k': 1, 'me': 2, '.&lt;/w&gt;': 1})
+Number of tokens: 87
+==========
+Iter: 73
+Best pair: ('s', 'u')
+Tokens: defaultdict(&lt;class 'int'&gt;, {'The&lt;/w&gt;': 2, 'aims&lt;/w&gt;': 1, 'for&lt;/w&gt;': 4, 'this&lt;/w&gt;': 1, 'su': 1, 'b': 2, 'j': 1, 'ec': 2, 't&lt;/w&gt;': 2, 'is&lt;/w&gt;': 2, 'st': 4, 'u': 4, 'de': 5, 'nts&lt;/w&gt;': 2, 'to&lt;/w&gt;': 2, 've': 1, 'l': 5, 'op': 3, '&lt;/w&gt;': 12, 'an': 2, 'n': 5, 'r': 5, 'ding&lt;/w&gt;': 2, 'of&lt;/w&gt;': 2, 'the&lt;/w&gt;': 2, 'ma': 2, 'in&lt;/w&gt;': 4, 'al': 3, 'g': 3, 'or': 3, 'i': 3, 'th': 2, 'ms&lt;/w&gt;': 1, 'used&lt;/w&gt;': 2, 'at': 2, 'language&lt;/w&gt;': 3, 'pro': 2, 'c': 4, 'e': 8, 'ss': 1, 'ing,&lt;/w&gt;': 3, 'use&lt;/w&gt;': 2, 'a': 3, 'd': 2, 'ver': 2, 's': 7, 'e&lt;/w&gt;': 7, 'ang': 1, 'p': 4, 'ication': 2, 's&lt;/w&gt;': 3, 'inclu': 2, 't': 6, 'x': 1, 'cl': 1, 'assi': 2, 'f': 1, ',&lt;/w&gt;': 4, 'h': 4, 'in': 3, 'ans': 2, 'lation': 2, 'and&lt;/w&gt;': 3, 'q': 1, 'ion': 1, 'w': 2, 'ing.&lt;/w&gt;': 2, 'T': 1, 'ic': 2, 'o': 3, 'ed&lt;/w&gt;': 1, 'par': 2, '-': 3, 'of': 1, 'ag': 1, 'gram': 2, 'm': 4, 'y': 2, 'nt': 1, 'ing&lt;/w&gt;': 2, 'ar': 1, 'P': 1, 'on': 2, 'for': 1, 'ation': 1, 'k': 1, 'me': 2, '.&lt;/w&gt;': 1})
+Number of tokens: 88
+==========
+Iter: 74
+Best pair: ('su', 'b')
+Tokens: defaultdict(&lt;class 'int'&gt;, {'The&lt;/w&gt;': 2, 'aims&lt;/w&gt;': 1, 'for&lt;/w&gt;': 4, 'this&lt;/w&gt;': 1, 'sub': 1, 'j': 1, 'ec': 2, 't&lt;/w&gt;': 2, 'is&lt;/w&gt;': 2, 'st': 4, 'u': 4, 'de': 5, 'nts&lt;/w&gt;': 2, 'to&lt;/w&gt;': 2, 've': 1, 'l': 5, 'op': 3, '&lt;/w&gt;': 12, 'an': 2, 'n': 5, 'r': 5, 'ding&lt;/w&gt;': 2, 'of&lt;/w&gt;': 2, 'the&lt;/w&gt;': 2, 'ma': 2, 'in&lt;/w&gt;': 4, 'al': 3, 'g': 3, 'or': 3, 'i': 3, 'th': 2, 'ms&lt;/w&gt;': 1, 'used&lt;/w&gt;': 2, 'at': 2, 'language&lt;/w&gt;': 3, 'pro': 2, 'c': 4, 'e': 8, 'ss': 1, 'ing,&lt;/w&gt;': 3, 'use&lt;/w&gt;': 2, 'a': 3, 'd': 2, 'ver': 2, 's': 7, 'e&lt;/w&gt;': 7, 'ang': 1, 'p': 4, 'ication': 2, 's&lt;/w&gt;': 3, 'inclu': 2, 't': 6, 'x': 1, 'cl': 1, 'assi': 2, 'f': 1, ',&lt;/w&gt;': 4, 'h': 4, 'in': 3, 'ans': 2, 'lation': 2, 'and&lt;/w&gt;': 3, 'q': 1, 'ion': 1, 'w': 2, 'ing.&lt;/w&gt;': 2, 'T': 1, 'ic': 2, 'b': 1, 'o': 3, 'ed&lt;/w&gt;': 1, 'par': 2, '-': 3, 'of': 1, 'ag': 1, 'gram': 2, 'm': 4, 'y': 2, 'nt': 1, 'ing&lt;/w&gt;': 2, 'ar': 1, 'P': 1, 'on': 2, 'for': 1, 'ation': 1, 'k': 1, 'me': 2, '.&lt;/w&gt;': 1})
+Number of tokens: 88
+==========
+Iter: 75
+Best pair: ('sub', 'j')
+Tokens: defaultdict(&lt;class 'int'&gt;, {'The&lt;/w&gt;': 2, 'aims&lt;/w&gt;': 1, 'for&lt;/w&gt;': 4, 'this&lt;/w&gt;': 1, 'subj': 1, 'ec': 2, 't&lt;/w&gt;': 2, 'is&lt;/w&gt;': 2, 'st': 4, 'u': 4, 'de': 5, 'nts&lt;/w&gt;': 2, 'to&lt;/w&gt;': 2, 've': 1, 'l': 5, 'op': 3, '&lt;/w&gt;': 12, 'an': 2, 'n': 5, 'r': 5, 'ding&lt;/w&gt;': 2, 'of&lt;/w&gt;': 2, 'the&lt;/w&gt;': 2, 'ma': 2, 'in&lt;/w&gt;': 4, 'al': 3, 'g': 3, 'or': 3, 'i': 3, 'th': 2, 'ms&lt;/w&gt;': 1, 'used&lt;/w&gt;': 2, 'at': 2, 'language&lt;/w&gt;': 3, 'pro': 2, 'c': 4, 'e': 8, 'ss': 1, 'ing,&lt;/w&gt;': 3, 'use&lt;/w&gt;': 2, 'a': 3, 'd': 2, 'ver': 2, 's': 7, 'e&lt;/w&gt;': 7, 'ang': 1, 'p': 4, 'ication': 2, 's&lt;/w&gt;': 3, 'inclu': 2, 't': 6, 'x': 1, 'cl': 1, 'assi': 2, 'f': 1, ',&lt;/w&gt;': 4, 'h': 4, 'in': 3, 'ans': 2, 'lation': 2, 'and&lt;/w&gt;': 3, 'q': 1, 'ion': 1, 'w': 2, 'ing.&lt;/w&gt;': 2, 'T': 1, 'ic': 2, 'b': 1, 'o': 3, 'ed&lt;/w&gt;': 1, 'par': 2, '-': 3, 'of': 1, 'ag': 1, 'gram': 2, 'm': 4, 'y': 2, 'nt': 1, 'ing&lt;/w&gt;': 2, 'ar': 1, 'P': 1, 'on': 2, 'for': 1, 'ation': 1, 'k': 1, 'me': 2, '.&lt;/w&gt;': 1})
+Number of tokens: 87
+==========
+Iter: 76
+Best pair: ('subj', 'ec')
+Tokens: defaultdict(&lt;class 'int'&gt;, {'The&lt;/w&gt;': 2, 'aims&lt;/w&gt;': 1, 'for&lt;/w&gt;': 4, 'this&lt;/w&gt;': 1, 'subjec': 1, 't&lt;/w&gt;': 2, 'is&lt;/w&gt;': 2, 'st': 4, 'u': 4, 'de': 5, 'nts&lt;/w&gt;': 2, 'to&lt;/w&gt;': 2, 've': 1, 'l': 5, 'op': 3, '&lt;/w&gt;': 12, 'an': 2, 'n': 5, 'r': 5, 'ding&lt;/w&gt;': 2, 'of&lt;/w&gt;': 2, 'the&lt;/w&gt;': 2, 'ma': 2, 'in&lt;/w&gt;': 4, 'al': 3, 'g': 3, 'or': 3, 'i': 3, 'th': 2, 'ms&lt;/w&gt;': 1, 'used&lt;/w&gt;': 2, 'at': 2, 'language&lt;/w&gt;': 3, 'pro': 2, 'c': 4, 'e': 8, 'ss': 1, 'ing,&lt;/w&gt;': 3, 'use&lt;/w&gt;': 2, 'a': 3, 'd': 2, 'ver': 2, 's': 7, 'e&lt;/w&gt;': 7, 'ang': 1, 'p': 4, 'ication': 2, 's&lt;/w&gt;': 3, 'inclu': 2, 't': 6, 'x': 1, 'cl': 1, 'assi': 2, 'f': 1, ',&lt;/w&gt;': 4, 'h': 4, 'in': 3, 'ans': 2, 'lation': 2, 'and&lt;/w&gt;': 3, 'q': 1, 'ion': 1, 'w': 2, 'ing.&lt;/w&gt;': 2, 'T': 1, 'ic': 2, 'b': 1, 'o': 3, 'ed&lt;/w&gt;': 1, 'par': 2, '-': 3, 'of': 1, 'ec': 1, 'ag': 1, 'gram': 2, 'm': 4, 'y': 2, 'nt': 1, 'ing&lt;/w&gt;': 2, 'ar': 1, 'P': 1, 'on': 2, 'for': 1, 'ation': 1, 'k': 1, 'me': 2, '.&lt;/w&gt;': 1})
+Number of tokens: 87
+==========
+Iter: 77
+Best pair: ('subjec', 't&lt;/w&gt;')
+Tokens: defaultdict(&lt;class 'int'&gt;, {'The&lt;/w&gt;': 2, 'aims&lt;/w&gt;': 1, 'for&lt;/w&gt;': 4, 'this&lt;/w&gt;': 1, 'subject&lt;/w&gt;': 1, 'is&lt;/w&gt;': 2, 'st': 4, 'u': 4, 'de': 5, 'nts&lt;/w&gt;': 2, 'to&lt;/w&gt;': 2, 've': 1, 'l': 5, 'op': 3, '&lt;/w&gt;': 12, 'an': 2, 'n': 5, 'r': 5, 'ding&lt;/w&gt;': 2, 'of&lt;/w&gt;': 2, 'the&lt;/w&gt;': 2, 'ma': 2, 'in&lt;/w&gt;': 4, 'al': 3, 'g': 3, 'or': 3, 'i': 3, 'th': 2, 'ms&lt;/w&gt;': 1, 'used&lt;/w&gt;': 2, 'at': 2, 'language&lt;/w&gt;': 3, 'pro': 2, 'c': 4, 'e': 8, 'ss': 1, 'ing,&lt;/w&gt;': 3, 'use&lt;/w&gt;': 2, 'a': 3, 'd': 2, 'ver': 2, 's': 7, 'e&lt;/w&gt;': 7, 'ang': 1, 'p': 4, 'ication': 2, 's&lt;/w&gt;': 3, 'inclu': 2, 't': 6, 'x': 1, 't&lt;/w&gt;': 1, 'cl': 1, 'assi': 2, 'f': 1, ',&lt;/w&gt;': 4, 'h': 4, 'in': 3, 'ans': 2, 'lation': 2, 'and&lt;/w&gt;': 3, 'q': 1, 'ion': 1, 'w': 2, 'ing.&lt;/w&gt;': 2, 'T': 1, 'ic': 2, 'b': 1, 'o': 3, 'ed&lt;/w&gt;': 1, 'par': 2, '-': 3, 'of': 1, 'ec': 1, 'ag': 1, 'gram': 2, 'm': 4, 'y': 2, 'nt': 1, 'ing&lt;/w&gt;': 2, 'ar': 1, 'P': 1, 'on': 2, 'for': 1, 'ation': 1, 'k': 1, 'me': 2, '.&lt;/w&gt;': 1})
+Number of tokens: 87
+==========
+Iter: 78
+Best pair: ('st', 'u')
+Tokens: defaultdict(&lt;class 'int'&gt;, {'The&lt;/w&gt;': 2, 'aims&lt;/w&gt;': 1, 'for&lt;/w&gt;': 4, 'this&lt;/w&gt;': 1, 'subject&lt;/w&gt;': 1, 'is&lt;/w&gt;': 2, 'stu': 1, 'de': 5, 'nts&lt;/w&gt;': 2, 'to&lt;/w&gt;': 2, 've': 1, 'l': 5, 'op': 3, '&lt;/w&gt;': 12, 'an': 2, 'u': 3, 'n': 5, 'r': 5, 'st': 3, 'ding&lt;/w&gt;': 2, 'of&lt;/w&gt;': 2, 'the&lt;/w&gt;': 2, 'ma': 2, 'in&lt;/w&gt;': 4, 'al': 3, 'g': 3, 'or': 3, 'i': 3, 'th': 2, 'ms&lt;/w&gt;': 1, 'used&lt;/w&gt;': 2, 'at': 2, 'language&lt;/w&gt;': 3, 'pro': 2, 'c': 4, 'e': 8, 'ss': 1, 'ing,&lt;/w&gt;': 3, 'use&lt;/w&gt;': 2, 'a': 3, 'd': 2, 'ver': 2, 's': 7, 'e&lt;/w&gt;': 7, 'ang': 1, 'p': 4, 'ication': 2, 's&lt;/w&gt;': 3, 'inclu': 2, 't': 6, 'x': 1, 't&lt;/w&gt;': 1, 'cl': 1, 'assi': 2, 'f': 1, ',&lt;/w&gt;': 4, 'h': 4, 'in': 3, 'ans': 2, 'lation': 2, 'and&lt;/w&gt;': 3, 'q': 1, 'ion': 1, 'w': 2, 'ing.&lt;/w&gt;': 2, 'T': 1, 'ic': 2, 'b': 1, 'o': 3, 'ed&lt;/w&gt;': 1, 'par': 2, '-': 3, 'of': 1, 'ec': 1, 'ag': 1, 'gram': 2, 'm': 4, 'y': 2, 'nt': 1, 'ing&lt;/w&gt;': 2, 'ar': 1, 'P': 1, 'on': 2, 'for': 1, 'ation': 1, 'k': 1, 'me': 2, '.&lt;/w&gt;': 1})
+Number of tokens: 88
+==========
+Iter: 79
+Best pair: ('stu', 'de')
+Tokens: defaultdict(&lt;class 'int'&gt;, {'The&lt;/w&gt;': 2, 'aims&lt;/w&gt;': 1, 'for&lt;/w&gt;': 4, 'this&lt;/w&gt;': 1, 'subject&lt;/w&gt;': 1, 'is&lt;/w&gt;': 2, 'stude': 1, 'nts&lt;/w&gt;': 2, 'to&lt;/w&gt;': 2, 'de': 4, 've': 1, 'l': 5, 'op': 3, '&lt;/w&gt;': 12, 'an': 2, 'u': 3, 'n': 5, 'r': 5, 'st': 3, 'ding&lt;/w&gt;': 2, 'of&lt;/w&gt;': 2, 'the&lt;/w&gt;': 2, 'ma': 2, 'in&lt;/w&gt;': 4, 'al': 3, 'g': 3, 'or': 3, 'i': 3, 'th': 2, 'ms&lt;/w&gt;': 1, 'used&lt;/w&gt;': 2, 'at': 2, 'language&lt;/w&gt;': 3, 'pro': 2, 'c': 4, 'e': 8, 'ss': 1, 'ing,&lt;/w&gt;': 3, 'use&lt;/w&gt;': 2, 'a': 3, 'd': 2, 'ver': 2, 's': 7, 'e&lt;/w&gt;': 7, 'ang': 1, 'p': 4, 'ication': 2, 's&lt;/w&gt;': 3, 'inclu': 2, 't': 6, 'x': 1, 't&lt;/w&gt;': 1, 'cl': 1, 'assi': 2, 'f': 1, ',&lt;/w&gt;': 4, 'h': 4, 'in': 3, 'ans': 2, 'lation': 2, 'and&lt;/w&gt;': 3, 'q': 1, 'ion': 1, 'w': 2, 'ing.&lt;/w&gt;': 2, 'T': 1, 'ic': 2, 'b': 1, 'o': 3, 'ed&lt;/w&gt;': 1, 'par': 2, '-': 3, 'of': 1, 'ec': 1, 'ag': 1, 'gram': 2, 'm': 4, 'y': 2, 'nt': 1, 'ing&lt;/w&gt;': 2, 'ar': 1, 'P': 1, 'on': 2, 'for': 1, 'ation': 1, 'k': 1, 'me': 2, '.&lt;/w&gt;': 1})
+Number of tokens: 88
+==========
+Iter: 80
+Best pair: ('stude', 'nts&lt;/w&gt;')
+Tokens: defaultdict(&lt;class 'int'&gt;, {'The&lt;/w&gt;': 2, 'aims&lt;/w&gt;': 1, 'for&lt;/w&gt;': 4, 'this&lt;/w&gt;': 1, 'subject&lt;/w&gt;': 1, 'is&lt;/w&gt;': 2, 'students&lt;/w&gt;': 1, 'to&lt;/w&gt;': 2, 'de': 4, 've': 1, 'l': 5, 'op': 3, '&lt;/w&gt;': 12, 'an': 2, 'u': 3, 'n': 5, 'r': 5, 'st': 3, 'ding&lt;/w&gt;': 2, 'of&lt;/w&gt;': 2, 'the&lt;/w&gt;': 2, 'ma': 2, 'in&lt;/w&gt;': 4, 'al': 3, 'g': 3, 'or': 3, 'i': 3, 'th': 2, 'ms&lt;/w&gt;': 1, 'used&lt;/w&gt;': 2, 'at': 2, 'language&lt;/w&gt;': 3, 'pro': 2, 'c': 4, 'e': 8, 'ss': 1, 'ing,&lt;/w&gt;': 3, 'use&lt;/w&gt;': 2, 'a': 3, 'd': 2, 'ver': 2, 's': 7, 'e&lt;/w&gt;': 7, 'ang': 1, 'p': 4, 'ication': 2, 's&lt;/w&gt;': 3, 'inclu': 2, 't': 6, 'x': 1, 't&lt;/w&gt;': 1, 'cl': 1, 'assi': 2, 'f': 1, ',&lt;/w&gt;': 4, 'h': 4, 'in': 3, 'ans': 2, 'lation': 2, 'and&lt;/w&gt;': 3, 'q': 1, 'ion': 1, 'w': 2, 'ing.&lt;/w&gt;': 2, 'T': 1, 'ic': 2, 'b': 1, 'o': 3, 'ed&lt;/w&gt;': 1, 'par': 2, '-': 3, 'of': 1, 'ec': 1, 'ag': 1, 'gram': 2, 'm': 4, 'y': 2, 'nt': 1, 'ing&lt;/w&gt;': 2, 'ar': 1, 'P': 1, 'on': 2, 'for': 1, 'ation': 1, 'k': 1, 'me': 2, 'nts&lt;/w&gt;': 1, '.&lt;/w&gt;': 1})
+Number of tokens: 88
+==========
+Iter: 81
+Best pair: ('de', 've')
+Tokens: defaultdict(&lt;class 'int'&gt;, {'The&lt;/w&gt;': 2, 'aims&lt;/w&gt;': 1, 'for&lt;/w&gt;': 4, 'this&lt;/w&gt;': 1, 'subject&lt;/w&gt;': 1, 'is&lt;/w&gt;': 2, 'students&lt;/w&gt;': 1, 'to&lt;/w&gt;': 2, 'deve': 1, 'l': 5, 'op': 3, '&lt;/w&gt;': 12, 'an': 2, 'u': 3, 'n': 5, 'de': 3, 'r': 5, 'st': 3, 'ding&lt;/w&gt;': 2, 'of&lt;/w&gt;': 2, 'the&lt;/w&gt;': 2, 'ma': 2, 'in&lt;/w&gt;': 4, 'al': 3, 'g': 3, 'or': 3, 'i': 3, 'th': 2, 'ms&lt;/w&gt;': 1, 'used&lt;/w&gt;': 2, 'at': 2, 'language&lt;/w&gt;': 3, 'pro': 2, 'c': 4, 'e': 8, 'ss': 1, 'ing,&lt;/w&gt;': 3, 'use&lt;/w&gt;': 2, 'a': 3, 'd': 2, 'ver': 2, 's': 7, 'e&lt;/w&gt;': 7, 'ang': 1, 'p': 4, 'ication': 2, 's&lt;/w&gt;': 3, 'inclu': 2, 't': 6, 'x': 1, 't&lt;/w&gt;': 1, 'cl': 1, 'assi': 2, 'f': 1, ',&lt;/w&gt;': 4, 'h': 4, 'in': 3, 'ans': 2, 'lation': 2, 'and&lt;/w&gt;': 3, 'q': 1, 'ion': 1, 'w': 2, 'ing.&lt;/w&gt;': 2, 'T': 1, 'ic': 2, 'b': 1, 'o': 3, 'ed&lt;/w&gt;': 1, 'par': 2, '-': 3, 'of': 1, 'ec': 1, 'ag': 1, 'gram': 2, 'm': 4, 'y': 2, 'nt': 1, 'ing&lt;/w&gt;': 2, 'ar': 1, 'P': 1, 'on': 2, 'for': 1, 'ation': 1, 'k': 1, 'me': 2, 'nts&lt;/w&gt;': 1, '.&lt;/w&gt;': 1})
+Number of tokens: 88
+==========
+Iter: 82
+Best pair: ('deve', 'l')
+Tokens: defaultdict(&lt;class 'int'&gt;, {'The&lt;/w&gt;': 2, 'aims&lt;/w&gt;': 1, 'for&lt;/w&gt;': 4, 'this&lt;/w&gt;': 1, 'subject&lt;/w&gt;': 1, 'is&lt;/w&gt;': 2, 'students&lt;/w&gt;': 1, 'to&lt;/w&gt;': 2, 'devel': 1, 'op': 3, '&lt;/w&gt;': 12, 'an': 2, 'u': 3, 'n': 5, 'de': 3, 'r': 5, 'st': 3, 'ding&lt;/w&gt;': 2, 'of&lt;/w&gt;': 2, 'the&lt;/w&gt;': 2, 'ma': 2, 'in&lt;/w&gt;': 4, 'al': 3, 'g': 3, 'or': 3, 'i': 3, 'th': 2, 'ms&lt;/w&gt;': 1, 'used&lt;/w&gt;': 2, 'at': 2, 'language&lt;/w&gt;': 3, 'pro': 2, 'c': 4, 'e': 8, 'ss': 1, 'ing,&lt;/w&gt;': 3, 'use&lt;/w&gt;': 2, 'a': 3, 'd': 2, 'ver': 2, 's': 7, 'e&lt;/w&gt;': 7, 'ang': 1, 'p': 4, 'l': 4, 'ication': 2, 's&lt;/w&gt;': 3, 'inclu': 2, 't': 6, 'x': 1, 't&lt;/w&gt;': 1, 'cl': 1, 'assi': 2, 'f': 1, ',&lt;/w&gt;': 4, 'h': 4, 'in': 3, 'ans': 2, 'lation': 2, 'and&lt;/w&gt;': 3, 'q': 1, 'ion': 1, 'w': 2, 'ing.&lt;/w&gt;': 2, 'T': 1, 'ic': 2, 'b': 1, 'o': 3, 'ed&lt;/w&gt;': 1, 'par': 2, '-': 3, 'of': 1, 'ec': 1, 'ag': 1, 'gram': 2, 'm': 4, 'y': 2, 'nt': 1, 'ing&lt;/w&gt;': 2, 'ar': 1, 'P': 1, 'on': 2, 'for': 1, 'ation': 1, 'k': 1, 'me': 2, 'nts&lt;/w&gt;': 1, '.&lt;/w&gt;': 1})
+Number of tokens: 88
+==========
+Iter: 83
+Best pair: ('devel', 'op')
+Tokens: defaultdict(&lt;class 'int'&gt;, {'The&lt;/w&gt;': 2, 'aims&lt;/w&gt;': 1, 'for&lt;/w&gt;': 4, 'this&lt;/w&gt;': 1, 'subject&lt;/w&gt;': 1, 'is&lt;/w&gt;': 2, 'students&lt;/w&gt;': 1, 'to&lt;/w&gt;': 2, 'develop': 1, '&lt;/w&gt;': 12, 'an': 2, 'u': 3, 'n': 5, 'de': 3, 'r': 5, 'st': 3, 'ding&lt;/w&gt;': 2, 'of&lt;/w&gt;': 2, 'the&lt;/w&gt;': 2, 'ma': 2, 'in&lt;/w&gt;': 4, 'al': 3, 'g': 3, 'or': 3, 'i': 3, 'th': 2, 'ms&lt;/w&gt;': 1, 'used&lt;/w&gt;': 2, 'at': 2, 'language&lt;/w&gt;': 3, 'pro': 2, 'c': 4, 'e': 8, 'ss': 1, 'ing,&lt;/w&gt;': 3, 'use&lt;/w&gt;': 2, 'a': 3, 'd': 2, 'ver': 2, 's': 7, 'e&lt;/w&gt;': 7, 'ang': 1, 'p': 4, 'l': 4, 'ication': 2, 's&lt;/w&gt;': 3, 'inclu': 2, 't': 6, 'x': 1, 't&lt;/w&gt;': 1, 'cl': 1, 'assi': 2, 'f': 1, ',&lt;/w&gt;': 4, 'h': 4, 'in': 3, 'ans': 2, 'lation': 2, 'and&lt;/w&gt;': 3, 'q': 1, 'ion': 1, 'w': 2, 'ing.&lt;/w&gt;': 2, 'T': 1, 'op': 2, 'ic': 2, 'b': 1, 'o': 3, 'ed&lt;/w&gt;': 1, 'par': 2, '-': 3, 'of': 1, 'ec': 1, 'ag': 1, 'gram': 2, 'm': 4, 'y': 2, 'nt': 1, 'ing&lt;/w&gt;': 2, 'ar': 1, 'P': 1, 'on': 2, 'for': 1, 'ation': 1, 'k': 1, 'me': 2, 'nts&lt;/w&gt;': 1, '.&lt;/w&gt;': 1})
+Number of tokens: 88
+==========
+Iter: 84
+Best pair: ('develop', '&lt;/w&gt;')
+Tokens: defaultdict(&lt;class 'int'&gt;, {'The&lt;/w&gt;': 2, 'aims&lt;/w&gt;': 1, 'for&lt;/w&gt;': 4, 'this&lt;/w&gt;': 1, 'subject&lt;/w&gt;': 1, 'is&lt;/w&gt;': 2, 'students&lt;/w&gt;': 1, 'to&lt;/w&gt;': 2, 'develop&lt;/w&gt;': 1, 'an': 2, '&lt;/w&gt;': 11, 'u': 3, 'n': 5, 'de': 3, 'r': 5, 'st': 3, 'ding&lt;/w&gt;': 2, 'of&lt;/w&gt;': 2, 'the&lt;/w&gt;': 2, 'ma': 2, 'in&lt;/w&gt;': 4, 'al': 3, 'g': 3, 'or': 3, 'i': 3, 'th': 2, 'ms&lt;/w&gt;': 1, 'used&lt;/w&gt;': 2, 'at': 2, 'language&lt;/w&gt;': 3, 'pro': 2, 'c': 4, 'e': 8, 'ss': 1, 'ing,&lt;/w&gt;': 3, 'use&lt;/w&gt;': 2, 'a': 3, 'd': 2, 'ver': 2, 's': 7, 'e&lt;/w&gt;': 7, 'ang': 1, 'p': 4, 'l': 4, 'ication': 2, 's&lt;/w&gt;': 3, 'inclu': 2, 't': 6, 'x': 1, 't&lt;/w&gt;': 1, 'cl': 1, 'assi': 2, 'f': 1, ',&lt;/w&gt;': 4, 'h': 4, 'in': 3, 'ans': 2, 'lation': 2, 'and&lt;/w&gt;': 3, 'q': 1, 'ion': 1, 'w': 2, 'ing.&lt;/w&gt;': 2, 'T': 1, 'op': 2, 'ic': 2, 'b': 1, 'o': 3, 'ed&lt;/w&gt;': 1, 'par': 2, '-': 3, 'of': 1, 'ec': 1, 'ag': 1, 'gram': 2, 'm': 4, 'y': 2, 'nt': 1, 'ing&lt;/w&gt;': 2, 'ar': 1, 'P': 1, 'on': 2, 'for': 1, 'ation': 1, 'k': 1, 'me': 2, 'nts&lt;/w&gt;': 1, '.&lt;/w&gt;': 1})
+Number of tokens: 88
+==========
+Iter: 85
+Best pair: ('an', '&lt;/w&gt;')
+Tokens: defaultdict(&lt;class 'int'&gt;, {'The&lt;/w&gt;': 2, 'aims&lt;/w&gt;': 1, 'for&lt;/w&gt;': 4, 'this&lt;/w&gt;': 1, 'subject&lt;/w&gt;': 1, 'is&lt;/w&gt;': 2, 'students&lt;/w&gt;': 1, 'to&lt;/w&gt;': 2, 'develop&lt;/w&gt;': 1, 'an&lt;/w&gt;': 1, 'u': 3, 'n': 5, 'de': 3, 'r': 5, 'st': 3, 'an': 1, 'ding&lt;/w&gt;': 2, 'of&lt;/w&gt;': 2, 'the&lt;/w&gt;': 2, 'ma': 2, 'in&lt;/w&gt;': 4, 'al': 3, 'g': 3, 'or': 3, 'i': 3, 'th': 2, 'ms&lt;/w&gt;': 1, 'used&lt;/w&gt;': 2, 'at': 2, 'language&lt;/w&gt;': 3, 'pro': 2, 'c': 4, 'e': 8, 'ss': 1, 'ing,&lt;/w&gt;': 3, 'use&lt;/w&gt;': 2, 'a': 3, '&lt;/w&gt;': 10, 'd': 2, 'ver': 2, 's': 7, 'e&lt;/w&gt;': 7, 'ang': 1, 'p': 4, 'l': 4, 'ication': 2, 's&lt;/w&gt;': 3, 'inclu': 2, 't': 6, 'x': 1, 't&lt;/w&gt;': 1, 'cl': 1, 'assi': 2, 'f': 1, ',&lt;/w&gt;': 4, 'h': 4, 'in': 3, 'ans': 2, 'lation': 2, 'and&lt;/w&gt;': 3, 'q': 1, 'ion': 1, 'w': 2, 'ing.&lt;/w&gt;': 2, 'T': 1, 'op': 2, 'ic': 2, 'b': 1, 'o': 3, 'ed&lt;/w&gt;': 1, 'par': 2, '-': 3, 'of': 1, 'ec': 1, 'ag': 1, 'gram': 2, 'm': 4, 'y': 2, 'nt': 1, 'ing&lt;/w&gt;': 2, 'ar': 1, 'P': 1, 'on': 2, 'for': 1, 'ation': 1, 'k': 1, 'me': 2, 'nts&lt;/w&gt;': 1, '.&lt;/w&gt;': 1})
+Number of tokens: 89
+==========
+Iter: 86
+Best pair: ('u', 'n')
+Tokens: defaultdict(&lt;class 'int'&gt;, {'The&lt;/w&gt;': 2, 'aims&lt;/w&gt;': 1, 'for&lt;/w&gt;': 4, 'this&lt;/w&gt;': 1, 'subject&lt;/w&gt;': 1, 'is&lt;/w&gt;': 2, 'students&lt;/w&gt;': 1, 'to&lt;/w&gt;': 2, 'develop&lt;/w&gt;': 1, 'an&lt;/w&gt;': 1, 'un': 1, 'de': 3, 'r': 5, 'st': 3, 'an': 1, 'ding&lt;/w&gt;': 2, 'of&lt;/w&gt;': 2, 'the&lt;/w&gt;': 2, 'ma': 2, 'in&lt;/w&gt;': 4, 'al': 3, 'g': 3, 'or': 3, 'i': 3, 'th': 2, 'ms&lt;/w&gt;': 1, 'used&lt;/w&gt;': 2, 'n': 4, 'at': 2, 'u': 2, 'language&lt;/w&gt;': 3, 'pro': 2, 'c': 4, 'e': 8, 'ss': 1, 'ing,&lt;/w&gt;': 3, 'use&lt;/w&gt;': 2, 'a': 3, '&lt;/w&gt;': 10, 'd': 2, 'ver': 2, 's': 7, 'e&lt;/w&gt;': 7, 'ang': 1, 'p': 4, 'l': 4, 'ication': 2, 's&lt;/w&gt;': 3, 'inclu': 2, 't': 6, 'x': 1, 't&lt;/w&gt;': 1, 'cl': 1, 'assi': 2, 'f': 1, ',&lt;/w&gt;': 4, 'h': 4, 'in': 3, 'ans': 2, 'lation': 2, 'and&lt;/w&gt;': 3, 'q': 1, 'ion': 1, 'w': 2, 'ing.&lt;/w&gt;': 2, 'T': 1, 'op': 2, 'ic': 2, 'b': 1, 'o': 3, 'ed&lt;/w&gt;': 1, 'par': 2, '-': 3, 'of': 1, 'ec': 1, 'ag': 1, 'gram': 2, 'm': 4, 'y': 2, 'nt': 1, 'ing&lt;/w&gt;': 2, 'ar': 1, 'P': 1, 'on': 2, 'for': 1, 'ation': 1, 'k': 1, 'me': 2, 'nts&lt;/w&gt;': 1, '.&lt;/w&gt;': 1})
+Number of tokens: 90
+==========
+Iter: 87
+Best pair: ('un', 'de')
+Tokens: defaultdict(&lt;class 'int'&gt;, {'The&lt;/w&gt;': 2, 'aims&lt;/w&gt;': 1, 'for&lt;/w&gt;': 4, 'this&lt;/w&gt;': 1, 'subject&lt;/w&gt;': 1, 'is&lt;/w&gt;': 2, 'students&lt;/w&gt;': 1, 'to&lt;/w&gt;': 2, 'develop&lt;/w&gt;': 1, 'an&lt;/w&gt;': 1, 'unde': 1, 'r': 5, 'st': 3, 'an': 1, 'ding&lt;/w&gt;': 2, 'of&lt;/w&gt;': 2, 'the&lt;/w&gt;': 2, 'ma': 2, 'in&lt;/w&gt;': 4, 'al': 3, 'g': 3, 'or': 3, 'i': 3, 'th': 2, 'ms&lt;/w&gt;': 1, 'used&lt;/w&gt;': 2, 'n': 4, 'at': 2, 'u': 2, 'language&lt;/w&gt;': 3, 'pro': 2, 'c': 4, 'e': 8, 'ss': 1, 'ing,&lt;/w&gt;': 3, 'use&lt;/w&gt;': 2, 'a': 3, '&lt;/w&gt;': 10, 'd': 2, 'ver': 2, 's': 7, 'e&lt;/w&gt;': 7, 'ang': 1, 'p': 4, 'l': 4, 'ication': 2, 's&lt;/w&gt;': 3, 'inclu': 2, 't': 6, 'x': 1, 't&lt;/w&gt;': 1, 'cl': 1, 'assi': 2, 'f': 1, ',&lt;/w&gt;': 4, 'h': 4, 'in': 3, 'ans': 2, 'lation': 2, 'and&lt;/w&gt;': 3, 'q': 1, 'ion': 1, 'w': 2, 'ing.&lt;/w&gt;': 2, 'T': 1, 'op': 2, 'ic': 2, 'b': 1, 'o': 3, 'ed&lt;/w&gt;': 1, 'par': 2, '-': 3, 'of': 1, 'ec': 1, 'ag': 1, 'gram': 2, 'm': 4, 'de': 2, 'y': 2, 'nt': 1, 'ing&lt;/w&gt;': 2, 'ar': 1, 'P': 1, 'on': 2, 'for': 1, 'ation': 1, 'k': 1, 'me': 2, 'nts&lt;/w&gt;': 1, '.&lt;/w&gt;': 1})
+Number of tokens: 90
+==========
+Iter: 88
+Best pair: ('unde', 'r')
+Tokens: defaultdict(&lt;class 'int'&gt;, {'The&lt;/w&gt;': 2, 'aims&lt;/w&gt;': 1, 'for&lt;/w&gt;': 4, 'this&lt;/w&gt;': 1, 'subject&lt;/w&gt;': 1, 'is&lt;/w&gt;': 2, 'students&lt;/w&gt;': 1, 'to&lt;/w&gt;': 2, 'develop&lt;/w&gt;': 1, 'an&lt;/w&gt;': 1, 'under': 1, 'st': 3, 'an': 1, 'ding&lt;/w&gt;': 2, 'of&lt;/w&gt;': 2, 'the&lt;/w&gt;': 2, 'ma': 2, 'in&lt;/w&gt;': 4, 'al': 3, 'g': 3, 'or': 3, 'i': 3, 'th': 2, 'ms&lt;/w&gt;': 1, 'used&lt;/w&gt;': 2, 'n': 4, 'at': 2, 'u': 2, 'r': 4, 'language&lt;/w&gt;': 3, 'pro': 2, 'c': 4, 'e': 8, 'ss': 1, 'ing,&lt;/w&gt;': 3, 'use&lt;/w&gt;': 2, 'a': 3, '&lt;/w&gt;': 10, 'd': 2, 'ver': 2, 's': 7, 'e&lt;/w&gt;': 7, 'ang': 1, 'p': 4, 'l': 4, 'ication': 2, 's&lt;/w&gt;': 3, 'inclu': 2, 't': 6, 'x': 1, 't&lt;/w&gt;': 1, 'cl': 1, 'assi': 2, 'f': 1, ',&lt;/w&gt;': 4, 'h': 4, 'in': 3, 'ans': 2, 'lation': 2, 'and&lt;/w&gt;': 3, 'q': 1, 'ion': 1, 'w': 2, 'ing.&lt;/w&gt;': 2, 'T': 1, 'op': 2, 'ic': 2, 'b': 1, 'o': 3, 'ed&lt;/w&gt;': 1, 'par': 2, '-': 3, 'of': 1, 'ec': 1, 'ag': 1, 'gram': 2, 'm': 4, 'de': 2, 'y': 2, 'nt': 1, 'ing&lt;/w&gt;': 2, 'ar': 1, 'P': 1, 'on': 2, 'for': 1, 'ation': 1, 'k': 1, 'me': 2, 'nts&lt;/w&gt;': 1, '.&lt;/w&gt;': 1})
+Number of tokens: 90
+==========
+Iter: 89
+Best pair: ('under', 'st')
+Tokens: defaultdict(&lt;class 'int'&gt;, {'The&lt;/w&gt;': 2, 'aims&lt;/w&gt;': 1, 'for&lt;/w&gt;': 4, 'this&lt;/w&gt;': 1, 'subject&lt;/w&gt;': 1, 'is&lt;/w&gt;': 2, 'students&lt;/w&gt;': 1, 'to&lt;/w&gt;': 2, 'develop&lt;/w&gt;': 1, 'an&lt;/w&gt;': 1, 'underst': 1, 'an': 1, 'ding&lt;/w&gt;': 2, 'of&lt;/w&gt;': 2, 'the&lt;/w&gt;': 2, 'ma': 2, 'in&lt;/w&gt;': 4, 'al': 3, 'g': 3, 'or': 3, 'i': 3, 'th': 2, 'ms&lt;/w&gt;': 1, 'used&lt;/w&gt;': 2, 'n': 4, 'at': 2, 'u': 2, 'r': 4, 'language&lt;/w&gt;': 3, 'pro': 2, 'c': 4, 'e': 8, 'ss': 1, 'ing,&lt;/w&gt;': 3, 'use&lt;/w&gt;': 2, 'a': 3, '&lt;/w&gt;': 10, 'd': 2, 'ver': 2, 's': 7, 'e&lt;/w&gt;': 7, 'ang': 1, 'p': 4, 'l': 4, 'ication': 2, 's&lt;/w&gt;': 3, 'inclu': 2, 't': 6, 'x': 1, 't&lt;/w&gt;': 1, 'cl': 1, 'assi': 2, 'f': 1, ',&lt;/w&gt;': 4, 'h': 4, 'in': 3, 'ans': 2, 'lation': 2, 'and&lt;/w&gt;': 3, 'q': 1, 'st': 2, 'ion': 1, 'w': 2, 'ing.&lt;/w&gt;': 2, 'T': 1, 'op': 2, 'ic': 2, 'b': 1, 'o': 3, 'ed&lt;/w&gt;': 1, 'par': 2, '-': 3, 'of': 1, 'ec': 1, 'ag': 1, 'gram': 2, 'm': 4, 'de': 2, 'y': 2, 'nt': 1, 'ing&lt;/w&gt;': 2, 'ar': 1, 'P': 1, 'on': 2, 'for': 1, 'ation': 1, 'k': 1, 'me': 2, 'nts&lt;/w&gt;': 1, '.&lt;/w&gt;': 1})
+Number of tokens: 90
+==========
+Iter: 90
+Best pair: ('underst', 'an')
+Tokens: defaultdict(&lt;class 'int'&gt;, {'The&lt;/w&gt;': 2, 'aims&lt;/w&gt;': 1, 'for&lt;/w&gt;': 4, 'this&lt;/w&gt;': 1, 'subject&lt;/w&gt;': 1, 'is&lt;/w&gt;': 2, 'students&lt;/w&gt;': 1, 'to&lt;/w&gt;': 2, 'develop&lt;/w&gt;': 1, 'an&lt;/w&gt;': 1, 'understan': 1, 'ding&lt;/w&gt;': 2, 'of&lt;/w&gt;': 2, 'the&lt;/w&gt;': 2, 'ma': 2, 'in&lt;/w&gt;': 4, 'al': 3, 'g': 3, 'or': 3, 'i': 3, 'th': 2, 'ms&lt;/w&gt;': 1, 'used&lt;/w&gt;': 2, 'n': 4, 'at': 2, 'u': 2, 'r': 4, 'language&lt;/w&gt;': 3, 'pro': 2, 'c': 4, 'e': 8, 'ss': 1, 'ing,&lt;/w&gt;': 3, 'use&lt;/w&gt;': 2, 'a': 3, '&lt;/w&gt;': 10, 'd': 2, 'ver': 2, 's': 7, 'e&lt;/w&gt;': 7, 'ang': 1, 'p': 4, 'l': 4, 'ication': 2, 's&lt;/w&gt;': 3, 'inclu': 2, 't': 6, 'x': 1, 't&lt;/w&gt;': 1, 'cl': 1, 'assi': 2, 'f': 1, ',&lt;/w&gt;': 4, 'h': 4, 'in': 3, 'ans': 2, 'lation': 2, 'and&lt;/w&gt;': 3, 'q': 1, 'st': 2, 'ion': 1, 'w': 2, 'ing.&lt;/w&gt;': 2, 'T': 1, 'op': 2, 'ic': 2, 'b': 1, 'o': 3, 'ed&lt;/w&gt;': 1, 'par': 2, '-': 3, 'of': 1, 'ec': 1, 'ag': 1, 'gram': 2, 'm': 4, 'de': 2, 'y': 2, 'nt': 1, 'ing&lt;/w&gt;': 2, 'ar': 1, 'P': 1, 'on': 2, 'for': 1, 'ation': 1, 'k': 1, 'me': 2, 'nts&lt;/w&gt;': 1, '.&lt;/w&gt;': 1})
+Number of tokens: 89
+==========
+Iter: 91
+Best pair: ('understan', 'ding&lt;/w&gt;')
+Tokens: defaultdict(&lt;class 'int'&gt;, {'The&lt;/w&gt;': 2, 'aims&lt;/w&gt;': 1, 'for&lt;/w&gt;': 4, 'this&lt;/w&gt;': 1, 'subject&lt;/w&gt;': 1, 'is&lt;/w&gt;': 2, 'students&lt;/w&gt;': 1, 'to&lt;/w&gt;': 2, 'develop&lt;/w&gt;': 1, 'an&lt;/w&gt;': 1, 'understanding&lt;/w&gt;': 1, 'of&lt;/w&gt;': 2, 'the&lt;/w&gt;': 2, 'ma': 2, 'in&lt;/w&gt;': 4, 'al': 3, 'g': 3, 'or': 3, 'i': 3, 'th': 2, 'ms&lt;/w&gt;': 1, 'used&lt;/w&gt;': 2, 'n': 4, 'at': 2, 'u': 2, 'r': 4, 'language&lt;/w&gt;': 3, 'pro': 2, 'c': 4, 'e': 8, 'ss': 1, 'ing,&lt;/w&gt;': 3, 'use&lt;/w&gt;': 2, 'a': 3, '&lt;/w&gt;': 10, 'd': 2, 'ver': 2, 's': 7, 'e&lt;/w&gt;': 7, 'ang': 1, 'p': 4, 'l': 4, 'ication': 2, 's&lt;/w&gt;': 3, 'inclu': 2, 'ding&lt;/w&gt;': 1, 't': 6, 'x': 1, 't&lt;/w&gt;': 1, 'cl': 1, 'assi': 2, 'f': 1, ',&lt;/w&gt;': 4, 'h': 4, 'in': 3, 'ans': 2, 'lation': 2, 'and&lt;/w&gt;': 3, 'q': 1, 'st': 2, 'ion': 1, 'w': 2, 'ing.&lt;/w&gt;': 2, 'T': 1, 'op': 2, 'ic': 2, 'b': 1, 'o': 3, 'ed&lt;/w&gt;': 1, 'par': 2, '-': 3, 'of': 1, 'ec': 1, 'ag': 1, 'gram': 2, 'm': 4, 'de': 2, 'y': 2, 'nt': 1, 'ing&lt;/w&gt;': 2, 'ar': 1, 'P': 1, 'on': 2, 'for': 1, 'ation': 1, 'k': 1, 'me': 2, 'nts&lt;/w&gt;': 1, '.&lt;/w&gt;': 1})
+Number of tokens: 89
+==========
+Iter: 92
+Best pair: ('ma', 'in&lt;/w&gt;')
+Tokens: defaultdict(&lt;class 'int'&gt;, {'The&lt;/w&gt;': 2, 'aims&lt;/w&gt;': 1, 'for&lt;/w&gt;': 4, 'this&lt;/w&gt;': 1, 'subject&lt;/w&gt;': 1, 'is&lt;/w&gt;': 2, 'students&lt;/w&gt;': 1, 'to&lt;/w&gt;': 2, 'develop&lt;/w&gt;': 1, 'an&lt;/w&gt;': 1, 'understanding&lt;/w&gt;': 1, 'of&lt;/w&gt;': 2, 'the&lt;/w&gt;': 2, 'main&lt;/w&gt;': 1, 'al': 3, 'g': 3, 'or': 3, 'i': 3, 'th': 2, 'ms&lt;/w&gt;': 1, 'used&lt;/w&gt;': 2, 'in&lt;/w&gt;': 3, 'n': 4, 'at': 2, 'u': 2, 'r': 4, 'language&lt;/w&gt;': 3, 'pro': 2, 'c': 4, 'e': 8, 'ss': 1, 'ing,&lt;/w&gt;': 3, 'use&lt;/w&gt;': 2, 'a': 3, '&lt;/w&gt;': 10, 'd': 2, 'ver': 2, 's': 7, 'e&lt;/w&gt;': 7, 'ang': 1, 'p': 4, 'l': 4, 'ication': 2, 's&lt;/w&gt;': 3, 'inclu': 2, 'ding&lt;/w&gt;': 1, 't': 6, 'x': 1, 't&lt;/w&gt;': 1, 'cl': 1, 'assi': 2, 'f': 1, ',&lt;/w&gt;': 4, 'ma': 1, 'h': 4, 'in': 3, 'ans': 2, 'lation': 2, 'and&lt;/w&gt;': 3, 'q': 1, 'st': 2, 'ion': 1, 'w': 2, 'ing.&lt;/w&gt;': 2, 'T': 1, 'op': 2, 'ic': 2, 'b': 1, 'o': 3, 'ed&lt;/w&gt;': 1, 'par': 2, '-': 3, 'of': 1, 'ec': 1, 'ag': 1, 'gram': 2, 'm': 4, 'de': 2, 'y': 2, 'nt': 1, 'ing&lt;/w&gt;': 2, 'ar': 1, 'P': 1, 'on': 2, 'for': 1, 'ation': 1, 'k': 1, 'me': 2, 'nts&lt;/w&gt;': 1, '.&lt;/w&gt;': 1})
+Number of tokens: 90
+==========
+Iter: 93
+Best pair: ('al', 'g')
+Tokens: defaultdict(&lt;class 'int'&gt;, {'The&lt;/w&gt;': 2, 'aims&lt;/w&gt;': 1, 'for&lt;/w&gt;': 4, 'this&lt;/w&gt;': 1, 'subject&lt;/w&gt;': 1, 'is&lt;/w&gt;': 2, 'students&lt;/w&gt;': 1, 'to&lt;/w&gt;': 2, 'develop&lt;/w&gt;': 1, 'an&lt;/w&gt;': 1, 'understanding&lt;/w&gt;': 1, 'of&lt;/w&gt;': 2, 'the&lt;/w&gt;': 2, 'main&lt;/w&gt;': 1, 'alg': 1, 'or': 3, 'i': 3, 'th': 2, 'ms&lt;/w&gt;': 1, 'used&lt;/w&gt;': 2, 'in&lt;/w&gt;': 3, 'n': 4, 'at': 2, 'u': 2, 'r': 4, 'al': 2, 'language&lt;/w&gt;': 3, 'pro': 2, 'c': 4, 'e': 8, 'ss': 1, 'ing,&lt;/w&gt;': 3, 'use&lt;/w&gt;': 2, 'a': 3, '&lt;/w&gt;': 10, 'd': 2, 'ver': 2, 's': 7, 'e&lt;/w&gt;': 7, 'ang': 1, 'p': 4, 'l': 4, 'ication': 2, 's&lt;/w&gt;': 3, 'inclu': 2, 'ding&lt;/w&gt;': 1, 't': 6, 'x': 1, 't&lt;/w&gt;': 1, 'cl': 1, 'assi': 2, 'f': 1, ',&lt;/w&gt;': 4, 'ma': 1, 'h': 4, 'in': 3, 'ans': 2, 'lation': 2, 'and&lt;/w&gt;': 3, 'q': 1, 'st': 2, 'ion': 1, 'w': 2, 'ing.&lt;/w&gt;': 2, 'T': 1, 'op': 2, 'ic': 2, 'b': 1, 'o': 3, 'ed&lt;/w&gt;': 1, 'par': 2, '-': 3, 'of': 1, 'ec': 1, 'ag': 1, 'g': 2, 'gram': 2, 'm': 4, 'de': 2, 'y': 2, 'nt': 1, 'ing&lt;/w&gt;': 2, 'ar': 1, 'P': 1, 'on': 2, 'for': 1, 'ation': 1, 'k': 1, 'me': 2, 'nts&lt;/w&gt;': 1, '.&lt;/w&gt;': 1})
+Number of tokens: 91
+==========
+Iter: 94
+Best pair: ('alg', 'or')
+Tokens: defaultdict(&lt;class 'int'&gt;, {'The&lt;/w&gt;': 2, 'aims&lt;/w&gt;': 1, 'for&lt;/w&gt;': 4, 'this&lt;/w&gt;': 1, 'subject&lt;/w&gt;': 1, 'is&lt;/w&gt;': 2, 'students&lt;/w&gt;': 1, 'to&lt;/w&gt;': 2, 'develop&lt;/w&gt;': 1, 'an&lt;/w&gt;': 1, 'understanding&lt;/w&gt;': 1, 'of&lt;/w&gt;': 2, 'the&lt;/w&gt;': 2, 'main&lt;/w&gt;': 1, 'algor': 1, 'i': 3, 'th': 2, 'ms&lt;/w&gt;': 1, 'used&lt;/w&gt;': 2, 'in&lt;/w&gt;': 3, 'n': 4, 'at': 2, 'u': 2, 'r': 4, 'al': 2, 'language&lt;/w&gt;': 3, 'pro': 2, 'c': 4, 'e': 8, 'ss': 1, 'ing,&lt;/w&gt;': 3, 'use&lt;/w&gt;': 2, 'a': 3, '&lt;/w&gt;': 10, 'd': 2, 'ver': 2, 's': 7, 'e&lt;/w&gt;': 7, 'ang': 1, 'p': 4, 'l': 4, 'ication': 2, 's&lt;/w&gt;': 3, 'inclu': 2, 'ding&lt;/w&gt;': 1, 't': 6, 'x': 1, 't&lt;/w&gt;': 1, 'cl': 1, 'assi': 2, 'f': 1, ',&lt;/w&gt;': 4, 'ma': 1, 'h': 4, 'in': 3, 'ans': 2, 'lation': 2, 'and&lt;/w&gt;': 3, 'q': 1, 'st': 2, 'ion': 1, 'w': 2, 'ing.&lt;/w&gt;': 2, 'T': 1, 'op': 2, 'ic': 2, 'b': 1, 'o': 3, 'ed&lt;/w&gt;': 1, 'par': 2, '-': 3, 'of': 1, 'ec': 1, 'ag': 1, 'g': 2, 'gram': 2, 'm': 4, 'de': 2, 'y': 2, 'nt': 1, 'ing&lt;/w&gt;': 2, 'ar': 1, 'P': 1, 'on': 2, 'or': 2, 'for': 1, 'ation': 1, 'k': 1, 'me': 2, 'nts&lt;/w&gt;': 1, '.&lt;/w&gt;': 1})
+Number of tokens: 91
+==========
+Iter: 95
+Best pair: ('algor', 'i')
+Tokens: defaultdict(&lt;class 'int'&gt;, {'The&lt;/w&gt;': 2, 'aims&lt;/w&gt;': 1, 'for&lt;/w&gt;': 4, 'this&lt;/w&gt;': 1, 'subject&lt;/w&gt;': 1, 'is&lt;/w&gt;': 2, 'students&lt;/w&gt;': 1, 'to&lt;/w&gt;': 2, 'develop&lt;/w&gt;': 1, 'an&lt;/w&gt;': 1, 'understanding&lt;/w&gt;': 1, 'of&lt;/w&gt;': 2, 'the&lt;/w&gt;': 2, 'main&lt;/w&gt;': 1, 'algori': 1, 'th': 2, 'ms&lt;/w&gt;': 1, 'used&lt;/w&gt;': 2, 'in&lt;/w&gt;': 3, 'n': 4, 'at': 2, 'u': 2, 'r': 4, 'al': 2, 'language&lt;/w&gt;': 3, 'pro': 2, 'c': 4, 'e': 8, 'ss': 1, 'ing,&lt;/w&gt;': 3, 'use&lt;/w&gt;': 2, 'a': 3, '&lt;/w&gt;': 10, 'd': 2, 'i': 2, 'ver': 2, 's': 7, 'e&lt;/w&gt;': 7, 'ang': 1, 'p': 4, 'l': 4, 'ication': 2, 's&lt;/w&gt;': 3, 'inclu': 2, 'ding&lt;/w&gt;': 1, 't': 6, 'x': 1, 't&lt;/w&gt;': 1, 'cl': 1, 'assi': 2, 'f': 1, ',&lt;/w&gt;': 4, 'ma': 1, 'h': 4, 'in': 3, 'ans': 2, 'lation': 2, 'and&lt;/w&gt;': 3, 'q': 1, 'st': 2, 'ion': 1, 'w': 2, 'ing.&lt;/w&gt;': 2, 'T': 1, 'op': 2, 'ic': 2, 'b': 1, 'o': 3, 'ed&lt;/w&gt;': 1, 'par': 2, '-': 3, 'of': 1, 'ec': 1, 'ag': 1, 'g': 2, 'gram': 2, 'm': 4, 'de': 2, 'y': 2, 'nt': 1, 'ing&lt;/w&gt;': 2, 'ar': 1, 'P': 1, 'on': 2, 'or': 2, 'for': 1, 'ation': 1, 'k': 1, 'me': 2, 'nts&lt;/w&gt;': 1, '.&lt;/w&gt;': 1})
+Number of tokens: 91
+==========
+Iter: 96
+Best pair: ('algori', 'th')
+Tokens: defaultdict(&lt;class 'int'&gt;, {'The&lt;/w&gt;': 2, 'aims&lt;/w&gt;': 1, 'for&lt;/w&gt;': 4, 'this&lt;/w&gt;': 1, 'subject&lt;/w&gt;': 1, 'is&lt;/w&gt;': 2, 'students&lt;/w&gt;': 1, 'to&lt;/w&gt;': 2, 'develop&lt;/w&gt;': 1, 'an&lt;/w&gt;': 1, 'understanding&lt;/w&gt;': 1, 'of&lt;/w&gt;': 2, 'the&lt;/w&gt;': 2, 'main&lt;/w&gt;': 1, 'algorith': 1, 'ms&lt;/w&gt;': 1, 'used&lt;/w&gt;': 2, 'in&lt;/w&gt;': 3, 'n': 4, 'at': 2, 'u': 2, 'r': 4, 'al': 2, 'language&lt;/w&gt;': 3, 'pro': 2, 'c': 4, 'e': 8, 'ss': 1, 'ing,&lt;/w&gt;': 3, 'use&lt;/w&gt;': 2, 'a': 3, '&lt;/w&gt;': 10, 'd': 2, 'i': 2, 'ver': 2, 's': 7, 'e&lt;/w&gt;': 7, 'ang': 1, 'p': 4, 'l': 4, 'ication': 2, 's&lt;/w&gt;': 3, 'inclu': 2, 'ding&lt;/w&gt;': 1, 't': 6, 'x': 1, 't&lt;/w&gt;': 1, 'cl': 1, 'assi': 2, 'f': 1, ',&lt;/w&gt;': 4, 'ma': 1, 'h': 4, 'in': 3, 'ans': 2, 'lation': 2, 'and&lt;/w&gt;': 3, 'q': 1, 'st': 2, 'ion': 1, 'w': 2, 'ing.&lt;/w&gt;': 2, 'T': 1, 'op': 2, 'ic': 2, 'b': 1, 'o': 3, 'ed&lt;/w&gt;': 1, 'par': 2, '-': 3, 'of': 1, 'ec': 1, 'ag': 1, 'g': 2, 'gram': 2, 'm': 4, 'de': 2, 'y': 2, 'nt': 1, 'ing&lt;/w&gt;': 2, 'ar': 1, 'P': 1, 'th': 1, 'on': 2, 'or': 2, 'for': 1, 'ation': 1, 'k': 1, 'me': 2, 'nts&lt;/w&gt;': 1, '.&lt;/w&gt;': 1})
+Number of tokens: 91
+==========
+Iter: 97
+Best pair: ('algorith', 'ms&lt;/w&gt;')
+Tokens: defaultdict(&lt;class 'int'&gt;, {'The&lt;/w&gt;': 2, 'aims&lt;/w&gt;': 1, 'for&lt;/w&gt;': 4, 'this&lt;/w&gt;': 1, 'subject&lt;/w&gt;': 1, 'is&lt;/w&gt;': 2, 'students&lt;/w&gt;': 1, 'to&lt;/w&gt;': 2, 'develop&lt;/w&gt;': 1, 'an&lt;/w&gt;': 1, 'understanding&lt;/w&gt;': 1, 'of&lt;/w&gt;': 2, 'the&lt;/w&gt;': 2, 'main&lt;/w&gt;': 1, 'algorithms&lt;/w&gt;': 1, 'used&lt;/w&gt;': 2, 'in&lt;/w&gt;': 3, 'n': 4, 'at': 2, 'u': 2, 'r': 4, 'al': 2, 'language&lt;/w&gt;': 3, 'pro': 2, 'c': 4, 'e': 8, 'ss': 1, 'ing,&lt;/w&gt;': 3, 'use&lt;/w&gt;': 2, 'a': 3, '&lt;/w&gt;': 10, 'd': 2, 'i': 2, 'ver': 2, 's': 7, 'e&lt;/w&gt;': 7, 'ang': 1, 'p': 4, 'l': 4, 'ication': 2, 's&lt;/w&gt;': 3, 'inclu': 2, 'ding&lt;/w&gt;': 1, 't': 6, 'x': 1, 't&lt;/w&gt;': 1, 'cl': 1, 'assi': 2, 'f': 1, ',&lt;/w&gt;': 4, 'ma': 1, 'h': 4, 'in': 3, 'ans': 2, 'lation': 2, 'and&lt;/w&gt;': 3, 'q': 1, 'st': 2, 'ion': 1, 'w': 2, 'ing.&lt;/w&gt;': 2, 'T': 1, 'op': 2, 'ic': 2, 'b': 1, 'o': 3, 'ed&lt;/w&gt;': 1, 'par': 2, '-': 3, 'of': 1, 'ec': 1, 'ag': 1, 'g': 2, 'gram': 2, 'm': 4, 'de': 2, 'y': 2, 'nt': 1, 'ing&lt;/w&gt;': 2, 'ar': 1, 'P': 1, 'th': 1, 'on': 2, 'or': 2, 'for': 1, 'ation': 1, 'k': 1, 'me': 2, 'nts&lt;/w&gt;': 1, '.&lt;/w&gt;': 1})
+Number of tokens: 90
+==========
+Iter: 98
+Best pair: ('n', 'at')
+Tokens: defaultdict(&lt;class 'int'&gt;, {'The&lt;/w&gt;': 2, 'aims&lt;/w&gt;': 1, 'for&lt;/w&gt;': 4, 'this&lt;/w&gt;': 1, 'subject&lt;/w&gt;': 1, 'is&lt;/w&gt;': 2, 'students&lt;/w&gt;': 1, 'to&lt;/w&gt;': 2, 'develop&lt;/w&gt;': 1, 'an&lt;/w&gt;': 1, 'understanding&lt;/w&gt;': 1, 'of&lt;/w&gt;': 2, 'the&lt;/w&gt;': 2, 'main&lt;/w&gt;': 1, 'algorithms&lt;/w&gt;': 1, 'used&lt;/w&gt;': 2, 'in&lt;/w&gt;': 3, 'nat': 1, 'u': 2, 'r': 4, 'al': 2, 'language&lt;/w&gt;': 3, 'pro': 2, 'c': 4, 'e': 8, 'ss': 1, 'ing,&lt;/w&gt;': 3, 'use&lt;/w&gt;': 2, 'a': 3, '&lt;/w&gt;': 10, 'd': 2, 'i': 2, 'ver': 2, 's': 7, 'e&lt;/w&gt;': 7, 'ang': 1, 'p': 4, 'l': 4, 'ication': 2, 's&lt;/w&gt;': 3, 'inclu': 2, 'ding&lt;/w&gt;': 1, 't': 6, 'x': 1, 't&lt;/w&gt;': 1, 'cl': 1, 'assi': 2, 'f': 1, ',&lt;/w&gt;': 4, 'ma': 1, 'h': 4, 'in': 3, 'ans': 2, 'lation': 2, 'and&lt;/w&gt;': 3, 'q': 1, 'st': 2, 'ion': 1, 'w': 2, 'ing.&lt;/w&gt;': 2, 'T': 1, 'op': 2, 'ic': 2, 'b': 1, 'o': 3, 'ed&lt;/w&gt;': 1, 'par': 2, '-': 3, 'of': 1, 'ec': 1, 'ag': 1, 'g': 2, 'n': 3, 'gram': 2, 'm': 4, 'de': 2, 'y': 2, 'nt': 1, 'ing&lt;/w&gt;': 2, 'ar': 1, 'P': 1, 'th': 1, 'on': 2, 'or': 2, 'for': 1, 'ation': 1, 'k': 1, 'me': 2, 'nts&lt;/w&gt;': 1, 'at': 1, '.&lt;/w&gt;': 1})
+Number of tokens: 91
+==========
+Iter: 99
+Best pair: ('nat', 'u')
+Tokens: defaultdict(&lt;class 'int'&gt;, {'The&lt;/w&gt;': 2, 'aims&lt;/w&gt;': 1, 'for&lt;/w&gt;': 4, 'this&lt;/w&gt;': 1, 'subject&lt;/w&gt;': 1, 'is&lt;/w&gt;': 2, 'students&lt;/w&gt;': 1, 'to&lt;/w&gt;': 2, 'develop&lt;/w&gt;': 1, 'an&lt;/w&gt;': 1, 'understanding&lt;/w&gt;': 1, 'of&lt;/w&gt;': 2, 'the&lt;/w&gt;': 2, 'main&lt;/w&gt;': 1, 'algorithms&lt;/w&gt;': 1, 'used&lt;/w&gt;': 2, 'in&lt;/w&gt;': 3, 'natu': 1, 'r': 4, 'al': 2, 'language&lt;/w&gt;': 3, 'pro': 2, 'c': 4, 'e': 8, 'ss': 1, 'ing,&lt;/w&gt;': 3, 'use&lt;/w&gt;': 2, 'a': 3, '&lt;/w&gt;': 10, 'd': 2, 'i': 2, 'ver': 2, 's': 7, 'e&lt;/w&gt;': 7, 'ang': 1, 'p': 4, 'l': 4, 'ication': 2, 's&lt;/w&gt;': 3, 'inclu': 2, 'ding&lt;/w&gt;': 1, 't': 6, 'x': 1, 't&lt;/w&gt;': 1, 'cl': 1, 'assi': 2, 'f': 1, ',&lt;/w&gt;': 4, 'ma': 1, 'h': 4, 'in': 3, 'ans': 2, 'lation': 2, 'and&lt;/w&gt;': 3, 'q': 1, 'u': 1, 'st': 2, 'ion': 1, 'w': 2, 'ing.&lt;/w&gt;': 2, 'T': 1, 'op': 2, 'ic': 2, 'b': 1, 'o': 3, 'ed&lt;/w&gt;': 1, 'par': 2, '-': 3, 'of': 1, 'ec': 1, 'ag': 1, 'g': 2, 'n': 3, 'gram': 2, 'm': 4, 'de': 2, 'y': 2, 'nt': 1, 'ing&lt;/w&gt;': 2, 'ar': 1, 'P': 1, 'th': 1, 'on': 2, 'or': 2, 'for': 1, 'ation': 1, 'k': 1, 'me': 2, 'nts&lt;/w&gt;': 1, 'at': 1, '.&lt;/w&gt;': 1})
+Number of tokens: 91
+==========
+</pre></td></tr></tbody></table></code></pre></div></div>
+
+<p>After training, used the BPE dictionaries to tokenise sentences</p>
+
+<div class="language-python highlighter-rouge"><div class="highlight"><pre class="highlight"><code><table class="rouge-table"><tbody><tr><td class="rouge-gutter gl"><pre class="lineno">1
+2
+3
+4
+5
+6
+7
+8
+9
+10
+11
+12
+13
+14
+15
+16
+17
+18
+19
+20
+21
+22
+23
+24
+25
+26
+27
+28
+29
+30
+31
+32
+33
+34
+35
+36
+37
+38
+39
+40
+41
+42
+43
+44
+45
+46
+47
+48
+49
+50
+51
+52
+53
+54
+55
+56
+57
+58
+59
+60
+61
+62
+63
+64
+65
+66
+67
+68
+69
+70
+71
+72
+73
+74
+75
+76
+77
+78
+79
+80
+81
+82
+83
+84
+85
+86
+87
+88
+89
+90
+91
+92
+93
+94
+95
+96
+97
+</pre></td><td class="rouge-code"><pre><span class="k">def</span> <span class="nf">get_tokens_from_vocab</span><span class="p">(</span><span class="n">vocab</span><span class="p">):</span>
+    <span class="n">tokens_frequencies</span> <span class="o">=</span> <span class="n">collections</span><span class="p">.</span><span class="n">defaultdict</span><span class="p">(</span><span class="nb">int</span><span class="p">)</span>
+    <span class="n">vocab_tokenization</span> <span class="o">=</span> <span class="p">{}</span>
+    <span class="k">for</span> <span class="n">word</span><span class="p">,</span> <span class="n">freq</span> <span class="ow">in</span> <span class="n">vocab</span><span class="p">.</span><span class="n">items</span><span class="p">():</span>
+        <span class="n">word_tokens</span> <span class="o">=</span> <span class="n">word</span><span class="p">.</span><span class="n">split</span><span class="p">()</span>
+        <span class="k">for</span> <span class="n">token</span> <span class="ow">in</span> <span class="n">word_tokens</span><span class="p">:</span>
+            <span class="n">tokens_frequencies</span><span class="p">[</span><span class="n">token</span><span class="p">]</span> <span class="o">+=</span> <span class="n">freq</span>
+        <span class="n">vocab_tokenization</span><span class="p">[</span><span class="s">''</span><span class="p">.</span><span class="n">join</span><span class="p">(</span><span class="n">word_tokens</span><span class="p">)]</span> <span class="o">=</span> <span class="n">word_tokens</span>
+    <span class="k">return</span> <span class="n">tokens_frequencies</span><span class="p">,</span> <span class="n">vocab_tokenization</span>
+
+<span class="k">def</span> <span class="nf">measure_token_length</span><span class="p">(</span><span class="n">token</span><span class="p">):</span>
+    <span class="k">if</span> <span class="n">token</span><span class="p">[</span><span class="o">-</span><span class="mi">4</span><span class="p">:]</span> <span class="o">==</span> <span class="s">'&lt;/w&gt;'</span><span class="p">:</span>
+        <span class="k">return</span> <span class="nb">len</span><span class="p">(</span><span class="n">token</span><span class="p">[:</span><span class="o">-</span><span class="mi">4</span><span class="p">])</span> <span class="o">+</span> <span class="mi">1</span>
+    <span class="k">else</span><span class="p">:</span>
+        <span class="k">return</span> <span class="nb">len</span><span class="p">(</span><span class="n">token</span><span class="p">)</span>
+    
+<span class="k">def</span> <span class="nf">tokenize_word</span><span class="p">(</span><span class="n">string</span><span class="p">,</span> <span class="n">sorted_tokens</span><span class="p">,</span> <span class="n">unknown_token</span><span class="o">=</span><span class="s">'&lt;/u&gt;'</span><span class="p">):</span>
+    
+    <span class="k">if</span> <span class="n">string</span> <span class="o">==</span> <span class="s">''</span><span class="p">:</span>
+        <span class="k">return</span> <span class="p">[]</span>
+    <span class="k">if</span> <span class="n">sorted_tokens</span> <span class="o">==</span> <span class="p">[]:</span>
+        <span class="k">return</span> <span class="p">[</span><span class="n">unknown_token</span><span class="p">]</span>
+
+    <span class="n">string_tokens</span> <span class="o">=</span> <span class="p">[]</span>
+    <span class="c1"># iterate over all tokens to find match
+</span>    <span class="k">for</span> <span class="n">i</span> <span class="ow">in</span> <span class="nb">range</span><span class="p">(</span><span class="nb">len</span><span class="p">(</span><span class="n">sorted_tokens</span><span class="p">)):</span>
+        <span class="n">token</span> <span class="o">=</span> <span class="n">sorted_tokens</span><span class="p">[</span><span class="n">i</span><span class="p">]</span>
+        <span class="n">token_reg</span> <span class="o">=</span> <span class="n">re</span><span class="p">.</span><span class="n">escape</span><span class="p">(</span><span class="n">token</span><span class="p">.</span><span class="n">replace</span><span class="p">(</span><span class="s">'.'</span><span class="p">,</span> <span class="s">'[.]'</span><span class="p">))</span>
+        <span class="n">matched_positions</span> <span class="o">=</span> <span class="p">[(</span><span class="n">m</span><span class="p">.</span><span class="n">start</span><span class="p">(</span><span class="mi">0</span><span class="p">),</span> <span class="n">m</span><span class="p">.</span><span class="n">end</span><span class="p">(</span><span class="mi">0</span><span class="p">))</span> <span class="k">for</span> <span class="n">m</span> <span class="ow">in</span> <span class="n">re</span><span class="p">.</span><span class="n">finditer</span><span class="p">(</span><span class="n">token_reg</span><span class="p">,</span> <span class="n">string</span><span class="p">)]</span>
+        <span class="c1"># if no match found in the string, go to next token
+</span>        <span class="k">if</span> <span class="nb">len</span><span class="p">(</span><span class="n">matched_positions</span><span class="p">)</span> <span class="o">==</span> <span class="mi">0</span><span class="p">:</span>
+            <span class="k">continue</span>
+        <span class="c1"># collect end position of matches in the string
+</span>        <span class="n">substring_end_positions</span> <span class="o">=</span> <span class="p">[</span><span class="n">matched_position</span><span class="p">[</span><span class="mi">0</span><span class="p">]</span> <span class="k">for</span> <span class="n">matched_position</span> <span class="ow">in</span> <span class="n">matched_positions</span><span class="p">]</span>
+        <span class="n">substring_start_position</span> <span class="o">=</span> <span class="mi">0</span>
+        <span class="k">for</span> <span class="n">substring_end_position</span> <span class="ow">in</span> <span class="n">substring_end_positions</span><span class="p">:</span>
+            <span class="c1"># slice for sub-word
+</span>            <span class="n">substring</span> <span class="o">=</span> <span class="n">string</span><span class="p">[</span><span class="n">substring_start_position</span><span class="p">:</span><span class="n">substring_end_position</span><span class="p">]</span>
+            <span class="c1"># tokenize this sub-word with tokens remaining
+</span>            <span class="n">string_tokens</span> <span class="o">+=</span> <span class="n">tokenize_word</span><span class="p">(</span><span class="n">string</span><span class="o">=</span><span class="n">substring</span><span class="p">,</span> <span class="n">sorted_tokens</span><span class="o">=</span><span class="n">sorted_tokens</span><span class="p">[</span><span class="n">i</span><span class="o">+</span><span class="mi">1</span><span class="p">:],</span> <span class="n">unknown_token</span><span class="o">=</span><span class="n">unknown_token</span><span class="p">)</span>
+            <span class="n">string_tokens</span> <span class="o">+=</span> <span class="p">[</span><span class="n">token</span><span class="p">]</span>
+            <span class="n">substring_start_position</span> <span class="o">=</span> <span class="n">substring_end_position</span> <span class="o">+</span> <span class="nb">len</span><span class="p">(</span><span class="n">token</span><span class="p">)</span>
+        <span class="c1"># tokenize the remaining string
+</span>        <span class="n">remaining_substring</span> <span class="o">=</span> <span class="n">string</span><span class="p">[</span><span class="n">substring_start_position</span><span class="p">:]</span>
+        <span class="n">string_tokens</span> <span class="o">+=</span> <span class="n">tokenize_word</span><span class="p">(</span><span class="n">string</span><span class="o">=</span><span class="n">remaining_substring</span><span class="p">,</span> <span class="n">sorted_tokens</span><span class="o">=</span><span class="n">sorted_tokens</span><span class="p">[</span><span class="n">i</span><span class="o">+</span><span class="mi">1</span><span class="p">:],</span> <span class="n">unknown_token</span><span class="o">=</span><span class="n">unknown_token</span><span class="p">)</span>
+        <span class="k">break</span>
+    <span class="k">return</span> <span class="n">string_tokens</span>
+
+<span class="s">"""
+This function generates a list of all tokens sorted by their length (1st key) and frequency (2nd key).
+
+EXAMPLE:
+    token frequency dictionary before sorting: {'natural': 3, 'language':2, 'processing': 4, 'lecture': 4}
+    sorted tokens: ['processing', 'language', 'lecture', 'natural']
+    
+INPUT:
+    token_frequencies: Dict[str, int] # Counter for token frequency
+    
+OUTPUT:
+    sorted_token: List[str] # Tokens sorted by length and frequency
+
+"""</span>
+<span class="k">def</span> <span class="nf">sort_tokens</span><span class="p">(</span><span class="n">tokens_frequencies</span><span class="p">):</span>
+    <span class="c1">###
+</span>    <span class="c1"># Your answer BEGINS HERE
+</span>    <span class="c1">###
+</span>    
+    
+    <span class="c1">###
+</span>    <span class="c1"># Your answer ENDS HERE
+</span>    <span class="c1">###
+</span>    <span class="k">return</span> <span class="n">sorted_tokens</span>
+
+<span class="c1">#display the vocab
+</span><span class="n">tokens_frequencies</span><span class="p">,</span> <span class="n">vocab_tokenization</span> <span class="o">=</span> <span class="n">get_tokens_from_vocab</span><span class="p">(</span><span class="n">vocab</span><span class="p">)</span>
+<span class="c1">#sort tokens by length and frequency
+</span><span class="n">sorted_tokens</span> <span class="o">=</span> <span class="n">sort_tokens</span><span class="p">(</span><span class="n">tokens_frequencies</span><span class="p">)</span>
+<span class="k">print</span><span class="p">(</span><span class="s">"Tokens ="</span><span class="p">,</span> <span class="n">sorted_tokens</span><span class="p">,</span> <span class="s">"</span><span class="se">\n</span><span class="s">"</span><span class="p">)</span>
+
+<span class="n">sentence_1</span> <span class="o">=</span> <span class="s">'I like natural language processing!'</span>
+<span class="n">sentence_2</span> <span class="o">=</span> <span class="s">'I like natural languaaage processing!'</span>
+<span class="n">sentence_list</span> <span class="o">=</span> <span class="p">[</span><span class="n">sentence_1</span><span class="p">,</span> <span class="n">sentence_2</span><span class="p">]</span>
+
+<span class="k">for</span> <span class="n">sentence</span> <span class="ow">in</span> <span class="n">sentence_list</span><span class="p">:</span>
+    
+    <span class="k">print</span><span class="p">(</span><span class="s">'=========='</span><span class="p">)</span>
+    <span class="k">print</span><span class="p">(</span><span class="s">"Sentence ="</span><span class="p">,</span> <span class="n">sentence</span><span class="p">)</span>
+    
+    <span class="k">for</span> <span class="n">word</span> <span class="ow">in</span> <span class="n">sentence</span><span class="p">.</span><span class="n">split</span><span class="p">():</span>
+        <span class="n">word</span> <span class="o">=</span> <span class="n">word</span> <span class="o">+</span> <span class="s">"&lt;/w&gt;"</span>
+
+        <span class="k">print</span><span class="p">(</span><span class="s">'Tokenizing word: {}...'</span><span class="p">.</span><span class="nb">format</span><span class="p">(</span><span class="n">word</span><span class="p">))</span>
+        <span class="k">if</span> <span class="n">word</span> <span class="ow">in</span> <span class="n">vocab_tokenization</span><span class="p">:</span>
+            <span class="k">print</span><span class="p">(</span><span class="n">vocab_tokenization</span><span class="p">[</span><span class="n">word</span><span class="p">])</span>
+        <span class="k">else</span><span class="p">:</span>
+            <span class="k">print</span><span class="p">(</span><span class="n">tokenize_word</span><span class="p">(</span><span class="n">string</span><span class="o">=</span><span class="n">word</span><span class="p">,</span> <span class="n">sorted_tokens</span><span class="o">=</span><span class="n">sorted_tokens</span><span class="p">,</span> <span class="n">unknown_token</span><span class="o">=</span><span class="s">'&lt;/u&gt;'</span><span class="p">))</span>
+
+</pre></td></tr></tbody></table></code></pre></div></div>
+
+<p>输出：</p>
+
+<div class="language-plaintext highlighter-rouge"><div class="highlight"><pre class="highlight"><code><table class="rouge-table"><tbody><tr><td class="rouge-gutter gl"><pre class="lineno">1
+2
+3
+4
+5
+6
+7
+8
+9
+10
+11
+12
+13
+14
+15
+16
+17
+18
+19
+20
+21
+22
+23
+24
+25
+26
+</pre></td><td class="rouge-code"><pre>Tokens = ['understanding&lt;/w&gt;', 'algorithms&lt;/w&gt;', 'language&lt;/w&gt;', 'students&lt;/w&gt;', 'subject&lt;/w&gt;', 'develop&lt;/w&gt;', 'ication', 'lation', 'ing,&lt;/w&gt;', 'used&lt;/w&gt;', 'inclu', 'ing.&lt;/w&gt;', 'aims&lt;/w&gt;', 'this&lt;/w&gt;', 'main&lt;/w&gt;', 'ding&lt;/w&gt;', 'ation', 'for&lt;/w&gt;', 'and&lt;/w&gt;', 'The&lt;/w&gt;', 'the&lt;/w&gt;', 'use&lt;/w&gt;', 'assi', 'gram', 'ing&lt;/w&gt;', 'natu', 'nts&lt;/w&gt;', 'in&lt;/w&gt;', 'is&lt;/w&gt;', 'to&lt;/w&gt;', 'of&lt;/w&gt;', 'pro', 'ver', 'ans', 'par', 'an&lt;/w&gt;', 'ang', 'ion', 'ed&lt;/w&gt;', 'for', 'e&lt;/w&gt;', ',&lt;/w&gt;', 's&lt;/w&gt;', 'in', 'al', 'st', 'op', 'ic', 'de', 'on', 'or', 'me', 'ss', 't&lt;/w&gt;', 'cl', 'ma', 'of', 'ec', 'ag', 'nt', 'ar', 'th', 'at', '.&lt;/w&gt;', '&lt;/w&gt;', 'e', 's', 't', 'r', 'c', 'p', 'l', 'h', 'm', 'a', 'o', '-', 'n', 'd', 'i', 'w', 'g', 'y', 'x', 'f', 'q', 'u', 'T', 'b', 'P', 'k'] 
+
+==========
+Sentence = I like natural language processing!
+Tokenizing word: I&lt;/w&gt;...
+['&lt;/w&gt;']
+Tokenizing word: like&lt;/w&gt;...
+['l', 'i', 'k', 'e&lt;/w&gt;']
+Tokenizing word: natural&lt;/w&gt;...
+['natu', 'r', 'al', '&lt;/w&gt;']
+Tokenizing word: language&lt;/w&gt;...
+['language&lt;/w&gt;']
+Tokenizing word: processing!&lt;/w&gt;...
+['pro', 'c', 'e', 'ss', 'in', 'g', '&lt;/w&gt;']
+==========
+Sentence = I like natural languaaage processing!
+Tokenizing word: I&lt;/w&gt;...
+['&lt;/w&gt;']
+Tokenizing word: like&lt;/w&gt;...
+['l', 'i', 'k', 'e&lt;/w&gt;']
+Tokenizing word: natural&lt;/w&gt;...
+['natu', 'r', 'al', '&lt;/w&gt;']
+Tokenizing word: languaaage&lt;/w&gt;...
+['l', 'ang', 'u', 'a', 'a', 'ag', 'e&lt;/w&gt;']
+Tokenizing word: processing!&lt;/w&gt;...
+['pro', 'c', 'e', 'ss', 'in', 'g', '&lt;/w&gt;']
+</pre></td></tr></tbody></table></code></pre></div></div>
+
+:ET

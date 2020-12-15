@@ -1,0 +1,171 @@
+I"i(<h1 id="lecture-04-计算图与动态图机制">Lecture 04 计算图与动态图机制</h1>
+
+<p>本节课分为两部分：计算图和 PyTorch 中的动态图机制。在之前的课程中，我们学习了张量的创建和操作，而深度学习就是对张量进行一系列操作，随着操作种类和数量的增多，可能会导致各种意想不到的问题。例如：多个操作之间是并行还是顺序执行；如何协同不同底层设备；如何避免各种冗余操作等等。这些问题都会影响到我们的运算效率，甚至会引入一些不必要的 bug，计算图正是为解决这些问题而生的。</p>
+
+<h2 id="1-计算图">1. 计算图</h2>
+
+<p><strong>计算图 (Computational Graph)</strong> 是用来 <strong>描述运算</strong> 的 <strong>有向无环图</strong>。</p>
+
+<p>计算图有两个主要元素：<strong>结点 (Node)</strong> 和 <strong>边 (Edge)</strong>。</p>
+
+<ul>
+  <li>结点表示 <strong>数据</strong>，例如：向量、矩阵、张量。</li>
+  <li>边表示 <strong>运算</strong>，例如：加、减、乘、除、卷积等。</li>
+</ul>
+
+<p><strong>例子</strong>：</p>
+
+<p>用计算图表示：$y=(x+w) * (w+1)$</p>
+
+<p>我们先将运算过程拆分为：</p>
+
+<ul>
+  <li>$a = x+w$</li>
+  <li>$b=w+1$</li>
+  <li>$y=a*b$</li>
+</ul>
+
+<p>搭建计算图：</p>
+
+<p><img src="http://andy-blog.oss-cn-beijing.aliyuncs.com/blog/2020-12-10-WX20201210-151343%402x.png" width="39%" /></p>
+
+<p>将 $x=2,w=1$ 代入进行计算：</p>
+
+<p><img src="http://andy-blog.oss-cn-beijing.aliyuncs.com/blog/2020-12-10-WX20201210-151755%402x.png" width="40%" /></p>
+
+<p>采用计算图来描述运算过程的好处不只是让运算更加简洁，更重要的一点是，它使得梯度求导更加方便。接下来，我们来看一下 $y$ 对 $w$ 求导的过程。</p>
+
+<p>计算图与梯度求导：</p>
+
+\[y=(x+w) * (w+1)\]
+
+<ul>
+  <li>$a = x+w$</li>
+  <li>$b=w+1$</li>
+  <li>$y=a*b$</li>
+</ul>
+
+\[\begin{align}
+\dfrac{\partial y}{\partial w} &amp;= \dfrac{\partial y}{\partial a} \dfrac{\partial a}{\partial w} + \dfrac{\partial y}{\partial b} \dfrac{\partial b}{\partial w} \\[2ex]
+&amp;= b * 1+ a * 1 \\[2ex]
+&amp;= (w+1) + (x + w) \\[2ex]
+&amp;= 2*w + x + 1 \\[2ex]
+&amp;= 2*1 + 2 + 1 = 5
+\end{align}\]
+
+<p><img src="http://andy-blog.oss-cn-beijing.aliyuncs.com/blog/2020-12-10-WX20201210-153230%402x.png" width="40%" /></p>
+
+<p>在之前课程中，我们提到 Tensor 中有一个 <code class="language-plaintext highlighter-rouge">is_leaf</code> 属性，它用于指示张量是否是叶子结点。</p>
+
+<p><img src="http://andy-blog.oss-cn-beijing.aliyuncs.com/blog/2020-12-10-WX20201210-154144%402x.png" width="50%" /></p>
+
+<p><strong>叶子结点</strong>：用户创建的结点称为叶子结点，例如上面的 $x$ 和 $w$。它是整个计算图的根基，可以看到，在前向传播中的 $a$、$b$ 和 $y$ 都需要根据叶子结点 $x$ 和 $w$ 进行计算。同样，在反向传播中，所有的梯度计算也都依赖于叶子结点。</p>
+
+<p><strong>为什么要设置叶子结点这一概念呢？</strong></p>
+
+<p>主要是为了节省内存，因为在反向传播结束之后，非叶子结点的梯度将被丢弃。</p>
+
+<p>除了叶子结点之外，Tensor 中还有一个重要的概念就是 <strong>梯度函数</strong> <code class="language-plaintext highlighter-rouge">grad_fn</code>，它记录了创建该张量时所用的方法 (函数)，在反向传播时需要用到该方法以 <strong>确定对应的求导法则</strong>。</p>
+
+<p>例如上面的 $a$ 和 $b$ 都是通过加法创建的，而 $y$ 是通过乘法创建的，所以我们有：</p>
+
+<ul>
+  <li><code class="language-plaintext highlighter-rouge">y.grad_fn = &lt;MulBackward0&gt;</code></li>
+  <li><code class="language-plaintext highlighter-rouge">a.grad_fn = &lt;AddBackward0&gt;</code></li>
+  <li><code class="language-plaintext highlighter-rouge">b.grad_fn = &lt;AddBackward0&gt;</code></li>
+</ul>
+
+<p><strong>Python 代码示例</strong>：</p>
+
+<div class="language-python highlighter-rouge"><div class="highlight"><pre class="highlight"><code><table class="rouge-table"><tbody><tr><td class="rouge-gutter gl"><pre class="lineno">1
+2
+3
+4
+5
+6
+7
+8
+9
+10
+11
+12
+13
+14
+15
+16
+17
+18
+19
+20
+21
+22
+23
+24
+25
+26
+27
+28
+29
+</pre></td><td class="rouge-code"><pre><span class="kn">import</span> <span class="nn">torch</span>
+
+<span class="c1"># 叶子结点
+</span><span class="n">w</span> <span class="o">=</span> <span class="n">torch</span><span class="p">.</span><span class="n">tensor</span><span class="p">([</span><span class="mf">1.</span><span class="p">],</span> <span class="n">requires_grad</span><span class="o">=</span><span class="bp">True</span><span class="p">)</span>
+<span class="n">x</span> <span class="o">=</span> <span class="n">torch</span><span class="p">.</span><span class="n">tensor</span><span class="p">([</span><span class="mf">2.</span><span class="p">],</span> <span class="n">requires_grad</span><span class="o">=</span><span class="bp">True</span><span class="p">)</span>
+
+<span class="c1"># 非叶子结点
+</span><span class="n">a</span> <span class="o">=</span> <span class="n">torch</span><span class="p">.</span><span class="n">add</span><span class="p">(</span><span class="n">w</span><span class="p">,</span> <span class="n">x</span><span class="p">)</span>
+<span class="n">b</span> <span class="o">=</span> <span class="n">torch</span><span class="p">.</span><span class="n">add</span><span class="p">(</span><span class="n">w</span><span class="p">,</span> <span class="mi">1</span><span class="p">)</span>
+<span class="n">y</span> <span class="o">=</span> <span class="n">torch</span><span class="p">.</span><span class="n">mul</span><span class="p">(</span><span class="n">a</span><span class="p">,</span> <span class="n">b</span><span class="p">)</span>
+
+<span class="c1"># PyTorch 中，为了节省内存，在计算完成后会丢弃非叶子结点的梯度值，即为 None；
+# 如果希望保存非叶子结点梯度值，需要在反向传播之前使用 .retain_grad() 方法。
+</span><span class="n">a</span><span class="p">.</span><span class="n">retain_grad</span><span class="p">()</span>
+<span class="n">b</span><span class="p">.</span><span class="n">retain_grad</span><span class="p">()</span>
+<span class="n">y</span><span class="p">.</span><span class="n">retain_grad</span><span class="p">()</span>
+
+<span class="c1"># 反向传播
+</span><span class="n">y</span><span class="p">.</span><span class="n">backward</span><span class="p">()</span>
+<span class="k">print</span><span class="p">(</span><span class="n">w</span><span class="p">.</span><span class="n">grad</span><span class="p">)</span>
+
+<span class="c1"># 查看叶子结点
+</span><span class="k">print</span><span class="p">(</span><span class="s">"is_leaf:</span><span class="se">\n</span><span class="s">"</span><span class="p">,</span> <span class="n">w</span><span class="p">.</span><span class="n">is_leaf</span><span class="p">,</span> <span class="n">x</span><span class="p">.</span><span class="n">is_leaf</span><span class="p">,</span> <span class="n">a</span><span class="p">.</span><span class="n">is_leaf</span><span class="p">,</span> <span class="n">b</span><span class="p">.</span><span class="n">is_leaf</span><span class="p">,</span> <span class="n">y</span><span class="p">.</span><span class="n">is_leaf</span><span class="p">)</span>
+
+<span class="c1"># 查看梯度
+</span><span class="k">print</span><span class="p">(</span><span class="s">"gradient:</span><span class="se">\n</span><span class="s">"</span><span class="p">,</span> <span class="n">w</span><span class="p">.</span><span class="n">grad</span><span class="p">,</span> <span class="n">x</span><span class="p">.</span><span class="n">grad</span><span class="p">,</span> <span class="n">a</span><span class="p">.</span><span class="n">grad</span><span class="p">,</span> <span class="n">b</span><span class="p">.</span><span class="n">grad</span><span class="p">,</span> <span class="n">y</span><span class="p">.</span><span class="n">grad</span><span class="p">)</span>
+
+<span class="c1"># 查看 grad_fn
+</span><span class="k">print</span><span class="p">(</span><span class="s">"grad_fn:</span><span class="se">\n</span><span class="s">"</span><span class="p">,</span> <span class="n">w</span><span class="p">.</span><span class="n">grad_fn</span><span class="p">,</span> <span class="n">x</span><span class="p">.</span><span class="n">grad_fn</span><span class="p">,</span> <span class="n">a</span><span class="p">.</span><span class="n">grad_fn</span><span class="p">,</span> <span class="n">b</span><span class="p">.</span><span class="n">grad_fn</span><span class="p">,</span> <span class="n">y</span><span class="p">.</span><span class="n">grad_fn</span><span class="p">)</span>
+</pre></td></tr></tbody></table></code></pre></div></div>
+
+<p>输出结果：</p>
+
+<div class="language-plaintext highlighter-rouge"><div class="highlight"><pre class="highlight"><code><table class="rouge-table"><tbody><tr><td class="rouge-gutter gl"><pre class="lineno">1
+2
+3
+4
+5
+6
+7
+</pre></td><td class="rouge-code"><pre>tensor([5.])
+is_leaf:
+ True True False False False
+gradient:
+ tensor([5.]) tensor([2.]) tensor([2.]) tensor([3.]) tensor([1.])
+grad_fn:
+ None None &lt;AddBackward0 object at 0x1146d1518&gt; &lt;AddBackward0 object at 0x1146d1550&gt; &lt;MulBackward0 object at 0x1146d15c0&gt;
+</pre></td></tr></tbody></table></code></pre></div></div>
+
+<h2 id="2-动态图">2. 动态图</h2>
+
+<p>根据计算图搭建方式， 可将计算图分为 <strong>动态图 (Dynamic Graphs)</strong> 和 <strong>静态图 (Static Graphs)</strong>。PyTorch 采用的是动态图机制，而 TensorFlow 采用的是静态图机制。</p>
+
+<p><strong>动态图 vs 静态图</strong>：</p>
+
+<p><img src="http://andy-blog.oss-cn-beijing.aliyuncs.com/blog/2020-12-10-WX20201210-160848%402x.png" width="80%" /></p>
+
+<h2 id="3-总结">3. 总结</h2>
+
+<p>本节课介绍了 PyTorch 最大的特性 —— 动态图机制，动态图机制是 PyTorch 与 TensorFlow 最大的区别，我们首先介绍了计算图的概念，并通过演示动态图与静态图的搭建过程来理解动态图与静态图的差异。</p>
+
+<p>下节内容：autograd 与逻辑回归</p>
+:ET

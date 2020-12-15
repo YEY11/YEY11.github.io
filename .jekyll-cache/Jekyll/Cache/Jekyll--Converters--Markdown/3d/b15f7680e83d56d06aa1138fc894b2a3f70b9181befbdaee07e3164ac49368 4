@@ -1,0 +1,302 @@
+I"<<h1 id="lecture-13-多臂老虎机">Lecture 13 多臂老虎机</h1>
+<h2 id="主要内容">主要内容</h2>
+<ul>
+  <li><strong>随机多臂老虎机</strong>
+    <ul>
+      <li>“我们学会采取行动的地方；我们仅仅接受奖励形式的间接监督；并且我们只观测行动带来的奖励。” —— 这是一个关于如何权衡 <strong>探索-利用（Exploration-Exploitation）</strong> 最简单的设定</li>
+      <li>不确定性下的顺序决策</li>
+      <li>$(\varepsilon)$-Greedy 算法</li>
+      <li>UCB 算法</li>
+    </ul>
+  </li>
+</ul>
+
+<h2 id="1-多臂老虎机">1. 多臂老虎机</h2>
+<h3 id="11-多臂老虎机问题mab">1.1 多臂老虎机问题（MAB）</h3>
+<p><img src="http://andy-blog.oss-cn-beijing.aliyuncs.com/blog/2020-02-17-WX20200217-191218%402x.png" width="60%" /></p>
+
+<p><strong><span style="color:steelblue">问题描述：</span></strong></p>
+<blockquote>
+  <p>赌场内，有一名赌徒想要去摇 <strong>老虎机（bandit）</strong>，他面前有一排机器，每台机器都拥有一个 <strong>臂（arm）</strong>，而且每台机器看上去都一样。每次投一枚游戏币就能获得一次 <strong>摇臂（play）</strong> 的机会，而且每个臂摇下都有可能吐出一枚硬币，即 <strong>奖励（rewards）</strong> —— 但是，每台老虎机吐出硬币的概率分布是未知的。作为赌徒，自然希望自己的 <strong>累积收益的期望（expected cumulative reward）最大化</strong>（假如一共有 $n$ 次摇臂的机会），那么，请问这名赌徒应该采取怎样的行动？<br />
+<br />
+—— 这就是 <strong>多臂老虎机问题（Multi-armed bandit, MAB)</strong></p>
+</blockquote>
+
+<h3 id="12-探索explorationvs-利用exploitation">1.2 探索（Exploration）vs. 利用（Exploitation）</h3>
+<ul>
+  <li>多臂老虎机问题（MAB）
+    <ul>
+      <li>关于平衡探索（Exploration）和利用（Exploitation）的最简单的设定</li>
+      <li>与强化学习同属一类机器学习任务家族</li>
+    </ul>
+  </li>
+  <li>一些应用场景
+    <ul>
+      <li>在线广告</li>
+      <li>投资组合选择</li>
+      <li>数据库中的缓存</li>
+      <li>游戏中的随机搜索（例如，AlphaGo）</li>
+      <li>自适应 A / B 测试</li>
+      <li>…</li>
+    </ul>
+  </li>
+</ul>
+
+<h3 id="13-随机-mab-设定">1.3 随机 MAB 设定</h3>
+<ul>
+  <li>可能采取的 <span style="color:red">行动（action）</span> \(\{1,...,k\}\) 称为 “<span style="color:red">臂（arms）</span>”
+    <ul>
+      <li>臂（arm）$i$ 具有在有界 <span style="color:red">奖励（rewards）</span> 上的分布 $P_i$，其期望为 $u_i$</li>
+    </ul>
+  </li>
+  <li>在 $t=1…T$ 轮：
+    <ul>
+      <li><span style="color:red">摇臂行为（play）</span> \(i_t\in \{1,...,k\}\)（可能是随机的）</li>
+      <li>得到奖励 $X_{i_t}(t)\sim P_{i_t}$</li>
+    </ul>
+  </li>
+  <li>目标：最小化累积 <span style="color:red">遗憾（regret）</span>
+    <ul>
+      <li>\(u^*T-\sum_{t=1}^{T}E\left[X_{i_t}(t) \right]\) $\qquad$其中，\(u^*=\max \limits_i u_i\)<br />
+第一部分为 <span style="color:red">在预先知道每台机器奖励概率分布的情况（上帝视角）下的累积奖励的期望</span><br />
+第二部分为 <span style="color:red">实际摇完老虎机后的累积奖励的期望</span></li>
+      <li>直觉上，我们应该制定一个简单但是包含未来知识的规则</li>
+    </ul>
+  </li>
+</ul>
+
+<h2 id="2-greedy-和-varepsilon-greedy-算法">2. Greedy 和 $\varepsilon$-Greedy 算法</h2>
+<h3 id="21-greedy-算法">2.1 Greedy 算法</h3>
+<ul>
+  <li>在第 $t$ 轮：
+    <ul>
+      <li>
+        <p>将每个臂（arm）$i$ 观测到的平均奖励（average reward）作为 <span style="color:red">估计值</span></p>
+
+\[Q_{t-1}(i)=\begin{cases}\dfrac{\sum_{s=1}^{t-1}X_i(s)1[i_s=i]}{\sum_{s=1}^{t-1}1[i_s=i]}, &amp; \text{if }\sum_{s=1}^{t-1}1[i_s=i]&gt;0 \\ Q_0 , &amp; \text{otherwise}\end{cases}\]
+
+        <p>在某个臂（arm）$i$ 被第一次摇到之前，其估计值都设为初始常数 $Q_0(i)=Q_0$</p>
+
+        <p>也就是说，在经过 $(t-1)$ 轮后，如果臂 $i$ 被摇动过了，那么将之前 $(t-1)$ 轮的平均奖励作为这台机器的在第 $t$ 轮奖励的估计值；否则，将初始值 $Q_0(i)=Q_0$ 作为估计值。</p>
+      </li>
+      <li>
+        <p><span style="color:red">利用（exploit）</span></p>
+
+\[i_t\in \mathop{\operatorname{arg\,max}}\limits_{1\le i\le k}Q_{t-1}(i)\]
+
+        <p><strong>选择摇臂（play）：</strong> 在第 $t$ 轮，从目前为止奖励估计值最大（即经过之前 $(t-1)$ 轮后平均奖励最大）的臂 $i$ 的 <strong>集合</strong>（因为具有最大奖励估计值的臂可能不止一个）中选择一个作为本轮摇臂。</p>
+      </li>
+      <li>
+        <p><strong>随机平局决胜机制：</strong> 因为具有最大奖励估计值的臂是一个集合，因此，我们随机地从中选择一个作为本轮要摇的臂即可。</p>
+      </li>
+    </ul>
+  </li>
+</ul>
+
+<p><strong><span style="color:steelblue">思考：</span></strong> 初始值 $Q_0$ 的设定应当如何选择？会有什么影响？</p>
+
+<h3 id="22-varepsilon-greedy-算法">2.2 $\varepsilon$-Greedy 算法</h3>
+<ul>
+  <li>在第 $t$ 轮：
+    <ul>
+      <li>
+        <p>将每个臂 $i$ 观测到的平均奖励作为 <span style="color:red">估计值</span></p>
+
+\[Q_{t-1}(i)=\begin{cases}\dfrac{\sum_{s=1}^{t-1}X_i(s)1[i_s=i]}{\sum_{s=1}^{t-1}1[i_s=i]}, &amp; \text{if }\sum_{s=1}^{t-1}1[i_s=i]&gt;0 \\ Q_0 , &amp; \text{otherwise}\end{cases}\]
+
+        <p>在某个臂（arm）$i$ 被第一次摇到之前，其估计值都设为初始常数 $Q_0(i)=Q_0$</p>
+      </li>
+      <li>
+        <p>可能 <span style="color:red">利用（exploit）</span>，可能 <span style="color:red">探索（explore）</span></p>
+
+\[i_t\sim \begin{cases}i_t\in \mathop{\operatorname{arg\,max}}\limits_{1\le i\le k}Q_{t-1}(i), &amp; \text{w.p.}\quad 1-\varepsilon \\ \text{Unif}(\{1,...,k\}), &amp; \text{w.p.}\quad \varepsilon\end{cases}\]
+
+        <p><strong>选择摇臂（play）：</strong> 在第 $t$ 轮，<span style="color:red">以 $(1-\varepsilon)$ 的概率</span> 从目前为止奖励估计值最大的臂 $i$ 的 <strong>集合</strong> 中选择一个作为本轮摇臂；<span style="color:red">以 $\varepsilon$ 的概率</span> 从所有臂的集合 \(\{1,...,k\}\) 中按照等概率随机选取一个作为本轮摇臂。</p>
+      </li>
+      <li>
+        <p><strong>随机平局决胜机制</strong></p>
+      </li>
+    </ul>
+  </li>
+  <li><span style="color:red">超参数 $\varepsilon$</span> 控制 <strong>探索（Exploration）vs. 利用（Exploitation）</strong></li>
+</ul>
+
+<h3 id="23-varepsilon-greedy-算法评估">2.3 $\varepsilon$-Greedy 算法评估</h3>
+
+<p><img src="http://andy-blog.oss-cn-beijing.aliyuncs.com/blog/2020-02-17-WX20200217-230426%402x.png" width="80%" /></p>
+
+<ul>
+  <li>10 个摇臂的老虎机</li>
+  <li>奖励 $P_i=\text{Normal}(\mu_i,1)$，其中 $\mu_i \sim \text{Normal}(0,1)$</li>
+  <li>一场游戏摇 300 轮</li>
+  <li>重复 1000 场游戏，绘制每轮的平均奖励图</li>
+</ul>
+
+<p><strong><span style="color:steelblue">增加轮数</span></strong></p>
+
+<p><img src="http://andy-blog.oss-cn-beijing.aliyuncs.com/blog/2020-02-17-WX20200217-231303%402x.png" width="80%" /></p>
+
+<ul>
+  <li>Greedy 算法上升更快，但最终在一个较低的奖励值趋于平稳</li>
+  <li>$\varepsilon$-Greedy 算法 <span style="color:red">通过探索（exploration）使得长期表现更好</span></li>
+  <li>0.01-Greedy（<span style="color:red">很少的探索过程</span>）初始时上升较慢，但是最终的平均奖励值要高于 0.1-Greedy（<span style="color:red">在经过足够的探索后才开始利用</span>）</li>
+</ul>
+
+<p><strong><span style="color:steelblue">乐观的初始化可以提升 Greedy 算法的表现</span></strong></p>
+
+<p><img src="http://andy-blog.oss-cn-beijing.aliyuncs.com/blog/2020-02-17-WX20200217-233326%402x.png" width="80%" /></p>
+
+<ul>
+  <li><span style="color:red">悲观主义：</span>初始化的 $Q$ 值低于可观测到的奖励 $\rightarrow$ 只尝试一个摇臂</li>
+  <li><span style="color:red">乐观主义：</span>初始化的 $Q$ 值高于可观测到的奖励 $\rightarrow$ 保证每个摇臂都尝试一次</li>
+  <li>中间立场初始化的 $Q$ 值 $\rightarrow$ 每个摇臂最多探索一次</li>
+</ul>
+
+<p>但是，单纯的 Greedy 算法永远不会对一个摇臂探索超过一次</p>
+
+<p><strong><span style="color:steelblue">$\varepsilon$-Greedy 算法的局限</span></strong></p>
+
+<ul>
+  <li>虽然我们可以通过乐观的初始化和减小 $\varepsilon$ 来提升基本的 Greedy 算法，但还是存在一些问题…</li>
+  <li>在 Greedy 算法中，<strong>探索（Exploration）</strong> 和 <strong>利用（exploitation）</strong> 这两部分太过于割裂
+    <ul>
+      <li><strong>探索过程</strong> 完全无视了 <span style="color:red">有潜力的臂</span></li>
+      <li><span style="color:red">初始化技巧</span> 仅仅对于 “冷启动” 有帮助</li>
+    </ul>
+  </li>
+  <li><strong>利用过程</strong> 对估计值的 <span style="color:red">置信度</span> 视而不见</li>
+  <li>在实践中，这些局限是很严重的</li>
+</ul>
+
+<h2 id="3-ucb-算法">3. UCB 算法</h2>
+<h3 id="31-q-估计值的上置信区间">3.1 $Q$ 估计值的（上）置信区间</h3>
+<ul>
+  <li><strong><span style="color:steelblue">定理：霍夫丁不等式（Hoeffding’s inequality）</span></strong>
+    <ul>
+      <li>令 $X_1,…,X_n$ 为独立同分布的随机变量，并且 $X_i \in [0,1]$，均值为 $\mu$，它们的样本均值则由 $\overline{X_n}$ 表示</li>
+      <li>
+        <p>对于任何 $\varepsilon \in (0,1)$，至少有 $(1-\varepsilon)$ 的概率使得</p>
+
+\[\mu \le \overline{X_n}+\sqrt{\dfrac{\log(1/\varepsilon)}{2n}}\]
+      </li>
+    </ul>
+  </li>
+  <li>应用到 $Q_{t-1}(i)$ 的估计（同样存在独立同分布和均值的场景）
+    <ul>
+      <li>经过 $(t-1)$ 轮，臂 $i$ 一共被摇过的次数为 $n=N_{t-1}(i)=\sum_{s=1}^{t-1}1[i_s=i]$</li>
+      <li>然后，$\overline{X_n}=Q_{t-1}(i)$</li>
+      <li>临界水平 $\varepsilon=1/t$（Lai &amp; Robbins, 1985），取 $\color{red}{\varepsilon=1/t^4}$</li>
+    </ul>
+  </li>
+</ul>
+
+<h3 id="32-置信区间上界ucb算法">3.2 置信区间上界（UCB）算法</h3>
+<ul>
+  <li>在第 $t$ 轮：
+    <ul>
+      <li>
+        <p>将每个臂 $i$ 观测到的平均奖励作为 <span style="color:red">估计值</span></p>
+
+\[Q_{t-1}(i)=\begin{cases}\hat \mu_{t-1}(i)+\sqrt{\dfrac{2\log(t)}{N_{t-1}(i)}}, &amp; \text{if }\sum_{s=1}^{t-1}1[i_s=i]&gt;0 \\ Q_0 , &amp; \text{otherwise}\end{cases}\]
+
+        <p>在某个臂（arm）$i$ 被第一次摇到之前，其估计值都设为初始常数 $Q_0(i)=Q_0$；<br />
+其中，$N_{t-1}(i)=\sum_{s=1}^{t-1}1[i_s=i]\qquad \hat \mu_{t-1}(i)=\dfrac{\sum_{s=1}^{t-1}X_i(s)1[i_s=i]}{\sum_{s=1}^{t-1}1[i_s=i]}$</p>
+      </li>
+      <li>
+        <p><span style="color:red">“乐观面对不确定性”</span></p>
+
+\[i_t\in \mathop{\operatorname{arg\,max}}\limits_{1\le i\le k}Q_{t-1}(i)\]
+
+        <p><strong>选择摇臂（play）：</strong> 在第 $t$ 轮，从目前为止奖励估计值最大的臂 $i$ 的 <strong>集合</strong> 中选择一个作为本轮摇臂。</p>
+      </li>
+      <li>
+        <p><strong>随机平局决胜机制</strong></p>
+      </li>
+    </ul>
+  </li>
+  <li>克服了 $\varepsilon$-Greedy 算法的一些局限</li>
+  <li>可能在某个坏的臂 “暂停” 一段时间，但最终会找到最优的臂</li>
+</ul>
+
+<h3 id="33--ucb-算法评估">3.3  UCB 算法评估</h3>
+
+<p><img src="http://andy-blog.oss-cn-beijing.aliyuncs.com/blog/2020-02-17-WX20200218-010559%402x.png" width="80%" /></p>
+
+<ul>
+  <li>UCB 算法快速超过了 $\varepsilon$-Greedy 算法</li>
+</ul>
+
+<p><strong><span style="color:steelblue">增加轮数：平均奖励比较</span></strong></p>
+
+<p><img src="http://andy-blog.oss-cn-beijing.aliyuncs.com/blog/2020-02-17-WX20200218-010813%402x.png" width="80%" /></p>
+
+<ul>
+  <li>在一段时间内，UCB 算法的平均奖励持续超过 $\varepsilon$-Greedy 算法</li>
+</ul>
+
+<p><strong><span style="color:steelblue">增加轮数：平均累积奖励比较</span></strong></p>
+
+<p><img src="http://andy-blog.oss-cn-beijing.aliyuncs.com/blog/2020-02-17-WX20200218-011447%402x.png" width="80%" /></p>
+
+<ul>
+  <li>当我们观察平均累积奖励时，UCB 算法的优势更明显</li>
+</ul>
+
+<h3 id="34-ucb-注意事项">3.4 UCB 注意事项</h3>
+<ul>
+  <li>理论 <span style="color:red">遗憾边界（regret bounds）</span> 最高可达乘常数
+    <ul>
+      <li>像 $O(\log t)$ 一样增长，即平均遗憾（averaged regret）趋近于零</li>
+    </ul>
+  </li>
+  <li>
+    <p>探索超参数（exploration hyperparam）$\color{red}{\rho&gt;0}$ 可调，不一定要为 “$2$”</p>
+
+\[Q_{t-1}(i)=\begin{cases}\hat \mu_{t-1}(i)+\sqrt{\dfrac{\color{red}{\rho}\log(t)}{N_{t-1}(i)}}, &amp; \text{if }\sum_{s=1}^{t-1}1[i_s=i]&gt;0 \\ Q_0 , &amp; \text{otherwise}\end{cases}\]
+
+    <ul>
+      <li>可以针对不同 $\varepsilon$ 比率的 Greedy 算法进行对比，并且遗憾边界可以在 $[0,1]$ 之外</li>
+    </ul>
+  </li>
+  <li>UCB 算法有很多变体，例如：不同的置信边界</li>
+  <li>UCB 是在 AlphaGo 中所使用的 <a href="https://zhuanlan.zhihu.com/p/34950988">蒙特卡洛树搜索</a> 的基础</li>
+</ul>
+
+<h2 id="4-mab-vs-强化学习">4. MAB vs. 强化学习</h2>
+<ul>
+  <li><strong>上下文老虎机（Contextual bandits）</strong> 引入了 <strong>状态（state）</strong>
+    <ul>
+      <li>但没有将 <strong>行动（actions）</strong> 建模为导致 <strong>状态转移（state transitions）</strong> 的原因</li>
+      <li>新的状态以 “某种方式” 到达</li>
+    </ul>
+  </li>
+  <li><strong>强化学习</strong> 也具有很多 <strong>轮（rounds）</strong> 的 <strong>状态（states）</strong>、<strong>行动（actions）</strong> 和 <strong>奖励(rewards)</strong></li>
+  <li>但是 <strong>（状态，行动）</strong> 决定了 <strong>下一个状态</strong>
+    <ul>
+      <li>例如，下围棋，移动一个机器人，物流规划</li>
+      <li>欲了解更多有关规划的内容，请参考课程： <a href="https://handbook.unimelb.edu.au/2020/subjects/comp90054">COMP90054 人工智能的自治规划</a></li>
+    </ul>
+  </li>
+  <li>强化学习和上下文老虎机算法都通过 <strong>回归（regression）</strong> 学习 <strong>价值函数（value function）</strong>，但是由于存在状态转移，强化学习将预期的奖励 “推向” 未来</li>
+</ul>
+
+<h2 id="总结">总结</h2>
+<ul>
+  <li>随机多臂老虎机
+    <ul>
+      <li>不确定性下的顺序决策</li>
+      <li>最简单的 “探索-vs-利用” 的设定</li>
+      <li>$(\varepsilon)$-Greedy，UCB 算法</li>
+    </ul>
+  </li>
+  <li>很多应用和变体：
+    <ul>
+      <li>对抗 MAB：奖励不是随机的，而是任何东西</li>
+      <li>上下文 MAB：行动基于上下文特征向量</li>
+      <li>强化学习：更加通用的设定</li>
+    </ul>
+  </li>
+</ul>
+
+<p>下节内容：贝叶斯回归</p>
+:ET

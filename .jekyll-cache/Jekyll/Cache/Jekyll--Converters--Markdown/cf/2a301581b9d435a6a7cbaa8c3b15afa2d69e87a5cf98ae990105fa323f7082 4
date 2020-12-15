@@ -1,0 +1,12 @@
+I"�<h1 id="lecture-17-pgm-的概率推断和统计推断">Lecture 17 PGM 的概率推断和统计推断</h1>
+<h2 id="主要内容">主要内容</h2>
+<ul>
+  <li><strong>PGM 的概率推断</strong></li>
+  <li><strong>PGM 的统计推断</strong>
+    <h2 id="1-pgm-的概率推断">1. PGM 的概率推断</h2>
+    <p><strong>利用贝叶斯规则和边缘化，根据一个 PGM 的联合分布，计算边缘和条件分布。这里我们将学习如何有效地做到这一点。</strong></p>
+    <h3 id="11-两个熟悉的例子">1.1 两个熟悉的例子</h3>
+  </li>
+  <li>朴素贝叶斯<span style="color:red">（频率学家 / 贝叶斯人）</span></li>
+</ul>
+:ET

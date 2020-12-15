@@ -1,0 +1,230 @@
+I"�$<h1 id="lecture-08-深度学习卷积神经网络和自动编码器">Lecture 08 深度学习、卷积神经网络和自动编码器</h1>
+<h2 id="主要内容">主要内容</h2>
+<ul>
+  <li><strong>深度学习</strong>
+    <ul>
+      <li>表示能力</li>
+      <li>深度模型与表示学习</li>
+    </ul>
+  </li>
+  <li><strong>卷积神经网络</strong>
+    <ul>
+      <li>卷积操作</li>
+      <li>基于卷积的网络的元素</li>
+    </ul>
+  </li>
+  <li><strong>自动编码器</strong>
+    <ul>
+      <li>学习有效的编码</li>
+    </ul>
+  </li>
+</ul>
+
+<h2 id="1-深度学习与表示学习">1. 深度学习与表示学习</h2>
+<p><strong>隐藏层被视为特征空间的转换</strong></p>
+<h3 id="11-表示能力">1.1 表示能力</h3>
+<ul>
+  <li>具有单个隐藏层的 ANN 是一个通用近似器</li>
+  <li>例如，这样的 ANN 可以表示任何布尔函数：<br /><br />
+$OR(x_1,x_2)\qquad \qquad u=g(x_1+x_2-0.5)$<br />
+$AND(x_1,x_2)\qquad \quad \; u=g(x_1+x_2-1.5)$<br />
+$NOT(x_1)\qquad \qquad\;\; u=g(-x_1)$<br />
+如果 $r\ge 0$，那么$g(r)=1$；否则，$g(r)=0$<br />
+<br /></li>
+  <li>任何具有 $m$ 个变量的布尔函数都可以由一个最多包含 $2^m$ 个元素的隐藏层实现</li>
+  <li>更有效的做法是将几个隐藏层堆叠起来</li>
+</ul>
+
+<h3 id="12-深度网络">1.2 深度网络</h3>
+<p>所谓 “深度” 是指隐藏层的数量。</p>
+
+<p><img src="https://tva1.sinaimg.cn/large/006y8mN6ly1g8l4gj9d27j30x20mq7a3.jpg" width="65%" /></p>
+
+<p>$\boldsymbol s=\text{tanh}(\boldsymbol A’\boldsymbol x)\quad\boldsymbol t=\text{tanh}(\boldsymbol B’\boldsymbol s)\quad\boldsymbol u=\text{tanh}(\boldsymbol C’\boldsymbol t)\quad\boldsymbol z=\text{tanh}(\boldsymbol D’\boldsymbol u)$</p>
+
+<h3 id="13-深度-ann-作为表示学习">1.3 深度 ANN 作为表示学习</h3>
+<ul>
+  <li>连续层构成了越来越复杂的输入的表示</li>
+  <li>ANN 可以具有简单的线性输出层，但可以使用复杂的非线性来表示<br /><br />
+$\boldsymbol z=\text{tanh}\left(\boldsymbol D’\left(\text{tanh}\left(\boldsymbol C’\left(\text{tanh}\left(\boldsymbol B’\left(\text{tanh}(\boldsymbol A’\boldsymbol x)\right)\right)\right)\right)\right)\right)$<br />
+<br /></li>
+  <li>等效地，一个隐藏层可以被视为转换后的特征空间，例如：$\boldsymbol u=\varphi(\boldsymbol x)$</li>
+  <li>这种转换的参数是从数据中学习到的</li>
+</ul>
+
+<h3 id="14-ann-的层作为数据转换">1.4 ANN 的层作为数据转换</h3>
+<p><img src="https://tva1.sinaimg.cn/large/006y8mN6ly1g8l50cd9iej30za0o679o.jpg" width="65%" /><br /></p>
+
+<p><img src="https://tva1.sinaimg.cn/large/006y8mN6ly1g8l50bdag5j30za0o8wjy.jpg" width="65%" /><br /></p>
+
+<p><img src="https://tva1.sinaimg.cn/large/006y8mN6ly1g8l50apnhtj30za0o80y7.jpg" width="65%" /><br /></p>
+
+<p><img src="https://tva1.sinaimg.cn/large/006y8mN6ly1g8l50a1to1j30za0o843z.jpg" width="65%" /></p>
+
+<h3 id="15-深度-vs-宽度">1.5 深度 vs. 宽度</h3>
+<ul>
+  <li>理论上，一个宽度无限的单层给出了一个通用近似器</li>
+  <li>然而，（从经验上看）深度可以产生更精确的模型<br />
+从眼睛上获得的生物学灵感：
+    <ul>
+      <li>首先检测小边缘和色块</li>
+      <li>将它们组合成更小的形状</li>
+      <li>建立更复杂的检测器，例如 纹理，面孔等</li>
+    </ul>
+  </li>
+  <li>试图模仿网络中的分层复杂性</li>
+  <li>但是 <strong>梯度消失问题</strong> 会影响非常深层模型的学习</li>
+</ul>
+
+<h2 id="2-卷积神经网络cnn">2. 卷积神经网络（CNN）</h2>
+<p><strong>基于将小型滤波器重复应用于 2D 图像的小块或者 1D 输入的范围</strong></p>
+<h3 id="21-卷积">2.1 卷积</h3>
+<p><img src="https://tva1.sinaimg.cn/large/006y8mN6ly1g8lyv6ikk7j313e0q2jtu.jpg" width="65%" /><br /></p>
+
+<p><img src="https://tva1.sinaimg.cn/large/006y8mN6ly1g8lyykvfxbj313g0q20w5.jpg" width="65%" /></p>
+
+<h3 id="22-在-2d-图像上的卷积">2.2 在 2D 图像上的卷积</h3>
+<p><img src="https://tva1.sinaimg.cn/large/006y8mN6ly1g8mbcwpu3qj31180qy417.jpg" width="65%" /></p>
+
+<h3 id="23-滤波器作为特征检测器">2.3 滤波器作为特征检测器</h3>
+<p><img src="https://tva1.sinaimg.cn/large/006y8mN6ly1g8mc019a6xj31a40t6dip.jpg" width="65%" /><br /></p>
+
+<p><img src="https://tva1.sinaimg.cn/large/006y8mN6ly1g8mc03me07j31ac0t6dis.jpg" width="65%" /></p>
+
+<h3 id="24-堆叠卷积">2.4 堆叠卷积</h3>
+<p><img src="https://tva1.sinaimg.cn/large/006y8mN6ly1g8mc3jdmjdj31b40pgdhc.jpg" width="65%" /></p>
+
+<ul>
+  <li>开发不同规模和复杂度的复杂表示</li>
+  <li>滤波器是从训练数据中学习的</li>
+</ul>
+
+<h3 id="25-cnn-用于计算机视觉">2.5 CNN 用于计算机视觉</h3>
+<p><img src="https://tva1.sinaimg.cn/large/006y8mN6ly1g8mc8kerw5j31880tuagz.jpg" width="65%" /></p>
+
+<p>Implemented by Jizhizi Li based on LeNet5: <a href="http://deeplearning.net/tutorial/lenet.html">http://deeplearning.net/tutorial/lenet.html</a></p>
+
+<h3 id="26-cnn-的组成部分">2.6 CNN 的组成部分</h3>
+<ul>
+  <li>卷积层
+    <ul>
+      <li>基于卷积运算的复杂输入表示</li>
+      <li>滤波器权重是从训练数据中学到的</li>
+    </ul>
+  </li>
+  <li>下采样，通常通过最大池化
+    <ul>
+      <li>重新缩放至较小的分辨率，限制了参数爆炸</li>
+    </ul>
+  </li>
+  <li>全连接部件和输出层
+    <ul>
+      <li>合并表示</li>
+    </ul>
+  </li>
+</ul>
+
+<h3 id="27-通过最大池化进行下采样">2.7 通过最大池化进行下采样</h3>
+<ul>
+  <li>特殊类型的处理层。对于一个 $m\times m$ 的块：<br />
+$v=\max(u_{11},u_{12},…,u_{mm})$</li>
+  <li>严格来说，并非处处可微的。相反，梯度是根据 “子梯度” 定义的。
+    <ul>
+      <li>非最大的 $u_{ij}$ 值的微小变化不会改变 $v$</li>
+      <li>如果 $u_{ij}$ 是最大值，其值的微小变化将线性地改变 $v$</li>
+      <li>如果 $u_{ij}=v$，那么 $\frac{\partial v}{\partial u_{ij}}=1$，否则，$\frac{\partial v}{\partial u_{ij}}=0$</li>
+    </ul>
+  </li>
+  <li>正向传播记录最大化元素，然后在反向传播期间将其用于反向传递</li>
+</ul>
+
+<h3 id="28-卷积作为正则项">2.8 卷积作为正则项</h3>
+<p><img src="https://tva1.sinaimg.cn/large/006y8mN6ly1g8mfhzcnmjj311y0p4aet.jpg" width="65%" /></p>
+
+<h2 id="3-自动编码器">3. 自动编码器</h2>
+<p><strong>一个 ANN 训练设置，可用于无监督学习、初始化，或者仅用于高效编码</strong></p>
+<h3 id="31-自动编码的思想">3.1 自动编码的思想</h3>
+<ul>
+  <li>监督学习：
+    <ul>
+      <li>单变量回归：根据 $\boldsymbol x$，预测 $y$</li>
+      <li>多变量回归：根据 $\boldsymbol x$，预测 $\boldsymbol y$</li>
+    </ul>
+  </li>
+  <li>无监督学习：
+    <ul>
+      <li>探索数据 $\boldsymbol x_1,…,\boldsymbol x_n$</li>
+      <li>没有响应变量</li>
+    </ul>
+  </li>
+  <li>对于每个 $\boldsymbol x_i$，设置 $\boldsymbol y_i\equiv\boldsymbol x_i$</li>
+  <li>训练一个 ANN，根据 $\boldsymbol x_i$ 预测 $\boldsymbol y_i$</li>
+  <li>没有意义吗？</li>
+</ul>
+
+<h3 id="32-自动编码器的拓扑结构">3.2 自动编码器的拓扑结构</h3>
+<ul>
+  <li>给定一些无标签数据 $\boldsymbol x_1,…,\boldsymbol x_n$，设置 $\boldsymbol y_i\equiv\boldsymbol x_i$，并且训练一个 ANN 来预测 $\boldsymbol z(\boldsymbol x_i)\approx\boldsymbol x_i$</li>
+  <li>设置 <strong>瓶颈层</strong> $\boldsymbol u$，使得中间比输入层 “窄”<br />
+<img src="https://tva1.sinaimg.cn/large/006y8mN6ly1g8mftu0m2wj30sk0jywkj.jpg" width="65%" /></li>
+</ul>
+
+<h3 id="33-瓶颈层介绍">3.3 瓶颈层介绍</h3>
+<ul>
+  <li>假设你试图训练一个可以很好地恢复原始信号的网络 $\boldsymbol z(\boldsymbol x_i)\approx\boldsymbol x_i$</li>
+  <li>这意味着数据结构可以用一个较低维度的表示来有效地描述（编码）</li>
+</ul>
+
+<h3 id="34-降维">3.4 降维</h3>
+<ul>
+  <li>自动编码器可通过一个非线性变换来达到 <strong>压缩</strong> 和 <strong>降维</strong> 的目的</li>
+  <li>如果你使用线性激活函数，并且仅使用一个隐藏层，则设置几乎变成了 <strong>主成分分析</strong> 的设置（敬请期待！）
+    <ul>
+      <li>ANN 可能会找到一个其他的解，不（直接）使用特征值</li>
+    </ul>
+  </li>
+</ul>
+
+<h2 id="4-工具">4. 工具</h2>
+<ul>
+  <li>Tensorflow, Theano, Torch
+    <ul>
+      <li>Python / Lua 中用于深度学习的工具链</li>
+      <li>符号微分或者自动微分</li>
+      <li>GPU 支持快速编译</li>
+      <li>Theano 教程：<a href="http://deeplearning.net/tutorial/">http://deeplearning.net/tutorial/</a></li>
+    </ul>
+  </li>
+  <li>其他
+    <ul>
+      <li>Caffe</li>
+      <li>CNTK</li>
+      <li>deeplearning4j…</li>
+    </ul>
+  </li>
+  <li>Keras：高级 Python API，可以运行在 Tensorflow、CNTK 或者 Theano 上</li>
+</ul>
+
+<h2 id="总结">总结</h2>
+<ul>
+  <li>深度学习
+    <ul>
+      <li>表示能力</li>
+      <li>深度模型与表示学习</li>
+    </ul>
+  </li>
+  <li>卷积神经网络
+    <ul>
+      <li>卷积运算</li>
+      <li>一个基于卷积的网络的要素</li>
+    </ul>
+  </li>
+  <li>自动编码器
+    <ul>
+      <li>学习高效编码</li>
+    </ul>
+  </li>
+</ul>
+
+<p>下节内容：支持向量机（SVM）</p>
+:ET

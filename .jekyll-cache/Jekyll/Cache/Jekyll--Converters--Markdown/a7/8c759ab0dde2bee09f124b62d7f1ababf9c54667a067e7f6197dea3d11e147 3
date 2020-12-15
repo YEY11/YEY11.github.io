@@ -1,0 +1,18 @@
+I"�<h1 id="lecture-2-统计思想流派">Lecture 2 统计思想流派</h1>
+<h2 id="主要内容">主要内容</h2>
+<ul>
+  <li><strong>学习算法是如何产生的？</strong>
+    <ul>
+      <li>频率统计学</li>
+      <li>统计决策理论</li>
+      <li>贝叶斯统计学</li>
+    </ul>
+  </li>
+  <li><strong>概率模型的类型</strong>
+    <ul>
+      <li>参数模型 vs. 非参数模型</li>
+      <li>生成式模型 vs. 判别式模型</li>
+    </ul>
+  </li>
+</ul>
+:ET

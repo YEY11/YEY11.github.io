@@ -1,0 +1,359 @@
+I"A6<h1 id="lecture-5-正则化">Lecture 5 正则化</h1>
+<h2 id="主要内容">主要内容</h2>
+<p><strong>正则化是通过引入其他信息以解决病态问题或防止过拟合的过程。</strong></p>
+<ul>
+  <li><strong>贯穿机器学习的主要技术和主题</strong></li>
+  <li><strong>解决以下一个或多个相关问题</strong>
+    <ul>
+      <li>避免病态（计算问题）</li>
+      <li>避免过度拟合（统计问题）</li>
+      <li>将先验知识引入建模过程</li>
+    </ul>
+  </li>
+  <li><strong>这是通过在目标函数上增加一些项来实现的</strong></li>
+</ul>
+
+<p>在本节中：我们涵盖了前两个方面。我们将在整个课程中涵盖更多的正规化。</p>
+
+<h2 id="1-例子-1特征的重要性">1. 例子 1：特征的重要性</h2>
+<h3 id="11-特征的重要性">1.1 特征的重要性</h3>
+
+<p><strong>问题：哪个特征更重要？</strong></p>
+
+<p><img src="https://tva1.sinaimg.cn/large/006y8mN6ly1g8dhqf16p1j30wa0cc3zt.jpg" width="80%" /></p>
+
+<ul>
+  <li>线性模型有三个特征
+    <ul>
+      <li>$\boldsymbol X$ 是 $n=4$ 个实例（行）的矩阵</li>
+      <li>模型：$y=w_1x_1+w_2x_2+w_3x_3+w_0$</li>
+      <li>$\boldsymbol X$ 的前两列完全一样</li>
+      <li>特征 2（或者 1）是 <strong>不相关</strong> 特征</li>
+    </ul>
+  </li>
+  <li>扰动对模型预测的影响？
+    <ul>
+      <li>$w_1$ 增加 $\Delta$</li>
+      <li>$w_2$ 减少 $\Delta$</li>
+    </ul>
+  </li>
+</ul>
+
+<p><img src="https://tva1.sinaimg.cn/large/006y8mN6ly1g8dhwwa9d1j30qe0fyaba.jpg" width="50%" /></p>
+
+<h3 id="12-不相关特征的问题">1.2 不相关特征的问题</h3>
+<ul>
+  <li>例子中，假设 $[\hat w_0,\hat w_1,\hat w_2,\hat w_3]’$ 是 “最优的”</li>
+  <li>对任意 $\delta$，新的 $[\hat w_0,\hat w_1+\delta,\hat w_2-\delta,\hat w_3]’$ 得到
+    <ul>
+      <li>同样的预测结果</li>
+      <li>同样的平方和误差</li>
+    </ul>
+  </li>
+  <li>问题突显了
+    <ul>
+      <li>解不是唯一的</li>
+      <li>缺乏解释能力</li>
+      <li>优化学习参数是病态问题</li>
+    </ul>
+  </li>
+</ul>
+
+<h3 id="13-一般不相关共线性的特征">1.3 一般不相关（共线性）的特征</h3>
+<ul>
+  <li>极端情况：特征完全一样</li>
+  <li>对于线性模型，更一般地
+    <ul>
+      <li>特征 $\boldsymbol X_{.j}$ 是不相关的，如果</li>
+      <li>
+        <p>$\boldsymbol X_{.j}$ 是其他列的一个线性组合：
+$\boldsymbol X_{.j}=\sum_{l\ne j}\alpha_l\boldsymbol X_{.l}$</p>
+
+        <p>其中，$\boldsymbol X_{.j}$ 代表 $\boldsymbol X$ 的第 $j$ 列，$\alpha_l$ 代表某些标量，这也被称为多重共线性</p>
+      </li>
+      <li>等价于：$\boldsymbol {X’X}$ 的某些特征值为零</li>
+    </ul>
+  </li>
+  <li>即使是接近不相关 / 共线性也会造成困难
+    <ul>
+      <li>$\boldsymbol {X’X}$ 的某些特征值 $V$ 非常小</li>
+    </ul>
+  </li>
+  <li>不止是病态的极端；事实上，很容易发生这类情况</li>
+</ul>
+
+<h2 id="2-例子-2数据缺失">2. 例子 2：数据缺失</h2>
+<h3 id="21-数据缺失">2.1 数据缺失</h3>
+<p><img src="https://tva1.sinaimg.cn/large/006y8mN6ly1g8dx0bg3r1j30jm0jct9p.jpg" width="20%" align="right" /></p>
+
+<ul>
+  <li>极端例子：
+    <ul>
+      <li>模型有两个参数（斜率和截距）</li>
+      <li>只有一个数据点</li>
+    </ul>
+  </li>
+  <li>欠定组
+<br /><br /></li>
+</ul>
+
+<h3 id="22-病态问题">2.2 病态问题</h3>
+<p><img src="https://tva1.sinaimg.cn/large/006y8mN6ly1g8dx5jzcepj30h40rogph.jpg" width="20%" align="right" /></p>
+
+<ul>
+  <li>在前面的两个例子中，寻找最优参数变成了一个病态问题。</li>
+  <li>这意味着问题的解没有被定义好
+    <ul>
+      <li>在我们的例子中，$w_1$ 和 $w_2$ 无法被唯一确定</li>
+    </ul>
+  </li>
+  <li>
+    <p>回忆线性回归中正规方程的解：</p>
+
+    <p>$\hat{\boldsymbol w}=(\boldsymbol{X’X})^{-1}\boldsymbol{X’y}$</p>
+  </li>
+  <li>由于存在不相关 / 多重共线性特征，矩阵 $\boldsymbol{X’X}$ 的逆不存在</li>
+</ul>
+
+<p><br /></p>
+
+<h3 id="23-重新设置问题条件">2.3 重新设置问题条件</h3>
+<p><img src="https://tva1.sinaimg.cn/large/006y8mN6ly1g8dxhfl87oj30h00p0djl.jpg" width="20%" align="right" /></p>
+
+<ul>
+  <li>正则化：向系统中引入一个额外条件。</li>
+  <li>
+    <p>原始问题是最小化：</p>
+
+    <p>$\|\boldsymbol y -\boldsymbol {Xw}\|_2^2$</p>
+  </li>
+  <li>
+    <p>正则化后的问题是最小化：</p>
+
+    <p>$\|\boldsymbol y -\boldsymbol {Xw}\|_2^2+\color{red}{\lambda \|\boldsymbol w\|_2^2}$ 对于$\lambda&gt;0$</p>
+  </li>
+  <li>
+    <p>现在，正规方程的解变成了：</p>
+
+    <p>$\hat{\boldsymbol w}=(\boldsymbol{X’X}+\color{red}{\lambda \boldsymbol I})^{-1}\boldsymbol{X’y}$</p>
+  </li>
+  <li>这种形式称为 <strong>岭回归</strong>
+    <ul>
+      <li>将山脊变为山顶</li>
+      <li>在 $\boldsymbol{X’X}$ 的特征值上增加 $\lambda$：使其变为可逆</li>
+    </ul>
+  </li>
+</ul>
+
+<h3 id="24-正则项作为先验">2.4 正则项作为先验</h3>
+<ul>
+  <li>如果没有正则化，寻找参数完全建立在训练集 $\boldsymbol X$ 中包含的信息上
+    <ul>
+      <li>正则化引入了额外信息</li>
+    </ul>
+  </li>
+  <li>回忆我们的概率模型：$Y=\boldsymbol {x’w}+\varepsilon$
+    <ul>
+      <li>这里 $Y$ 和 $\varepsilon$ 是随机变量，其中 $\varepsilon$ 代表噪声</li>
+    </ul>
+  </li>
+  <li>现在假设 $\boldsymbol w$ 也是一个随机变量（记为 $\boldsymbol W$），服从一个正态先验分布：
+$\boldsymbol W\sim N(0,1/\lambda)$
+    <ul>
+      <li>我们期望较小的权重，没有一个特征占明显的主导地位</li>
+      <li>这总是合适的吗？例如：数据中心化和缩放</li>
+      <li>我们可以编码更多详尽的问题知识</li>
+    </ul>
+  </li>
+</ul>
+
+<h3 id="25-利用贝叶斯规则计算后验">2.5 利用贝叶斯规则计算后验</h3>
+<ul>
+  <li>
+    <p>先验在随后被用来计算后验：
+<img src="https://tva1.sinaimg.cn/large/006y8mN6ly1g8e2fqv0wvj31a60cudj5.jpg" width="80%" /></p>
+  </li>
+  <li>相比最大似然估计（MLE），这里我们采用最大后验估计（MAP）</li>
+  <li>
+    <p>采用 Log 技巧，可以得到：</p>
+
+    <p>$\log(posterior)=\log(likelihood)+\log(prior)-\color{red}{\require{cancel}\cancel{\log(marg)}}$<br />
+（注：该项对于优化没有影响）</p>
+  </li>
+  <li>
+    <p>现在，问题转变为最小化：</p>
+
+    <p>$\|\boldsymbol y -\boldsymbol {Xw}\|_2^2+\lambda \|\boldsymbol w\|_2^2$</p>
+  </li>
+</ul>
+
+<h2 id="3-非线性模型的正则化">3. 非线性模型的正则化</h2>
+<p><strong>机器学习中的模型选择</strong></p>
+<h3 id="31-例子回归问题">3.1 例子：回归问题</h3>
+<p><img src="https://tva1.sinaimg.cn/large/006y8mN6ly1g8e3bktapyj315g0nuwfu.jpg" width="60%" /></p>
+
+<p><strong>问题：我们应该使用多复杂的模型？</strong></p>
+
+<h4 id="311-欠拟合线性回归">3.1.1 欠拟合（线性回归）</h4>
+<p><img src="https://tva1.sinaimg.cn/large/006y8mN6ly1g8e3e0pvwzj31500nwdhg.jpg" width="60%" /></p>
+
+<p>模型类别 $\Theta$ 可能 <strong>太简单</strong> 而无法拟合真实模型。</p>
+
+<h4 id="312-过拟合非参数平滑">3.1.2 过拟合（非参数平滑）</h4>
+<p><img src="https://tva1.sinaimg.cn/large/006y8mN6ly1g8e3h11edbj310y0li408.jpg" width="60%" /></p>
+
+<p>模型类别 $\Theta$ 可能 <strong>过于复杂</strong> 导致拟合了真实模型 + 噪声。</p>
+
+<h4 id="313-实际模型xsin-x">3.1.3 实际模型（$x\sin x$）</h4>
+<p><img src="https://tva1.sinaimg.cn/large/006y8mN6ly1g8e3kpx9l0j310w0lmgn1.jpg" width="60%" /></p>
+
+<p><strong>正确的模型类别</strong> $\Theta$ 会为了测试误差而牺牲一些训练误差。</p>
+
+<h3 id="32-如何-改变-模型的复杂度">3.2 如何 “改变” 模型的复杂度</h3>
+<ul>
+  <li>方法 1：显式模型选择</li>
+  <li>方法 2：正则化</li>
+  <li>通常，方法 1 可以视为方法 2 的特例</li>
+</ul>
+
+<h4 id="321-显式模型选择">3.2.1 显式模型选择</h4>
+<ul>
+  <li>尝试不同类别的模型。例如，尝试不同等级 $d$ 的多项式模型（线性、二次、三次…）</li>
+  <li>采用支持的验证方法（交叉验证）选择模型</li>
+</ul>
+
+<ol>
+  <li>将训练数据分割为训练集 $D_{train}$ 和验证集 $D_{validate}$</li>
+  <li>对于每个等级 $d$，我们有模型 $f_d$
+    <ol>
+      <li>在 $D_{train}$ 上训练 $f_d$</li>
+      <li>在 $D_{validate}$ 上测试 $f_d$</li>
+    </ol>
+  </li>
+  <li>选择测试分数最佳的等级 $\hat d$</li>
+  <li>用全部数据重新训练模型 $f_{\hat d}$</li>
+</ol>
+
+<h4 id="322-通过正则化改变模型复杂度">3.2.2 通过正则化改变模型复杂度</h4>
+<ul>
+  <li>
+    <p>增加问题：</p>
+
+    <p>$\hat{\boldsymbol{\theta}}\in\mathop{\operatorname{arg\,min}}\limits_{\boldsymbol\theta\in\Theta}(L(data,\boldsymbol\theta)+\color{red}{\lambda R(\boldsymbol\theta)})$</p>
+  </li>
+  <li>
+    <p>例如，岭回归：</p>
+
+    <p>$\hat{\boldsymbol w}\in\mathop{\operatorname{arg\,min}}\limits_{\boldsymbol w\in W}(\|\boldsymbol y -\boldsymbol {Xw}\|_2^2+\color{red}{\lambda \|\boldsymbol w\|_2^2})$</p>
+  </li>
+  <li>注意：正则项 $ R(\boldsymbol\theta)$ 不依赖于数据</li>
+  <li>采用支持的验证 / 交叉验证选择 $\lambda$</li>
+</ul>
+
+<h3 id="33-例子多项式回归">3.3 例子：多项式回归</h3>
+<p><img src="https://tva1.sinaimg.cn/large/006y8mN6ly1g8eewz649mj30ea0ait94.jpg" width="30%" align="right" /></p>
+
+<ul>
+  <li>9 阶多项式回归
+    <ul>
+      <li>模型形式：
+$\hat f=w_0+w_1x+…+w_9x^9$</li>
+      <li>引入正则项 $\lambda\|\boldsymbol w\|_2^2$
+<br /><br /></li>
+    </ul>
+  </li>
+</ul>
+
+<p><img src="https://tva1.sinaimg.cn/large/006y8mN6ly1g8eex2jo7hj31bk0baq63.jpg" width="100%" /></p>
+
+<h3 id="34-正则项作为约束">3.4 正则项作为约束</h3>
+<ul>
+  <li>为了便于说明，考虑一个修正后的模型：
+最小化 $|\boldsymbol y-\boldsymbol{Xw}|_2^2$ 满足 $|\boldsymbol w|_2^2\le\lambda$（对于 $\lambda&gt;0$）</li>
+</ul>
+
+<p><img src="https://tva1.sinaimg.cn/large/006y8mN6ly1g8efdnka6wj31em0fkjvl.jpg" width="100%" /></p>
+
+<ul>
+  <li>Lasso（$L_1$ 正则化）促使最优解落在坐标轴上
+$\rightarrow$ 某些权重设为零 $\rightarrow$ 解是稀疏的</li>
+</ul>
+
+<h3 id="35-正则化线性回归">3.5 正则化线性回归</h3>
+<p><img src="http://andy-blog.oss-cn-beijing.aliyuncs.com/blog/2019-12-16-WX20191216-184814%402x.png" /></p>
+
+<h2 id="4-偏差与方差之间的权衡">4. 偏差与方差之间的权衡</h2>
+<p><strong>训练误差，测试误差与模型复杂度之间的关系分析</strong></p>
+<h3 id="41-评估泛化能力">4.1 评估泛化能力</h3>
+<ul>
+  <li>监督学习：在现有数据上训练模型，然后对新数据进行预测</li>
+  <li>训练模型：ERM /最小化训练误差</li>
+  <li>通过风险/测试误差来评估泛化能力</li>
+  <li>模型复杂度是影响模型泛化能力的主要因素</li>
+  <li>在本节中，我们主要目的是探索训练误差，测试误差与模型复杂性之间的关系。</li>
+</ul>
+
+<h3 id="42-训练误差与模型复杂度">4.2 训练误差与模型复杂度</h3>
+<ul>
+  <li>模型越复杂 $\rightarrow$ 训练误差越低</li>
+  <li>有限数量的点 $\rightarrow$ 通常可以将训练误差减小到 0（这总是可能的吗？）</li>
+</ul>
+
+<p><img src="https://tva1.sinaimg.cn/large/006y8mN6ly1g8eggrmqevj31920ekdhi.jpg" width="80%" /></p>
+
+<h3 id="43-另一种偏差-方差分解">4.3 （另一种）偏差-方差分解</h3>
+<ul>
+  <li>监督回归预测的平方损失函数为：
+$l\left(Y,\hat f(\boldsymbol X_0)\right)=\left(Y-\hat f(\boldsymbol X_0)\right)^2$</li>
+  <li>引理：偏差-方差分解<br />
+$\mathbb{E}\left[l\left(Y,\hat f(\boldsymbol X_0)\right)\right]=\left(\mathbb{E}[Y]-\mathbb{E}[\hat f]\right)^2+Var[\hat f]+Var[Y]$<br />
+<strong>$\boldsymbol x_0$ 的风险 / 测试误差 $=$ (偏差)<sup> 2</sup> $+$ 方差 $+$ 无法减少的误差</strong></li>
+</ul>
+
+<p>预测的随机性来自测试数据特征和训练数据中的随机性。</p>
+
+<h3 id="44-将数据当成一个随机变量来训练">4.4 将数据当成一个随机变量来训练</h3>
+<p><img src="https://tva1.sinaimg.cn/large/006y8mN6ly1g8egy6b1mhj31bq0f2gnb.jpg" width="80%" /></p>
+
+<p><img src="https://tva1.sinaimg.cn/large/006y8mN6ly1g8egy7s1emj31bs0f4404.jpg" width="80%" /></p>
+
+<h3 id="45-模型复杂度与方差">4.5 模型复杂度与方差</h3>
+<ul>
+  <li>简单模型 $\rightarrow$ 低方差</li>
+  <li>复杂模型 $\rightarrow$ 高方差</li>
+</ul>
+
+<p><img src="https://tva1.sinaimg.cn/large/006y8mN6ly1g8eh0hrq9aj310g0fa75e.jpg" width="60%" /></p>
+
+<h3 id="46-模型复杂度与偏差">4.6 模型复杂度与偏差</h3>
+<ul>
+  <li>简单模型 $\rightarrow$ 高偏差</li>
+  <li>复杂模型 $\rightarrow$ 低偏差</li>
+</ul>
+
+<p><img src="https://tva1.sinaimg.cn/large/006y8mN6ly1g8eh21jchoj312s0fe75r.jpg" width="64%" /></p>
+
+<h3 id="47-偏差与方差之间的权衡">4.7 偏差与方差之间的权衡</h3>
+<ul>
+  <li>简单模型 $\rightarrow$ 高偏差，低方差</li>
+  <li>复杂模型 $\rightarrow$ 低偏差，高方差</li>
+</ul>
+
+<p><img src="https://tva1.sinaimg.cn/large/006y8mN6ly1g8eh4upms6j30xk0fu0ug.jpg" width="60%" /></p>
+
+<h3 id="48--测试误差与训练误差">4.8  测试误差与训练误差</h3>
+<p><img src="https://tva1.sinaimg.cn/large/006y8mN6ly1g8eh6g7e8hj30xe0g0myt.jpg" width="60%" /></p>
+
+<h2 id="总结">总结</h2>
+<ul>
+  <li>正则化
+    <ul>
+      <li>不相关 / 多重共线性特征 $\rightarrow$ 病态问题</li>
+      <li>模型复杂度</li>
+      <li>偏差与方差之间的权衡</li>
+    </ul>
+  </li>
+</ul>
+
+<p>下节内容：从感知器到神经网络</p>
+:ET
