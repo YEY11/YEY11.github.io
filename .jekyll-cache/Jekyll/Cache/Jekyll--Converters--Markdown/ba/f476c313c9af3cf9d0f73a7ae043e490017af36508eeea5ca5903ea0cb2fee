@@ -1,0 +1,56 @@
+I"�<h1 id="lecture-12-nn-网络层卷积层">Lecture 12 nn 网络层：卷积层</h1>
+
+<p>在上节课中，我们学习了如何在 PyTorch 中搭建神经网络模型，以及在搭建网络的过程中常用的容器： <code class="language-plaintext highlighter-rouge">Sequential</code>、<code class="language-plaintext highlighter-rouge">ModuleList</code> 和 <code class="language-plaintext highlighter-rouge">ModuleDict</code>。本节课开始，我们将学习 PyTorch 中常见的网络层，现在我们先重点学习卷积层。</p>
+
+<h2 id="1-一维二维和三维卷积">1. 一维、二维和三维卷积</h2>
+
+<p><strong>卷积运算 (Convolution)</strong>：卷积核在输入信号 (图像) 上滑动，相应位置上进行 <strong>乘加</strong>。
+<strong>卷积核 (Kernel)</strong>：又称为滤波器/过滤器，可认为是某种模式/某种特征。</p>
+
+<p>卷积过程类似于用一个模版去图像上寻找与它相似的区域，与卷积核模式越相似，激活值越高，从而实现特征提取。所以在深度学习中，我们可以将卷积核视为特征提取器。</p>
+
+<center><video width="80%" controls=""><source src="http://andy-blog.oss-cn-beijing.aliyuncs.com/blog/2020-12-16-untitiled.mp4" type="video/mp4" /></video></center>
+
+<p>下图是 AlexNet 卷积核的可视化，我们发现卷积核实际上学习到的是 <strong>边缘</strong>、<strong>条纹</strong>、<strong>色彩</strong> 这些细节模式：</p>
+
+<p><img src="http://andy-blog.oss-cn-beijing.aliyuncs.com/blog/2020-12-16-WX20201216-103333%402x.png" width="60%" /></p>
+
+<p>这进一步验证了卷积核是图像的某种特征提取器，而具体的特征模式则完全由模型学习得到。</p>
+
+<p><strong>卷积维度 (Dimension)</strong>：<strong>一般情况下</strong>，一个卷积核在一个信号上沿几个维度上滑动，就是几维卷积。</p>
+
+<p><strong>1d 卷积</strong>：</p>
+
+<center><video width="80%" controls=""><source src="http://andy-blog.oss-cn-beijing.aliyuncs.com/blog/2020-12-16-1d.mp4" type="video/mp4" /></video></center>
+
+<p><strong>2d 卷积</strong>：</p>
+
+<center><video width="80%" controls=""><source src="http://andy-blog.oss-cn-beijing.aliyuncs.com/blog/2020-12-16-2d.mp4" type="video/mp4" /></video></center>
+
+<p><strong>3d 卷积</strong>：</p>
+
+<center><video width="80%" controls=""><source src="http://andy-blog.oss-cn-beijing.aliyuncs.com/blog/2020-12-16-3d.mp4" type="video/mp4" /></video></center>
+
+<p>可以看到，一个卷积核在一个信号上沿几个维度滑动，就是几维卷积。注意这里我们强调 <strong>一个卷积核</strong> 和 <strong>一个信号</strong>，因为通常我们会涉及包含多个卷积核和多个信号的卷积操作，这种情况下怎么去判断卷积的维度呢，这里我们可以先思考一下。</p>
+
+<h2 id="2-二维卷积">2. 二维卷积</h2>
+
+<h4 id="nnconv2d"><code class="language-plaintext highlighter-rouge">nn.Conv2d</code></h4>
+
+<p><strong>功能</strong>：对多个二维信号进行二维卷积。</p>
+
+<p><strong>主要参数</strong>：</p>
+
+<ul>
+  <li><code class="language-plaintext highlighter-rouge">in_channels</code>：输入通道数。</li>
+  <li><code class="language-plaintext highlighter-rouge">out_channels</code>：输出通道数， 等价于卷 积核个数</li>
+  <li><code class="language-plaintext highlighter-rouge">kernel_size</code>：卷积核尺寸</li>
+  <li><code class="language-plaintext highlighter-rouge">stride</code>：步长</li>
+  <li><code class="language-plaintext highlighter-rouge">dilation</code>：空洞卷积大小</li>
+  <li><code class="language-plaintext highlighter-rouge">groups</code>：分组卷积设置。</li>
+  <li><code class="language-plaintext highlighter-rouge">padding</code>：填充个数。</li>
+  <li><code class="language-plaintext highlighter-rouge">bias</code>：偏置。</li>
+</ul>
+
+<p>下节内容：nn 网络层：卷积层</p>
+:ET

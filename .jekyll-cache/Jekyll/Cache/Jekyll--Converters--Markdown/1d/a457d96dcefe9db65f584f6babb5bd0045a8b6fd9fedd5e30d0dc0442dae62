@@ -1,0 +1,713 @@
+I"ˤ<h1 id="lecture-02-张量简介及创建">Lecture 02 张量简介及创建</h1>
+
+<h2 id="1-张量是什么">1. 张量是什么？</h2>
+<h3 id="11-张量是什么">1.1 张量是什么？</h3>
+
+<p><strong>张量 (Tensor)</strong> 是一个多维数组 ， 它是标量、向量、矩阵的高维拓展。</p>
+
+<p><img src="http://andy-blog.oss-cn-beijing.aliyuncs.com/blog/2020-12-09-WX20201209-184407%402x.png" width="90%" /></p>
+
+<p>常见的灰度图像可以用一个矩阵 (2 维张量) 表示；而 RGB 彩色图像则需要用一个 3 维张量表示 (3 个维度分别表示图像的高度、宽度和 RGB 色彩通道)。</p>
+
+<h3 id="12-tensor-与-variable">1.2 Tensor 与 Variable</h3>
+
+<p>Variable 是 <code class="language-plaintext highlighter-rouge">torch.autograd</code> 中的数据类型，主要用于封装 Tensor，进行 <strong>自动求导</strong>。</p>
+
+<ul>
+  <li><code class="language-plaintext highlighter-rouge">data</code>：被包装的 Tensor。</li>
+  <li><code class="language-plaintext highlighter-rouge">grad</code>：<code class="language-plaintext highlighter-rouge">data</code> 的梯度。</li>
+  <li><code class="language-plaintext highlighter-rouge">grad_fn</code>：创建 Tensor 的 Function，是自动求导的关键。</li>
+  <li><code class="language-plaintext highlighter-rouge">requires_grad</code>：指示是否需要梯度。</li>
+  <li><code class="language-plaintext highlighter-rouge">is_leaf</code>：指示是否是 (计算图中的) 叶子结点（张量）。</li>
+</ul>
+
+<p><img src="http://andy-blog.oss-cn-beijing.aliyuncs.com/blog/2020-12-09-WX20201209-184916%402x.png" width="38%" /></p>
+
+<p>PyTorch 0.4.0 版本开始，Variable 并入 Tensor。</p>
+
+<ul>
+  <li><code class="language-plaintext highlighter-rouge">dtype</code>：张量的数据类型，如 <code class="language-plaintext highlighter-rouge">torch.FloatTensor</code>、<code class="language-plaintext highlighter-rouge">torch.cuda.FloatTensor</code>。</li>
+  <li><code class="language-plaintext highlighter-rouge">shape</code>：张量的形状，如 <code class="language-plaintext highlighter-rouge">(64, 3, 224, 224)</code>。</li>
+  <li><code class="language-plaintext highlighter-rouge">device</code>：张量所在设备，GPU/CPU，是加速的关键。</li>
+</ul>
+
+<p><img src="http://andy-blog.oss-cn-beijing.aliyuncs.com/blog/2020-12-09-WX20201209-190443%402x.png" width="52%" /></p>
+
+<p>可以看到，目前的 Tensor 包含了 8 个主要属性，其中 4 个与数据相关，另外 4 个与梯度求导相关。</p>
+
+<p>PyTorch 主要提供了以下 9 种数据类型：</p>
+
+<p><img src="http://andy-blog.oss-cn-beijing.aliyuncs.com/blog/2020-12-09-WX20201209-191038%402x.png" width="90%" /></p>
+
+<p>通常，使用最多的数据类型是 <code class="language-plaintext highlighter-rouge">torch.float32</code>，常用于卷积层的权重值，或者图像预处理之后都是默认为 32 位的浮点数。另外，<code class="language-plaintext highlighter-rouge">torch.int64</code> 也用的比较多，通常用 64 位整型来表示图像标签，在计算交叉熵的损失函数时需要注意这点。</p>
+
+<h2 id="2-张量的创建">2. 张量的创建</h2>
+
+<h3 id="21-直接创建">2.1 直接创建</h3>
+
+<h4 id="torchtensor"><code class="language-plaintext highlighter-rouge">torch.tensor()</code></h4>
+
+<p><strong>功能</strong>：从 <code class="language-plaintext highlighter-rouge">data</code> 创建 <code class="language-plaintext highlighter-rouge">tensor</code>。</p>
+
+<div class="language-python highlighter-rouge"><div class="highlight"><pre class="highlight"><code><table class="rouge-table"><tbody><tr><td class="rouge-gutter gl"><pre class="lineno">1
+2
+3
+4
+5
+6
+7
+</pre></td><td class="rouge-code"><pre><span class="n">torch</span><span class="p">.</span><span class="n">tensor</span><span class="p">(</span>
+    <span class="n">data</span><span class="p">,</span>
+    <span class="n">dtype</span><span class="o">=</span><span class="bp">None</span><span class="p">,</span>
+    <span class="n">device</span><span class="o">=</span><span class="bp">None</span><span class="p">,</span>
+    <span class="n">requires_grad</span><span class="o">=</span><span class="bp">False</span><span class="p">,</span>
+    <span class="n">pin_memory</span><span class="o">=</span><span class="bp">False</span>
+<span class="p">)</span>
+</pre></td></tr></tbody></table></code></pre></div></div>
+
+<p><strong>主要参数</strong>：</p>
+
+<ul>
+  <li><code class="language-plaintext highlighter-rouge">data</code>：数据，可以是 <code class="language-plaintext highlighter-rouge">list</code> 或者 <code class="language-plaintext highlighter-rouge">numpy</code>。</li>
+  <li><code class="language-plaintext highlighter-rouge">dtype</code>：数据类型，默认与 <code class="language-plaintext highlighter-rouge">data</code> 的一致。</li>
+  <li><code class="language-plaintext highlighter-rouge">device</code>：所在设备，<code class="language-plaintext highlighter-rouge">cuda</code> 或者 <code class="language-plaintext highlighter-rouge">cpu</code>。</li>
+  <li><code class="language-plaintext highlighter-rouge">requires_grad</code>：是否需要梯度。</li>
+  <li><code class="language-plaintext highlighter-rouge">pin_memory</code>：是否存于锁页内存，与转换效率有关，通常设为 <code class="language-plaintext highlighter-rouge">False</code>。</li>
+</ul>
+
+<h4 id="torchfrom_numpyndarray"><code class="language-plaintext highlighter-rouge">torch.from_numpy(ndarray)</code></h4>
+
+<p><strong>功能</strong>：从 <code class="language-plaintext highlighter-rouge">numpy</code> 创建 <code class="language-plaintext highlighter-rouge">tensor</code>。</p>
+
+<p><strong>注意事项</strong>：从 <code class="language-plaintext highlighter-rouge">torch.from_numpy</code> 创建的 <code class="language-plaintext highlighter-rouge">tensor</code> 与原 <code class="language-plaintext highlighter-rouge">ndarray</code> <strong>共享内存</strong>，当修改其中一个的数据，另外一个也将会被改动。</p>
+
+<p><img src="http://andy-blog.oss-cn-beijing.aliyuncs.com/blog/2020-12-09-WX20201209-201008%402x.png" width="50%" /></p>
+
+<h3 id="22-依据数值创建">2.2 依据数值创建</h3>
+
+<h4 id="torchzeros"><code class="language-plaintext highlighter-rouge">torch.zeros()</code></h4>
+
+<p><strong>功能</strong>：依 <code class="language-plaintext highlighter-rouge">size</code> 创建全 0 张量。</p>
+
+<div class="language-python highlighter-rouge"><div class="highlight"><pre class="highlight"><code><table class="rouge-table"><tbody><tr><td class="rouge-gutter gl"><pre class="lineno">1
+2
+3
+4
+5
+6
+7
+8
+</pre></td><td class="rouge-code"><pre><span class="n">torch</span><span class="p">.</span><span class="n">zeros</span><span class="p">(</span>
+    <span class="o">*</span><span class="n">size</span><span class="p">,</span>
+    <span class="n">out</span><span class="o">=</span><span class="bp">None</span><span class="p">,</span>
+    <span class="n">dtype</span><span class="o">=</span><span class="bp">None</span><span class="p">,</span>
+    <span class="n">layout</span><span class="o">=</span><span class="n">torch</span><span class="p">.</span><span class="n">strided</span><span class="p">,</span>
+    <span class="n">device</span><span class="o">=</span><span class="bp">None</span><span class="p">,</span>
+    <span class="n">requires_grad</span><span class="o">=</span><span class="bp">False</span>
+<span class="p">)</span>
+</pre></td></tr></tbody></table></code></pre></div></div>
+
+<p><strong>主要参数</strong>：</p>
+
+<ul>
+  <li><code class="language-plaintext highlighter-rouge">size</code>：张量的形状，如 <code class="language-plaintext highlighter-rouge">(3, 3)</code>、<code class="language-plaintext highlighter-rouge">(3, 224, 224)</code>。</li>
+  <li><code class="language-plaintext highlighter-rouge">out</code>：输出的张量，即将生成的全 0 张量赋值给 <code class="language-plaintext highlighter-rouge">out</code> 参数的变量。</li>
+  <li><code class="language-plaintext highlighter-rouge">layout</code>：内存中布局形式，有 <code class="language-plaintext highlighter-rouge">strided</code>、<code class="language-plaintext highlighter-rouge">sparse_coo</code> 等。通常采用默认的 <code class="language-plaintext highlighter-rouge">strided</code>；如果涉及稀疏张量可能需要设置为 <code class="language-plaintext highlighter-rouge">sparse_coo</code> 以提升读取效率。</li>
+  <li><code class="language-plaintext highlighter-rouge">device</code>：所在设备，gpu / cpu。</li>
+  <li><code class="language-plaintext highlighter-rouge">requires_grad</code>：是否需要梯度。</li>
+</ul>
+
+<h4 id="torchzeros_like"><code class="language-plaintext highlighter-rouge">torch.zeros_like()</code></h4>
+
+<p><strong>功能</strong>：依 <code class="language-plaintext highlighter-rouge">input</code> 形状创建全 0 张量。</p>
+
+<div class="language-python highlighter-rouge"><div class="highlight"><pre class="highlight"><code><table class="rouge-table"><tbody><tr><td class="rouge-gutter gl"><pre class="lineno">1
+2
+3
+4
+5
+6
+7
+</pre></td><td class="rouge-code"><pre><span class="n">torch</span><span class="p">.</span><span class="n">zeros_like</span><span class="p">(</span>
+    <span class="nb">input</span><span class="p">,</span>
+    <span class="n">dtype</span><span class="o">=</span><span class="bp">None</span><span class="p">,</span>
+    <span class="n">layout</span><span class="o">=</span><span class="bp">None</span><span class="p">,</span>
+    <span class="n">device</span><span class="o">=</span><span class="bp">None</span><span class="p">,</span>
+    <span class="n">requires_grad</span><span class="o">=</span><span class="bp">False</span>
+<span class="p">)</span>
+</pre></td></tr></tbody></table></code></pre></div></div>
+
+<p><strong>主要参数</strong>：</p>
+
+<ul>
+  <li><code class="language-plaintext highlighter-rouge">intput</code>：创建与 <code class="language-plaintext highlighter-rouge">input</code> 同形状的全 0 张量。</li>
+  <li><code class="language-plaintext highlighter-rouge">dtype</code>：数据类型。</li>
+  <li><code class="language-plaintext highlighter-rouge">layout</code>：内存中布局形式。</li>
+</ul>
+
+<h4 id="torchones"><code class="language-plaintext highlighter-rouge">torch.ones()</code></h4>
+
+<p><strong>功能</strong>：依 <code class="language-plaintext highlighter-rouge">size</code> 创建全 1 张量。</p>
+
+<div class="language-python highlighter-rouge"><div class="highlight"><pre class="highlight"><code><table class="rouge-table"><tbody><tr><td class="rouge-gutter gl"><pre class="lineno">1
+2
+3
+4
+5
+6
+7
+8
+</pre></td><td class="rouge-code"><pre><span class="n">torch</span><span class="p">.</span><span class="n">ones</span><span class="p">(</span>
+    <span class="o">*</span><span class="n">size</span><span class="p">,</span>
+    <span class="n">out</span><span class="o">=</span><span class="bp">None</span><span class="p">,</span>
+    <span class="n">dtype</span><span class="o">=</span><span class="bp">None</span><span class="p">,</span>
+    <span class="n">layout</span><span class="o">=</span><span class="n">torch</span><span class="p">.</span><span class="n">strided</span><span class="p">,</span>
+    <span class="n">device</span><span class="o">=</span><span class="bp">None</span><span class="p">,</span>
+    <span class="n">requires_grad</span><span class="o">=</span><span class="bp">False</span>
+<span class="p">)</span>
+</pre></td></tr></tbody></table></code></pre></div></div>
+
+<p><strong>主要参数</strong>：</p>
+
+<ul>
+  <li><code class="language-plaintext highlighter-rouge">size</code>：张量的形状。</li>
+  <li><code class="language-plaintext highlighter-rouge">out</code>：输出的张量。</li>
+  <li><code class="language-plaintext highlighter-rouge">layout</code>：内存中布局形式。</li>
+  <li><code class="language-plaintext highlighter-rouge">device</code>：所在设备，gpu / cpu。</li>
+  <li><code class="language-plaintext highlighter-rouge">requires_grad</code>：是否需要梯度。</li>
+</ul>
+
+<h4 id="torchones_like"><code class="language-plaintext highlighter-rouge">torch.ones_like()</code></h4>
+
+<p><strong>功能</strong>：依 <code class="language-plaintext highlighter-rouge">input</code> 形状创建全 1 张量。</p>
+
+<div class="language-python highlighter-rouge"><div class="highlight"><pre class="highlight"><code><table class="rouge-table"><tbody><tr><td class="rouge-gutter gl"><pre class="lineno">1
+2
+3
+4
+5
+6
+7
+</pre></td><td class="rouge-code"><pre><span class="n">torch</span><span class="p">.</span><span class="n">ones_like</span><span class="p">(</span>
+    <span class="nb">input</span><span class="p">,</span>
+    <span class="n">dtype</span><span class="o">=</span><span class="bp">None</span><span class="p">,</span>
+    <span class="n">layout</span><span class="o">=</span><span class="bp">None</span><span class="p">,</span>
+    <span class="n">device</span><span class="o">=</span><span class="bp">None</span><span class="p">,</span>
+    <span class="n">requires_grad</span><span class="o">=</span><span class="bp">False</span>
+<span class="p">)</span>
+</pre></td></tr></tbody></table></code></pre></div></div>
+
+<p><strong>主要参数</strong>：</p>
+
+<ul>
+  <li><code class="language-plaintext highlighter-rouge">intput</code>：创建与 <code class="language-plaintext highlighter-rouge">input</code> 同形状的全 1 张量。</li>
+  <li><code class="language-plaintext highlighter-rouge">dtype</code>：数据类型。</li>
+  <li><code class="language-plaintext highlighter-rouge">layout</code>：内存中布局形式。</li>
+</ul>
+
+<h4 id="torchfull"><code class="language-plaintext highlighter-rouge">torch.full()</code></h4>
+
+<p><strong>功能</strong>：依 <code class="language-plaintext highlighter-rouge">size</code> 创建全部值均为 <code class="language-plaintext highlighter-rouge">fill_value</code> 的张量。</p>
+
+<div class="language-python highlighter-rouge"><div class="highlight"><pre class="highlight"><code><table class="rouge-table"><tbody><tr><td class="rouge-gutter gl"><pre class="lineno">1
+2
+3
+4
+5
+6
+7
+8
+9
+</pre></td><td class="rouge-code"><pre><span class="n">torch</span><span class="p">.</span><span class="n">full</span><span class="p">(</span>
+    <span class="n">size</span><span class="p">,</span>
+    <span class="n">fill_value</span><span class="p">,</span>
+    <span class="n">out</span><span class="o">=</span><span class="bp">None</span><span class="p">,</span>
+    <span class="n">dtype</span><span class="o">=</span><span class="bp">None</span><span class="p">,</span>
+    <span class="n">layout</span><span class="o">=</span><span class="n">torch</span><span class="p">.</span><span class="n">strided</span><span class="p">,</span>
+    <span class="n">device</span><span class="o">=</span><span class="bp">None</span><span class="p">,</span>
+    <span class="n">requires_grad</span><span class="o">=</span><span class="bp">False</span>
+<span class="p">)</span>
+</pre></td></tr></tbody></table></code></pre></div></div>
+
+<p><strong>主要参数</strong>：</p>
+
+<ul>
+  <li><code class="language-plaintext highlighter-rouge">size</code>：张量的形状，如 <code class="language-plaintext highlighter-rouge">(3, 3)</code>。</li>
+  <li><code class="language-plaintext highlighter-rouge">fill_value</code>：张量的值。</li>
+</ul>
+
+<h4 id="torchfull_like"><code class="language-plaintext highlighter-rouge">torch.full_like()</code></h4>
+
+<p><strong>功能</strong>：依 <code class="language-plaintext highlighter-rouge">input</code> 形状创建指定数据的张量。</p>
+
+<div class="language-python highlighter-rouge"><div class="highlight"><pre class="highlight"><code><table class="rouge-table"><tbody><tr><td class="rouge-gutter gl"><pre class="lineno">1
+2
+3
+4
+5
+6
+7
+8
+</pre></td><td class="rouge-code"><pre><span class="n">torch</span><span class="p">.</span><span class="n">full_like</span><span class="p">(</span>
+    <span class="nb">input</span><span class="p">,</span>
+    <span class="n">fill_value</span><span class="p">,</span>
+    <span class="n">dtype</span><span class="o">=</span><span class="bp">None</span><span class="p">,</span>
+    <span class="n">layout</span><span class="o">=</span><span class="bp">None</span><span class="p">,</span>
+    <span class="n">device</span><span class="o">=</span><span class="bp">None</span><span class="p">,</span>
+    <span class="n">requires_grad</span><span class="o">=</span><span class="bp">False</span>
+<span class="p">)</span>
+</pre></td></tr></tbody></table></code></pre></div></div>
+
+<p><strong>主要参数</strong>：</p>
+
+<ul>
+  <li><code class="language-plaintext highlighter-rouge">intput</code>：创建与 <code class="language-plaintext highlighter-rouge">input</code> 同形状的全部值均为 <code class="language-plaintext highlighter-rouge">fill_value</code> 的张量。</li>
+  <li><code class="language-plaintext highlighter-rouge">fill_value</code>：张量的值。</li>
+  <li><code class="language-plaintext highlighter-rouge">dtype</code>：数据类型。</li>
+  <li><code class="language-plaintext highlighter-rouge">layout</code>：内存中布局形式。</li>
+</ul>
+
+<h4 id="torcharange"><code class="language-plaintext highlighter-rouge">torch.arange()</code></h4>
+
+<p><strong>功能</strong>：创建等差的 1 维张量。</p>
+
+<div class="language-python highlighter-rouge"><div class="highlight"><pre class="highlight"><code><table class="rouge-table"><tbody><tr><td class="rouge-gutter gl"><pre class="lineno">1
+2
+3
+4
+5
+6
+7
+8
+9
+10
+</pre></td><td class="rouge-code"><pre><span class="n">torch</span><span class="p">.</span><span class="n">arange</span><span class="p">(</span>
+    <span class="n">start</span><span class="o">=</span><span class="mi">0</span><span class="p">,</span>
+    <span class="n">end</span><span class="p">,</span>
+    <span class="n">step</span><span class="o">=</span><span class="mi">1</span><span class="p">,</span>
+    <span class="n">out</span><span class="o">=</span><span class="bp">None</span><span class="p">,</span>
+    <span class="n">dtype</span><span class="o">=</span><span class="bp">None</span><span class="p">,</span>
+    <span class="n">layout</span><span class="o">=</span><span class="n">torch</span><span class="p">.</span><span class="n">strided</span><span class="p">,</span>
+    <span class="n">device</span><span class="o">=</span><span class="bp">None</span><span class="p">,</span>
+    <span class="n">requires_grad</span><span class="o">=</span><span class="bp">False</span>
+<span class="p">)</span>
+</pre></td></tr></tbody></table></code></pre></div></div>
+
+<p><strong>主要参数</strong>：</p>
+
+<ul>
+  <li><code class="language-plaintext highlighter-rouge">start</code>：数列起始值。</li>
+  <li><code class="language-plaintext highlighter-rouge">end</code>：数列 “结束值”（无法取到）。</li>
+  <li><code class="language-plaintext highlighter-rouge">step</code>：数列公差，默认为 1。</li>
+</ul>
+
+<p><strong>注意事项</strong>：数值区间为 <code class="language-plaintext highlighter-rouge">[start, end)</code>。</p>
+
+<h4 id="torchlinspace"><code class="language-plaintext highlighter-rouge">torch.linspace()</code></h4>
+
+<p><strong>功能</strong>：创建均分的 1 维张量。</p>
+
+<div class="language-python highlighter-rouge"><div class="highlight"><pre class="highlight"><code><table class="rouge-table"><tbody><tr><td class="rouge-gutter gl"><pre class="lineno">1
+2
+3
+4
+5
+6
+7
+8
+9
+10
+</pre></td><td class="rouge-code"><pre><span class="n">torch</span><span class="p">.</span><span class="n">linspace</span><span class="p">(</span>
+    <span class="n">start</span><span class="p">,</span>
+    <span class="n">end</span><span class="p">,</span>
+    <span class="n">steps</span><span class="o">=</span><span class="mi">100</span><span class="p">,</span>
+    <span class="n">out</span><span class="o">=</span><span class="bp">None</span><span class="p">,</span>
+    <span class="n">dtype</span><span class="o">=</span><span class="bp">None</span><span class="p">,</span>
+    <span class="n">layout</span><span class="o">=</span><span class="n">torch</span><span class="p">.</span><span class="n">strided</span><span class="p">,</span>
+    <span class="n">device</span><span class="o">=</span><span class="bp">None</span><span class="p">,</span>
+    <span class="n">requires_grad</span><span class="o">=</span><span class="bp">False</span>
+<span class="p">)</span>
+</pre></td></tr></tbody></table></code></pre></div></div>
+
+<p><strong>主要参数</strong>：</p>
+
+<ul>
+  <li><code class="language-plaintext highlighter-rouge">start</code>：数列起始值。</li>
+  <li><code class="language-plaintext highlighter-rouge">end</code>：数列结束值。</li>
+  <li><code class="language-plaintext highlighter-rouge">steps</code>：数列长度。</li>
+</ul>
+
+<p><strong>注意事项</strong>：数值区间为 <code class="language-plaintext highlighter-rouge">[start, end]</code>。</p>
+
+<h4 id="torchlogspace"><code class="language-plaintext highlighter-rouge">torch.logspace()</code></h4>
+
+<p><strong>功能</strong>：创建对数均分的 1 维张量。</p>
+
+<div class="language-python highlighter-rouge"><div class="highlight"><pre class="highlight"><code><table class="rouge-table"><tbody><tr><td class="rouge-gutter gl"><pre class="lineno">1
+2
+3
+4
+5
+6
+7
+8
+9
+10
+11
+</pre></td><td class="rouge-code"><pre><span class="n">torch</span><span class="p">.</span><span class="n">logspace</span><span class="p">(</span>
+    <span class="n">start</span><span class="p">,</span>
+    <span class="n">end</span><span class="p">,</span>
+    <span class="n">steps</span><span class="o">=</span><span class="mi">100</span><span class="p">,</span>
+    <span class="n">base</span><span class="o">=</span><span class="mf">10.0</span><span class="p">,</span>
+    <span class="n">out</span><span class="o">=</span><span class="bp">None</span><span class="p">,</span>
+    <span class="n">dtype</span><span class="o">=</span><span class="bp">None</span><span class="p">,</span>
+    <span class="n">layout</span><span class="o">=</span><span class="n">torch</span><span class="p">.</span><span class="n">strided</span><span class="p">,</span>
+    <span class="n">device</span><span class="o">=</span><span class="bp">None</span><span class="p">,</span>
+    <span class="n">requires_grad</span><span class="o">=</span><span class="bp">False</span>
+<span class="p">)</span>
+</pre></td></tr></tbody></table></code></pre></div></div>
+
+<p><strong>主要参数</strong>：</p>
+
+<ul>
+  <li><code class="language-plaintext highlighter-rouge">start</code>：数列起始值。</li>
+  <li><code class="language-plaintext highlighter-rouge">end</code>：数列结束值。</li>
+  <li><code class="language-plaintext highlighter-rouge">steps</code>：数列长度。</li>
+  <li><code class="language-plaintext highlighter-rouge">base</code>：对数函数的底，默认为 10。</li>
+</ul>
+
+<p><strong>注意事项</strong>：长度为 <code class="language-plaintext highlighter-rouge">steps</code>，底为 <code class="language-plaintext highlighter-rouge">base</code>。</p>
+
+<h4 id="torcheye"><code class="language-plaintext highlighter-rouge">torch.eye()</code></h4>
+
+<p><strong>功能</strong>：创建单位对角矩阵（2 维张量）。</p>
+
+<div class="language-python highlighter-rouge"><div class="highlight"><pre class="highlight"><code><table class="rouge-table"><tbody><tr><td class="rouge-gutter gl"><pre class="lineno">1
+2
+3
+4
+5
+6
+7
+8
+9
+</pre></td><td class="rouge-code"><pre><span class="n">torch</span><span class="p">.</span><span class="n">eye</span><span class="p">(</span>
+    <span class="n">n</span><span class="p">,</span>
+    <span class="n">m</span><span class="o">=</span><span class="bp">None</span><span class="p">,</span>
+    <span class="n">out</span><span class="o">=</span><span class="bp">None</span><span class="p">,</span>
+    <span class="n">dtype</span><span class="o">=</span><span class="bp">None</span><span class="p">,</span>
+    <span class="n">layout</span><span class="o">=</span><span class="n">torch</span><span class="p">.</span><span class="n">strided</span><span class="p">,</span>
+    <span class="n">device</span><span class="o">=</span><span class="bp">None</span><span class="p">,</span>
+    <span class="n">requires_grad</span><span class="o">=</span><span class="bp">False</span>
+<span class="p">)</span>
+</pre></td></tr></tbody></table></code></pre></div></div>
+
+<p><strong>主要参数</strong>：</p>
+
+<ul>
+  <li><code class="language-plaintext highlighter-rouge">n</code>：矩阵行数。</li>
+  <li><code class="language-plaintext highlighter-rouge">m</code>：矩阵列数。</li>
+</ul>
+
+<p><strong>注意事项</strong>：默认为方阵。</p>
+
+<h3 id="23-依概率分布创建张量">2.3 依概率分布创建张量</h3>
+
+<h4 id="torchnormal"><code class="language-plaintext highlighter-rouge">torch.normal()</code></h4>
+
+<p><strong>功能</strong>：生成正态分布（高斯分布）。</p>
+
+<div class="language-python highlighter-rouge"><div class="highlight"><pre class="highlight"><code><table class="rouge-table"><tbody><tr><td class="rouge-gutter gl"><pre class="lineno">1
+2
+3
+4
+5
+6
+7
+8
+9
+10
+11
+12
+13
+14
+</pre></td><td class="rouge-code"><pre><span class="c1"># mean 和 std 中至少有一个是张量，从不同的正态分布中采样得到，无需指定 size。
+</span><span class="n">torch</span><span class="p">.</span><span class="n">normal</span><span class="p">(</span>
+    <span class="n">mean</span><span class="p">,</span>
+    <span class="n">std</span><span class="p">,</span>
+    <span class="n">out</span><span class="o">=</span><span class="bp">None</span>
+<span class="p">)</span>
+
+<span class="c1"># mean 和 std 均为标量，从相同的正态分布中采样得到，需要指定 size。
+</span><span class="n">torch</span><span class="p">.</span><span class="n">normal</span><span class="p">(</span>
+    <span class="n">mean</span><span class="p">,</span>
+    <span class="n">std</span><span class="p">,</span>
+    <span class="n">size</span><span class="p">,</span>
+    <span class="n">out</span><span class="o">=</span><span class="bp">None</span>
+<span class="p">)</span>
+</pre></td></tr></tbody></table></code></pre></div></div>
+
+<p><strong>主要参数</strong>：</p>
+
+<ul>
+  <li><code class="language-plaintext highlighter-rouge">mean</code>：均值。</li>
+  <li><code class="language-plaintext highlighter-rouge">std</code>：标准差。</li>
+</ul>
+
+<p><strong>四种模式</strong>：</p>
+
+<ul>
+  <li><code class="language-plaintext highlighter-rouge">mean</code> 为 <strong>标量</strong>，<code class="language-plaintext highlighter-rouge">std</code> 为 <strong>标量</strong>。</li>
+  <li><code class="language-plaintext highlighter-rouge">mean</code> 为 <strong>标量</strong>，<code class="language-plaintext highlighter-rouge">std</code> 为 <strong>张量</strong>。</li>
+  <li><code class="language-plaintext highlighter-rouge">mean</code> 为 <strong>张量</strong>，<code class="language-plaintext highlighter-rouge">std</code> 为 <strong>标量</strong>。</li>
+  <li><code class="language-plaintext highlighter-rouge">mean</code> 为 <strong>张量</strong>，<code class="language-plaintext highlighter-rouge">std</code> 为 <strong>张量</strong>。</li>
+</ul>
+
+<h4 id="torchrandn"><code class="language-plaintext highlighter-rouge">torch.randn()</code></h4>
+
+<p><strong>功能</strong>：依 <code class="language-plaintext highlighter-rouge">size</code> 生成 <strong>标准正态分布</strong> 张量。</p>
+
+<div class="language-python highlighter-rouge"><div class="highlight"><pre class="highlight"><code><table class="rouge-table"><tbody><tr><td class="rouge-gutter gl"><pre class="lineno">1
+2
+3
+4
+5
+6
+7
+8
+</pre></td><td class="rouge-code"><pre><span class="n">torch</span><span class="p">.</span><span class="n">randn</span><span class="p">(</span>
+    <span class="o">*</span><span class="n">size</span><span class="p">,</span>
+    <span class="n">out</span><span class="o">=</span><span class="bp">None</span><span class="p">,</span>
+    <span class="n">dtype</span><span class="o">=</span><span class="bp">None</span><span class="p">,</span>
+    <span class="n">layout</span><span class="o">=</span><span class="n">torch</span><span class="p">.</span><span class="n">strided</span><span class="p">,</span>
+    <span class="n">device</span><span class="o">=</span><span class="bp">None</span><span class="p">,</span>
+    <span class="n">requires_grad</span><span class="o">=</span><span class="bp">False</span>
+<span class="p">)</span>
+</pre></td></tr></tbody></table></code></pre></div></div>
+
+<p><strong>主要参数</strong>：</p>
+
+<ul>
+  <li><code class="language-plaintext highlighter-rouge">size</code>：张量的形状。</li>
+  <li><code class="language-plaintext highlighter-rouge">out</code>：输出的张量。</li>
+  <li><code class="language-plaintext highlighter-rouge">layout</code>：内存中布局形式。</li>
+  <li><code class="language-plaintext highlighter-rouge">device</code>：所在设备，gpu / cpu。</li>
+  <li><code class="language-plaintext highlighter-rouge">requires_grad</code>：是否需要梯度。</li>
+</ul>
+
+<h4 id="torchrandn_like"><code class="language-plaintext highlighter-rouge">torch.randn_like()</code></h4>
+
+<p><strong>功能</strong>：依 <code class="language-plaintext highlighter-rouge">input</code> 生成 <strong>标准正态分布</strong> 张量。</p>
+
+<div class="language-python highlighter-rouge"><div class="highlight"><pre class="highlight"><code><table class="rouge-table"><tbody><tr><td class="rouge-gutter gl"><pre class="lineno">1
+2
+3
+4
+5
+6
+7
+</pre></td><td class="rouge-code"><pre><span class="n">torch</span><span class="p">.</span><span class="n">randn_like</span><span class="p">(</span>
+    <span class="nb">input</span><span class="p">,</span>
+    <span class="n">dtype</span><span class="o">=</span><span class="bp">None</span><span class="p">,</span>
+    <span class="n">layout</span><span class="o">=</span><span class="bp">None</span><span class="p">,</span>
+    <span class="n">device</span><span class="o">=</span><span class="bp">None</span><span class="p">,</span>
+    <span class="n">requires_grad</span><span class="o">=</span><span class="bp">False</span>
+<span class="p">)</span>
+</pre></td></tr></tbody></table></code></pre></div></div>
+
+<p><strong>主要参数</strong>：</p>
+
+<ul>
+  <li><code class="language-plaintext highlighter-rouge">intput</code>：创建与 <code class="language-plaintext highlighter-rouge">input</code> 同形状的标准正态分布张量。</li>
+  <li><code class="language-plaintext highlighter-rouge">dtype</code>：数据类型。</li>
+  <li><code class="language-plaintext highlighter-rouge">layout</code>：内存中布局形式。</li>
+</ul>
+
+<h4 id="torchrand"><code class="language-plaintext highlighter-rouge">torch.rand()</code></h4>
+
+<p><strong>功能</strong>：在区间 [0, 1) 上，依 <code class="language-plaintext highlighter-rouge">size</code> 生成 <strong>均匀分布</strong> 张量。</p>
+
+<div class="language-python highlighter-rouge"><div class="highlight"><pre class="highlight"><code><table class="rouge-table"><tbody><tr><td class="rouge-gutter gl"><pre class="lineno">1
+2
+3
+4
+5
+6
+7
+8
+</pre></td><td class="rouge-code"><pre><span class="n">torch</span><span class="p">.</span><span class="n">rand</span><span class="p">(</span>
+    <span class="o">*</span><span class="n">size</span><span class="p">,</span>
+    <span class="n">out</span><span class="o">=</span><span class="bp">None</span><span class="p">,</span>
+    <span class="n">dtype</span><span class="o">=</span><span class="bp">None</span><span class="p">,</span>
+    <span class="n">layout</span><span class="o">=</span><span class="n">torch</span><span class="p">.</span><span class="n">strided</span><span class="p">,</span>
+    <span class="n">device</span><span class="o">=</span><span class="bp">None</span><span class="p">,</span>
+    <span class="n">requires_grad</span><span class="o">=</span><span class="bp">False</span>
+<span class="p">)</span>
+</pre></td></tr></tbody></table></code></pre></div></div>
+
+<p><strong>主要参数</strong>：</p>
+
+<ul>
+  <li><code class="language-plaintext highlighter-rouge">size</code>：张量的形状。</li>
+  <li><code class="language-plaintext highlighter-rouge">out</code>：输出的张量。</li>
+  <li><code class="language-plaintext highlighter-rouge">layout</code>：内存中布局形式。</li>
+  <li><code class="language-plaintext highlighter-rouge">device</code>：所在设备，gpu / cpu。</li>
+  <li><code class="language-plaintext highlighter-rouge">requires_grad</code>：是否需要梯度。</li>
+</ul>
+
+<h4 id="torchrand_like"><code class="language-plaintext highlighter-rouge">torch.rand_like()</code></h4>
+
+<p><strong>功能</strong>：在区间 [0, 1) 上，依 <code class="language-plaintext highlighter-rouge">input</code> 生成 <strong>均匀分布</strong> 张量。</p>
+
+<div class="language-python highlighter-rouge"><div class="highlight"><pre class="highlight"><code><table class="rouge-table"><tbody><tr><td class="rouge-gutter gl"><pre class="lineno">1
+2
+3
+4
+5
+6
+7
+</pre></td><td class="rouge-code"><pre><span class="n">torch</span><span class="p">.</span><span class="n">rand_like</span><span class="p">(</span>
+    <span class="nb">input</span><span class="p">,</span>
+    <span class="n">dtype</span><span class="o">=</span><span class="bp">None</span><span class="p">,</span>
+    <span class="n">layout</span><span class="o">=</span><span class="bp">None</span><span class="p">,</span>
+    <span class="n">device</span><span class="o">=</span><span class="bp">None</span><span class="p">,</span>
+    <span class="n">requires_grad</span><span class="o">=</span><span class="bp">False</span>
+<span class="p">)</span>
+</pre></td></tr></tbody></table></code></pre></div></div>
+
+<p><strong>主要参数</strong>：</p>
+
+<ul>
+  <li><code class="language-plaintext highlighter-rouge">intput</code>：创建与 <code class="language-plaintext highlighter-rouge">input</code> 同形状的 [0, 1) 均匀分布张量。</li>
+  <li><code class="language-plaintext highlighter-rouge">dtype</code>：数据类型。</li>
+  <li><code class="language-plaintext highlighter-rouge">layout</code>：内存中布局形式。</li>
+</ul>
+
+<h4 id="torchrandint"><code class="language-plaintext highlighter-rouge">torch.randint()</code></h4>
+
+<p><strong>功能</strong>：区间 [low, high) 上，依 <code class="language-plaintext highlighter-rouge">size</code> 生成 <strong>整数均匀分布</strong> 张量。</p>
+
+<div class="language-python highlighter-rouge"><div class="highlight"><pre class="highlight"><code><table class="rouge-table"><tbody><tr><td class="rouge-gutter gl"><pre class="lineno">1
+2
+3
+4
+5
+6
+7
+8
+9
+10
+</pre></td><td class="rouge-code"><pre><span class="n">torch</span><span class="p">.</span><span class="n">randint</span><span class="p">(</span>
+    <span class="n">low</span><span class="o">=</span><span class="mi">0</span><span class="p">,</span>
+    <span class="n">high</span><span class="p">,</span>
+    <span class="n">size</span><span class="p">,</span>
+    <span class="n">out</span><span class="o">=</span><span class="bp">None</span><span class="p">,</span>
+    <span class="n">dtype</span><span class="o">=</span><span class="bp">None</span><span class="p">,</span>
+    <span class="n">layout</span><span class="o">=</span><span class="n">torch</span><span class="p">.</span><span class="n">strided</span><span class="p">,</span>
+    <span class="n">device</span><span class="o">=</span><span class="bp">None</span><span class="p">,</span>
+    <span class="n">requires_grad</span><span class="o">=</span><span class="bp">False</span>
+<span class="p">)</span>
+</pre></td></tr></tbody></table></code></pre></div></div>
+
+<p><strong>主要参数</strong>：</p>
+
+<ul>
+  <li><code class="language-plaintext highlighter-rouge">low</code>：区间下界。</li>
+  <li><code class="language-plaintext highlighter-rouge">high</code>：区间上界。</li>
+  <li><code class="language-plaintext highlighter-rouge">size</code>：张量的形状。</li>
+  <li><code class="language-plaintext highlighter-rouge">out</code>：输出的张量。</li>
+  <li><code class="language-plaintext highlighter-rouge">layout</code>：内存中布局形式。</li>
+  <li><code class="language-plaintext highlighter-rouge">device</code>：所在设备，gpu / cpu。</li>
+  <li><code class="language-plaintext highlighter-rouge">requires_grad</code>：是否需要梯度。</li>
+</ul>
+
+<h4 id="torchrandint_like"><code class="language-plaintext highlighter-rouge">torch.randint_like()</code></h4>
+
+<p><strong>功能</strong>：在区间 [low, high) 上，依 <code class="language-plaintext highlighter-rouge">input</code> 生成 <strong>整数均匀分布</strong> 张量。</p>
+
+<div class="language-python highlighter-rouge"><div class="highlight"><pre class="highlight"><code><table class="rouge-table"><tbody><tr><td class="rouge-gutter gl"><pre class="lineno">1
+2
+3
+4
+5
+6
+7
+8
+9
+</pre></td><td class="rouge-code"><pre><span class="n">torch</span><span class="p">.</span><span class="n">rand_like</span><span class="p">(</span>
+    <span class="n">low</span><span class="o">=</span><span class="mi">0</span><span class="p">,</span>
+    <span class="n">high</span><span class="p">,</span>
+    <span class="nb">input</span><span class="p">,</span>
+    <span class="n">dtype</span><span class="o">=</span><span class="bp">None</span><span class="p">,</span>
+    <span class="n">layout</span><span class="o">=</span><span class="bp">None</span><span class="p">,</span>
+    <span class="n">device</span><span class="o">=</span><span class="bp">None</span><span class="p">,</span>
+    <span class="n">requires_grad</span><span class="o">=</span><span class="bp">False</span>
+<span class="p">)</span>
+</pre></td></tr></tbody></table></code></pre></div></div>
+
+<p><strong>主要参数</strong>：</p>
+
+<ul>
+  <li><code class="language-plaintext highlighter-rouge">low</code>：区间下界。</li>
+  <li><code class="language-plaintext highlighter-rouge">high</code>：区间上界。</li>
+  <li><code class="language-plaintext highlighter-rouge">intput</code>：创建与 <code class="language-plaintext highlighter-rouge">input</code> 同形状的 [low, high) 整数均匀分布张量。</li>
+  <li><code class="language-plaintext highlighter-rouge">dtype</code>：数据类型。</li>
+  <li><code class="language-plaintext highlighter-rouge">layout</code>：内存中布局形式。</li>
+</ul>
+
+<h4 id="torchrandperm"><code class="language-plaintext highlighter-rouge">torch.randperm()</code></h4>
+
+<p><strong>功能</strong>：生成生成从 0 到 n-1 的随机排列张量，通常用来生成乱序的索引。</p>
+
+<p><strong>主要参数</strong>：</p>
+
+<ul>
+  <li><code class="language-plaintext highlighter-rouge">n</code>：张量的长度。</li>
+</ul>
+
+<div class="language-python highlighter-rouge"><div class="highlight"><pre class="highlight"><code><table class="rouge-table"><tbody><tr><td class="rouge-gutter gl"><pre class="lineno">1
+2
+3
+4
+5
+6
+7
+8
+</pre></td><td class="rouge-code"><pre><span class="n">torch</span><span class="p">.</span><span class="n">randperm</span><span class="p">(</span>
+    <span class="n">n</span><span class="p">,</span>
+    <span class="n">out</span><span class="o">=</span><span class="bp">None</span><span class="p">,</span>
+    <span class="n">dtype</span><span class="o">=</span><span class="n">torch</span><span class="p">.</span><span class="n">int64</span><span class="p">,</span>
+    <span class="n">layout</span><span class="o">=</span><span class="n">torch</span><span class="p">.</span><span class="n">strided</span><span class="p">,</span>
+    <span class="n">device</span><span class="o">=</span><span class="bp">None</span><span class="p">,</span>
+    <span class="n">requires_grad</span><span class="o">=</span><span class="bp">False</span>
+<span class="p">)</span>
+</pre></td></tr></tbody></table></code></pre></div></div>
+
+<h4 id="torchbernoulli"><code class="language-plaintext highlighter-rouge">torch.bernoulli()</code></h4>
+
+<p><strong>功能</strong>：以 <code class="language-plaintext highlighter-rouge">input</code> 为概率，生成伯努力分布（0-1 分布，两点分布）。</p>
+
+<ul>
+  <li><code class="language-plaintext highlighter-rouge">input</code>：概率值。</li>
+</ul>
+
+<div class="language-python highlighter-rouge"><div class="highlight"><pre class="highlight"><code><table class="rouge-table"><tbody><tr><td class="rouge-gutter gl"><pre class="lineno">1
+2
+3
+4
+5
+6
+</pre></td><td class="rouge-code"><pre><span class="n">torch</span><span class="p">.</span><span class="n">bernoulli</span><span class="p">(</span>
+    <span class="nb">input</span><span class="p">,</span>
+    <span class="o">*</span><span class="p">,</span>
+    <span class="n">generator</span><span class="o">=</span><span class="bp">None</span><span class="p">,</span>
+    <span class="n">out</span><span class="o">=</span><span class="bp">None</span>
+<span class="p">)</span>
+</pre></td></tr></tbody></table></code></pre></div></div>
+
+<h2 id="3-总结">3. 总结</h2>
+
+<p>本节课介绍了 PyTorch 中的数据结构 —— 张量 (Tensor)，它是 PyTorch 中最基础的概念，其参与了整个运算过程。这里我们介绍了张量的概念和属性，如 <code class="language-plaintext highlighter-rouge">data</code>、<code class="language-plaintext highlighter-rouge">device</code>、<code class="language-plaintext highlighter-rouge">dtype</code> 等，并介绍了张量的基本创建方法，如直接创建、依数值创建和依概率分布创建等。</p>
+
+<p>下节内容：张量操作与线性回归</p>
+:ET
