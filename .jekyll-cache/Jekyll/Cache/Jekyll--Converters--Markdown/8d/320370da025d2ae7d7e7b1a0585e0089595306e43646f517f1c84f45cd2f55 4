@@ -1,0 +1,351 @@
+I"5<h1 id="lecture-02-几何观点和高维数据">Lecture 02 几何观点和高维数据</h1>
+
+<p><strong>参考教材</strong>：</p>
+
+<ul>
+  <li><em>Hardle, W. and Simar, L (2015). Applied multivariate statistical analysis, 4th edition.</em></li>
+  <li><em>Hastie, T. Tibshirani, R. and Friedman, J. (2009). The elements of statistical learning, 2nd edition</em></li>
+</ul>
+
+<h2 id="1-几何观点">1. 几何观点</h2>
+<h3 id="11-距离">1.1 距离</h3>
+
+<ul>
+  <li>
+    <p>两个向量 $x,y\in \mathbb R^p$ 之间的 <strong>欧几里得距离 (Euclidian distance)</strong> $d(x,y)$ 被定义为：</p>
+
+\[d(x,y)=\sqrt{\sum_{i=1}^{p}(x_i-y_i)^2}=\sqrt{(x-y)^{\mathrm T}(x-y)}\]
+
+    <p>二维空间 $\mathbb R^2$ 中的例子，其中 $x=(x_1,x_2)$，$y=(y_1,y_2)$：</p>
+
+    <p><img src="http://andy-blog.oss-cn-beijing.aliyuncs.com/blog/2020-08-25-WX20200825-142548%402x.png" width="50%" /></p>
+
+    <p><span><center> <span style="font-size:10pt"> <span style="color:steelblue;font-weight:bold">图 1</span>：距离 $d$</span></center></span></p>
+
+    <p><br /></p>
+  </li>
+  <li>
+    <p>该距离的一个 <strong>加权版本</strong> 可以被定义为：</p>
+
+\[d(x,y)=\sqrt{\sum_{i=1}^{p}w_i(x_i-y_i)^2}=\sqrt{(x-y)^{\mathrm T}\mathcal W(x-y)}\]
+
+    <p>其中，每个 $w_i&gt;0$，并且 $\mathcal W=\mathrm{diag}(w_1,\dots,w_p)$。</p>
+
+    <p><br /></p>
+  </li>
+  <li>
+    <p>这可以被进一步推广到下面的距离：</p>
+
+\[d(x,y)=\sqrt{(x-y)^{\mathrm T}\mathcal A(x-y)}\]
+
+    <p>其中，$\mathcal A$ 是一个 <strong>正定</strong> 矩阵。</p>
+  </li>
+</ul>
+
+<h3 id="12-范数">1.2 范数</h3>
+
+<ul>
+  <li>
+    <p>一个向量 $x\in \mathbb R^p$ 的 (欧几里得) <strong>范数 (Norm)</strong> 被定义为：</p>
+
+\[\|x\|=\sqrt{\sum_{i=1}^{p}x_i^2}=\sqrt{x^{\mathrm T}x}\]
+
+    <p><br /></p>
+  </li>
+  <li>
+    <p>一个 <strong>单位向量</strong> 是一个范数为 $1$ 的向量。</p>
+
+    <p><br /></p>
+  </li>
+  <li>
+    <p>可以推广到关于一个 <strong>正定</strong> 矩阵 $\mathcal A$ 的范数：</p>
+
+\[\|x\|_{\mathcal A}=\sqrt{x^{\mathrm T}\mathcal A x}\]
+  </li>
+</ul>
+
+<h3 id="13-两个向量的夹角">1.3 两个向量的夹角</h3>
+
+<ul>
+  <li>
+    <p>两个向量 $x,y\in \mathbb R^p$ 之间的夹角 $\theta$ 由 $\theta$ 的余弦值定义：</p>
+
+\[\cos(\theta)=\dfrac{x^{\mathrm T}y}{\|x\|\|y\|}\]
+
+    <p>在二维空间 $\mathbb R^2$ 中的例子：</p>
+
+    <p><img src="http://andy-blog.oss-cn-beijing.aliyuncs.com/blog/2020-08-25-WX20200825-151458%402x.png" width="70%" /></p>
+
+    <p><span><center> <span style="font-size:10pt"> <span style="color:steelblue;font-weight:bold">图 2</span>：向量夹角和投影</span></center></span></p>
+
+    <p><br /></p>
+  </li>
+  <li>
+    <p>根据三角学我们知道，在角 $C$ 为直角的直角三角形 $ABC$ 中，角 $A$ 的余弦值等于 $AC$ 段的长度 $b$ 除以 $AB$ 段的长度 $c$，因此</p>
+
+\[\cos(\theta)=\dfrac{p_x}{\|x\|}\]
+
+    <p>其中，$p_x$ 被称为 $x$ 在 $y$ 上的 <strong>投影 (Projection)</strong>。回归之前的两个向量夹角的余弦定义，我们可以计算出 $p_x$ 为：</p>
+
+\[p_x=\cos(\theta)\|x\|=\dfrac{x^{\mathrm T}y}{\|y\|}\]
+  </li>
+</ul>
+
+<h3 id="14-旋转">1.4 旋转</h3>
+
+<ul>
+  <li>
+    <p>对于 $p$ 维空间 $\mathbb R^p$ 中的向量，我们通常使用 <strong>$p$ 轴系统</strong> 来描述它们，并给出 $x$ 在该 $p$ 坐标系中的坐标。</p>
+
+    <p><br /></p>
+  </li>
+  <li>
+    <p>在多元统计学中，有时将轴 (所有轴同时) <strong>旋转</strong> 一个角度 $\theta$ 会很有用，可以通过这种方式创建一个新的 $p$ 轴坐标系。</p>
+
+    <p><img src="http://andy-blog.oss-cn-beijing.aliyuncs.com/blog/2020-08-25-WX20200825-184452%402x.png" width="80%" /></p>
+
+    <p><span><center> <span style="font-size:10pt"> <span style="color:steelblue;font-weight:bold">图 3</span>：坐标轴旋转</span></center></span></p>
+
+    <p><br /></p>
+  </li>
+  <li>
+    <p>在二维空间 $\mathbb R^2$ 中，我们可以通过 <strong>正交矩阵</strong> 来描述一个角度为 $\theta$ 的旋转：</p>
+
+\[\Gamma = \begin{pmatrix}\cos(\theta) &amp; \sin(\theta) \\ -\sin(\theta) &amp; \cos(\theta)\end{pmatrix}\]
+
+    <p>具体来说，如果坐标轴的原始集合 <strong>以原点为中心逆时针旋转</strong> 一个角度 $\theta$，则原始坐标轴系统中坐标为 $x$ 的点的新坐标 $y$ 为：</p>
+
+\[y=\Gamma x\]
+
+    <p>如果是 <strong>顺时针旋转</strong>，则为：</p>
+
+\[y=\Gamma^{\mathrm T}x\]
+
+    <p><br /></p>
+  </li>
+  <li>
+    <p>更一般地，在向量 $x$ 左边乘以一个 <strong>正交矩阵</strong> $\Gamma$ 在几何上对应于坐标轴系统的一次旋转。</p>
+  </li>
+</ul>
+
+<h2 id="2-均值协方差和相关系数">2. 均值、协方差和相关系数</h2>
+
+<h3 id="21-均值">2.1 均值</h3>
+
+<ul>
+  <li>
+    <p>一个随机向量 $X=(X_1,\dots,X_p)^{\mathrm T}$ 的 <strong>均值 (Mean)</strong> $\mu\in \mathbb R^p$ 被定义为：</p>
+
+\[\mu=\begin{pmatrix}\mu_1 \\ \vdots \\ \mu_p\end{pmatrix}=\begin{pmatrix}E(X_1) \\ \vdots \\ E(X_p)\end{pmatrix}\]
+
+    <p><br /></p>
+  </li>
+  <li>
+    <p>在实践中，我们无法计直接对 $\mu$ 进行计算 (因为我们无法观测到总体)，但是我们可以根据来自一个样本 $X_1,\dots,X_n$ 的 <strong>样本均值</strong> 来估计它：</p>
+
+\[\overline X=\begin{pmatrix}\overline X_1 \\ \vdots \\ \overline X_p\end{pmatrix}\]
+
+    <p>其中，对于 $j=1,\dots,p$，</p>
+
+\[\overline X_j = \dfrac{1}{n}\sum_{i=1}^{n}X_{ij}\]
+
+    <p>是第 $j$ 个变量 $X_j$ 的样本均值。</p>
+
+    <p><br /></p>
+  </li>
+  <li>
+    <p>回顾矩阵 $\mathcal X$ 的表示形式：</p>
+
+\[\mathcal X=\begin{pmatrix}
+X_{11} &amp; \cdots &amp; X_{1p} \\
+X_{21} &amp; \cdots &amp; X_{2p} \\
+&amp; \vdots &amp; \\
+X_{n1} &amp; \cdots &amp; X_{np}
+\end{pmatrix}\]
+
+    <p>以及一个长度为 $n$ 的列向量 $1_n=(1,\dots,1)^{\mathrm T}$。我们可以将 $\overline X$ 表示为 <strong>矩阵形式</strong>：</p>
+
+\[\overline X=n^{-1}\mathcal X^{\mathrm T}1_n\]
+  </li>
+</ul>
+
+<h3 id="22-协方差矩阵">2.2 协方差矩阵</h3>
+
+<ul>
+  <li>
+    <p>两个随机变量 $X$ 和 $Y$ 之间的 <strong>协方差 (Covariance)</strong> $\sigma_{XY}$ 是这两个随机变量之间的 <strong>线性依赖性 (linear dependence)</strong> 的一种度量：</p>
+
+\[\sigma_{XY}=\mathrm{Cov}(X,Y)=E(XY)-E(X)E(Y)\]
+
+    <ul>
+      <li>$\sigma_{XX}=\mathrm{Var}(X)$</li>
+      <li>如果 $X$ 和 $Y$ 彼此独立，则 $\sigma_{XY}=0$</li>
+      <li>但是反之则不然，$\sigma_{XY}=0$ 并不意味着 $X$ 和 $Y$ 彼此独立 (有可能存在非线性依赖)</li>
+    </ul>
+
+    <p><img src="http://andy-blog.oss-cn-beijing.aliyuncs.com/blog/2020-08-25-WX20200825-163248%402x.png" width="80%" /></p>
+
+    <p><span><center> <span style="font-size:10pt"> <span style="color:steelblue;font-weight:bold">图 4</span>：协方差为正</span></center></span></p>
+
+    <p><br /></p>
+
+    <p><img src="http://andy-blog.oss-cn-beijing.aliyuncs.com/blog/2020-08-25-WX20200825-164617%402x.png" width="80%" /></p>
+
+    <p><span><center> <span style="font-size:10pt"> <span style="color:steelblue;font-weight:bold">图 5</span>：协方差为负</span></center></span></p>
+
+    <p><br /></p>
+  </li>
+  <li>
+    <p>如果 $X=(X_1,\dots,X_p)^{\mathrm T}$ 是一个 $p$ 维随机向量，我们可以计算每一对 $X_i$ 和 $X_j$ 之间的协方差，并将所有结果汇总到一个 $p\times p$ 的 <strong>协方差矩阵</strong> $\Sigma$ 中：</p>
+
+\[\Sigma = \begin{pmatrix}\sigma_{X_1X_1} &amp; \cdots &amp; \sigma_{X_1X_p} \\ &amp; \vdots &amp; \\ \sigma_{X_pX_1} &amp; \cdots &amp; \sigma_{X_pX_p}\end{pmatrix}= \begin{pmatrix}\sigma_{11} &amp; \cdots &amp; \sigma_{1p} \\ &amp; \vdots &amp; \\ \sigma_{p1} &amp; \cdots &amp; \sigma_{pp}\end{pmatrix}\]
+
+    <ul>
+      <li>我们可以将 $X$ 的协方差记为 $\Sigma_X$</li>
+      <li>注意 $\Sigma$ 是对称的：$\Sigma=\Sigma^{\mathrm T}$</li>
+      <li>
+        <p>在 <strong>矩阵表示</strong> 下，我们可以将其写为：</p>
+
+\[\Sigma=E\{(X-\mu)(X-\mu)^{\mathrm T}\}\]
+
+        <p>其中，$X$ 和 $\mu$ 被写成 $p$ 维列向量。</p>
+      </li>
+    </ul>
+
+    <p><br /></p>
+  </li>
+  <li>
+    <p>在实践中，我们无法直接计算 $\Sigma$，但是我们可以根据来自一个样本 $X_1,\dots,X_n$ 的 <strong>样本协方差矩阵</strong> 来估计它：</p>
+
+\[\mathcal S=\begin{pmatrix}s_{X_1X_1} &amp; \cdots &amp; s_{X_1X_p} \\ &amp; \vdots &amp; \\ s_{X_pX_1} &amp; \cdots &amp; s_{X_pX_p}\end{pmatrix}= \begin{pmatrix}s_{11} &amp; \cdots &amp; s_{1p} \\ &amp; \vdots &amp; \\ s_{p1} &amp; \cdots &amp; s_{pp}\end{pmatrix}\]
+
+    <p>其中，对于 $j,k=1,\dots,p$，</p>
+
+\[s_{X_jX_k}=s_{jk}=\dfrac{1}{n-1}\sum_{i=1}^{n}(X_{ij}-\overline X_j)(X_{ik}-\overline X_k)\]
+
+    <p>是变量 $X_j$ 和 $X_k$ 之间的样本协方差。</p>
+
+    <ul>
+      <li>注意 $\mathcal S$ 是 <strong>对称的</strong> ($\mathcal S=\mathcal S^{\mathrm T}$) 和 <strong>半正定的</strong>。</li>
+    </ul>
+
+    <p><br /></p>
+  </li>
+  <li>
+    <p>在 <strong>矩阵表示</strong> 下，我们可以将其写为：</p>
+
+\[\mathcal S=\dfrac{1}{n-1}\mathcal X^{\mathrm T}\mathcal X-\dfrac{n}{n-1}\overline X \,\overline X^{\mathrm T}\]
+
+    <p>其中，$\mathcal X$ 是 $n\times p$ 的数据矩阵，$\overline X$ 被写成 $p$ 维列向量。</p>
+
+    <ul>
+      <li>提示：请始终检查矩阵尺寸是否兼容 (即矩阵乘积是否有意义等)。</li>
+    </ul>
+  </li>
+</ul>
+
+<h3 id="23-相关系数矩阵">2.3 相关系数矩阵</h3>
+
+<ul>
+  <li>
+    <p>协方差矩阵的问题：它不是 <strong>单位不变的 (unit invariant)</strong>。如果我们更改变量的度量单位，则协方差也会随之更改。</p>
+
+    <p><br /></p>
+  </li>
+  <li>
+    <p><strong>相关系数 (Correlation)</strong> 是单位不变的线性相关性的量度。</p>
+
+    <p><br /></p>
+  </li>
+  <li>
+    <p>一个 $p$ 维随机向量 $X=(X_1,\dots,X_p)^{\mathrm T}$ 的 <strong>相关系数矩阵</strong> $\mathcal P$ 是一个 $p\times p$ 的矩阵，其定义如下：</p>
+
+\[\mathcal P=\begin{pmatrix}1 &amp; \rho_{12} &amp; \cdots &amp; \rho_{1p} \\ \rho_{21} &amp; 1 &amp; \cdots &amp; \rho_{2p} \\ &amp; \vdots &amp; &amp; \\ \rho_{p1} &amp; \rho_{p2} &amp; \cdots &amp; 1\end{pmatrix}\]
+
+    <p>其中，</p>
+
+\[\rho_{ij}=\dfrac{\sigma_{ij}}{\sqrt{\sigma_{ii}\sigma_{jj}}}\]
+
+    <p>是变量 $X_i$ 和 $X_j$ 之间的相关系数。</p>
+
+    <ul>
+      <li>我们总是有 $-1\le \rho_{ij} \le 1$</li>
+      <li>$\rho_{ij}$ 是变量 $X_i$ 和 $X_j$ 之间 <strong>线性关系</strong> 的一种度量</li>
+      <li>$|\rho_{ij}|=1$ 意味着完美线性关系</li>
+      <li>$\rho_{ij}=0$ 意味着不存在线性关系，但是这并不能说明两者是独立的</li>
+    </ul>
+
+    <p><br /></p>
+
+    <p><img src="http://andy-blog.oss-cn-beijing.aliyuncs.com/blog/2020-08-25-WX20200825-182153%402x.png" width="80%" /></p>
+
+    <p><span><center> <span style="font-size:10pt"> <span style="color:steelblue;font-weight:bold">图 6</span>：线性关系</span></center></span></p>
+
+    <p><br /></p>
+
+    <p><img src="http://andy-blog.oss-cn-beijing.aliyuncs.com/blog/2020-08-25-WX20200825-182213%402x.png" width="80%" /></p>
+
+    <p><span><center> <span style="font-size:10pt"> <span style="color:steelblue;font-weight:bold">图 7</span>：非线性关系</span></center></span></p>
+
+    <p><br /></p>
+  </li>
+  <li>
+    <p>在 <strong>矩阵表示</strong> 下，我们可以将其写为：</p>
+
+\[\mathcal P=\mathcal D^{-1/2}\Sigma \mathcal D^{-1/2}\]
+
+    <p>其中，$\Sigma$ 是 $p\times p$ 的协方差矩阵，而</p>
+
+\[\mathcal D=\mathrm{diag}(\sigma_{11},\dots,\sigma_{pp})\]
+
+    <p>是 $p\times p$ 的对角矩阵，其对角线上的元素就是每个变量的方差。</p>
+
+    <p><br /></p>
+  </li>
+  <li>
+    <p>在实践中，我们无法直接计算 $\mathcal P$，但是我们可以根据来自一个样本 $X_1,\dots,X_n$ 的 <strong>样本相关系数矩阵</strong> 来估计它：</p>
+
+\[\mathcal R = \begin{pmatrix}r_{11} &amp; \cdots &amp; r_{1p} \\ &amp; \vdots &amp; \\ r_{p1} &amp; \cdots &amp; r_{pp}\end{pmatrix}\]
+
+    <p>其中，对于 $j,k=1,\dots,p$，</p>
+
+\[r_{jk}=\dfrac{s_{jk}}{\sqrt{s_{jj}s_{kk}}}\]
+
+    <p>是变量 $X_i$ 和 $X_j$ 之间的样本相关系数。</p>
+
+    <p><br /></p>
+  </li>
+  <li>
+    <p>在 <strong>矩阵表示</strong> 下，我们可以将其写为：</p>
+
+\[\mathcal R=\mathcal D^{-1/2}\mathcal S \mathcal D^{-1/2}\]
+
+    <p>其中，$\mathcal S$ 是 $p\times p$ 的样本协方差矩阵，而</p>
+
+\[\mathcal D=\mathrm{diag}(s_{11},\dots,s_{pp})\]
+
+    <p>是 $p\times p$ 的对角矩阵，其对角线上的元素就是每个变量的样本方差。</p>
+  </li>
+</ul>
+
+<h3 id="24-线性变换">2.4 线性变换</h3>
+
+<p>令 $X=(X_1,\dots,X_p)^{\mathrm T}$ 为一个 $p$ 维向量，$Y$ 是一个 $q$ 维向量，其定义如下：</p>
+
+\[Y=\mathcal A X + b\]
+
+<p>其中，$\mathcal A$ 是一个 $q\times p$ 的矩阵，$b$ 是一个 $q\times 1$ 的向量。那么，我们有：</p>
+
+\[\begin{align}
+E(Y) &amp;= \mathcal A E(X) +b \\[2ex]
+\overline Y &amp;= \mathcal A \overline X +b \\[2ex]
+\Sigma_Y &amp;= \mathcal A \Sigma_X \mathcal A^{\mathrm T} \\[2ex]
+\mathcal S_Y &amp;= \mathcal A \mathcal S_X \mathcal A^{\mathrm T}
+\end{align}\]
+
+<ul>
+  <li>提示：为了知道转置矩阵放置的位置，请始终检查矩阵尺寸是否兼容。</li>
+</ul>
+
+<p>下节内容：多元分布</p>
+:ET

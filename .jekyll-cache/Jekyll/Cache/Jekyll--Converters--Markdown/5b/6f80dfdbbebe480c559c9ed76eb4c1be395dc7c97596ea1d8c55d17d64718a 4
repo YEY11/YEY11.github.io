@@ -1,0 +1,412 @@
+I"�\<h1 id="lecture-01-常见数据库类型和架构">Lecture 01 常见数据库类型和架构</h1>
+
+<p><strong>参考教材</strong>：<em>Transaction Processing: Concepts and Techniques, Jim Gray and Andreas Reuter, Morgan Kaufmann, 1993</em></p>
+
+<h2 id="1-课程概览">1. 课程概览</h2>
+<h3 id="11-课程描述">1.1 课程描述</h3>
+<p>所有成功的公司和组织都依赖于对数据的有效处理。</p>
+
+<p><img src="http://andy-blog.oss-cn-beijing.aliyuncs.com/blog/2020-07-11-WX20200711-211437%402x.png" width="50%" /></p>
+
+<p>一个数据库系统必须提供：</p>
+<ul>
+  <li>安全可靠的数据存储</li>
+  <li>能够非常高效地检索和处理数据</li>
+</ul>
+
+<p>在这门课中，我们将主要涉及以下内容：</p>
+<ul>
+  <li>关于数据库系统如何在架构级别上工作的知识</li>
+  <li>实现正确行为和最佳性能的必要条件</li>
+  <li>当前系统用于提供有用功能的机制</li>
+  <li>实现可靠性所需要的技术</li>
+</ul>
+
+<p><img src="http://andy-blog.oss-cn-beijing.aliyuncs.com/blog/2020-07-11-WX20200711-212202%402x.png" width="60%" /></p>
+
+<h3 id="12-主要内容">1.2 主要内容</h3>
+<ul>
+  <li>导论</li>
+  <li>数据库架构（以及对比）</li>
+  <li>事务处理过程（Transaction processing）
+    <ul>
+      <li>ACID 特性</li>
+      <li>锁（Locking）</li>
+      <li>扁平事务和嵌套事务（Flat and nested transactions）</li>
+      <li>死锁检测和管理（Deadlock detection and management）</li>
+      <li>数据恢复（Data recovery）</li>
+      <li>性能基准（Performance benchmarks）</li>
+    </ul>
+  </li>
+</ul>
+
+<h2 id="2-一个数据库系统的性能">2. 一个数据库系统的性能</h2>
+
+<p><img src="http://andy-blog.oss-cn-beijing.aliyuncs.com/blog/2020-07-11-WX20200711-214518%402x.png" width="60%" /></p>
+
+<p><strong>硬件</strong>：</p>
+<ul>
+  <li>处理器的速度</li>
+  <li>处理器的数量</li>
+  <li>磁盘驱动器数量和 I/O 带宽</li>
+  <li>主存储器大小</li>
+  <li>通讯网络</li>
+  <li>架构类型</li>
+</ul>
+
+<p><strong>软件</strong>：</p>
+<ul>
+  <li>对于一个给定的应用程序，所使用的数据库技术的类型。</li>
+</ul>
+
+<p><strong>数据库调优</strong>：</p>
+<ul>
+  <li>索引</li>
+  <li>维护的视图</li>
+  <li>连接索引</li>
+  <li>数据复制等等</li>
+</ul>
+
+<p>任何应用程序的性能都可以通过结合以下各项措施得到提升：</p>
+<ul>
+  <li>应用已知的许多成熟技术</li>
+  <li>了解底层基础架构</li>
+  <li>在研究和基准测方面投入时间，以了解哪种方法能够产生最佳效果</li>
+  <li>使用尽可能多的工具来监视和调整系统性能</li>
+  <li>培训：培训应用程序、数据库和系统人员</li>
+</ul>
+
+<h2 id="3-数据库技术">3. 数据库技术</h2>
+<h3 id="31-将数据存储为简单文件">3.1 将数据存储为简单文件</h3>
+<ul>
+  <li>通常对于简单应用程序非常快，但是对于复杂应用程序可能很慢</li>
+  <li>可靠性较差</li>
+  <li>其优化依赖于应用程序</li>
+  <li>非常难以维护，存在 <strong>并发问题 (concurrency problems)</strong></li>
+  <li>还有许多（关系型数据库中所提供的）必需的功能需要加入，容易导致不必要的代码开发以及潜在的不可靠性增加</li>
+</ul>
+
+<h3 id="32-关系型数据库系统-relational-database-systems-rdb">3.2 关系型数据库系统 (Relational Database Systems, RDB)</h3>
+<ul>
+  <li>成熟的技术（将近 40 多年）</li>
+  <li>对于某些简单的应用程序可能很慢</li>
+  <li>可靠性非常好</li>
+  <li>优化独立于应用程序</li>
+  <li>非常适合许多与商务和其他领域相关的应用程序，并且由于采用大型主存储机和 SSD，其速度变得非常快</li>
+  <li>如今，有了更好的实施和优化技术，使得这类系统在商业之外的许多其他领域也具有非常广泛的应用</li>
+  <li>一些 RDB 还支持面向对象模型 (Object Oriented model)，例如 Oracle，DB2。</li>
+  <li>许多应用程序使用 RDB</li>
+  <li>
+    <p>例如：
+<img src="http://andy-blog.oss-cn-beijing.aliyuncs.com/blog/2020-07-11-WX20200711-225804%402x.png" width="80%" /></p>
+
+    <p>在 RDB 中，每个表都有一列作为主键（primary key），每一行的主键都是唯一的。</p>
+  </li>
+</ul>
+
+<h3 id="33-面向对象数据库系统-object-oriented-database-systems-oodbs">3.3 面向对象数据库系统 (Object Oriented Database Systems, OODBS)</h3>
+<ul>
+  <li>在某些应用上可能会很慢</li>
+  <li>可靠性好</li>
+  <li>有限的独立于应用程序的优化，尽管一些新的开发技术能够使其非常适合</li>
+  <li>非常适合需要复杂数据的应用</li>
+  <li>基于 XML 的数据库系统正在占据主导地位</li>
+  <li>现在许多应用程序都使用 XML 文档</li>
+  <li>一些 RDB 还支持某些有限的面向对象模型和 XML 结构，以及 XML 查询处理</li>
+  <li>不幸的是，早先的许多商用系统没能幸免于 RDB 技术的影响，而基本上都从市场上消失了</li>
+  <li>
+    <p>例如：</p>
+
+    <div class="language-xml highlighter-rouge"><div class="highlight"><pre class="highlight"><code><table class="rouge-table"><tbody><tr><td class="rouge-gutter gl"><pre class="lineno">1
+2
+3
+4
+5
+6
+7
+8
+9
+10
+11
+12
+13
+14
+15
+16
+</pre></td><td class="rouge-code"><pre><span class="nt">&lt;student&gt;</span>
+    <span class="nt">&lt;ID</span> <span class="err">=</span> <span class="err">1001</span><span class="nt">&gt;</span>
+    <span class="nt">&lt;Name</span> <span class="err">=</span> <span class="err">John</span><span class="nt">&gt;</span>
+    <span class="nt">&lt;Subject</span> <span class="err">=</span> <span class="err">COMP90050</span><span class="nt">&gt;</span>
+<span class="nt">&lt;/student&gt;</span>
+
+<span class="nt">&lt;student&gt;</span>
+    <span class="nt">&lt;ID</span> <span class="err">=</span> <span class="err">1001</span><span class="nt">&gt;</span>
+    <span class="nt">&lt;Name</span> <span class="err">=</span> <span class="err">Bob</span><span class="nt">&gt;</span>
+    <span class="nt">&lt;Subject</span> <span class="err">=</span> <span class="err">COMP90042</span><span class="nt">&gt;</span>
+<span class="nt">&lt;/student&gt;</span>
+
+<span class="nt">&lt;student&gt;</span>
+    <span class="nt">&lt;Name</span> <span class="err">=</span> <span class="err">Alice</span><span class="nt">&gt;</span>
+    <span class="nt">&lt;Subject</span> <span class="err">=</span> <span class="err">COMP90051</span><span class="nt">&gt;</span>
+<span class="nt">&lt;/student&gt;</span>
+</pre></td></tr></tbody></table></code></pre></div>    </div>
+
+    <p>可以看到，XML 类似于 RDB 中的表，对于大多数应用程序，二者都可以胜任。不同的是，XML 中对于属性的约束要少一些，例如，不同对象的属性（例如：<code class="language-plaintext highlighter-rouge">ID</code>）可以重复，甚至缺失。在很多情况下，我们无需指定作为主键的属性。</p>
+  </li>
+</ul>
+
+<h3 id="34-演绎数据库系统-deductive-database-systems-ddbs">3.4 演绎数据库系统 (Deductive Database Systems, DDBS)</h3>
+<ul>
+  <li>演绎数据库系统是关系型数据库系统的一种泛化，例如，这些系统允许递归。</li>
+  <li>大多数应用程序可以完全使用 DDBS 进行开发</li>
+  <li>并没有像 RDB 这样的可用的商用系统</li>
+  <li>许多应用程序并不需要这类系统所提供的表达能力（例如，许多与商业相关的应用程序）</li>
+  <li>许多 RDB 确实提供了演绎数据库系统的某些功能，例如，支持传递闭包操作（SQL2 中的一种递归形式）。</li>
+  <li>例如：
+    <ul>
+      <li>$\text{path}(X,Y)\text{ :- edge}(X,Y)$<br />
+如果节点 $X$ 和 $Y$ 之间存在一条边，那么存在一条从节点 $X$ 到 $Y$ 的路径。</li>
+      <li>$\text{path}(X,Y)\text{ :- edge}(X,Z),\text{path}(Z,Y)$<br />
+同理，如果节点 $X$ 和 $Z$ 之间存在一条边，并且存在一条从节点 $Z$ 到 $Y$ 的路径，那么，存在一条从节点 $X$ 到 $Y$ 的路径。</li>
+    </ul>
+
+    <p>这意味着如果在数据库的对象之间存在递归关系，并且我们知道它们之间的逻辑关系，那么，我们不需要直接在表的行中写出其记录，我们可以只是定义这种关系，而数据库会自动给出关于这些对象的记录或者信息。但是，正如上面提到的，目前并没有任何关于这种演绎数据库系统的商用实现，大部分情况下，它是作为 RDB 中的某些功能项存在的。</p>
+  </li>
+</ul>
+
+<h3 id="35-基于键值对的数据库系统-key-value-pair-based-database-systems">3.5 基于键值对的数据库系统 (Key-Value Pair-Based Database Systems)</h3>
+<ul>
+  <li>用于构建非常快速、高度并行的大数据处理</li>
+  <li>MapReduce 和 Hadoop 是典型例子</li>
+  <li>例如：哈希表，我们有一些学生 ID，每个 ID 对应一个姓名。</li>
+  <li>许多应用程序不需要事务处理的表达功能，例如，网络搜索，使用 MapReduce 技术进行大数据分析。</li>
+  <li>原子性（Atomic）更新仅发生在键值对级别（行更新）。</li>
+</ul>
+
+<h3 id="36-nosql-有时也被称为-not-only-sql">3.6 NoSQL (有时也被称为 Not Only SQL)</h3>
+<ul>
+  <li>灵活/无固定模式（与 RDB 不同）</li>
+  <li>提供了一种用于存储和检索数据的机制，该机制的建模方式不同于关系数据库中所使用的表格关系</li>
+  <li>该模型是 Web2.0 的结果，Facebook，Amazon 等系统应用程序都有相应的需求。</li>
+  <li>设计简单，可以根据 CPU 数量进行线性扩展，并可以适应可变的工作负载</li>
+  <li>NoSQL 存储时 <strong>对一致性 (consistency) 进行了妥协</strong>（就 CAP 定理而言），以提高可用性、分区容限和速度。允许复制，并且通常会保留 3-4 个副本。我们将在后面再讨论这一点。</li>
+  <li>大多数 NoSQL 数据库提供了 <strong>“最终一致性 (eventual consistency)”</strong> 的概念，其中数据库的更改 “最终”（通常在毫秒内）会传播到所有节点，因此对数据的查询可能不会立即返回更新的数据，或者可能导致读取到不准确的数据，该问题被称为 <strong>过时读取 (stale reads)</strong>。</li>
+</ul>
+
+<h3 id="37-几种数据库系统的类型对比">3.7 几种数据库系统的类型对比</h3>
+
+<p>以下是我们讨论过的几种数据库系统类型的对比：</p>
+
+<p><img src="http://andy-blog.oss-cn-beijing.aliyuncs.com/blog/2020-07-11-WX20200711-233643%402x.png" /></p>
+
+<p>如果我们数据量很小，简单文件系统会非常快速，但是它非常难以维护。关系型数据库 (RDS) 应用最广泛，快速可靠，适用于大部分应用场景。还有很多应用采用面向对象数据库 (OODS)，速度方面比较慢，它也可以通过 RDS 实现。如果我们需要构建分布式系统和可扩展系统，意味着记录数量的增长速度可能非常快，这种情况下，键值对数据库会非常合适。如果我们对模式的灵活性需求较高，即我们没有固定数量的表，那么，我们可以采用 NoSQL，它在一致性方面进行了妥协，速度很快。演绎数据库支持记录间的逻辑关系，但是，并没有在任何商用系统上实现，通常只是作为其他类型数据库 (例如：RDS) 的附加特性。在一些其他参考资料中，我们可能还会看到一些其他类型的数据库，例如：图数据库。但是，图可以用对象表示，因此，我们可以在面向对象数据库中使用它们。以上就是在存储数据方面的几种最常见的数据库类型，这种分类方法是基于 <strong>数据的表示方式</strong>：我们可以将其视为表、对象或者键值对等等。</p>
+
+<h2 id="4-数据库架构">4. 数据库架构</h2>
+<p>现在，我们将看一下数据库的不同架构类别。简单来说，我们将数据储在多个硬盘上，根据这些硬盘的维护方式的不同，我们可以将其分为不同的数据库架构：它们是否都存储在同一个位置，或者分布式地存储在不同的位置，或者存储在网络上等等。</p>
+
+<p><img src="http://andy-blog.oss-cn-beijing.aliyuncs.com/blog/2020-07-12-WX20200712-170817%402x.png" /></p>
+
+<h3 id="41-集中式数据库系统">4.1 集中式数据库系统</h3>
+<ul>
+  <li>数据存储在一个位置</li>
+  <li>系统可能包含多个处理器</li>
+  <li>系统管理非常简单</li>
+  <li>优化过程通常非常高效</li>
+  <li>成熟的数据库技术</li>
+  <li>可能不适用于需要数据分发的应用程序</li>
+  <li>即便在当今，仍然是最主流的技术</li>
+  <li>典型例子包括：集群计算、数据农场、数据中心</li>
+</ul>
+
+<h3 id="42-客户端-服务器架构-使用一个集中式数据库服务器">4.2 客户端-服务器架构 (使用一个集中式数据库服务器)</h3>
+<ul>
+  <li>处理过程在客户端进程和服务器进程之间共享</li>
+  <li>客户端和服务器可能位于不同的位置</li>
+  <li>客户端通常提供用于输入和输出的用户界面</li>
+  <li>服务器提供所有必需的数据库功能</li>
+  <li>系统管理相对简单</li>
+  <li>系统恢复类似于集中式系统</li>
+</ul>
+
+<h3 id="43-分布式数据库系统">4.3 分布式数据库系统</h3>
+<ul>
+  <li>数据分布在多个节点上</li>
+  <li>节点通过某些通信网络连接</li>
+  <li>用户不需要知道数据的位置</li>
+  <li>系统提供必要的并发、恢复和事务处理</li>
+  <li>很难高效处理查询</li>
+  <li>事务处理效率很低</li>
+  <li>系统管理非常困难</li>
+  <li>崩溃后的系统恢复非常复杂</li>
+  <li>存在一些可以保障系统可靠性的潜在手段，例如数据复制，但是复制本身会引入一些新的问题：需要更多的存储、I/O 带宽、计算时间，以及复制数据集中潜在的不一致问题。需要更好的优化技术。</li>
+</ul>
+
+<h3 id="44-万维网">4.4 万维网</h3>
+<ul>
+  <li>数据存储在许多位置</li>
+  <li>无法保证数据一致性</li>
+  <li>数据存在多个所有者，因此在数据的可用性或一致性方面存在不确定性</li>
+  <li>优化过程通常非常低效</li>
+  <li>不断发展的数据库技术：除了 XML/http 和某些用于访问数据的协议之外，并没有发展出任何标准。</li>
+  <li>安全性可能是一个潜在问题</li>
+  <li>有许多可用于访问数据的来源：选择来源并不总是那么容易，信任问题是 WWW 中非常热门的研究主题。</li>
+  <li>使用非常方便</li>
+  <li>事务的概念很难执行</li>
+  <li>RDB 模型正渐渐出现在 WWW 系统中</li>
+</ul>
+
+<h3 id="45-网格计算数据库-云计算数据中心的前身">4.5 网格计算/数据库 (云计算/数据中心的前身)</h3>
+<ul>
+  <li>它们与分布式数据库系统非常相似，不同之处在于数据可以存储在标准文件系统中，并且可以通过专用应用程序直接访问数据。</li>
+  <li>数据和处理过程在一组可能在地理位置上分开的计算机系统之间共享</li>
+  <li>通常，数据库系统是为特定目的而设计的，例如：科学应用</li>
+  <li>此类系统的管理由系统的每个所有者在本地完成</li>
+  <li>目前没有通用系统</li>
+  <li>此类系统的可靠性和安全性尚未得到很好的开发或研究。</li>
+  <li>用户社区相对较小</li>
+  <li>网格系统模型或多或少已被云计算模型取代</li>
+</ul>
+
+<h3 id="46-p2p-数据库">4.6 P2P 数据库</h3>
+<ul>
+  <li>数据和处理过程在一组计算机系统之间共享，这些计算机系统可以在地理上分开，就像网格数据库系统中那样</li>
+  <li>与网格数据库不同，计算机节点可以随意加入和离开网络，但是这也导致在设计事务模型时要困难得多</li>
+  <li>需要数据复制以确保可靠性，但是会导致其他一些问题</li>
+  <li>通常，数据库系统是为特定用途而设计的，例如：科学应用</li>
+  <li>该系统的管理由数据所有者完成</li>
+  <li>与网格数据库系统不同，一个所有者的数据可以分布在多个节点之间</li>
+  <li>目前没有通用系统</li>
+  <li>这种系统的可靠性和安全性可能比网格数据库差，并且没有得到很好的研究。</li>
+  <li>P2P 可以提供更精细的粒度，因此可以允许更高的并行度。</li>
+</ul>
+
+<h3 id="47-云计算">4.7 云计算</h3>
+<p>云计算是 Internet 的一种扩展，以及网格计算的泛化，就像实用程序一样。</p>
+
+<p>云计算是目前该领域的研究和应用热点，并且在未来几年内将一直保持。</p>
+
+<p>这些公司值得投资吗？ MS，IBM 和 Amazon 在 2016 年的利润为 $68\%$，并且其云计算部门在 2019 年实现了巨额利润。</p>
+
+<p>云计算为可通过 Internet 访问的数据和设备提供在线计算，存储和一系列新服务。</p>
+
+<p>用户对于云计算服务的支付方式就像支付电话服务、电费、水费等一样方便。</p>
+
+<p>研究公司 Gartner 认为，云计算将在电子商务领域具有巨大影响力。日本正在将其家用互联网升级到 1GB，因为他们相信所有系统都将成为基于云的计算系统。</p>
+
+<p>除了提供存储数据的新方法外，云计算还提供了关于使用数据的新方法。</p>
+
+<ul>
+  <li>云计算中心将提供 1,000 至 4,000（甚至可能是百万）台计算机来支持数据密集型研究，并且在必要时可以将它们全部连接在一起。</li>
+  <li>很少有教育/研究/政府机构能够负担得起独自经营它们的费用。</li>
+  <li>云计算将是下一个真正重要的事情，而其在未来十年将要启用的服务前景不可限量。</li>
+  <li>与当今不同，云计算在以最低的基础架构成本开发许多应用程序方面具有巨大潜力。</li>
+</ul>
+
+<p>提供多种形式的云服务：</p>
+<ul>
+  <li><strong>Iaas</strong>：基础架构即服务（提供虚拟机）</li>
+  <li><strong>Paas</strong>：平台即服务（提供 Linux，Windows 等环境）</li>
+  <li><strong>Saas</strong>：软件即服务（特定的应用程序，如 RDB，Mail 等）</li>
+</ul>
+
+<h3 id="48-云计算案例亚马逊网络服务-aws">4.8 云计算案例：亚马逊网络服务 AWS</h3>
+
+<p><img src="http://andy-blog.oss-cn-beijing.aliyuncs.com/blog/2020-07-12-WX20200712-165513%402x.png" width="70%" /></p>
+
+<p><strong>云计算的属性</strong>：</p>
+<ul>
+  <li>没有资本支出</li>
+  <li>即用即付，仅需要支付使用的部分</li>
+  <li>真正的弹性能力，规模的扩展和缩减非常方便</li>
+  <li>缩短上市时间</li>
+  <li>你可以将工程资源集中在使你与众不同的方面，而不是管理那些大同小异的基础设施资源</li>
+</ul>
+
+<p><strong>弹性服务和即用即付设施</strong>：</p>
+
+<p><img src="http://andy-blog.oss-cn-beijing.aliyuncs.com/blog/2020-07-12-WX20200712-170413%402x.png" width="70%" /></p>
+
+<p><strong>例子：Amazon EC2 上的华尔街应用</strong>：</p>
+
+<p><img src="http://andy-blog.oss-cn-beijing.aliyuncs.com/blog/2020-07-12-WX20200712-170638%402x.png" width="70%" /></p>
+
+<p><strong>亚马逊弹性计算云 (Amazon EC2)</strong>：</p>
+
+<p><img src="http://andy-blog.oss-cn-beijing.aliyuncs.com/blog/2020-07-12-WX20200712-170930%402x.png" width="70%" /></p>
+
+<ul>
+  <li>Amazon EC2 $=$ 虚拟机</li>
+  <li>Amazon EC2：按需计算力
+    <ul>
+      <li>在几分钟内获取并启动新的服务器实例</li>
+      <li>快速扩张或减少规模</li>
+      <li>每小时服务费用 0.02 美元（2 美分）起步</li>
+      <li>按需、保留、实时计算价格</li>
+    </ul>
+  </li>
+  <li>关键特性：
+    <ul>
+      <li>支持 Windows，Linux，FreeBSD 和 OpenSolaris</li>
+      <li>支持所有主流网络和应用平台</li>
+      <li>跨可用性区域进行部署以提高可靠性</li>
+      <li>监控状态和用量</li>
+    </ul>
+  </li>
+</ul>
+
+<p><strong>亚马逊弹性块存储 (Amazon EBS)</strong>：</p>
+
+<p><img src="http://andy-blog.oss-cn-beijing.aliyuncs.com/blog/2020-07-12-WX20200712-172217%402x.png" width="70%" /></p>
+
+<ul>
+  <li>你可以像在一台物理服务器上使用硬盘一样来使用 Amazon EBS</li>
+  <li>Amazon EBS 特别适合用作文件系统、数据库或者任何需要精细更新并访问原始、未格式化块级存储的应用程序的主存储。</li>
+</ul>
+
+<p><strong>亚马逊简单存储服务 (Amazon S3)</strong>：</p>
+
+<p><img src="http://andy-blog.oss-cn-beijing.aliyuncs.com/blog/2020-07-12-WX20200712-173853%402x.png" width="70%" /></p>
+
+<ul>
+  <li>
+    <p>在传统的本地应用程序中，此类数据通常将保存在 <strong>存储区域网络 (Storage Area Network, SAN)</strong> 或者 <strong>网络附属存储 (Network Attached Storage, NAS)</strong> 上。但是，基于云的机制（如 Amazon S3）要更加敏捷、灵活和地理冗余。</p>
+  </li>
+  <li>
+    <p>Amazon S3 是高度可扩展、高耐用性和可用性的分布式对象存储，是为关键任务和主要数据存储设计的，具有易于使用的 Web 服务界面。</p>
+  </li>
+</ul>
+
+<p><strong>亚马逊关系型数据库服务 (Amazon RDS)</strong></p>
+
+<p><img src="http://andy-blog.oss-cn-beijing.aliyuncs.com/blog/2020-07-12-WX20200712-215634%402x.png" width="70%" /></p>
+
+<ul>
+  <li>Amazon RDS $=$ MySQL 和 Oracle 11g 管理数据库</li>
+  <li>Amazon RDS 使常见的管理任务自动化，以降低复杂性和总拥有成本。Amazon RDS 自动备份你的数据库并维护你的数据库软件，使你可以将更多时间花在应用程序开发上。</li>
+</ul>
+
+<p><br /></p>
+
+<p><strong>思考题：</strong></p>
+
+<p>澳大利亚天气服务系统在墨尔本地区安装了许多传感器，每个传感器中都有一个内置的小型计算设备。这些计算设备负责存储和管理各自的传感器数据。当传感器记录到某个异常数据时，它将和附近的其他传感器连入一个 Ad-hoc Network (无线自组网络) 中，共享数据以进行比较，然后它们将断开连接。请问在这种场景下，下面哪种数据库架构是最合适的选择？</p>
+
+<p>A. 云存储<br />
+B. P2P 数据库<br />
+C. 分布式数据库<br />
+D. 集中式数据库</p>
+
+<p><strong>答案</strong>：B</p>
+
+<p><strong>分析</strong>：</p>
+
+<p>A. 云存储：如果有一个云服务器，那么这些传感器可以将数据上传到云上，云服务器将基于这些数据完成计算过程，并且将结果的差异报告返回给传感器，这是云存储的适用场景。而题目中给出的场景并不符合这些条件。</p>
+
+<p>C. 分布式数据库：传感器分布在不同的地理位置，但是每个传感器的数据由各自的计算设备管理，题目中并没有提供一个分布式的管理系统来管理这些不同传感器上的数据，因此，这种场景下，分布式数据库并不适用。</p>
+
+<p>D. 集中式数据库：由于传感器数据分布在不同的地理位置，因此，集中式数据库不适用。</p>
+
+<p>B. P2P 数据库：计算设备可以随时加入或者离开网络，这一点上，P2P 数据库符合题目要求。Ad-hoc Network 被用于位于不同地理位置的传感器之间的共享数据，P2P 数据库同样可以满足这点。因此，P2P 数据库是最合适的选择。</p>
+
+<p>下节内容：数据的访问、存储和事务处理基础</p>
+:ET

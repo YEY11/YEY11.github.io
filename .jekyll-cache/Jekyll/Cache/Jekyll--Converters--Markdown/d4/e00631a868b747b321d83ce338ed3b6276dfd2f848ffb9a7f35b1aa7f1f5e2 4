@@ -1,0 +1,578 @@
+I"j~<h1 id="lecture-10-分布语义学">Lecture 10 分布语义学</h1>
+
+<p>这节课我们继续学习语义学相关内容，这次我们不再关注单词层面的语义学，而是从语料库中直接学习单词含义，这个领域也被称为 <strong>分布语义学（Distributional Semantics）</strong>。</p>
+
+<h2 id="1-分布语义学">1. 分布语义学</h2>
+<h3 id="11-词汇数据库的问题">1.1 词汇数据库的问题</h3>
+<ul>
+  <li>需要手工构建
+    <ul>
+      <li>成本高</li>
+      <li>人类的注解可能存在偏见和噪音</li>
+    </ul>
+  </li>
+  <li>语言是动态的
+    <ul>
+      <li>新的单词：俚语、专业术语等等</li>
+      <li>新的词义（senses）</li>
+    </ul>
+  </li>
+  <li>互联网为我们提供了大量的文本，我们可以利用它们获得单词含义吗？</li>
+</ul>
+
+<h3 id="12-分布假设">1.2 分布假设</h3>
+<ul>
+  <li>“<em>You shall know a word by the company it keeps（你可以通过其周围的上下文单词来了解一个目标单词）</em>” —— (Firth, 1957)</li>
+  <li>共现文档通常指示了主题（<strong>文档（document）</strong> 作为上下文）。
+    <ul>
+      <li>例如：$\textit{voting}$（投票）和 $\textit{politics}$（政治）<br />
+如果我们观察文档，会发现这两个单词经常出现在同一文档中。因此，不同单词的共现文档在一定程度上反映了这些单词在某种主题方面的关联。</li>
+    </ul>
+  </li>
+  <li>局部上下文反映了一个单词的语义类别（<strong>单词窗口（word window）</strong> 作为上下文）。
+    <ul>
+      <li>例如：$\textit{eat a pizza, eat a burger}$<br />
+可以看到，$“\textit{pizza}”$ 和 $“\textit{burger}”$ 这两个单词都具有共同的局部上下文 $“\textit{eat a}”$，由此我们可以知道这两个单词都具有和 $“\textit{eat a}”$ 相关的某种含义。</li>
+    </ul>
+  </li>
+</ul>
+
+<h3 id="13-根据上下文猜测单词含义">1.3 根据上下文猜测单词含义</h3>
+
+<ul>
+  <li>
+    <p>根据其用法来学习一个未知单词。</p>
+  </li>
+  <li>
+    <p>例如：现在我们有一个单词 $\textit{tezgüino}$，我们并不知道其含义，我们试图通过从该单词的一些用法中学习到其含义。<br />
+下面是该单词出现过的一些例句：</p>
+
+    <p><img src="http://andy-blog.oss-cn-beijing.aliyuncs.com/blog/2020-06-13-WX20200613-132004%402x.png" width="50%" /></p>
+
+    <p>作为人类，通过结合常识，我们可以大概猜测到 $\textit{tezgüino}$ 可能是某种含酒精饮品。</p>
+  </li>
+  <li>
+    <p>我们再查看一下在相同（或者类似）上下文中的其他单词的情况。</p>
+
+    <p><img src="http://andy-blog.oss-cn-beijing.aliyuncs.com/blog/2020-06-13-WX20200613-132156%402x.png" width="50%" /></p>
+
+    <p>可以看到，单词 $\textit{wine}$ 出现过的类似场景最多。因此，尽管我们并不知道 $\textit{tezgüino}$ 的具体含义，我们还是可以认为 $\textit{tezgüino}$ 和 $\textit{wine}$ 在单词含义方面非常相近。</p>
+  </li>
+</ul>
+
+<h3 id="14-词向量">1.4 词向量</h3>
+
+<p>在前面的例子中，我们可以将这些由 $0$ 和 $1$ 组成的行视为词向量，因为它们能够很好地代表这些用例。例如：给定 100 个非常好的例句，我们可以基于这些单词是否出现在这些例句中，将其转换为 100 维的向量。</p>
+
+<p><img src="http://andy-blog.oss-cn-beijing.aliyuncs.com/blog/2020-06-13-WX20200613-132156%402x.png" width="50%" /></p>
+
+<ul>
+  <li>每一行都可以视为一个 <strong>词向量（word vector）</strong>。</li>
+  <li>它描述了单词的分布特性（目标单词附近的上下文单词信息）。</li>
+  <li>捕获各种语义关系，例如：同义（synonymy）、类比（analogy）等。</li>
+</ul>
+
+<h3 id="15-词嵌入">1.5 词嵌入</h3>
+
+<p><img src="http://andy-blog.oss-cn-beijing.aliyuncs.com/blog/2020-06-13-WX20200613-133517%402x.png" width="40%" /></p>
+
+<ul>
+  <li>在之前的神经网络的章节中，我们已经见过另一种词向量：<strong>词嵌入（word embeddings）</strong>。
+    <ul>
+      <li>例如：在使用前馈神经网络进行文本分类时，第一层相当于是词嵌入层，该层的权重矩阵即词嵌入矩阵。</li>
+    </ul>
+  </li>
+  <li>这里，我们将学习通过其他方法产生词向量：
+    <ul>
+      <li>基于计数的方法</li>
+      <li>专为学习词向量而设计的更高效的神经网络方法</li>
+    </ul>
+  </li>
+</ul>
+
+<h2 id="2-基于计数的方法">2. 基于计数的方法</h2>
+<p>首先，我们将学习如何通过基于计数的方法学习词向量。</p>
+<h3 id="21-向量空间模型">2.1 向量空间模型</h3>
+<p>这里，我们学习的第一个模型是 <strong>向量空间模型（Vector Space Model，VSM）</strong>。</p>
+<ul>
+  <li>基本思想：将单词含义表示为一个向量。</li>
+  <li>通常，我们将 <strong>文档（documents）</strong>视为上下文。</li>
+  <li>一个矩阵，两种视角：
+    <ul>
+      <li>一个文档由其所包含的单词表示</li>
+      <li>一个单词由其出现过的文档表示</li>
+    </ul>
+
+    <p><img src="http://andy-blog.oss-cn-beijing.aliyuncs.com/blog/2020-06-13-WX20200613-143123%402x.png" width="60%" /></p>
+
+    <p>这里，每一行都表示语料库中的一个文档，每一列表示语料库的词汇表中的一个单词，单元格中的数字表示该单词在对应文档中出现的频率。例如：单词 $\textit{state}$ 没有在文档 $425$ 中出现过，所以对应的值为 $0$，但是它在文档 $426$ 中出现过 $3$ 次，所以对应值为 $3$。</p>
+
+    <p>当我们构建完成这样一个矩阵后，我们可以从两种视角来看待它：如果我们观察每一行，我们可以将其视为每个文档的词袋模型表示；如果我们观察每一列，我们可以将其视为每个单词的词向量表示。</p>
+  </li>
+</ul>
+
+<h3 id="22-操作-vsm">2.2 操作 VSM</h3>
+<p>一旦我们构建了一个向量空间模型，我们可以对其进行一些操作：</p>
+<ul>
+  <li>给值进行加权（不仅是频率）<br />
+我们可以对矩阵中的值进行一些除了词频之外的更好的加权方式。</li>
+  <li>创建低维的密集向量<br />
+假如我们有非常多的文档，例如 100 万个，那么我们的词向量的维度也将会是 100 万维，因为每个维度都代表一个文档。但是，这样的话词向量的维度过高了，并且非常稀疏，其中大部分维度的值都是 $0$。</li>
+  <li>一旦我们完成了这些，我们就可以比较不同的词向量，并计算彼此之间的相似度等等。</li>
+</ul>
+
+<h3 id="23-tf-idf">2.3 TF-IDF</h3>
+
+<p>首先，我们学习一种比单纯的词频更好的加权方法：<strong>TF-IDF (Term Frequency-Inverse Document Frequency)</strong>。它是 <strong>信息检索（information retrieval）</strong>领域的一种标准加权方案。</p>
+
+<p><img src="http://andy-blog.oss-cn-beijing.aliyuncs.com/blog/2020-06-13-WX20200613-145252%402x.png" width="40%" /></p>
+
+<p><strong><center><span style="font-size:10pt">TF 矩阵</span></center></strong></p>
+
+<p>我们首先可以得到一个 <strong>TF（term-frequency）矩阵</strong>，和之前一样，单元格中的数字表示该单词在对应文档中出现的频率。</p>
+
+<p>然后，我们将计算该单词对应的 <strong>IDF（inverse document frequency）</strong>值。</p>
+
+\[\textit{idf}_w=\log \dfrac{|D|}{\textit{df}_w}\]
+
+<p>其中，$|D|$ 表示文档总数。$\textit{df}_w$ 表示单词 $w$ 的文档频率，即该单词在所有文档（即语料库）中出现的总次数（TF 矩阵中最后一行）。这里，$\log$ 的底数为 $2$。</p>
+
+<p>例如：假设一共有 $500$ 个文档，单词 “$\textit{the}$” 的 $\textit{df}$ 值为 $500$，那么这里单词 “$\textit{the}$” 的 IDF 值为：</p>
+
+\[\textit{idf}_\textit{the}=\log_2 \dfrac{500}{500}=\log_2 1=0\]
+
+<p>分别计算每个单词的 IDF 值，并将其和对应单元格的 TF 值相乘，我们可以得到下面的 TF-IDF 矩阵</p>
+
+<p><img src="http://andy-blog.oss-cn-beijing.aliyuncs.com/blog/2020-06-13-WX20200613-145305%402x.png" width="40%" /></p>
+
+<p><strong><center><span style="font-size:10pt">TF-IDF 矩阵</span></center></strong></p>
+
+<p>可以看到，单词 “$\textit{the}$” 对应的列的值都为 $0$，这是因为其 IDF 值为 $0$，所以无论对应单元格的 TF 值为多少，相乘后得到的结果都是 $0$。</p>
+
+<p>TF-IDF 的核心思想在于：对于在大部分文档中都频繁出现的单词（例如：“$\textit{the}$”），我们给予更低的权重，因为它们包含的信息量很少。</p>
+
+<h3 id="24-降维">2.4 降维</h3>
+
+<ul>
+  <li>Term-document 矩阵过于 <strong>稀疏（sparse）</strong></li>
+  <li><strong>降维（Dimensionality reduction）</strong>：创建更短、更密集的向量。</li>
+  <li>更实用（特征更少）</li>
+  <li>消除噪声（更好地避免过拟合）</li>
+</ul>
+
+<h3 id="25-奇异值分解svd">2.5 奇异值分解（SVD）</h3>
+
+<p><strong>奇异值分解（Singular Value Decomposition，SVD）</strong>是一种流行的降维方法。</p>
+
+<p>SVD 的核心思想很简单：给定一个矩阵 $A$，我们可以将其分解为 3 个相乘的矩阵：$U$、$\Sigma$ 和 $V^{\mathrm T}$。</p>
+
+\[A=U\Sigma V^{\mathrm T}\]
+
+<p><img src="http://andy-blog.oss-cn-beijing.aliyuncs.com/blog/2020-06-13-WX20200613-154720%402x.png" width="80%" /></p>
+
+<p>可以看到：</p>
+<ul>
+  <li>原始矩阵 $A$ 是 term-document 矩阵（出现为 $1$，没有出现为$0$），其行数为词汇表大小 $|V|$，列数为文档总数 $|D|$。</li>
+  <li>$U$ 是新的 term 矩阵，行数为词汇表大小 $|V|$，列数为 $m$。其中，$m$ 为矩阵 $A$ 的秩，即 $m=Rank(A)$。</li>
+  <li>$\Sigma$ 是大小为 $m\times m$ 的奇异值矩阵，它是一个对角矩阵。</li>
+  <li>$V^{\mathrm T}$ 是新的 document 矩阵，行数为 $m$，列数为文档总数 $|D|$。</li>
+</ul>
+
+<p>显然，经过 SVD，我们得到的新的 term 矩阵要比之前的 $A$ 矩阵维度更小，并且更密集。</p>
+
+<h3 id="26-截断潜在语义分析lsa">2.6 截断：潜在语义分析（LSA）</h3>
+
+<p>我们还可以在 SVD 的基础上更进一步，采用 <strong>截断（truncating）</strong>方法，也被称为 <strong>潜在语义分析 (Latent Semantic Analysis, LSA)</strong>。</p>
+
+<ul>
+  <li>将 $U$、$\Sigma$ 和 $V^{\mathrm T}$ 截断为 $k$ 个维度，从而生成原始矩阵的最佳 $k$ 阶近似。</li>
+  <li>因此，截断后的 $U_k$（或者 $V_k^{\mathrm T}$）是对应单词的一个新的低维表示。</li>
+  <li>通常，$k$ 的取值为 100-5000。</li>
+</ul>
+
+<p><img src="http://andy-blog.oss-cn-beijing.aliyuncs.com/blog/2020-06-13-WX20200613-162657%402x.png" width="80%" /></p>
+
+<p>可以看到，矩阵 $U_k$ 在矩阵 $U$ 的基础上进一步压缩了，通常 $k$ 取 100 或者 200 时已经足够很好地表示单词含义了。现在，矩阵 $U_k$ 中的每一行都可以视为一个词向量。</p>
+
+<h3 id="27-单词作为上下文">2.7 单词作为上下文</h3>
+
+<p>我们已经学习了将文档作为上下文，我们还可以将单词作为上下文。</p>
+<ul>
+  <li>构建一个矩阵，关于目标单词随着其他单词一起出现的频率。
+    <ul>
+      <li>
+        <p>在某些预定义的上下文中（通常是一个窗口）。<br />
+相比将文档作为上下文，我们可以选择目标单词附近固定范围内的某些单词作为上下文。</p>
+
+        <p>例如：我们可以选择窗口大小为 $5$，即目标单词前后长度为 $5$ 的范围内的单词作为上下文单词。</p>
+
+        <p><img src="http://andy-blog.oss-cn-beijing.aliyuncs.com/blog/2020-06-13-WX20200613-163651%402x.png" width="60%" /></p>
+
+        <p>可以看到，在上面的矩阵中，每一行都表示一个单词，每一列也表示一个单词。单元格中的数字表示目标单词和上下文单词在整个语料库中所有大小为 $5$ 的窗口内（即从语料库中提取所有的 five-grams）共同出现的频率。</p>
+      </li>
+    </ul>
+  </li>
+  <li>但是，原始频率存在一个明显的问题：整个矩阵被常见单词所主导。
+    <ul>
+      <li>例如：我们可以看到，由于单词 “$\textit{the}$” 出现频率很高，使得对应单元格内的值非常大。之前，我们采用 TF-IDF 加权来给予常见单词的值一个折扣。但是这里，我们无法采用 TF-IDF，因为这里我们没有涉及到文档。相应地，这里我们可以采用点互信息（PMI）的方法来处理这个问题。</li>
+    </ul>
+  </li>
+</ul>
+
+<h3 id="28-点互信息pmi">2.8 点互信息（PMI）</h3>
+
+<p><strong>点互信息（Pointwise Mutual Information，PMI）</strong>的思想非常简单，对于两个事件 $x$ 和 $y$（即两个单词），PMI 计算二者的差异：</p>
+<ul>
+  <li>它们的联合概率分布</li>
+  <li>它们各自的概率分布（假设彼此之间互相独立）</li>
+</ul>
+
+\[\textit{PMI}(x,y)=\log_2 \dfrac{p(x,y)}{p(x)p(y)}\]
+
+<h3 id="29-例子计算-pmi">2.9 例子：计算 PMI</h3>
+<p><img src="http://andy-blog.oss-cn-beijing.aliyuncs.com/blog/2020-06-13-WX20200613-171638%402x.png" width="65%" /></p>
+
+\[\begin{align}
+p(x,y) &amp;= \text{count}(x,y)/\Sigma \\\\
+p(x) &amp;= \Sigma_x/\Sigma \\\\
+p(y) &amp;= \Sigma_y/\Sigma
+\end{align}\]
+
+<p>假设 $x=\textit{state},\,y=\textit{country}$，我们可以得到：</p>
+
+\[\begin{align}
+p(x,y) &amp;= 10/15871304=6.3 \times 10^{-7} \\\\
+p(x) &amp;= 12786/15871304=8.0 \times 10^{-4} \\\\
+p(y) &amp;= 3617/15871304=2.3 \times 10^{-4}\\\\
+\textit{PMI}(x,y) &amp;= \log_2 \dfrac{6.3 \times 10^{-7}}{8.0 \times 10^{-4}\times 2.3 \times 10^{-4}} = 1.78
+\end{align}\]
+
+<h3 id="210-pmi-矩阵">2.10 PMI 矩阵</h3>
+<p>我们可以按照前面的方法计算所有单元格的 PMI，从而得到 PMI 矩阵。</p>
+
+<p><img src="http://andy-blog.oss-cn-beijing.aliyuncs.com/blog/2020-06-13-WX20200613-173229%402x.png" width="50%" /></p>
+
+<p>对于从来没有共同出现过的单词对，其对应的 PMI 矩阵中的值为 $-\text{inf}$，因为在这种情况下，计算时分子 $p(x,y)$ 的值为 $0$，而 $\log_2 0=-\infty$。</p>
+
+<ul>
+  <li>可以看到，PMI 在捕获我们感兴趣的语义方面做得更好。
+    <ul>
+      <li>例如：单词 “$\textit{the}$” 和其他单词之间的 PMI 都很小，单词 “$\textit{heaven}$” 和 “$\textit{hell}$” 之间的 PMI 值较大，因为二者在语义上很接近。</li>
+    </ul>
+  </li>
+  <li>但是很明显，这种方法会偏向于给予低频单词较大的 PMI 值。
+    <ul>
+      <li>因为根据 PMI 计算公式，其分母部分为 $p(x)p(y)$。对于低频单词，其概率很小，这会导致计算 PMI 时分母变得非常小，从而导致很大的 PMI 值。</li>
+    </ul>
+  </li>
+  <li>并且，无法很好地处理频率为 $0$ 的情况（会得到 $-\infty$ 的 PMI 值）。</li>
+</ul>
+
+<h3 id="211-pmi-技巧">2.11 PMI 技巧</h3>
+<p>我们可以采取一些技巧来避免 PMI 的一些问题：</p>
+<ul>
+  <li>将所有负值取 $0$（PPMI）
+    <ul>
+      <li>避免了 $-\text{inf}$ 和不可靠的负值，该方法在实践中效果很好。</li>
+    </ul>
+  </li>
+  <li>处理罕见事件的偏见问题
+    <ul>
+      <li>方法类似之前 n-grams 中的平滑概率。</li>
+    </ul>
+  </li>
+</ul>
+
+<h3 id="212-svd">2.12 SVD</h3>
+
+<p><img src="http://andy-blog.oss-cn-beijing.aliyuncs.com/blog/2020-06-13-WX20200613-174957%402x.png" width="80%" /></p>
+
+<p>我们已经学习了将文档作为上下文的 TF-IDF 矩阵，以及将单词作为上下文的 PMI/PPMI 矩阵。很重要的一点是，无论我们采用文档还是单词作为上下文信息，我们都可以利用 SVD 来创建密集向量。但是，通过不同的上下文信息所捕获到的关系是不一样的，如果我们采用 TF-IDF，我们捕获到的语义学信息会更加宽泛，通常和某种主题关联；如果我们采用 PMI/PPMI，我们捕获到的词向量更多是关于局部单词上下文的语义学信息。</p>
+
+<h3 id="212-相似度">2.12 相似度</h3>
+<ul>
+  <li>词相似度（Word similarity）$=$ 词向量之间的比较（例如：余弦相似度，cosine similarity）。</li>
+  <li>根据向量空间中的 <strong>邻近度（proximity）</strong>查找 <strong>同义词（synonyms）</strong>。
+    <ul>
+      <li>自动构建词汇资源</li>
+    </ul>
+  </li>
+  <li>将词向量作为分类器中的特征：相比其他输入形式（例如词频等）更具鲁棒性。
+    <ul>
+      <li>例如：$\textit{movie}$ vs. $\textit{film}$ 二者的词向量距离实际上非常近。</li>
+    </ul>
+  </li>
+</ul>
+
+<h2 id="3-神经网络方法">3. 神经网络方法</h2>
+<p>我们已经介绍了利用 SVD 结合 TF-IDF 或者 PMI 等方法创建单词的密集向量，我们也可以利用神经网络完成同样的事情。</p>
+<h3 id="31-词嵌入">3.1 词嵌入</h3>
+<ul>
+  <li>在之前章节中，我们已经见过神经网络（前馈或循环）使用的 <strong>词嵌入 (word embeddings)</strong>。</li>
+  <li>但是这些模型是为其他任务设计的：
+    <ul>
+      <li>分类</li>
+      <li>语言模型</li>
+    </ul>
+  </li>
+  <li>词嵌入只是这些模型的一部分。</li>
+</ul>
+
+<h3 id="32-用于嵌入的神经网络模型">3.2 用于嵌入的神经网络模型</h3>
+<ul>
+  <li>我们可以设计专用于学习词嵌入的神经网络吗？</li>
+  <li>理想模型：
+    <ul>
+      <li>无监督<br />
+我们希望该模型是无监督的，因为有监督模型需要标签信息，而标签信息需要依赖语言学专家进行手工标注。</li>
+      <li>高效<br />
+我们希望模型是高效的，因此，我们可以很容易地将其扩展到非常大的语料库上。</li>
+      <li>有用的表示<br />
+最重要的是，我们希望学习到的词嵌入能够用于各种下游任务中。</li>
+    </ul>
+  </li>
+</ul>
+
+<h3 id="33-word2vec">3.3 Word2Vec</h3>
+<ul>
+  <li>神经网络启发了一些方法，试图学习单词及其上下文的向量表示。</li>
+  <li>关键思想：
+    <ul>
+      <li>目标单词的嵌入应与其 <strong>相邻单词</strong> 的嵌入 <strong>相似</strong>。</li>
+      <li>并且应当与不会出现在其附近的其他单词的嵌入 <strong>不相似</strong>。</li>
+    </ul>
+  </li>
+  <li>在训练阶段，将向量点积用于向量 “比较”。
+    <ul>
+      <li>$\mathbf u\cdot \mathbf v=\Sigma_j \mathbf u_j \mathbf v_j$</li>
+      <li>在测试阶段，我们仍然采用余弦相似度进行比较。</li>
+    </ul>
+  </li>
+  <li>
+    <p>Word2Vec 的框架是学习一个分类器，有以下 2 种算法：</p>
+
+    <p><img src="http://andy-blog.oss-cn-beijing.aliyuncs.com/blog/2020-06-13-WX20200613-194752%402x.png" width="80%" /></p>
+
+    <ul>
+      <li><strong>Skip-gram</strong> ：给定目标单词，预测该单词周围的局部上下文单词。</li>
+      <li><strong>CBOW</strong>：给定目标单词周围的局部上下文单词，预测位于中心的目标单词。</li>
+    </ul>
+
+    <p>两种算法的学习过程基本上是一样的，但是前提条件略有差别，二者之间互为逆过程。</p>
+  </li>
+  <li>局部上下文是指和目标单词距离 $L$ 个位置以内的单词，在上图的例子中，$L=2$。</li>
+</ul>
+
+<h3 id="34-skip-gram-模型">3.4 Skip-gram 模型</h3>
+<ul>
+  <li>
+    <p>根据给定的中心单词，生成相应的上下文单词。</p>
+
+    <p><img src="http://andy-blog.oss-cn-beijing.aliyuncs.com/blog/2020-06-21-WX20200621-214705%402x.png" width="80%" /></p>
+  </li>
+  <li>
+    <p>全概率被定义为：</p>
+
+\[\prod_{l\in -L,\dots,-1,1,\dots,L}P(w_{t+l}\mid w_t)\]
+
+    <p>其中，$w_t$ 是目标单词（中心单词），$w_{t+l}$ 是上下文单词，下标表示运行文本中的位置。</p>
+  </li>
+  <li>
+    <p>使用一个 Logistic 回归模型来计算上面每一个乘积项（例如，$w_k=\textit{he},\,w_j=\textit{rests}$）：</p>
+
+\[P(w_k\mid w_j)=\dfrac{\exp(\mathbf c_{w_k}\cdot \mathbf v_{w_j})}{\sum_{w'\in V}\exp(\mathbf c_{w'}\cdot \mathbf v_{w_j})}\]
+
+    <p>其中，$\mathbf c_{w_k}$ 和 $\mathbf v_{w_j}$ 分别表示单词 $w_k$ 和 $w_j$ 的词嵌入。</p>
+  </li>
+</ul>
+
+<h3 id="35-嵌入参数化">3.5 嵌入参数化</h3>
+
+<p>你可能已经意识到了，这里实际上有两个嵌入矩阵：目标单词的嵌入矩阵和上下文单词的嵌入矩阵。</p>
+
+<p><img src="http://andy-blog.oss-cn-beijing.aliyuncs.com/blog/2020-06-13-WX20200613-204117%402x.png" width="80%" /></p>
+
+<p>目标单词的嵌入矩阵 $W$ 维度为 $|V_W|\times d$，其中，$V_W$ 是语料库中的词汇表大小，$d$ 是嵌入的维度（例如：$300$）。上下文单词的嵌入矩阵 $C$ 的维度为 $|V_C|\times d$，这里，$V_C$ 也是语料库中的词汇表大小。所以，两个矩阵的维度实际上是一样的，但是两个矩阵本身是不同的。当我们需要对目标单词计算嵌入时，我们使用矩阵 $W$；当我们需要对上下文单词计算嵌入时，我们使用矩阵 $C$。</p>
+
+<p>其中，单词都已经经过编号，例如：通过给词汇表排序，然后将单词在词汇表中的位置作为其索引。</p>
+
+<h3 id="36-skip-gram-模型的表示">3.6 Skip-gram 模型的表示</h3>
+
+<p><img src="http://andy-blog.oss-cn-beijing.aliyuncs.com/blog/2020-06-13-WX20200613-221153%402x.png" width="80%" /></p>
+
+<p>输入层是目标单词 $w_{t}$ 的 one-hot 向量，其维度为 $1\times |V|$，所以其中只会有一个值被激活，即目标单词对应的位置索引（例如：$x_j$）。然后，经过目标单词嵌入矩阵 $W_{|V|\times d}$ 将其投影为一个 $1\times d$ 的嵌入向量。之后，我们将该嵌入向量和上下文单词嵌入矩阵 $C_{d\times |V|}$ 相乘，从而得到上下文单词 $w_{t-1}$ 的一个 $1\times |V|$ 的概率向量，其中每个元素代表词汇表中相应位置的单词在这里出现的概率。我们可以对上下文单词 $w_{t+1}$ 进行相同的操作。然后，我们可以通过计算交叉熵来得到模型的损失。</p>
+
+<h3 id="37-训练-skip-gram-模型">3.7 训练 Skip-gram 模型</h3>
+
+<ul>
+  <li>训练目标是最大化 <strong>原始文本（raw text）</strong>的似然。</li>
+  <li>
+    <p>实践中非常缓慢，因为我们需要在整个词汇表 $|V|$ 上进行 <strong>归一化（normalisation）</strong>。</p>
+
+    <p><img src="http://andy-blog.oss-cn-beijing.aliyuncs.com/blog/2020-06-13-WX20200613-223642%402x.png" width="50%" /></p>
+
+    <p>当我们在给定目标单词的情况下，计算一个上下文单词的概率时，我们需要将词汇表中所有单词对应的词嵌入的点积进行累加，这个过程非常缓慢，因为在实践中，我们的词汇表可能包含 10,000 甚至 100,000 个单词，这样会使得词汇表的维度变得非常大。</p>
+  </li>
+  <li>因此，Skip-gram 模型的核心是将问题简化为二分类：相比直接进行 $\text{softmax}$ 的相关计算，这里我们只是将真实上下文单词和非上下文单词，又称为 <strong>“负样本（negative samples）”</strong>，区分开来。
+    <ul>
+      <li>这些负样本单词是从词汇表 $V$ 中随机抽取得到的。<br />
+因为词汇表通常非常大，所以从词汇表中随机抽样得到真实上下文单词的概率是非常低的。因此，我们可以假设随机抽样得到的单词都是负样本。</li>
+    </ul>
+  </li>
+</ul>
+
+<h3 id="38-负采样">3.8 负采样</h3>
+
+<p>这里我们来看一个 <strong>负采样（Negative Sampling）</strong>的具体例子：</p>
+
+<p><img src="http://andy-blog.oss-cn-beijing.aliyuncs.com/blog/2020-06-13-WX20200613-225248%402x.png" width="80%" /></p>
+
+<p>假设我们有以上例句，并且上下文窗口为目标单词前后各 2 个相邻单词。这里，我们的目标单词为 “$\textit{apricot}$”，上下文单词为 “$\textit{tablespoon}$”、“$\textit{of}$”、“$\textit{jam}$” 和 “$\textit{a}$”。</p>
+
+<p>正样本非常简单，就是由窗口中的目标单词和上下文单词构成的单词对。负样本的获取也非常简单，我们只是通过简单地将目标单词与从词汇表中随机抽取得到的单词进行配对，例如，这里我们进行 8 次随机抽样，从而得到 8 个负样本。这里我们的目标单词是 “$\textit{apricot}$”，我们也可以对其他目标单词进行相同的操作。</p>
+
+<p>之后，我们可以利用 logistic 函数分别计算正样本和负样本的概率：</p>
+
+<p><img src="http://andy-blog.oss-cn-beijing.aliyuncs.com/blog/2020-06-13-WX20200613-230444%402x.png" width="30%" /></p>
+
+\[\begin{align}
+P(+\mid t,c) &amp;= \dfrac{1}{1+e^{-t\cdot c}}\\\\
+P(-\mid t,c) &amp;= 1-\dfrac{1}{1+e^{-t\cdot c}}
+\end{align}\]
+
+<p>其中，$t$ 和 $c$ 表示目标单词和上下文单词（或者负样本）的词嵌入。</p>
+
+<p>这里，我们将词嵌入 $t$ 和 $c$ 的点积 $t\cdot c$ 作为 logistic 函数的输入（即 $x$）。如果二者的点积 $t\cdot c$ 非常大（例如：“$\textit{apricot}$” 和 “$\textit{jam}$”），从上面的函数图像可以看到，我们得到的概率将非常接近 $1$，因为我们希望 <strong>最大化</strong> 目标单词和真实上下文单词之间的相似度。对于负样本，我们计算时用 $1$ 减去 logistic 函数，目的是 <strong>最小化</strong> 目标单词和非上下文单词之间的相似度。</p>
+
+<h3 id="39-skip-gram-模型的损失函数">3.9 Skip-gram 模型的损失函数</h3>
+
+<p>因此，我们可以通过简单地将正负样本的 log 概率相加来得到 Skip-gram 模型的总的损失函数：</p>
+
+\[L(\boldsymbol \theta)=\sum_{(t,c)\in +}\log P(+\mid t,c)+\sum_{(t,c)\in -}\log P(-\mid t,c)\]
+
+<p>但是，在实践中，相比仅仅采用一个负样本，我们通常会采用 $k$ 个负样本：</p>
+
+\[L(\boldsymbol \theta)=\log P(+\mid t,c)+\sum_{i=1}^k\log P(-\mid t,n_i)\]
+
+<h3 id="310-训练说明">3.10 训练说明</h3>
+
+<p>训练过程和其他神经网络模型一样，采用 <strong>迭代</strong> 过程（例如：随机梯度下降）。</p>
+
+<ul>
+  <li>
+    <p>在每个迭代步中，我们尝试利用正样本来将目标单词和真实上下文单词的嵌入向彼此靠近的方向移动。这是由正样本的概率提供的。<br />
+例如：“$\textit{apricot}$” 和 “$\textit{jam}$”，在每个迭代步中，我们都尝试减小二者的词嵌入之间的距离，让二者更加靠近，即增加二者词嵌入之间的相似度。</p>
+  </li>
+  <li>
+    <p>对于随机采样得到的单词（即负样本），我们希望其和目标单词的嵌入之间尽量拉远距离。<br />
+例如：“$\textit{apricot}$” 和 “$\textit{aardvark}$”，我们希望二者词嵌入之间的距离尽可能远。</p>
+  </li>
+</ul>
+
+<p><img src="http://andy-blog.oss-cn-beijing.aliyuncs.com/blog/2020-06-13-WX20200613-232217%402x.png" width="90%" /></p>
+
+<h3 id="311-理想模型">3.11 理想模型</h3>
+
+<ul>
+  <li>无监督
+    <ul>
+      <li>原始的、无标签的语料库<br />
+正如前面所述，我们的模型无需标签，只要从给定的语料库按照窗口大小对其中出现的单词进行计数，并计算概率，进行学习即可。</li>
+    </ul>
+  </li>
+  <li>高效
+    <ul>
+      <li>负采样（避免在整个词汇表上计算 $\text{softmax}$）</li>
+      <li>可以扩展到非常大的语料库上<br />
+还有一些在非常大的语料库上预训练的词向量，我们也可以直接下载使用。</li>
+    </ul>
+  </li>
+  <li>有用的表示
+    <ul>
+      <li>我们如何评估得到的词向量？</li>
+    </ul>
+  </li>
+</ul>
+
+<h3 id="312-评估词向量">3.12 评估词向量</h3>
+<ul>
+  <li>
+    <p>词典风格任务<br />
+我们可以搜集一些单词对，然后让人们对其相似度进行评分，例如：让人们评价单词 $\textit{film}$ 和 $\textit{movie}$ 之间的相似度，或者 $\textit{film}$ 和 $\textit{flower}$ 之间的相似度，并给出一个 0-10 之间的评分。通过收集大量这样的关于单词相似度的评分，我们可以构建出一些标准。</p>
+
+    <ul>
+      <li><em>WordSim-353</em> 是一个由带有相关性评分的名词对组成的数据集。</li>
+      <li><em>SimLex-999</em> 还包含了动词和形容词。</li>
+      <li><em>TOEFL</em> 要求将最接近的同义词作为多选题。</li>
+      <li>$\dots$</li>
+    </ul>
+  </li>
+  <li>
+    <p>使用向量空间中的余弦相似度测试单词对的兼容性。<br />
+我们可以计算得到的词向量之间的余弦相似度，然后将其和人类评分的结果进行对比，例如：计算 Pearson 相关度。如果我们的计算的余弦相似度和人类评分二者的 Pearson 相关系数很高，则说明我们的词嵌入至少和人类从直觉上对单词相似度的判断接近。</p>
+  </li>
+</ul>
+
+<h3 id="313-嵌入展示有意义的几何关系">3.13 嵌入展示有意义的几何关系</h3>
+
+<p><img src="http://andy-blog.oss-cn-beijing.aliyuncs.com/blog/2020-06-13-WX20200614-001141%402x.png" /></p>
+
+<p>如果我们将词嵌入绘制在二维空间中（例如：使用 PCA 降维），我们会发现一些非常有趣的几何关系。例如：在右图中的上方部分，我们发现单词 $\textit{slow}\to \textit{slower} \to \textit{slowest}$ 的几何路径和单词 $\textit{short}\to \textit{shorter} \to \textit{shortest}$ 的几何路径非常相似。又例如：在左图中，$\textit{man}\to \textit{woman}$ 的方向和 $\textit{sir}\to \textit{madam}$ 的方向非常相似。</p>
+
+<p>因此，另一种评估词嵌入的方法是 <strong>单词类比任务（Word analogy task）</strong>。</p>
+<ul>
+  <li>$\textit{Man}$ 对应 $\textit{King}$ 正如 $\textit{Woman}$ 对应 $???$</li>
+  <li>$v(\textit{Man})-v(\textit{King})=v(\textit{Woman})-v(???)$</li>
+  <li>$v(???)=v(\textit{Woman})-v(\textit{Man})+v(\textit{King})$</li>
+  <li>$v(???)=v(\textit{Queen})$</li>
+  <li>$???=\textit{Queen}$</li>
+</ul>
+
+<h3 id="314-评估词向量">3.14 评估词向量</h3>
+
+<ul>
+  <li>对于词向量，最佳评估方式是基于其他下游任务中的表现进行评估。
+    <ul>
+      <li>使用词袋嵌入作为分类器中的特征表示。</li>
+      <li>大部分深度学习模型中的第一层是对输入文本进行嵌入表示；相比随机初始化所有权重系数，我们可以仅对部分参数进行随机初始化，而对于词嵌入层的初始权重，我们可以使用预训练的词向量作为嵌入的初始化，因为这样我们可以在少量数据上训练出相对准确的词嵌入。</li>
+    </ul>
+  </li>
+  <li>最近的 <strong>上下文词向量（contextual word vectors）</strong>显示在神经网络上具有更好的效果。
+    <ul>
+      <li>ELMO 和 BERT</li>
+    </ul>
+
+    <p>例如：根据单词 “$\textit{dog}$” 出现的地方，我们会得到不同的词向量。从句子 1 得到的单词 “$\textit{dog}$” 的词嵌入和从句子 2 得到的单词 “$\textit{dog}$” 的词嵌入可能差别很大，因为二者的上下文不同。BERT 在捕获这种上下文词向量上做得非常好。</p>
+  </li>
+</ul>
+
+<h3 id="315-一些现成的词嵌入软件包">3.15 一些现成的词嵌入软件包</h3>
+
+<ul>
+  <li><strong>Word2Vec</strong>
+    <ul>
+      <li>Skip-gram 和 CBOW 的 C 语言实现<br />
+<a href="https://code.google.com/archive/p/word2vec/">https://code.google.com/archive/p/word2vec/</a></li>
+    </ul>
+  </li>
+  <li><strong>GenSim</strong>
+    <ul>
+      <li>带有很多方法的 Python 库，包括 LSI、主题模型以及 Skip-gram/CBOW<br />
+<a href="https://radimrehurek.com/gensim/index.html">https://radimrehurek.com/gensim/index.html</a></li>
+    </ul>
+  </li>
+  <li><strong>GLOVE</strong>
+    <ul>
+      <li><a href="http://nlp.stanford.edu/projects/glove/">http://nlp.stanford.edu/projects/glove/</a></li>
+    </ul>
+  </li>
+</ul>
+
+<h2 id="4-扩展阅读">4. 扩展阅读</h2>
+<ul>
+  <li>JM3, Ch 6</li>
+</ul>
+
+<p>下节内容：上下文表示</p>
+
+:ET

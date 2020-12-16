@@ -1,6 +1,0 @@
-I"N<h1 id="lecture-12-nn-网络层卷积层">Lecture 12 nn 网络层：卷积层</h1>
-
-<p>在上节课中，我们学习了如何在 PyTorch 中搭建神经网络模型，以及在搭建网络的过程中常用的容器： <code class="language-plaintext highlighter-rouge">Sequential</code>、<code class="language-plaintext highlighter-rouge">ModuleList</code> 和 <code class="language-plaintext highlighter-rouge">ModuleDict</code>。本节课开始，我们将学习 PyTorch 中常见的网络层，现在我们先重点学习卷积层</p>
-
-<p>下节内容：nn 网络层：卷积层</p>
-:ET

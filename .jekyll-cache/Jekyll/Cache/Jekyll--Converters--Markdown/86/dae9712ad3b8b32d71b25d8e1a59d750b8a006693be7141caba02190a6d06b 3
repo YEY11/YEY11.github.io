@@ -1,0 +1,439 @@
+I"�l<h1 id="lecture-09-广义线性模型glm">Lecture 09 广义线性模型（GLM）</h1>
+<p>我们已经见过了广义线性模型的一些特例，其中，响应变量 $Y$ 服从伯努利分布。现在我们可以看一下更加广义的情况，响应变量 $Y$ 不再是正态的。本章将包含以下三部分：</p>
+
+<ul>
+  <li>介绍</li>
+  <li>估计</li>
+  <li>推断</li>
+</ul>
+
+<h2 id="1-介绍">1. 介绍</h2>
+<p>令 $Y_1,Y_2,\dots,Y_n$ 为随机变量 $Y$ 的独立观测，其关联的协变量向量为 $\mathbf x_1,\mathbf x_2,\dots,\mathbf x_n$。</p>
+
+<p>如果随机变量 $Y$ 的这些独立观测服从正态分布，那么我们可以采用线性模型来建立随机变量 $Y$ 和其关联的协变量之间的联系。对于 $i=1,\dots,n$，我们有</p>
+
+\[Y_i\overset{\mathrm{d}}{=}N(\mu_i,\sigma^2) \quad \text{彼此独立，并且} \quad \mu_i=\mathbf x_i^{\mathrm{T}}\boldsymbol \beta\]
+
+<p>其中，响应变量 $Y_i$ 的期望 $\mu_i$ 是关于协变量 $\mathbf x_i$ 的线性函数。</p>
+
+<p>现在，我们试图将该模型从正态分布推广到 <strong>指数族（exponential famil y）</strong> 分布：我们假设</p>
+
+\[Y_i\overset{\mathrm{d}}{=}\mathcal {EF}(\mathrm{mean}=\mu_i)  \quad \text{彼此独立，并且} \quad g(\mu_i)=\eta_i=\mathbf x_i^{\mathrm{T}}\boldsymbol \beta\]
+
+<p>其中，$\eta_i=\mathbf x_i^{\mathrm{T}}\boldsymbol \beta$ 是 <strong>线性预测变量（linear predictor）</strong>。</p>
+
+<p>函数 $g(.)$ 被称为 <strong>连接函数（link function）</strong>：它提供了线性预测变量和响应 $Y$ 的均值之间的连接。</p>
+
+<p>如果 $g(\mu_i)$ 被设置为等于指数族中的 <strong>典范参数（canonical parameter）</strong>，又称 <strong>自然参数（natural parameter）</strong>，那么，$g(.)$ 被称为 <strong>自然连接（natural link）</strong> 或者 <strong>典范连接（canonical link）</strong>。</p>
+
+<p><br /></p>
+
+<p>如果 $Y$ 的分布是 <strong>典范形式（canonical form）</strong>，那么，它的概率密度函数（pdf）$f(y\mid \theta,\phi)$ 满足</p>
+
+\[\ln f(y\mid \theta,\phi)=\dfrac{y\theta-b(\theta)}{a(\phi)}+c(y,\phi)\]
+
+<p>其中，$\theta$ 被称为 <strong>典范参数（canonical parameter）</strong>或者 <strong>自然参数（natural parameter）</strong>，代表了 <strong>位置（location）</strong>；而 $\phi$ 被称为 <strong>散布参数（dispersion parameter）</strong>，代表了 <strong>尺度（scale）</strong>。我们可以通过指定函数 $a,b,c$ 来定义不同的指数族分布。通常，$a(\phi)=\phi \big/ w$，其中，$w$ 是已知的 <strong>权重（weight）</strong>。</p>
+
+<p>可以推导出</p>
+
+\[\dfrac{\partial \ln f(y\mid \theta,\phi)}{\partial \theta}=\dfrac{y-b'(\theta)}{a(\phi)}\;, \qquad \dfrac{\partial^2 \ln f(y\mid \theta,\phi)}{\partial \theta^2}=-\dfrac{b''(\theta)}{a(\phi)}\]
+
+<p><br /></p>
+
+<p>另一方面，</p>
+
+\[\begin{align}
+\mathbb{E}\left[\dfrac{\partial \ln f(y\mid \theta,\phi)}{\partial \theta} \right] &amp;= \int \dfrac{\partial \ln f(y\mid \theta,\phi)}{\partial \theta} \cdot f(y\mid \theta,\phi)dy\\
+&amp;=\dfrac{\partial}{\partial \theta}\int f(y\mid \theta,\phi)dy=\dfrac{\partial}{\partial \theta}1=0\\\\
+
+\mathbb{E}\left[\dfrac{\partial^2 \ln f(y\mid \theta,\phi)}{\partial \theta^2} \right] &amp;= \int \dfrac{\partial}{\partial \theta} \left(\dfrac{f_{\theta}'(y\mid \theta,\phi)}{f(y\mid \theta,\phi)} \right)\cdot f(y\mid \theta,\phi)dy\\
+&amp;= \int f_{\theta}''(y\mid \theta,\phi)dy-\int \left(\dfrac{\partial \ln f(y\mid \theta,\phi)}{\partial \theta}\right)^2 f(y\mid \theta,\phi)dy\\
+&amp;= 0-\mathbb{E}\left[\left(\dfrac{\partial \ln f(y\mid \theta,\phi)}{\partial \theta} \right)^2\right]
+\end{align}\]
+
+<p>注意，这里有个技巧是利用 $(\ln f)’=f’\big/f$ 的性质。</p>
+
+<p><br /></p>
+
+<p>结合上面的推导，可以得到</p>
+
+\[\mu=\mathbb{E}(Y)=b'(\theta)\;, \qquad \sigma^2=\mathrm{var}(Y)=a(\phi)b''(\theta)\]
+
+<ul>
+  <li>
+    <p><strong>例子：泊松分布</strong><br />
+如果 $Y\overset{\mathrm d}{=}\mathrm{Poi}(\lambda)$，那么 $\ln f(y\mid \lambda)=-\lambda + y\ln \lambda - \ln y!$，所以 $\theta=\ln \lambda$。</p>
+
+    <p>因此，我们有 $\ln f(y\mid \lambda)=-e^{\theta}+y\theta-\ln y!$；所以，$b(\theta)=e^{\theta}$，并且 $a(\phi)=1$。</p>
+
+    <p>由上面的结果可得</p>
+
+\[\begin{align}
+\mu &amp;= \mathbb{E}(Y)=b'(\theta)=e^{\theta}=\lambda \\\\
+\sigma^2 &amp;= \mathrm{var}(Y)=a(\phi)b''(\theta)=e^{\theta}=\lambda
+\end{align}\]
+  </li>
+  <li>
+    <p><strong>例子：二项分布</strong><br />
+如果 $Y\overset{\mathrm d}{=}\mathrm{Bin}(m,p)$，那么 $\ln f(y\mid m,p)=\text{const}+y\ln \frac{p}{1-p} + m\ln(1-p)$，所以 $\theta=\ln \frac{p}{1-p}$，$p=\frac{e^{\theta}}{1+e^{\theta}}$。</p>
+
+    <p>因此，我们有 $b(\theta)=-m\ln(1-p)=m\ln(1+e^{\theta})$，并且 $a(\phi)=1$。</p>
+
+    <p>由上面的结果可得</p>
+
+\[\begin{align}
+\mu &amp;= \mathbb{E}(Y)=b'(\theta)=\dfrac{me^{\theta}}{1+e^{\theta}}=mp \\\\
+\sigma^2 &amp;= \mathrm{var}(Y)=a(\phi)b''(\theta)=\dfrac{me^{\theta}}{(1+e^{\theta})^2}=mp(1-p)
+\end{align}\]
+  </li>
+</ul>
+
+<h2 id="2-估计">2. 估计</h2>
+<h3 id="21-例子具有对数连接的泊松回归模型">2.1 例子：具有对数连接的泊松回归模型</h3>
+
+<p>我们更详细地考虑一个相当标准的案例 —— <strong>具有对数连接的泊松回归模型（Poisson regression model with log link）</strong>，该模型可以视为 GLM 的一个模板，其连接函数等于自然参数：</p>
+
+<p><strong>例子</strong>：具有对数连接的泊松回归模型</p>
+<ul>
+  <li>$Y_i\overset{\mathrm d}{=}\mathrm{Poi}(\lambda_i)$，其中 $i=1,2,\dots,n$；$Y_i$ 之间彼此相互独立。</li>
+  <li>均值参数 $\lambda$ 依赖于协变量 $\mathbf x_1,\mathbf x_2,\dots,\mathbf x_q$。</li>
+  <li>自然参数 $\theta_i=\ln \lambda_i$。自然连接 $g(\lambda_i)=\ln \lambda_i$。</li>
+  <li>这提供了一个对数线性模型 \(\eta_i=\ln \lambda_i=\mathbf x_i^{\mathrm{T}}\boldsymbol \beta=\sum_{\ell=1}^{q}x_{i\ell}\beta_{\ell}\)</li>
+  <li>其矩阵形式为：$\ln \boldsymbol{\lambda}=\boldsymbol{\eta}=X\boldsymbol{\beta}$，其中 $\boldsymbol{\eta}=(\eta_1,\dots,\eta_n)^{\mathrm{T}},\boldsymbol{\lambda}=(\lambda_1,\dots,\lambda_n)^{\mathrm{T}}$。</li>
+  <li>
+    <p>联合对数似然函数（Joint log-likelihood function）</p>
+
+\[\begin{align}
+\ell (\boldsymbol \beta)=\ln f &amp;= -\sum_{i=1}^{n}\lambda_i+\sum_{i=1}^{n}y_i\ln \lambda_i-\sum_{i=1}^{n}\ln y! \\
+&amp;= -\sum_{i=1}^{n}e^{\sum_{\ell=1}^{q}x_{i\ell}\beta_{\ell}}+\sum_{i=1}^{n}y_i\sum_{\ell=1}^{q}x_{i\ell}\beta_{\ell}+\mathrm{const}
+\end{align}\]
+  </li>
+  <li>
+    <p>记分函数（score function）</p>
+
+\[\mathbf u(\boldsymbol \beta)=\left(\dfrac{\partial \ln f}{\partial \beta_j}\right)=\left(-\sum_{i=1}^{n}x_{ij}e^{\sum_{\ell=1}^{q}x_{i\ell}\beta_{\ell}}+\sum_{i=1}^{n}x_{ij}y_i\right)=X^{\mathrm{T}}(\mathbf y-\boldsymbol \lambda)\]
+  </li>
+  <li>
+    <p>海森函数（Hessian function）</p>
+
+\[H(\boldsymbol \beta)=\left(\dfrac{\partial^2 \ln f}{\partial \beta_j \partial \beta_k}\right)=\left(-\sum_{i=1}^{n}x_{ij}x_{ik}e^{\sum_{\ell=1}^{q}x_{i\ell}\beta_{\ell}}\right)=-X^{\mathrm T}\Lambda X\]
+
+    <p>其中，$\Lambda=\Lambda(\boldsymbol \beta)=\mathrm{diag}(\lambda_1,\lambda_2,\dots,\lambda_n)$。</p>
+  </li>
+</ul>
+
+<p>因此，</p>
+
+<ul>
+  <li>
+    <p>观测信息（Observed information）</p>
+
+\[J(\boldsymbol \beta)=-H(\boldsymbol \beta)=X^{\mathrm T}\Lambda X\]
+  </li>
+  <li>
+    <p>费雪信息（Fisher information）</p>
+
+\[I(\boldsymbol \beta)=-\mathbb{E}[H(\boldsymbol \beta)]=X^{\mathrm T}\Lambda X\]
+  </li>
+  <li>
+    <p>记分函数的方差（Variance of score function）</p>
+
+\[\mathrm{var}(\mathbf u(\boldsymbol \beta))=I(\boldsymbol \beta)=X^{\mathrm T}\Lambda X \overset{\mathrm{denoted}}{=}V(\boldsymbol \beta)\]
+  </li>
+</ul>
+
+<h3 id="22-记分法method-of-scoring">2.2 记分法（Method of scoring）</h3>
+
+<p>$\boldsymbol \beta$ 的 <strong>极大似然估计 MLE</strong> $\hat {\boldsymbol \beta}$ 可以通过 <strong>牛顿-拉弗森（Newton-Raphson）</strong>或者 <strong>费雪记分法（Fisher scoring）</strong>得到。</p>
+
+\[\begin{align}
+\hat {\boldsymbol \beta}^{(k+1)} &amp;= \hat {\boldsymbol \beta}^{(k)}+\left[\hat {V}^{(k)} \right]^{-1}\mathbf u(\hat {\boldsymbol \beta}^{(k)}) \\\\
+\Longrightarrow \quad \hat {V}^{(k)}\hat {\boldsymbol \beta}^{(k+1)} &amp;= \hat {V}^{(k)}\hat {\boldsymbol \beta}^{(k)}+\mathbf u(\hat {\boldsymbol \beta}^{(k)}) \\\\
+\Longrightarrow \quad X^{\mathrm T}\hat{\Lambda}^{(k)}X \hat {\boldsymbol \beta}^{(k+1)} &amp;= X^{\mathrm T}\hat{\Lambda}^{(k)}X \hat {\boldsymbol \beta}^{(k)} + X^{\mathrm T}\hat{\Lambda}^{(k)}\left[(\hat {\Lambda}^{(k)})^{-1} (\mathbf y-\hat {\boldsymbol \lambda}^{(k)}) \right]\\\\
+\Longrightarrow \quad X^{\mathrm T}\hat{\Lambda}^{(k)}X \hat {\boldsymbol \beta}^{(k+1)} &amp;= X^{\mathrm T}\hat{\Lambda}^{(k)}\hat{\mathbf z}^{(k)}
+\end{align}\]
+
+<p>其中，</p>
+
+\[\hat{\mathbf z}^{(k)} = X \hat {\boldsymbol \beta}^{(k)}+(\hat {\Lambda}^{(k)})^{-1} (\mathbf y-\hat {\boldsymbol \lambda}^{(k)}) \;,\qquad
+\hat {\boldsymbol \lambda}^{(k)} = \boldsymbol \lambda (\hat {\boldsymbol \beta}^{(k)}) \;,\qquad
+\hat{\Lambda}^{(k)} = \Lambda (\hat {\boldsymbol \beta}^{(k)})\]
+
+<p>这本质上是 <strong>加权最小二乘等式（weighted least squares equation）</strong>：</p>
+
+\[X^{\mathrm T}\mathbf W X\hat {\boldsymbol \beta}=X^{\mathrm T}\mathbf {Wy}\]
+
+<p>因此，记分法中的 <strong>迭代步（iterative step）</strong>相当于在 $\mathbf x_i$ 上拟合一个 $\hat z_i^{(k)}$ 的加权回归，权重为 $\hat \lambda_i^{(k)}$。</p>
+
+<p>注意，在每次迭代中，$\hat \lambda_i^{(k)}$ 和 $\hat z_i^{(k)}$ 的值都需要更新，因为它们都依赖于 $\hat{\boldsymbol \beta}^{(k)}$。</p>
+
+<p>在广义线性模型中，我们总是可以将记分法中的迭代步像这样表示为加权回归：该过程称为 <strong>迭代重新加权最小二乘法（iteratively re-weighted least squares，IRWLS）</strong>。</p>
+
+<p>在 R 语言中，函数 <code class="language-plaintext highlighter-rouge">glm()</code> 中实现了 IRWLS 方法：</p>
+
+<p>R 代码：</p>
+
+<div class="language-r highlighter-rouge"><div class="highlight"><pre class="highlight"><code><table class="rouge-table"><tbody><tr><td class="rouge-gutter gl"><pre class="lineno">1
+2
+3
+4
+</pre></td><td class="rouge-code"><pre><span class="n">glm</span><span class="p">(</span><span class="n">formula</span><span class="p">,</span><span class="w"> </span><span class="n">family</span><span class="w"> </span><span class="o">=</span><span class="w"> </span><span class="n">poisson</span><span class="p">,</span><span class="w"> </span><span class="n">data</span><span class="p">,</span><span class="w"> </span><span class="n">weights</span><span class="p">,</span><span class="w"> </span><span class="n">subset</span><span class="p">,</span><span class="w"> 
+      </span><span class="n">na.action</span><span class="p">,</span><span class="w"> </span><span class="n">start</span><span class="w"> </span><span class="o">=</span><span class="w"> </span><span class="kc">NULL</span><span class="p">,</span><span class="w"> </span><span class="n">etastart</span><span class="p">,</span><span class="w"> </span><span class="n">mustart</span><span class="p">,</span><span class="w"> </span><span class="n">offset</span><span class="p">,</span><span class="w"> 
+      </span><span class="n">control</span><span class="w"> </span><span class="o">=</span><span class="w"> </span><span class="nf">list</span><span class="p">(</span><span class="n">...</span><span class="p">),</span><span class="w"> </span><span class="n">model</span><span class="w"> </span><span class="o">=</span><span class="w"> </span><span class="kc">TRUE</span><span class="p">,</span><span class="w"> </span><span class="n">method</span><span class="w"> </span><span class="o">=</span><span class="w"> </span><span class="s2">"glm.fit"</span><span class="p">,</span><span class="w"> 
+      </span><span class="n">x</span><span class="w"> </span><span class="o">=</span><span class="w"> </span><span class="kc">FALSE</span><span class="p">,</span><span class="w"> </span><span class="n">y</span><span class="w"> </span><span class="o">=</span><span class="w"> </span><span class="kc">TRUE</span><span class="p">,</span><span class="w"> </span><span class="n">singular.ok</span><span class="w"> </span><span class="o">=</span><span class="w"> </span><span class="kc">TRUE</span><span class="p">,</span><span class="w"> </span><span class="n">contrasts</span><span class="w"> </span><span class="o">=</span><span class="w"> </span><span class="kc">NULL</span><span class="p">,</span><span class="w"> </span><span class="n">...</span><span class="p">)</span><span class="w">
+</span></pre></td></tr></tbody></table></code></pre></div></div>
+
+<p><a name="eg1"><strong>例子</strong></a>：拟合模型 $Y_i\overset{\mathrm d}{=}\mathrm{Poi}(\lambda_i)$，其中 $\ln \lambda_i=\beta_0+\beta_1x_i$，数据如下：</p>
+
+<div class="language-plaintext highlighter-rouge"><div class="highlight"><pre class="highlight"><code><table class="rouge-table"><tbody><tr><td class="rouge-gutter gl"><pre class="lineno">1
+2
+</pre></td><td class="rouge-code"><pre>x :  -1   -1   0   0   0   0   1   1   1
+y :   2    3   6   7   8   9  10  12  15
+</pre></td></tr></tbody></table></code></pre></div></div>
+
+<p>R 代码：</p>
+
+<div class="language-r highlighter-rouge"><div class="highlight"><pre class="highlight"><code><table class="rouge-table"><tbody><tr><td class="rouge-gutter gl"><pre class="lineno">1
+2
+3
+4
+</pre></td><td class="rouge-code"><pre><span class="n">x</span><span class="w"> </span><span class="o">&lt;-</span><span class="w"> </span><span class="nf">c</span><span class="p">(</span><span class="m">-1</span><span class="p">,</span><span class="w"> </span><span class="m">-1</span><span class="p">,</span><span class="w"> </span><span class="m">0</span><span class="p">,</span><span class="w"> </span><span class="m">0</span><span class="p">,</span><span class="w"> </span><span class="m">0</span><span class="p">,</span><span class="w"> </span><span class="m">0</span><span class="p">,</span><span class="w"> </span><span class="m">1</span><span class="p">,</span><span class="w"> </span><span class="m">1</span><span class="p">,</span><span class="w"> </span><span class="m">1</span><span class="p">)</span><span class="w">
+</span><span class="n">y</span><span class="w"> </span><span class="o">&lt;-</span><span class="w"> </span><span class="nf">c</span><span class="p">(</span><span class="m">2</span><span class="p">,</span><span class="w"> </span><span class="m">3</span><span class="p">,</span><span class="w"> </span><span class="m">6</span><span class="p">,</span><span class="w"> </span><span class="m">7</span><span class="p">,</span><span class="w"> </span><span class="m">8</span><span class="p">,</span><span class="w"> </span><span class="m">9</span><span class="p">,</span><span class="w"> </span><span class="m">10</span><span class="p">,</span><span class="w"> </span><span class="m">12</span><span class="p">,</span><span class="w"> </span><span class="m">15</span><span class="p">)</span><span class="w">
+</span><span class="n">pr.1</span><span class="w"> </span><span class="o">&lt;-</span><span class="w"> </span><span class="n">glm</span><span class="p">(</span><span class="n">y</span><span class="w"> </span><span class="o">~</span><span class="w"> </span><span class="n">x</span><span class="p">,</span><span class="w"> </span><span class="n">family</span><span class="w"> </span><span class="o">=</span><span class="w"> </span><span class="n">poisson</span><span class="p">)</span><span class="w">
+</span><span class="n">summary</span><span class="p">(</span><span class="n">pr.1</span><span class="p">)</span><span class="w">
+</span></pre></td></tr></tbody></table></code></pre></div></div>
+
+<p>输出结果：</p>
+
+<div class="language-plaintext highlighter-rouge"><div class="highlight"><pre class="highlight"><code><table class="rouge-table"><tbody><tr><td class="rouge-gutter gl"><pre class="lineno">1
+2
+3
+4
+5
+6
+7
+8
+9
+10
+11
+12
+13
+14
+15
+16
+17
+18
+19
+20
+21
+</pre></td><td class="rouge-code"><pre>Call:
+glm(formula = y ~ x, family = poisson)
+
+Deviance Residuals: 
+    Min       1Q   Median       3Q      Max  
+-0.8472  -0.2601  -0.2137   0.5214   0.8788  
+
+Coefficients:
+            Estimate Std. Error z value Pr(&gt;|z|)    
+(Intercept)   1.8893     0.1421  13.294  &lt; 2e-16 ***
+x             0.6698     0.1787   3.748 0.000178 ***
+---
+Signif. codes:  0 ‘***’ 0.001 ‘**’ 0.01 ‘*’ 0.05 ‘.’ 0.1 ‘ ’ 1
+
+(Dispersion parameter for poisson family taken to be 1)
+
+    Null deviance: 18.4206  on 8  degrees of freedom
+Residual deviance:  2.9387  on 7  degrees of freedom
+AIC: 41.052
+
+Number of Fisher Scoring iterations: 4
+</pre></td></tr></tbody></table></code></pre></div></div>
+
+<h3 id="23-具有自然连接的-glm-估计">2.3 具有自然连接的 GLM 估计</h3>
+<p>具有自然连接函数的广义指数族分布和上面的泊松分布的推导过程略有不同。</p>
+
+<p>在具有自然连接的广义情况下，$a(\phi)=\phi \big / w$，我们有</p>
+
+\[\begin{align}
+\ell(\boldsymbol \beta) &amp;= \phi^{-1} \sum_{i=1}^{n}w_i[y_i\theta_i-b(\theta_i) ]+\mathrm{const}\\\\
+\mathbf u(\boldsymbol \beta) &amp;= \dfrac{\partial \ell}{\partial \boldsymbol \beta}=\left(\phi^{-1}\sum_{i=1}^{n}w_i(y_i-\mu_i)x_{ij} \right)=\phi^{-1}X^{\mathrm T}W(\mathbf y-\boldsymbol \mu)\\\\
+J(\boldsymbol \beta) &amp;= -\dfrac{\partial^2 \ell}{\partial \boldsymbol \beta \boldsymbol \beta^{\mathrm T}} = \left(\phi^{-1}\sum_{i=1}^{n}w_i b''(\theta_i)x_{ij}x_{ik} \right)=\phi^{-1}X^{\mathrm T}W\Sigma X = I(\boldsymbol \beta)
+\end{align}\]
+
+<p>其中，</p>
+
+\[\theta_i=\eta_i=\sum_{j=1}^{q}\beta_jx_{ij} \;,\qquad
+W=\mathrm{diag}\{w_1,\dots,w_n\} \;,\qquad
+\Sigma=\mathrm{diag}\{b''(\theta_1),\dots,b''(\theta_n)\}\]
+
+<p><br /></p>
+
+<p>令 $V=X^{\mathrm T}W\Sigma X$，那么 <strong>MLE</strong> $\hat {\boldsymbol \beta}$ 可以通过记分法求解：</p>
+
+\[\begin{align}
+\hat {\boldsymbol \beta}^{(k+1)} &amp;= \hat {\boldsymbol \beta}^{(k)}+\phi\left[\hat {V}^{(k)} \right]^{-1}\mathbf u(\hat {\boldsymbol \beta}^{(k)}) \\\\
+\Longrightarrow \quad \hat \phi^{-1}{V}^{(k)}\hat {\boldsymbol \beta}^{(k+1)} &amp;= \phi^{-1}\hat {V}^{(k)}\hat {\boldsymbol \beta}^{(k)}+\mathbf u(\hat {\boldsymbol \beta}^{(k)}) \\\\
+\Longrightarrow \quad X^{\mathrm T}W \hat{\Sigma}^{(k)}X \hat {\boldsymbol \beta}^{(k+1)} &amp;= X^{\mathrm T}W \hat{\Sigma}^{(k)}X \hat {\boldsymbol \beta}^{(k)} + X^{\mathrm T}W \hat{\Sigma}^{(k)}\left[(\hat {\Sigma}^{(k)})^{-1} (\mathbf y-\hat {\boldsymbol \mu}^{(k)}) \right]\\\\
+\Longrightarrow \quad X^{\mathrm T}W \hat{\Sigma}^{(k)}X \hat {\boldsymbol \beta}^{(k+1)} &amp;= X^{\mathrm T}W \hat{\Sigma}^{(k)}\hat{\mathbf z}^{(k)}
+\end{align}\]
+
+<p>其中，</p>
+
+\[\hat{\mathbf z}^{(k)} = X \hat {\boldsymbol \beta}^{(k)}+(\hat {\Sigma}^{(k)})^{-1} (\mathbf y-\hat {\boldsymbol \mu}^{(k)}) \;,\qquad
+\hat {\boldsymbol \mu}^{(k)} = \boldsymbol \mu (\hat {\boldsymbol \beta}^{(k)}) \;,\qquad
+\hat{\Sigma}^{(k)} = \Sigma (\hat {\boldsymbol \beta}^{(k)})\]
+
+<p><br /></p>
+
+<p>在上面最后两行等式中，记分法变成了 IRWLS：</p>
+
+\[X^{\mathrm T}W \hat{\Sigma}^{(k)}X \hat {\boldsymbol \beta}^{(k+1)} = X^{\mathrm T}W \hat{\Sigma}^{(k)}\hat{\mathbf z}^{(k)}\]
+
+<p>其中，</p>
+
+\[\hat{\mathbf z}^{(k)} = X \hat {\boldsymbol \beta}^{(k)}+(\hat {\Sigma}^{(k)})^{-1} (\mathbf y-\hat {\boldsymbol \mu}^{(k)}) \;,\qquad
+\hat {\boldsymbol \mu}^{(k)} = \boldsymbol \mu (\hat {\boldsymbol \beta}^{(k)}) \;,\qquad
+\hat{\Sigma}^{(k)} = \Sigma (\hat {\boldsymbol \beta}^{(k)})\]
+
+<ul>
+  <li>IRWLS 过程产生了收敛的 MLE $\hat {\boldsymbol \beta}$。</li>
+  <li>
+    <p>$\hat {\boldsymbol \beta}$ 的方差矩阵可以被估计为：</p>
+
+\[\widehat {\mathrm{var}}(\hat {\boldsymbol \beta})=\hat \phi \left(X^{\mathrm T}W\Sigma(\hat {\boldsymbol \beta}) X \right)^{-1}\]
+  </li>
+</ul>
+
+<h2 id="3-推断">3. 推断</h2>
+<h3 id="31-渐近似然理论">3.1 渐近似然理论</h3>
+<p>为了进行推断，我们需要了解有关统计分布的一些信息。GLM 的基础是 <strong>渐近似然理论（asymptotic likelihood theory）</strong>：</p>
+
+\[\mathbf u\overset{\mathrm d}{\sim}N_q(\mathbf 0,I(\boldsymbol \beta))\;,\qquad \mathbf u^{\mathrm T}I^{-1}\mathbf u\overset{\mathrm d}{\sim}\chi^2(q)\]
+
+<p>其中，$q=\mathrm {dim}(\mathbf x)$。</p>
+
+<p>对于 GLM，$V$ 中并不包含 $\mathbf y$，所以 $I(\boldsymbol \beta)=\phi^{-1}V$，我们有：</p>
+
+\[\mathbf u\overset{\mathrm d}{\sim}N_q(\mathbf 0,\phi^{-1}V)\;,\qquad \phi\mathbf u^{\mathrm T}V^{-1}\mathbf u\overset{\mathrm d}{\sim}\chi^2(q)\]
+
+<p>更进一步，最大似然估计量满足：</p>
+
+\[\hat{\boldsymbol \beta} \overset{\mathrm d}{\sim} N_q(\boldsymbol \beta,\phi V^{-1})\;,\qquad \phi^{-1}(\hat{\boldsymbol \beta}-\boldsymbol \beta)^{\mathrm T}V(\hat{\boldsymbol \beta}-\boldsymbol \beta)\overset{\mathrm d}{\sim}\chi^2(q)\]
+
+<p>通常，$V$ 中包含 $\boldsymbol \beta$，所以我们需要利用 $V(\hat{\boldsymbol \beta})$ 来计算 <strong>标准误（se）</strong>：</p>
+
+\[V=[v_{ij}(\boldsymbol \beta)] \;,\qquad V^{-1}=[v^{ij}(\boldsymbol \beta)]\]
+
+<p><strong>标准误（se）</strong>为：$\mathrm{se}(\hat \beta_j)=\sqrt{\phi v^{jj}(\hat{\boldsymbol \beta})}$ $\;\;;\;\;$<strong>近似的 $95\%$ 置信区间（CI）</strong>为：$\hat \beta_j\pm 1.96\cdot \mathrm{se}(\hat \beta_j)$</p>
+
+<h3 id="32-检查模型的充分性">3.2 检查模型的充分性</h3>
+<p>评估模型 $M$ 的 <strong>充分性（adequacy）</strong>：比较模型 $M$ 的似然和 <strong>饱和模型（full/saturated model）</strong>$F$ 的似然。其中，饱和模型 $F$ 是一个和模型 $M$ 具有相同分布和相同连接函数，但是参数数量为 $n$ 的 GLM 模型。</p>
+
+<p>如果模型 $M$ 是一个好的模型，那么 $L(\boldsymbol \beta_M)$ 将非常接近 $L(\boldsymbol \beta_F)$：它能够解释数据中的大部分变化。</p>
+
+<p>我们定义检验统计量：</p>
+
+\[D=2\phi\left[\ln L(\hat{\boldsymbol \beta}_F)-\ln L(\hat{\boldsymbol \beta}_M)\right]\]
+
+<p>这被称为 <strong>剩余偏差（residual deviance）</strong>或者简称 <strong>偏差（deviance）</strong>，它类似于线性模型中的 <strong>残差平方和（residual sum of squares）</strong>，但是这里不需要估计 $\sigma^2$，所以现在如果 $D$ 很大的话，原因就是模型拟合不够好。</p>
+
+<p>检验基于以下结果，如果模型 $M$ 是正确的，那么：</p>
+
+\[\phi^{-1}D\overset{\mathrm d}{\approx}\chi^2(n-q)\]
+
+<p>否则，$D$ 将趋于更大（这表明模型 $M$ 拟合不够好）。</p>
+
+<p>因此，如果 $D&lt;\chi_{0.95}^{2}(n-q)$，那么，模型 $M$ 是可以接受的。</p>
+
+<p>回忆前面 <a href="#eg1">泊松分布的例子</a>，现在，我们对 R 代码输出中剩余偏差的意义更清楚了：</p>
+
+<div class="language-plaintext highlighter-rouge"><div class="highlight"><pre class="highlight"><code><table class="rouge-table"><tbody><tr><td class="rouge-gutter gl"><pre class="lineno">1
+</pre></td><td class="rouge-code"><pre>Residual deviance:  2.9387  on 7  degrees of freedom
+</pre></td></tr></tbody></table></code></pre></div></div>
+
+<p>它表明 $D=2.9387$，并且 $n-q=7$（因为 $n=9,\;q=2$），因此，我们拟合的模型是相当可以接受的：$\chi_{0.95}^{2}(7)=14.07&gt;D$。</p>
+
+<h3 id="33-模型充分性检验背后的理论">3.3 模型充分性检验背后的理论</h3>
+
+<p>$D$ 的分布结果来自渐近似然结果：</p>
+
+\[\ln L(\boldsymbol \beta)\approx \ln L(\hat {\boldsymbol \beta})+(\boldsymbol \beta-\hat {\boldsymbol \beta})^{\mathrm T}\mathbf u(\hat {\boldsymbol \beta})-\dfrac{1}{2}(\boldsymbol \beta-\hat {\boldsymbol \beta})^{\mathrm T}J(\hat {\boldsymbol \beta})(\boldsymbol \beta-\hat {\boldsymbol \beta})\]
+
+<p>注意，对于 MLE $\hat {\boldsymbol \beta}$，$\mathbf u(\hat {\boldsymbol \beta})=\mathbf 0$。</p>
+
+<p>由上式可得：</p>
+
+\[2\left[\ln L(\hat {\boldsymbol \beta})-\ln L(\boldsymbol \beta)\right]\approx (\boldsymbol \beta-\hat {\boldsymbol \beta})^{\mathrm T}J(\hat {\boldsymbol \beta})(\boldsymbol \beta-\hat {\boldsymbol \beta})\overset{\mathrm d}{\sim}\chi^2(q)\]
+
+<p>关于模型充分性的标准检查，更进一步的做法是查看 <strong>残差（residuals）</strong>，我们可以利用前面章节中介绍过的诊断工具。</p>
+
+<p>我们可以将 $D$ 表示为 $D=\sum_{i=1}^{n}d_i^2$，其中 $d_i^2$ 是来自第 $i$ 个观测的作用。那么，观测 $i$ 的 <strong>偏常残差（deviance residual）</strong>定义为：</p>
+
+\[r_i=\mathrm{sign}(y_i-\hat y_i)|d_i|\;,\quad i=1,\dots,n\]
+
+<h3 id="34-比较嵌套模型">3.4 比较嵌套模型</h3>
+
+<p>关于 <strong>嵌套模型（nested models）</strong>比较的检验，处理方法与广义线性模型理论的检验基本相同，唯一区别是现在不需要估计 $\sigma^2$。</p>
+
+<p>所以，检验可以直接基于类似于线性模型中残差平方和的变化（即，GLM 中的剩余偏差的变化）。</p>
+
+<p>假设模型 $M_0$ 嵌套在模型 $M_1$ 中。假设模型 $M_1$（$H_1$ 假设下的模型）为真。然后，</p>
+
+<p>如果模型 $M_0$ 也为真，那么：</p>
+
+\[\Delta D=D_0-D_1\overset{\mathrm d}{\approx}\chi^2(q_1-q_0)\]
+
+<p>如果模型 $M_0$ 不为真，那么 $\Delta D$ 将趋近于更大。</p>
+
+<p>因此，如果 $\Delta D&gt;\chi_{0.95}^{2}(q_1-q_0)$，那么，我们拒绝模型 $M_0$。</p>
+
+<p>R 代码：</p>
+
+<div class="language-r highlighter-rouge"><div class="highlight"><pre class="highlight"><code><table class="rouge-table"><tbody><tr><td class="rouge-gutter gl"><pre class="lineno">1
+</pre></td><td class="rouge-code"><pre><span class="n">anova</span><span class="p">(</span><span class="n">pr.1</span><span class="p">,</span><span class="w"> </span><span class="n">test</span><span class="w"> </span><span class="o">=</span><span class="w"> </span><span class="s2">"Chi"</span><span class="p">)</span><span class="w">
+</span></pre></td></tr></tbody></table></code></pre></div></div>
+
+<p>输出结果：</p>
+
+<div class="language-plaintext highlighter-rouge"><div class="highlight"><pre class="highlight"><code><table class="rouge-table"><tbody><tr><td class="rouge-gutter gl"><pre class="lineno">1
+2
+3
+4
+5
+6
+7
+8
+9
+10
+11
+12
+13
+14
+</pre></td><td class="rouge-code"><pre>Analysis of Deviance Table
+
+Model: poisson, link: log
+
+Response: y
+
+Terms added sequentially (first to last)
+
+
+     Df Deviance Resid. Df Resid. Dev Pr(&gt;Chi)    
+NULL                     8    18.4206             
+x     1   15.482         7     2.9387 8.33e-05 ***
+---
+Signif. codes:  0 ‘***’ 0.001 ‘**’ 0.01 ‘*’ 0.05 ‘.’ 0.1 ‘ ’ 1
+</pre></td></tr></tbody></table></code></pre></div></div>
+
+<p>结果显示，$D_0=18.4206$，$D_1=2.9387$，所以</p>
+
+\[\Delta D=D_0-D_1=15.4819\]
+
+<p>如果 $M_0$ 为真，那么它将会是 $\chi^{2}(1)$ 上的一个观测。</p>
+
+<p>由于 $\chi_{0.95}^{2}(1)=3.841&lt;\Delta D$，我们拒绝 $M_0$；并且得出结论 $\beta_1\neq 0$，就像我们已经从考虑 $\hat \beta_1$ 和 $\mathrm{se}(\hat \beta_1)$ 中得到的一样。</p>
+
+<p><strong>注意</strong>：比较 $M_0\subset M_1$ 和 $M_1$ 等价于检验线性假设 $H_0: \boldsymbol \beta_{M_1-M_0}=\mathbf 0$。对于这种比较，我们已经学习了三种检验方法：<strong>LR 检验</strong>、<strong>Wald 检验</strong> 和 <strong>Score 检验</strong>。而 $\Delta D=D_0-D_1$ 检验对应的是 LR 检验。</p>
+
+<p>下节内容：逻辑回归模型分析分类数据</p>
+:ET
