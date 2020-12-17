@@ -1,14 +1,13 @@
 ---
 layout:     post   				    # 使用的布局（不需要改）
 title:      数据库中的机器学习：哈希表、B 树与学习索引   	# 标题 
-subtitle:   数据科学研究项目笔记 #副标题
+subtitle:   学习索引笔记         #副标题
 date:       2020-08-21				# 时间
-author:     Andy 						# 作者
+author:     YEY 						# 作者
 header-img: img/post-bg-unimelb-blue.png 	#这篇文章标题背景图片
 catalog: true 						# 是否归档
 tags:								#标签
     - 学习索引
-    - 数据科学研究项目
 ---
 
 # 数据库中的机器学习：哈希表、B 树与学习索引

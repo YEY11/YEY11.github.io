@@ -1,15 +1,14 @@
 ---
 layout:     post   				    # 使用的布局（不需要改）
 title:      数据科学研究项目 01：论文阅读  	# 标题 
-subtitle:   墨尔本大学 MAST90108 科研笔记 #副标题
+subtitle:   学习索引笔记                 #副标题
 date:       2020-03-10 				# 时间
-author:     Andy 						# 作者
+author:     YEY 						# 作者
 header-img: img/post-bg-unimelb.png 	#这篇文章标题背景图片
 catalog: true 						# 是否归档
 mathjax: true                       # 是否启用 MathJax
 tags:								#标签
-    - 数据科学研究项目
-    - MAST90108
+    - 学习索引
     - 论文阅读
 ---
 

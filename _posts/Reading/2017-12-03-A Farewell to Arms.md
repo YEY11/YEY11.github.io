@@ -3,7 +3,7 @@ layout:     post   				    # 使用的布局（不需要改）
 title:      A Farewell to Arms   	# 标题 
 subtitle:   「永别了，武器」          #副标题
 date:       2017-12-03 				# 时间
-author:     Andy 						# 作者
+author:     YEY 						# 作者
 header-img: img/post-farewell-to-arms.jpg 	#这篇文章标题背景图片
 catalog: true 						# 是否归档
 tags:								#标签
