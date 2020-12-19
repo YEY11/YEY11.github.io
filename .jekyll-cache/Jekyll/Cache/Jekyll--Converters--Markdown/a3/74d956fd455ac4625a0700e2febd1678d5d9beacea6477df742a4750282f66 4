@@ -1,0 +1,301 @@
+I"B-<h1 id="lecture-06-感知器">Lecture 06 感知器</h1>
+<h2 id="主要内容">主要内容</h2>
+<ul>
+  <li><strong>感知器</strong>
+    <ul>
+      <li>人工神经网络简介</li>
+      <li>感知器模型</li>
+      <li>随机梯度下降（SGD）</li>
+    </ul>
+  </li>
+</ul>
+
+<h2 id="1-人工神经网络简介">1. 人工神经网络简介</h2>
+<h3 id="11-生物学的灵感">1.1 生物学的灵感</h3>
+<ul>
+  <li>人类在许多重要任务上都表现出色</li>
+  <li>最初，神经网络是一种模仿人脑的尝试</li>
+</ul>
+
+<h3 id="12-人工神经网络">1.2 人工神经网络</h3>
+<p><img src="https://tva1.sinaimg.cn/large/006y8mN6ly1g8jb1bc8amj30im0is76k.jpg" width="30%" align="right" /></p>
+
+<ul>
+  <li>作为一种粗略的近似，可以将人脑视为一张由互相连接的处理节点（神经元）组成的网络，这些节点中继电信号</li>
+  <li><strong>人工神经网络</strong>是由处理单元构成的网络</li>
+  <li>每个处理单元将输入转换为输出</li>
+  <li>输出是输入的加权和的函数（称为<strong>激活函数</strong>）
+<br /><br /></li>
+</ul>
+
+<h3 id="13-概述">1.3 概述</h3>
+<ul>
+  <li>为了使用人工神经网络，我们需要：<br />
+(a) 设计网络拓扑<br />
+(b) 调整权重以适应给定数据<br />
+在本节中，我们将重点关注任务 (b) 下的一种称为<strong>前馈网络</strong>的特定网络类别</li>
+  <li>训练一个人工神经网络意味着在给定一个预定义网络拓扑的情况下调整权重以训练数据</li>
+  <li>我们将在下一节再回到人工神经网络并讨论人工神经网络的训练</li>
+  <li>现在，我们将注意力转移到单个网络单元上，因为它本身就是一个有趣的模型</li>
+</ul>
+
+<h2 id="2-感知器模型">2. 感知器模型</h2>
+<p><strong>人工神经网络的基石，同时也是一种线性分类器</strong></p>
+<h3 id="21-感知器模型">2.1 感知器模型</h3>
+<p><img src="https://tva1.sinaimg.cn/large/006y8mN6ly1g8jbfkmn87j313u0da0u5.jpg" width="60%" /></p>
+
+<ul>
+  <li>$x_1,x_2$ 代表输入</li>
+  <li>$w_1,w_2$ 代表突触权重（权值）</li>
+  <li>$w_0$ 代表权重偏置（阈值）</li>
+  <li>$f$ 代表激活函数</li>
+</ul>
+
+<p>对比该模型和 Logistic 回归：当 $f$ 为 Logistic 函数时，二者是一样的</p>
+
+<h3 id="22-感知器是一个线性二分类器">2.2 感知器是一个线性二分类器</h3>
+<p><img src="https://tva1.sinaimg.cn/large/006y8mN6ly1g8jchcprqhj30ma0eqabv.jpg" width="35%" align="right" /></p>
+
+<ul>
+  <li>
+    <p>感知器是一个二分类器：<br />
+如果 $s\ge0$，预测为 $A$ 类<br />
+如果 $s&lt;0$，预测为 $B$ 类<br />
+其中，$s=\sum_{i=0}^{m}x_iw_i$</p>
+  </li>
+  <li>
+    <p>感知器是一个线性分类器：<br />
+$s$ 是输入的一个线性函数，并且决策边界是线性的</p>
+  </li>
+</ul>
+
+<p><strong>练习</strong>：找到能够完美分类以下数据集的感知器的权重</p>
+
+<p><img src="https://tva1.sinaimg.cn/large/006y8mN6ly1g8jdv77cgqj31ha0m411y.jpg" width="80%" /><br /></p>
+
+<p>假设 $w_1=w_2=1$，将对应项相乘得到：</p>
+
+<p><img src="https://tva1.sinaimg.cn/large/006y8mN6ly1g8je4v3xqcj30sc0ikgpk.jpg" width="50%" /></p>
+
+<p>所以，为了将 Class A 和 Class B 分开，我们可以选择 $w_0=-1.5$<br />
+此时，决策边界为 $s=\sum_{i=0}^{2}x_iw_i=0$</p>
+
+<h3 id="23-感知器的损失函数">2.3 感知器的损失函数</h3>
+<ul>
+  <li>训练：找到使损失函数最小化的权重</li>
+  <li>我们的任务是二分类。我们可以将其中任意一个类编码为 $+1$，另一个类编码为 $-1$。所以，现在每个训练样本可以表示为 ${\boldsymbol x,y}$，其中 $y$ 可以为 $+1$ 或者 $-1$。</li>
+  <li>回忆，在感知器模型中，$s=\sum_{i=0}^{m}x_iw_i$，$s$ 的符号决定了预测的类别：
+    <ul>
+      <li>如果 $s&gt;0$，为 $+1$</li>
+      <li>如果 $s&lt;0$，为 $-1$
+<img src="https://tva1.sinaimg.cn/large/006y8mN6ly1g8jethc81pj30c2082glr.jpg" width="30%" align="right" /></li>
+    </ul>
+  </li>
+  <li>考虑一个单独的训练样本：
+    <ul>
+      <li>如果 $y$ 和 $s$ 的符号相同，那么说明该样本被正确分类</li>
+      <li>如果 $y$ 和 $s$ 的符号不同，那么说明该样本被错误分类<br />
+这与另一个常见的称为 Hinge Loss 的损失函数相似，但不相同</li>
+    </ul>
+  </li>
+  <li>感知器使用的损失函数：
+    <ul>
+      <li>对于正确分类的样本没有惩罚项</li>
+      <li>对于错误分类的样本，其惩罚项（损失）等于 $s$</li>
+    </ul>
+  </li>
+  <li>正式地:
+    <ul>
+      <li>如果 $s$ 和 $y$ 的符号相同，$L(s,y)=0$</li>
+      <li>如果 $s$ 和 $y$ 的符号相同，$L(s,y)=|s|$</li>
+    </ul>
+  </li>
+  <li>这可以被重写为：$L(s,y)=\max(0,-sy)$</li>
+</ul>
+
+<h2 id="3-随机梯度下降sgd">3. 随机梯度下降（SGD）</h2>
+<ul>
+  <li>将训练集中所有的样本进行随机混洗 / 拆分成 B 批（$batches$）</li>
+  <li>选择初始 $\boldsymbol {\theta}^{(1)}$</li>
+  <li>从 $i=1$ 到 $T$：（在整个训练集上的一次迭代称为一轮 $epoch$）
+    <ul>
+      <li>从 $j=1$ 到 $B$：
+        <ul>
+          <li>用第 $j$ 批的数据进行随机梯度更新</li>
+        </ul>
+      </li>
+    </ul>
+  </li>
+  <li>这种方法的好处：对于大型数据集的计算可行性</li>
+</ul>
+
+<h3 id="31-感知器训练算法">3.1 感知器训练算法</h3>
+<ul>
+  <li>选择一个初始的 $\boldsymbol w^{(0)}$ 和 $k=0$</li>
+  <li>从 $i=1$ 到 $T$（轮）：
+    <ul>
+      <li>从 $j=1$ 到 $N$（训练样本）：
+        <ul>
+          <li>考虑样本 ${\boldsymbol x_j,y_j}$</li>
+          <li>更新：$\boldsymbol w^{(k++)}=\boldsymbol w^{(k)}-\eta\nabla L(\boldsymbol w^{(k)})$<br />
+其中，<br />
+$L(\boldsymbol w)=\max(0,-sy)$<br />
+$s=\sum_{i=0}^{m}x_iw_i$<br />
+$\eta$ 代表学习率<br />
+注意：当 $s=0$ 时，导数不存在，但这种情况已经在算法中有明确处理</li>
+        </ul>
+      </li>
+    </ul>
+  </li>
+</ul>
+
+<h4 id="311-感知器训练规则">3.1.1 感知器训练规则</h4>
+<p><img src="https://tva1.sinaimg.cn/large/006y8mN6ly1g8jethc81pj30c2082glr.jpg" width="30%" align="right" /></p>
+
+<ul>
+  <li>当 $sy&gt;0$ 时，我们有 $\dfrac{\partial L}{\partial w_i}=0$
+    <ul>
+      <li>当一个样本被正确分类时，我们不需要进行更新
+<br /></li>
+    </ul>
+  </li>
+  <li>
+    <p>当 $y=1$ 并且 $s&lt;0$ 时，我们有 $\dfrac{\partial L}{\partial w_i}=-x_i$
+<br /></p>
+  </li>
+  <li>
+    <p>当 $y=-1$ 并且 $s&gt;0$ 时，我们有 $\dfrac{\partial L}{\partial w_i}=x_i$
+<br /></p>
+  </li>
+  <li>$s=\sum_{i=0}^{m}x_iw_i$</li>
+</ul>
+
+<h4 id="312-感知器训练算法">3.1.2 感知器训练算法</h4>
+<ul>
+  <li>当分类正确时，权重不会更新</li>
+  <li>当分类错误时：$\boldsymbol w^{(k+1)}=\boldsymbol w^{(k)}-\eta(\pm\boldsymbol x)$<br />
+($\eta&gt;0$ 称为学习率)
+    <ul>
+      <li>如果 $y=1$，但是 $s&lt;0$：<br />
+$w_i\leftarrow w_i+\eta x_i$<br />
+$w_0\leftarrow w_0+\eta$</li>
+      <li>如果 $y=-1$，但是 $s\ge0$：<br />
+$w_i\leftarrow w_i-\eta x_i$<br />
+$w_0\leftarrow w_0-\eta$</li>
+    </ul>
+  </li>
+</ul>
+
+<p><strong>收敛定理</strong>：如果训练数据是线性可分离的，则可以保证算法收敛到一个解。也就是说，存在一个有限的 $K$ 使得 $L(\boldsymbol w^K)=0$</p>
+
+<h4 id="313-感知器收敛定理">3.1.3 感知器收敛定理</h4>
+<ul>
+  <li>假设
+    <ul>
+      <li>线性可分性：存在 $\boldsymbol w^* $ 使得 $y_i(\boldsymbol w^*)’\boldsymbol x_i\ge\gamma$ 对于全部训练数据 $i=1,…,N$ 都成立，其中，$\gamma$ 为某个正实数。</li>
+      <li>边界数据：$\|x_i\|\le R$ 对于全部 $i=1,…,N$ 都成立，$R$ 为某个有限实数。</li>
+    </ul>
+  </li>
+  <li>简略证明
+    <ul>
+      <li>设 $(\boldsymbol w^* )’\boldsymbol w^{(k)}\ge(\boldsymbol w^*)’\boldsymbol w^{(k-1)}+\gamma$</li>
+      <li>那么，它满足 $(\boldsymbol w^*)’\boldsymbol w^{(k)}\ge k\gamma$</li>
+      <li>设 $\|\boldsymbol w^{(k)}\|^2\le kR^2$</li>
+      <li>注意到 $\cos(\boldsymbol w^* ,\boldsymbol w^{(k)})=\dfrac{(\boldsymbol w^* )’\boldsymbol w^{(k)}}{\|\boldsymbol w^*\|\|\boldsymbol w^{(k)}\|}$</li>
+      <li>利用 $\cos(…)\le 1$ 的事实</li>
+      <li>得到 $k\le\dfrac{R^2\|\boldsymbol w^*\|^2}{\gamma^2}$</li>
+    </ul>
+  </li>
+</ul>
+
+<h3 id="32-感知器学习的优缺点">3.2 感知器学习的优缺点</h3>
+<ul>
+  <li>如果数据是线性可分的，那么感知器训练算法会收敛到一个正确的解
+    <ul>
+      <li>关于这点有正式的证明 $\leftarrow$ 很好</li>
+      <li>它会收敛到某个解（分类边界），无限多可能中的一个 $\leftarrow$ 不好</li>
+    </ul>
+  </li>
+  <li>然而，如果数据不是线性可分的，训练会失败，而不是给出某个近似解
+    <ul>
+      <li>丑陋</li>
+    </ul>
+  </li>
+</ul>
+
+<h2 id="4-感知器学习的例子">4. 感知器学习的例子</h2>
+<ul>
+  <li>
+    <p>初始设置
+<img src="https://tva1.sinaimg.cn/large/006y8mN6ly1g8jufv5uqnj30wq0a275h.jpg" width="60%" />
+<br /></p>
+  </li>
+  <li>
+    <p>从随机权重开始
+<img src="https://tva1.sinaimg.cn/large/006y8mN6ly1g8jufzmg86j30ws0a4myi.jpg" width="60%" />
+<img src="https://tva1.sinaimg.cn/large/006y8mN6ly1g8jus5sby9j30q40gmmxg.jpg" width="50%" />
+<br /></p>
+  </li>
+  <li>
+    <p>考虑训练样本 1
+<img src="https://tva1.sinaimg.cn/large/006y8mN6ly1g8jug42xgnj30ws0a4abc.jpg" width="60%" />
+<img src="https://tva1.sinaimg.cn/large/006y8mN6ly1g8jut1bn4yj30q40go3z3.jpg" width="50%" /><br />
+$0.2x_1+0.0x_2-0.1&gt;0$<br />
+$w_1\leftarrow w_1-\eta x_1=0.1$<br />
+$w_2\leftarrow w_2-\eta x_2=-0.1$<br />
+$w_0\leftarrow w_0-\eta=-0.2$<br />
+<br /></p>
+  </li>
+  <li>
+    <p>更新权重
+<img src="https://tva1.sinaimg.cn/large/006y8mN6ly1g8jug8skifj30ws0a40u3.jpg" width="60%" />
+<img src="https://tva1.sinaimg.cn/large/006y8mN6ly1g8juvokbsuj30q40goaar.jpg" width="50%" />
+<br /></p>
+  </li>
+  <li>
+    <p>考虑训练样本 2
+<img src="https://tva1.sinaimg.cn/large/006y8mN6ly1g8jugcrso7j30ws0a4dh4.jpg" width="60%" />
+<img src="https://tva1.sinaimg.cn/large/006y8mN6ly1g8juwcf60bj30q40go0tg.jpg" width="50%" /><br />
+$0.1x_1-0.1x_2-0.2&lt;0$<br />
+$w_1\leftarrow w_1+\eta x_1=0.3$<br />
+$w_2\leftarrow w_2+\eta x_2=0.0$<br />
+$w_0\leftarrow w_0+\eta=-0.1$<br />
+<br /></p>
+  </li>
+  <li>
+    <p>更新权重
+<img src="https://tva1.sinaimg.cn/large/006y8mN6ly1g8jugf2qygj30ws0a4ta2.jpg" width="60%" />
+<img src="https://tva1.sinaimg.cn/large/006y8mN6ly1g8juxz228nj30q40gowf3.jpg" width="50%" />
+<br /></p>
+  </li>
+  <li>
+    <p>下一个样本
+<img src="https://tva1.sinaimg.cn/large/006y8mN6ly1g8jughfbtsj30ws0a4dh4.jpg" width="60%" />
+<img src="https://tva1.sinaimg.cn/large/006y8mN6ly1g8juzylo09j30q40gogmc.jpg" width="50%" /><br />
+$0.3x_1+0.0x_2-0.1&gt;0$<br />
+第 3 个点：分类正确<br />
+第 4 个点：分类错误，更新<br />
+<br /></p>
+  </li>
+  <li>
+    <p>更多样本
+<img src="https://tva1.sinaimg.cn/large/006y8mN6ly1g8jugjx5wrj30ws0a4dh1.jpg" width="60%" />
+<img src="https://tva1.sinaimg.cn/large/006y8mN6ly1g8jv0eqa25j30q20hkwf8.jpg" width="50%" /><br />
+最终，全部数据都被正确分类（在满足线性可分的前提下）</p>
+  </li>
+</ul>
+
+<h2 id="总结">总结</h2>
+<ul>
+  <li>感知器
+    <ul>
+      <li>人工神经网络简介</li>
+      <li>感知器模型</li>
+      <li>训练算法</li>
+    </ul>
+  </li>
+</ul>
+
+<p>下节内容：多层感知器、反向传播</p>
+
+:ET

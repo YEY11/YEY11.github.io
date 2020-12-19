@@ -1,0 +1,409 @@
+I"�}<h1 id="lecture-05-并发控制">Lecture 05 并发控制</h1>
+
+<p><strong>参考教材</strong>：<em>Transaction Processing: Concepts and Techniques, Jim Gray and Andreas Reuter, Morgan Kaufmann, 1993</em></p>
+
+<h2 id="1-并发">1. 并发</h2>
+
+<h3 id="11-并发问题">1.1 并发问题</h3>
+
+<p>本节课中，我们将讨论当多个事务同时访问某个共享数据资源时的一个常见问题：<strong>并发问题 (Concurrency Problems)</strong>。</p>
+
+<p>这里，共享资源可以是一个变量、一些数据，或者一个磁盘块。</p>
+
+<p>下面是一个相关例子，其中共享资源是一个名为 <code class="language-plaintext highlighter-rouge">counter</code> 的变量，其初始值为 $100$。</p>
+
+<p><img src="http://andy-blog.oss-cn-beijing.aliyuncs.com/blog/2020-08-08-WX20200808-230358%402x.png" width="70%" /></p>
+
+<p>第一个事务 Task1 在 <code class="language-plaintext highlighter-rouge">counter</code> 上加了 $10$，第二个事务 Task2 在 <code class="language-plaintext highlighter-rouge">counter</code> 上加了 $30$。那么，由于这些事务是并发运行的，在 Task1 和 Task2 都执行完毕后，<code class="language-plaintext highlighter-rouge">counter</code> 变量的最终值将是多少呢？</p>
+
+<p>上面的 (a)、(b)、(c) 三个选项对应了三种可能的情况，具体取决于最终的 <code class="language-plaintext highlighter-rouge">counter</code> 值是由哪个 Task 返回的。下图给出了这三种情况对应的操作序列：</p>
+
+<p><img src="http://andy-blog.oss-cn-beijing.aliyuncs.com/blog/2020-08-08-WX20200808-231605%402x.png" width="90%" /></p>
+
+<p>如果不同的 Task 执行顺序将导致得到的变量 <code class="language-plaintext highlighter-rouge">counter</code> 的最终值不同，那么对于这种多个事务并发访问某个共享资源时存在的不确定性问题，我们需要采取某种解决方案。</p>
+
+<p>一种保证并发事务正确执行的策略是：当 Task1 和 Task2 同时访问某个共享变量时，我们可以强制要求当其中一个事务正在对该共享资源进行更改时，另一个事务不能对该资源做出任何更改。</p>
+
+<h3 id="12-并发控制的目的">1.2 并发控制的目的</h3>
+
+<ul>
+  <li>在相互冲突的事务之间进行强制隔离 (通过独占机制)。</li>
+  <li>通过保持事务执行的一致性来保持数据库的一致性。</li>
+  <li>解决 “读-写” 和 “写-写” 冲突。</li>
+</ul>
+
+<h2 id="2-并发控制独占访问的实现">2. 并发控制：独占访问的实现</h2>
+
+<p>有许多不同的方法来保证对于共享资源的独占访问：</p>
+
+<ul>
+  <li><strong>Dekker 算法</strong> (使用代码)</li>
+  <li>操作系统支持的 <strong>原语 (primitives)</strong>，例如 <strong>锁 (Lock)</strong> 和 <strong>解锁 (Unlock)</strong> (通过中断调用)</li>
+  <li><strong>原子机器指令 (Atomic machine instructions)</strong>，例如 <strong>test and set</strong> 或者 <strong>swap</strong> 指令 (自旋锁)，所有现代处理器都支持某种形式的 <strong>自旋锁 (Spin Locks)</strong>。</li>
+</ul>
+
+<h3 id="21-独占访问的实现dekker-算法">2.1 独占访问的实现：Dekker 算法</h3>
+
+<p><strong>Dekker 算法</strong></p>
+
+<p>这里我们有两个事务 T1 和 T2，然后有三个全局变量 <code class="language-plaintext highlighter-rouge">c1</code>、<code class="language-plaintext highlighter-rouge">c2</code>、<code class="language-plaintext highlighter-rouge">turn</code>，这些变量都可以被 T1 和 T2 访问。利用这些全局变量，我们可以检查某个事务是否在对这些共享资源进行独占访问。</p>
+
+<p><img src="http://andy-blog.oss-cn-beijing.aliyuncs.com/blog/2020-08-08-WX20200808-234941%402x.png" width="90%" /></p>
+
+<p>例如对于 T1，它试图更改某些全局变量的值，并且在成功更改之前会反复尝试。假设现在 <code class="language-plaintext highlighter-rouge">c1</code> 和 <code class="language-plaintext highlighter-rouge">turn</code> 的值被更改了，算法将检查 <code class="language-plaintext highlighter-rouge">c2</code> 和 <code class="language-plaintext highlighter-rouge">turn</code> 的值是否已经被另一个事务 T2 更改为了满足条件的值。如果满足条件，则说明在 T1 成功更改之前，另一个事务 T2 已经得到了独占访问，然后，算法将进入循环直到 T1 成功得到独占访问。一旦成功，T1 将使用资源，变量 <code class="language-plaintext highlighter-rouge">counter</code> 记录了资源使用的次数。在使用资源后，T1 将全局变量 <code class="language-plaintext highlighter-rouge">c1</code> 的值设置为 <code class="language-plaintext highlighter-rouge">0</code>，以确保另一事务 T2 能够满足成功使用共享资源的所需条件。当 T2 试图对全局变量进行更改时，算法将判断条件 <code class="language-plaintext highlighter-rouge">{c1 == 0 or turn == 2}</code> 是否满足，如果条件满足，说明 T1 此时没有使用共享资源，然后 T2 可以独占使用这些资源。同理，当 T2 使用完资源后，它将 <code class="language-plaintext highlighter-rouge">c2</code> 设置为 <code class="language-plaintext highlighter-rouge">0</code>，以确保 T1 能够满足独占访问资源的前提条件。</p>
+
+<p><strong>优点</strong>：</p>
+
+<ul>
+  <li>几乎不需要硬件支持</li>
+  <li>如果锁争用 (即访问锁的频率) 低，则该算法将很高效</li>
+</ul>
+
+<p><strong>缺点</strong>：</p>
+
+<ul>
+  <li>需要对主内存进行原子读写，这是一个内存访问时间周期的独占访问</li>
+  <li><strong>当涉及两个以上的事务/进程时，代码的实现将非常复杂</strong></li>
+  <li>对于两个以上的进程，该算法将难以理解</li>
+  <li>占用大量存储空间</li>
+  <li>使用繁忙等待 (即当 T2 处于运行过程中时，T1 由于不满足使用资源的前提条件而陷入长时间的循环中)</li>
+</ul>
+
+<p>为了克服 Dekker 算法的缺点，另一种策略是使用锁和解锁，具体包含两种形式：(1) 操作系统支持的原语；(2) 自旋锁。</p>
+
+<h3 id="22-独占访问的实现操作系统支持的原语">2.2 独占访问的实现：操作系统支持的原语</h3>
+
+<p><strong>操作系统支持的原语</strong>，例如锁和解锁：</p>
+
+<p><strong>优点</strong>：</p>
+
+<ul>
+  <li>通过中断调用，将请求传递到操作系统以实现所需的锁请求</li>
+  <li>不需要特殊硬件</li>
+  <li>不使用繁忙等待，因此如果锁争用较高，则更高效</li>
+  <li>解决方案与进程数无关</li>
+  <li>与先前的方案不同，该方案与机器无关</li>
+</ul>
+
+<p><strong>缺点</strong>：</p>
+
+<ul>
+  <li>通常非常昂贵 (由于实现涉及中断调用，需要保存请求过程的上下文，因此需要执行数百至数千条指令)</li>
+  <li>如果系统具有对称多处理器，则需要使用自旋锁在内核中实现 OS 原语</li>
+</ul>
+
+<h3 id="23-独占访问的实现-原子机器指令">2.3 独占访问的实现： 原子机器指令</h3>
+
+<p><strong>原子机器指令</strong>，例如：<strong>test and set</strong> 或者 <strong>swap</strong> 指令 (自旋锁)。所有现代处理器都支持某种形式的 <strong>自旋锁</strong>。</p>
+
+<p><strong>优点</strong>：</p>
+
+<ul>
+  <li>实现非常简单</li>
+  <li>与 Dekker 算法不同，该算法不依赖进程数</li>
+  <li>如果锁争用较低，则非常高效：所有数据库系统都使用它们</li>
+  <li>在对称多处理器计算机中是必需的</li>
+</ul>
+
+<p><strong>缺点</strong>：</p>
+
+<ul>
+  <li>需要硬件支持–需要能够锁定总线 (CPU 和内存 + 任何其他设备之间的通信通道) 长达两个内存周期 (一个用于读取，一个用于写入)。在此期间，不允许其他设备访问此存储位置。</li>
+  <li>使用繁忙等待</li>
+</ul>
+
+<h2 id="3-信号量">3. 信号量</h2>
+
+<p>你可能听说过一个和锁机制相关的术语：<strong>信号量 (Semaphores)</strong>。它源自用于火车的相应机制：仅当信号灯熄灭时，火车才允许通过一段轨道。当火车通过轨道时，将亮起信号灯，直到火车驶离该路段为止。</p>
+
+<p><img src="http://andy-blog.oss-cn-beijing.aliyuncs.com/blog/2020-08-08-WX20200809-005425%402x.png" width="60%" /></p>
+
+<p><img src="http://andy-blog.oss-cn-beijing.aliyuncs.com/blog/2020-08-08-WX20200809-010015%402x.png" width="55%" /></p>
+
+<p>计算机信号量具有一个 <code class="language-plaintext highlighter-rouge">get()</code> <strong>例程 (routine)</strong>，用于获取信号量 (可能等待直到其处于空闲状态)，以及一个对偶的 <code class="language-plaintext highlighter-rouge">give()</code> 例程，用于使该信号量返回到空闲状态 (可能通知/唤醒一个等待进程)。</p>
+
+<p>信号量是非常简单的锁。实际上，它们被用于通用锁的实现。</p>
+
+<h2 id="4-原子操作的实现">4. 原子操作的实现</h2>
+
+<h3 id="41-原子操作的实现test-and-set">4.1 原子操作的实现：test and set</h3>
+
+<p>第一种原子操作实现被称为 <strong>test and set</strong>。</p>
+
+<p><img src="http://andy-blog.oss-cn-beijing.aliyuncs.com/blog/2020-08-08-WX20200809-010558%402x.png" width="80%" /></p>
+
+<p>黄色方框部分以原子方式执行，内存总线将被锁定长达两个周期 (一个用于读，一个用于写)。如果变量 <code class="language-plaintext highlighter-rouge">lock</code> 值为 <code class="language-plaintext highlighter-rouge">1</code>，那么将其值重置为 <code class="language-plaintext highlighter-rouge">0</code>，并返回 <code class="language-plaintext highlighter-rouge">True</code>，这意味着独占锁 <strong>授予 (granted)</strong>。</p>
+
+<p>在 T1 中，首先通过一个 <code class="language-plaintext highlighter-rouge">while</code> 循环获取锁：如果 <code class="language-plaintext highlighter-rouge">testAndSet()</code> 返回的值为 <code class="language-plaintext highlighter-rouge">fasle</code>，则将继续进行循环；如果为 <code class="language-plaintext highlighter-rouge">true</code>，则独占锁被授予给 T1。如果成功得到授予，T1 将对共享资源进行独占访问，变量 <code class="language-plaintext highlighter-rouge">counter</code> 记录了访问次数。访问结束后，T1 独占锁将被释放，并且将 <code class="language-plaintext highlighter-rouge">lock</code> 的值重置为 <code class="language-plaintext highlighter-rouge">1</code>，以确保其他事务 (例如 T2) 现在能够获取独占授予。</p>
+
+<p>那么，这个过程中，黄色方框部分的原子性是如何实现的呢？</p>
+
+<p>假设现在 T1 要获取独占锁，现在 <code class="language-plaintext highlighter-rouge">lock</code> 值为 <code class="language-plaintext highlighter-rouge">1</code>，<code class="language-plaintext highlighter-rouge">if</code> 条件满足，如果在 <code class="language-plaintext highlighter-rouge">lock = 0</code> 语句执行后，程序崩溃，那么后续的 <code class="language-plaintext highlighter-rouge">return (true)</code> 将不会被执行 (并且之前的 <code class="language-plaintext highlighter-rouge">lock = 0</code> 更改将被清空)。这种情况下，T1 在调用 <code class="language-plaintext highlighter-rouge">testAndSet</code> 时不会得到任何返回值，而由于该调用发生在 <code class="language-plaintext highlighter-rouge">while</code> 循环中，T1 将继续对其进行调用。如果在下一次循环中，成功返回 <code class="language-plaintext highlighter-rouge">true</code>，那么 T1 将被授予独占访问权。因此，函数 <code class="language-plaintext highlighter-rouge">testAndSet()</code> 的中途崩溃不会对 T1 造成任何影响。通常，如果一个程序在执行中途崩溃，那么在恢复时将清空之前已执行的操作。</p>
+
+<h3 id="42-原子操作的实现compare-and-swap">4.2 原子操作的实现：compare and swap</h3>
+
+<p>现在，我们来看一下第二种原子操作：<strong>compare and swap</strong>。它被用于多个事务需要对某个共享变量进行更改的情况。</p>
+
+<p>假设 <code class="language-plaintext highlighter-rouge">counter</code> 是一个共享变量，它可以被事务 T1、T2 访问和更改。</p>
+
+<p><img src="http://andy-blog.oss-cn-beijing.aliyuncs.com/blog/2020-08-09-WX20200809-093046%402x.png" width="80%" /></p>
+
+<p>如果我们按照黄色方框中的顺序进行更改，那么某些赋值或者更新操作将有可能丢失。例如，白色方框中，T2 写入 <code class="language-plaintext highlighter-rouge">counter == 100+30</code> 后，T1 又重新写入了 <code class="language-plaintext highlighter-rouge">counter == 100+10</code>，那么，之前 T2 的写入将丢失。</p>
+
+<p>为了防止这种丢失情况发生，我们可以采用自旋锁中的 <strong>compare and swap</strong> 操作：</p>
+
+<p><img src="http://andy-blog.oss-cn-beijing.aliyuncs.com/blog/2020-08-09-WX20200809-093848%402x.png" width="80%" /></p>
+
+<p>函数 <code class="language-plaintext highlighter-rouge">cs()</code> 接受三个参数：<code class="language-plaintext highlighter-rouge">cell</code> 是我们希望更改的共享变量，<code class="language-plaintext highlighter-rouge">old</code> 是该变量先前的值，<code class="language-plaintext highlighter-rouge">new</code> 是更改后的值。其中的语句以原子方式执行。如果条件 <code class="language-plaintext highlighter-rouge">cell == old</code> 满足，说明此时其他事务还没有更改 <code class="language-plaintext highlighter-rouge">cell</code> 的值，那么当前事务可以进行 <code class="language-plaintext highlighter-rouge">cell == new</code> 更改；否则，我们将当前 <code class="language-plaintext highlighter-rouge">cell</code> 的值赋给 <code class="language-plaintext highlighter-rouge">old</code>，并且返回 <code class="language-plaintext highlighter-rouge">FALSE</code> 以告知有其他事务已经对 <code class="language-plaintext highlighter-rouge">cell</code> 进行过更改。</p>
+
+<p>另外，这里的 <code class="language-plaintext highlighter-rouge">cs()</code> 的原子操作的实现机制和之前 <strong>test and set</strong> 中同理。</p>
+
+<h2 id="5-独占模式信号量的实现">5. 独占模式信号量的实现</h2>
+
+<h3 id="51-独占模式信号量的实现">5.1 独占模式信号量的实现</h3>
+
+<p>目前为止，我们介绍了涉及两个事务/进程的独占实现，但通常可以有任意数量的事务/进程访问共享资源。对于通用锁的实现，我们有：</p>
+
+<ul>
+  <li>一个指向进程队列的指针</li>
+  <li>如果信号量处于繁忙状态，说明当前有一个进程在使用该共享资源，则指针指向的是拥有该信号量的进程的地址。</li>
+  <li>如果还有其他等待进程，则信号量指向这些等待进程的一个链表。拥有信号量的进程在此列表的末尾。</li>
+  <li>使用后，所有者进程唤醒队列中最旧的进程 (先进先出调度程序；当然，还存在其他形式的调度或者没有调度，我们将在之后讨论)</li>
+</ul>
+
+<p>下面是这种模式的一个实现例子：</p>
+
+<div class="language-c highlighter-rouge"><div class="highlight"><pre class="highlight"><code><table class="rouge-table"><tbody><tr><td class="rouge-gutter gl"><pre class="lineno">1
+2
+3
+4
+5
+6
+7
+8
+9
+10
+11
+12
+</pre></td><td class="rouge-code"><pre><span class="n">type</span> <span class="kt">long</span> <span class="n">PID</span>
+
+<span class="n">type</span> <span class="k">struct</span> <span class="n">Process</span><span class="p">{</span>
+    <span class="n">PID</span> <span class="n">pid</span><span class="p">;</span> <span class="cm">/*process ID*/</span>
+    <span class="n">PCB</span> <span class="o">*</span> <span class="n">sem_wait</span><span class="p">;</span> <span class="cm">/* waiting process are put in the queue */</span>
+<span class="p">}</span>
+
+<span class="n">PCB</span><span class="p">;</span>
+<span class="n">PID</span> <span class="nf">MyPID</span> <span class="p">(</span><span class="kt">void</span><span class="p">);</span> <span class="cm">/* returns the caller’s process ID */</span>
+<span class="n">PCB</span> <span class="o">*</span> <span class="nf">MyPCB</span><span class="p">(</span><span class="kt">void</span><span class="p">);</span> <span class="cm">/* returns pointer to caller’s process descriptor */</span>
+<span class="kt">void</span> <span class="nf">wait</span> <span class="p">(</span><span class="kt">void</span><span class="p">);</span> <span class="cm">/* suspends calling process */</span>
+<span class="kt">void</span> <span class="n">wakeup</span><span class="p">(</span> <span class="n">PCB</span> <span class="o">*</span> <span class="n">him</span><span class="p">)</span> <span class="n">wakes</span> <span class="n">him</span><span class="p">.</span>
+</pre></td></tr></tbody></table></code></pre></div></div>
+
+<p>其中，<code class="language-plaintext highlighter-rouge">wait()</code> 函数将等待需要被释放的资源，而一旦该资源被释放，<code class="language-plaintext highlighter-rouge">wakeup()</code> 函数将唤醒另一个等待进程。</p>
+
+<h3 id="52-独占锁信号量操作的实现">5.2 独占锁信号量操作的实现</h3>
+
+<p><strong>进程</strong> 结构：</p>
+
+<div class="language-c highlighter-rouge"><div class="highlight"><pre class="highlight"><code><table class="rouge-table"><tbody><tr><td class="rouge-gutter gl"><pre class="lineno">1
+2
+3
+4
+5
+6
+7
+8
+9
+10
+11
+12
+</pre></td><td class="rouge-code"><pre><span class="n">type</span> <span class="k">struct</span> <span class="n">Process</span><span class="p">{</span>
+    <span class="n">PID</span> <span class="n">pid</span><span class="p">;</span>
+    <span class="n">PCB</span> <span class="o">*</span> <span class="n">sem_wait</span><span class="p">;</span>
+<span class="p">}</span>
+
+<span class="n">PCB</span><span class="p">;</span>
+<span class="k">typedef</span> <span class="n">PCB</span> <span class="o">*</span><span class="n">Xsemaphore</span>
+
+<span class="n">Void</span> <span class="nf">initialise</span><span class="p">(</span> <span class="n">Xsemaphore</span> <span class="o">*</span><span class="n">sem</span><span class="p">){</span>
+    <span class="o">*</span><span class="n">sem</span> <span class="o">=</span> <span class="nb">NULL</span><span class="p">;</span>
+    <span class="k">return</span><span class="p">;</span>
+<span class="p">}</span>
+</pre></td></tr></tbody></table></code></pre></div></div>
+
+<p>我们先来看一下第一个实现：<strong>锁机制</strong></p>
+
+<div class="language-c highlighter-rouge"><div class="highlight"><pre class="highlight"><code><table class="rouge-table"><tbody><tr><td class="rouge-gutter gl"><pre class="lineno">1
+2
+3
+4
+5
+6
+7
+8
+9
+10
+</pre></td><td class="rouge-code"><pre><span class="kt">void</span> <span class="nf">lock</span><span class="p">(</span><span class="n">Xsemaphore</span> <span class="o">*</span><span class="n">sem</span><span class="p">){</span>
+    <span class="n">PCB</span> <span class="o">*</span> <span class="n">new</span> <span class="o">=</span> <span class="n">myPCB</span><span class="p">();</span>
+    <span class="n">PCB</span> <span class="o">*</span> <span class="n">old</span> <span class="o">=</span> <span class="nb">NULL</span><span class="p">;</span> <span class="cm">/*put the process in the semWait queue*/</span>
+    <span class="k">do</span><span class="p">{</span>
+        <span class="n">new</span> <span class="o">-&gt;</span><span class="n">semWait</span> <span class="o">=</span> <span class="n">old</span><span class="p">;</span>
+    <span class="p">}</span> <span class="k">while</span><span class="p">(</span> <span class="o">!</span> <span class="n">cs</span><span class="p">(</span><span class="n">sem</span><span class="p">,</span> <span class="o">&amp;</span><span class="n">old</span><span class="p">,</span> <span class="o">&amp;</span><span class="n">new</span><span class="p">));</span>
+    <span class="cm">/*if queue not null then this process must wait for a wakeup from the semaphore owner*/</span>
+    <span class="k">if</span> <span class="p">(</span><span class="n">old</span> <span class="o">!=</span> <span class="nb">NULL</span><span class="p">)</span> <span class="n">wait</span><span class="p">();</span> <span class="o">%</span> <span class="n">OS</span> <span class="n">call</span>
+    <span class="k">return</span><span class="p">;</span>
+<span class="p">}</span>
+</pre></td></tr></tbody></table></code></pre></div></div>
+
+<p>这里，一个新的进程试图获取锁，该进程将被添加进一个进程链表中。如果该进程是该链表中唯一的进程，说明除它之外，没有其他进程，那么该进程将被授予访问和使用共享资源；否则，如果还有其他进程正在使用该资源，则该进程需要保持等待，直到被 <code class="language-plaintext highlighter-rouge">wakeup()</code> 唤醒。</p>
+
+<p>下面是 <strong>解锁机制</strong> 的实现：</p>
+
+<div class="language-c highlighter-rouge"><div class="highlight"><pre class="highlight"><code><table class="rouge-table"><tbody><tr><td class="rouge-gutter gl"><pre class="lineno">1
+2
+3
+4
+5
+6
+7
+8
+9
+10
+11
+</pre></td><td class="rouge-code"><pre><span class="kt">void</span> <span class="nf">unlock</span><span class="p">(</span><span class="n">Xsemphore</span> <span class="o">*</span><span class="n">sem</span><span class="p">){</span>
+    <span class="n">PCB</span> <span class="o">*</span> <span class="n">new</span> <span class="o">=</span> <span class="nb">NULL</span><span class="p">;</span>
+    <span class="n">PCB</span> <span class="o">*</span> <span class="n">old</span> <span class="o">=</span> <span class="n">myPCB</span><span class="p">();</span>
+    <span class="k">if</span><span class="p">(</span><span class="n">cs</span><span class="p">(</span><span class="n">sem</span><span class="p">,</span> <span class="o">&amp;</span><span class="n">old</span><span class="p">,</span> <span class="o">&amp;</span><span class="n">new</span><span class="p">))</span> <span class="k">return</span><span class="p">;</span>
+    <span class="k">while</span><span class="p">(</span><span class="n">old</span><span class="o">-&gt;</span><span class="n">semWait</span> <span class="o">!=</span><span class="n">myPCB</span><span class="p">()){</span>
+        <span class="n">old</span> <span class="o">=</span> <span class="n">old</span><span class="o">-&gt;</span><span class="n">semWait</span>
+    <span class="p">};</span>
+    <span class="n">old</span><span class="o">-&gt;</span><span class="n">semWait</span> <span class="o">=</span> <span class="nb">NULL</span><span class="p">;</span>
+    <span class="cm">/*wake up the oldest process (first in, first out scheduler)*/</span>
+    <span class="n">wakeup</span><span class="p">(</span><span class="n">old</span><span class="p">);</span> <span class="o">%</span> <span class="n">OS</span> <span class="n">Call</span>
+<span class="p">}</span>
+</pre></td></tr></tbody></table></code></pre></div></div>
+
+<p>采用一些更改以确保资源是否处于锁定或者解锁状态。否则，将唤醒最旧的进程，即最早进入队列的进程。</p>
+
+<p>下面是独占信号量数据结构的转换图：</p>
+
+<p><img src="http://andy-blog.oss-cn-beijing.aliyuncs.com/blog/2020-08-09-WX20200809-131018%402x.png" width="80%" /></p>
+
+<p>垂直方向转换是由 <code class="language-plaintext highlighter-rouge">Xsem_get</code> 调用引起，水平方向转换是由 <code class="language-plaintext highlighter-rouge">Xsem_give</code> 调用引起。通常情况下，信号量是空闲的，并且路径是 <code class="language-plaintext highlighter-rouge">Xsem_get</code>，<code class="language-plaintext highlighter-rouge">Xsem_give</code>。但是，如果进程 p2 在 进程 p1 调用 <code class="language-plaintext highlighter-rouge">Xsem_give</code> 之前调用 <code class="language-plaintext highlighter-rouge">Xsem_get</code>，等待的情况就发生了。也有一种较为少见的情况：p1 占有信号量很长时间，从而形成了一个很长的进程队列。这种情况下，每个进程都将按照 FIFO 顺序被授予，然后唤醒它的后继进程 (即它在队列中的前驱)。</p>
+
+<h3 id="53-车队避免信号量">5.3 车队避免信号量</h3>
+
+<ul>
+  <li>先前的实现可能会导致一长串等待进程，称为 <strong>车队 (Convoy)</strong>。</li>
+  <li>为了避免出现麻烦，进程可以 <strong>简单地释放信号量</strong> (将队列设置为 <code class="language-plaintext highlighter-rouge">null</code>)，然后在使用后唤醒列表中的每个进程。</li>
+  <li>在这种情况下，这些进程中的每一个都必须重新执行获取信号量的例程。</li>
+</ul>
+
+<p>下面是相关代码实现，和之前相比，红色字体标出了变化的部分：</p>
+
+<p><img src="http://andy-blog.oss-cn-beijing.aliyuncs.com/blog/2020-08-09-WX20200809-131637%402x.png" width="80%" /></p>
+
+<p>如果一个进程没有成功获取到锁，它将等待一段时间，然后将再次请求获取锁。</p>
+
+<p>当解锁完成后 (即进程完成了对资源的使用)，它将唤醒所有等待队列中的进程，所有这些进程将再次请求获取锁，而最早发出请求的进程将成功获得锁。</p>
+
+<h2 id="6-死锁">6. 死锁</h2>
+
+<h3 id="61-死锁问题">6.1 死锁问题</h3>
+
+<p>由于锁和解锁机制的实现方式，会存在一种被称为 <strong>死锁 (Deadlock)</strong> 的情况。尽管死锁不常发生，但是一旦发生，将很难解决。</p>
+
+<p>在死锁情况下，死锁进程中的每个成员都在等待另一个成员释放其所需的资源。</p>
+
+<p>下面是一个非常简单的死锁的例子：</p>
+
+<p><img src="http://andy-blog.oss-cn-beijing.aliyuncs.com/blog/2020-08-09-WX20200809-132820%402x.png" width="80%" /></p>
+
+<p>T1 获取了一个独占锁 A，然后 T1 在等待访问独占锁 B 控制的资源；与此同时，独占锁 B 由另一个进程 T2 持有，而 T2 也在等待访问独占锁 A 控制的资源。左边的表格显示了 T1 和 T2 的指令列表。从右图可以看到，这种情况下，整个过程形成了一个封闭环，其中的进程 T1 和 T2 都在等待对方释放相应的共享资源。</p>
+
+<h3 id="62-解决方案">6.2 解决方案</h3>
+
+<p>对于死锁，通常有以下一些 <strong>解决方案</strong>：</p>
+
+<ul>
+  <li>拥有 <strong>足够的资源</strong>，因此不会出现等待的情况。</li>
+  <li>可以简单地 <strong>禁止长时间进程等待</strong>，如果一个进程等待时间过长，我们只需将其 <strong>回滚</strong> (就像杀死该进程一样)。但是，如果这个过程中，日志没有被清除或者回滚出现错误，那么将会创建一个比死锁更糟糕的问题，称为 <strong>活锁 (live locks)</strong>，活锁无法被解锁因为进程并没有被杀死。因此，通常不会采用这种方案。</li>
+  <li><strong>资源线性排序</strong>，对资源的请求应遵循此顺序。即一个事务可以在请求完第 $I$ 个资源后，再请求第 $J$ 个资源，如果 $J&gt;I$。这种类型的分配可以保证事务之间没有循环依赖性。</li>
+</ul>
+
+<p>下面是一个关于资源线性排序方案的例子：</p>
+
+<p><img src="http://andy-blog.oss-cn-beijing.aliyuncs.com/blog/2020-08-09-WX20200809-134549%402x.png" width="80%" /></p>
+
+<p>进程 Pa 占用资源 $i$，然后它请求由进程 Pb 正在占用的资源 $j$，并且 $j&gt;i$。根据资源线性排序方案，这种情况是允许的。然后，进程 Pb 占用资源 $j$，并请求由进程 Pc 正在占用的资源 $k$，并且 $k&gt;j$。同理，这也是允许的。类似地，如果我们有一个由很多资源请求组成的长链，并且某个进程正在占用其中最高级别的资源 $l$，当该资源 $l$ 被释放时，占用比其低一级的资源并且正在请求资源 $l$ 的进程将被唤醒。例如这里，资源 $l$ 的级别要比资源 $k$ 和 $g$ 都高，无论后两者中谁的级别更高，进程 Pd 都将唤醒进程 Pe 和 Pq，并且将资源 $l$ 释放。</p>
+
+<p>这种方式保证了进程/事务之间不会出现循环依赖性，依赖关系可能是无环的树状结构或者线性链。因此，这种方式可以避免死锁问题。</p>
+
+<h3 id="63-避免缓解死锁">6.3 避免/缓解死锁</h3>
+
+<ul>
+  <li>预声明所有的所需资源，并在单个请求中分配所有资源。</li>
+  <li>允许一个事务在某个锁上等待一段特定的最长时间，然后如果超时，则将其强制回滚。许多成功的系统 (IBM，Tandem) 都选择了这种方法。</li>
+  <li>定期检查资源依赖关系图，查看是否存在闭环。如果存在闭环，则回滚 (即终止) 一个或多个事务以消除闭环 (死锁)，并更新依赖关系图 (无环)。所选的事务应该成本较低 (例如，它们不会消耗太多资源)。</li>
+  <li>许多分布式数据库系统仅维护本地依赖关系图，并对全局死锁采取超时策略。</li>
+  <li><strong>Phantom 死锁</strong>：如果我们无法在许多独立的数据库系统之间构建一致的依赖关系图，则会发生 Phantom 死锁。</li>
+</ul>
+
+<h3 id="64-相关概率">6.4 相关概率</h3>
+
+<p>虽然死锁这种情况很少见，但偶尔确实会发生，这种情况下，数据库需要处理死锁问题。</p>
+
+<p>那么，一个死锁发生的概率是多少呢？</p>
+
+<p>我们假设：</p>
+
+<ul>
+  <li>事务数量 $=n+1\cong n\;$ (当 $n$ 非常大时)</li>
+  <li>每个事务独占访问 $r$ 个锁，即它将连续获取独占锁</li>
+  <li>数据库中的记录的总条数 $=R$，即总共可以有 $R$ 个锁</li>
+  <li>平均而言，每个事务持有大约 $\frac{r}{2}$ 个锁 (最小为 $0$，最大为 $r$，所以平均是 $\frac{r}{2}$)</li>
+  <li>刚刚开始的交易不持有任何交易，而即将完成的交易则持有其中的r个交易</li>
+  <li>平均而言，其余 $n$ 个事务持有的锁的数量为 $n \cdot (\frac{r}{2})=\frac{nr}{2}$</li>
+</ul>
+
+<p>一个特定事务等待某个锁，意味着它需要从被其他 $n$ 个事务独占的 $\frac{nr}{2}$ 个锁中请求一个独占锁，而锁的总数为 $R$。因此，在总共的 $R$ 个锁中，有 $\frac{nr}{2}$ 个锁在请求时将引发等待。</p>
+
+<p>所以，一个特定事务等待某个锁的概率为：</p>
+
+\[PW=\dfrac{nr}{2R}\]
+
+<p>一个事务 (访问 $r$ 个锁) 不需要等待的概率为：</p>
+
+\[\sim PW(T)=\left(1-\dfrac{nr}{2R}\right)^r \approx 1-\dfrac{nr^2}{2R}\]
+
+<p>注意：当 $\varepsilon$ 非常小时，$(1+\varepsilon)^r \approx 1+ r\varepsilon$</p>
+
+<p>一个事务在其生命周期内需要等待的概率为：</p>
+
+\[PW(T)=1-\left(1-\dfrac{nr^2}{2R}\right)=\dfrac{nr^2}{2R}\]
+
+<p>一个特定事务 $T$ 等待某个事务 $T1$，而同时 $T1$ 也在等待 $T$ 的概率为：</p>
+
+\[PW(T)\times \dfrac{PW(T1)}{n}=\dfrac{nr^4}{4R^2}\]
+
+<p>任意两个事务产生死锁的概率为：</p>
+
+<p>$n\times \dfrac{nr^4}{4R^2}=\dfrac{n^2r^4}{4R^2}$</p>
+
+<p>发生死锁的概率：随访问锁的数量 $r$ 以 $O(r^4)$ 增加，随并发事务数 $n$ 以 $O(n^2)$ 增加，并且随数据库大小 $R$ 以 $O(R^2)$ 成反比。</p>
+
+<p><img src="http://andy-blog.oss-cn-beijing.aliyuncs.com/blog/2020-08-09-WX20200809-161632%402x.png" width="80%" /></p>
+
+<h2 id="7-总结">7. 总结</h2>
+
+<ul>
+  <li>并发问题：为什么我们需要并发控制</li>
+  <li>独占访问的实现：Dekker 算法、操作系统原语、自旋锁</li>
+  <li>信号量：获取锁、释放锁、维护进程队列</li>
+  <li>获取和释放锁的原子操作</li>
+  <li>信号量队列，避免长时间排队</li>
+  <li>死锁</li>
+</ul>
+
+<p>下节内容：隔离性</p>
+:ET

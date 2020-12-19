@@ -1,0 +1,890 @@
+I"i�<h1 id="lecture-14-权值初始化">Lecture 14 权值初始化</h1>
+
+<p>在前几节课中，我们学习了如何搭建网络模型。在网络模型搭建好之后，有一个非常重要的步骤，就是对模型中的权值进行初始化：正确的权值初始化可以加快模型的收敛，而不适当的权值初始化可以会引发梯度消失或者爆炸，最终导致模型无法训练。本节课，我们将学习如何进行权值初始化。</p>
+
+<h2 id="1-梯度消失与爆炸">1. 梯度消失与爆炸</h2>
+
+<p>这里，我们以上节课中提到的一个三层的全连接网络为例。我们来看一下第二个隐藏层中的权值 $W_2$ 的梯度是怎么求取的。</p>
+
+<p><img src="http://andy-blog.oss-cn-beijing.aliyuncs.com/blog/2020-12-18-WX20201218-170939%402x.png" width="80%" /></p>
+
+<p>从公式角度来看，为了防止发生梯度消失或者爆炸，我们必须严格控制网络层输出值的尺度范围，即每个网络层的输出值不能太大或者太小。</p>
+
+<p><strong>代码示例</strong>：</p>
+
+<p><strong>100 个线性层的简单叠加</strong>：</p>
+
+<div class="language-python highlighter-rouge"><div class="highlight"><pre class="highlight"><code><table class="rouge-table"><tbody><tr><td class="rouge-gutter gl"><pre class="lineno">1
+2
+3
+4
+5
+6
+7
+8
+9
+10
+11
+12
+13
+14
+15
+16
+17
+18
+19
+20
+21
+22
+23
+24
+25
+26
+27
+28
+29
+30
+31
+32
+33
+34
+</pre></td><td class="rouge-code"><pre><span class="kn">import</span> <span class="nn">torch</span>
+<span class="kn">import</span> <span class="nn">torch.nn</span> <span class="k">as</span> <span class="n">nn</span>
+<span class="kn">from</span> <span class="nn">tools.common_tools</span> <span class="kn">import</span> <span class="n">set_seed</span>
+
+<span class="n">set_seed</span><span class="p">(</span><span class="mi">1</span><span class="p">)</span>  <span class="c1"># 设置随机种子
+</span>
+
+<span class="k">class</span> <span class="nc">MLP</span><span class="p">(</span><span class="n">nn</span><span class="p">.</span><span class="n">Module</span><span class="p">):</span>
+    <span class="k">def</span> <span class="nf">__init__</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">neural_num</span><span class="p">,</span> <span class="n">layers</span><span class="p">):</span>
+        <span class="nb">super</span><span class="p">(</span><span class="n">MLP</span><span class="p">,</span> <span class="bp">self</span><span class="p">).</span><span class="n">__init__</span><span class="p">()</span>
+        <span class="bp">self</span><span class="p">.</span><span class="n">linears</span> <span class="o">=</span> <span class="n">nn</span><span class="p">.</span><span class="n">ModuleList</span><span class="p">([</span><span class="n">nn</span><span class="p">.</span><span class="n">Linear</span><span class="p">(</span><span class="n">neural_num</span><span class="p">,</span> <span class="n">neural_num</span><span class="p">,</span> <span class="n">bias</span><span class="o">=</span><span class="bp">False</span><span class="p">)</span> <span class="k">for</span> <span class="n">i</span> <span class="ow">in</span> <span class="nb">range</span><span class="p">(</span><span class="n">layers</span><span class="p">)])</span>
+        <span class="bp">self</span><span class="p">.</span><span class="n">neural_num</span> <span class="o">=</span> <span class="n">neural_num</span>
+
+    <span class="k">def</span> <span class="nf">forward</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">x</span><span class="p">):</span>
+        <span class="k">for</span> <span class="p">(</span><span class="n">i</span><span class="p">,</span> <span class="n">linear</span><span class="p">)</span> <span class="ow">in</span> <span class="nb">enumerate</span><span class="p">(</span><span class="bp">self</span><span class="p">.</span><span class="n">linears</span><span class="p">):</span>
+            <span class="n">x</span> <span class="o">=</span> <span class="n">linear</span><span class="p">(</span><span class="n">x</span><span class="p">)</span>
+        <span class="k">return</span> <span class="n">x</span>
+
+    <span class="k">def</span> <span class="nf">initialize</span><span class="p">(</span><span class="bp">self</span><span class="p">):</span>
+        <span class="k">for</span> <span class="n">m</span> <span class="ow">in</span> <span class="bp">self</span><span class="p">.</span><span class="n">modules</span><span class="p">():</span>
+            <span class="k">if</span> <span class="nb">isinstance</span><span class="p">(</span><span class="n">m</span><span class="p">,</span> <span class="n">nn</span><span class="p">.</span><span class="n">Linear</span><span class="p">):</span>
+                <span class="n">nn</span><span class="p">.</span><span class="n">init</span><span class="p">.</span><span class="n">normal_</span><span class="p">(</span><span class="n">m</span><span class="p">.</span><span class="n">weight</span><span class="p">.</span><span class="n">data</span><span class="p">)</span>  <span class="c1"># normal: mean=0, std=1
+</span>
+
+<span class="n">layer_nums</span> <span class="o">=</span> <span class="mi">100</span>  <span class="c1"># 网络层数
+</span><span class="n">neural_nums</span> <span class="o">=</span> <span class="mi">256</span>  <span class="c1"># 每层的神经元个数
+</span><span class="n">batch_size</span> <span class="o">=</span> <span class="mi">16</span>  <span class="c1"># 输入数据的 batch size
+</span>
+<span class="n">net</span> <span class="o">=</span> <span class="n">MLP</span><span class="p">(</span><span class="n">neural_nums</span><span class="p">,</span> <span class="n">layer_nums</span><span class="p">)</span>
+<span class="n">net</span><span class="p">.</span><span class="n">initialize</span><span class="p">()</span>
+
+<span class="n">inputs</span> <span class="o">=</span> <span class="n">torch</span><span class="p">.</span><span class="n">randn</span><span class="p">((</span><span class="n">batch_size</span><span class="p">,</span> <span class="n">neural_nums</span><span class="p">))</span>  <span class="c1"># normal: mean=0, std=1
+</span><span class="n">output</span> <span class="o">=</span> <span class="n">net</span><span class="p">(</span><span class="n">inputs</span><span class="p">)</span>
+<span class="k">print</span><span class="p">(</span><span class="n">output</span><span class="p">)</span>
+</pre></td></tr></tbody></table></code></pre></div></div>
+
+<p>输出结果：</p>
+
+<div class="language-plaintext highlighter-rouge"><div class="highlight"><pre class="highlight"><code><table class="rouge-table"><tbody><tr><td class="rouge-gutter gl"><pre class="lineno">1
+2
+3
+4
+5
+6
+7
+</pre></td><td class="rouge-code"><pre>tensor([[nan, nan, nan,  ..., nan, nan, nan],
+        [nan, nan, nan,  ..., nan, nan, nan],
+        [nan, nan, nan,  ..., nan, nan, nan],
+        ...,
+        [nan, nan, nan,  ..., nan, nan, nan],
+        [nan, nan, nan,  ..., nan, nan, nan],
+        [nan, nan, nan,  ..., nan, nan, nan]], grad_fn=&lt;MmBackward&gt;) 
+</pre></td></tr></tbody></table></code></pre></div></div>
+
+<p>我们发现 <code class="language-plaintext highlighter-rouge">output</code> 中的每一个值都是 <code class="language-plaintext highlighter-rouge">nan</code>，这表明我们的数据值可能非常大或者非常小，已经超出了当前精度能够表示的范围。我们可以修改一下 <code class="language-plaintext highlighter-rouge">forward</code> 函数，来看一下什么时候我们的数据变为了 <code class="language-plaintext highlighter-rouge">nan</code>。这里，我们采用标准差作为指标来衡量数据的尺度范围。首先我们打印出每层的标准差，接着进行一个 <code class="language-plaintext highlighter-rouge">if</code> 判断，如果 <code class="language-plaintext highlighter-rouge">x</code> 的标准差变为 <code class="language-plaintext highlighter-rouge">nan</code> 了则停止前向传播。</p>
+
+<div class="language-python highlighter-rouge"><div class="highlight"><pre class="highlight"><code><table class="rouge-table"><tbody><tr><td class="rouge-gutter gl"><pre class="lineno">1
+2
+3
+4
+5
+6
+7
+8
+9
+10
+</pre></td><td class="rouge-code"><pre><span class="k">def</span> <span class="nf">forward</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">x</span><span class="p">):</span>
+    <span class="k">for</span> <span class="p">(</span><span class="n">i</span><span class="p">,</span> <span class="n">linear</span><span class="p">)</span> <span class="ow">in</span> <span class="nb">enumerate</span><span class="p">(</span><span class="bp">self</span><span class="p">.</span><span class="n">linears</span><span class="p">):</span>
+        <span class="n">x</span> <span class="o">=</span> <span class="n">linear</span><span class="p">(</span><span class="n">x</span><span class="p">)</span>
+
+        <span class="k">print</span><span class="p">(</span><span class="s">"layer:{}, std:{}"</span><span class="p">.</span><span class="nb">format</span><span class="p">(</span><span class="n">i</span><span class="p">,</span> <span class="n">x</span><span class="p">.</span><span class="n">std</span><span class="p">()))</span>  <span class="c1"># 打印每层的标准差
+</span>        <span class="k">if</span> <span class="n">torch</span><span class="p">.</span><span class="n">isnan</span><span class="p">(</span><span class="n">x</span><span class="p">.</span><span class="n">std</span><span class="p">()):</span>
+            <span class="k">print</span><span class="p">(</span><span class="s">"output is nan in {} layers"</span><span class="p">.</span><span class="nb">format</span><span class="p">(</span><span class="n">i</span><span class="p">))</span>
+            <span class="k">break</span>  <span class="c1"># 如果 x 的标准差变为 nan 则停止前向传播
+</span>
+        <span class="k">return</span> <span class="n">x</span>
+</pre></td></tr></tbody></table></code></pre></div></div>
+
+<p>输出结果：</p>
+
+<div class="language-plaintext highlighter-rouge"><div class="highlight"><pre class="highlight"><code><table class="rouge-table"><tbody><tr><td class="rouge-gutter gl"><pre class="lineno">1
+2
+3
+4
+5
+6
+7
+8
+9
+10
+11
+12
+13
+14
+15
+16
+17
+18
+19
+20
+21
+22
+23
+24
+25
+26
+27
+28
+29
+30
+31
+32
+33
+34
+35
+36
+37
+38
+39
+40
+41
+42
+43
+44
+45
+46
+</pre></td><td class="rouge-code"><pre>layer:0, std:15.959932327270508
+layer:1, std:256.6237487792969
+layer:2, std:4107.24560546875
+layer:3, std:65576.8125
+layer:4, std:1045011.875
+layer:5, std:17110408.0
+layer:6, std:275461408.0
+layer:7, std:4402537984.0
+layer:8, std:71323615232.0
+layer:9, std:1148104736768.0
+layer:10, std:17911758454784.0
+layer:11, std:283574846619648.0
+layer:12, std:4480599809064960.0
+layer:13, std:7.196814275405414e+16
+layer:14, std:1.1507761512626258e+18
+layer:15, std:1.853110740188555e+19
+layer:16, std:2.9677725826641455e+20
+layer:17, std:4.780376223769898e+21
+layer:18, std:7.613223480799065e+22
+layer:19, std:1.2092652108825478e+24
+layer:20, std:1.923257075956356e+25
+layer:21, std:3.134467063655912e+26
+layer:22, std:5.014437766285408e+27
+layer:23, std:8.066615144249704e+28
+layer:24, std:1.2392661553516338e+30
+layer:25, std:1.9455688099759845e+31
+layer:26, std:3.0238180658999113e+32
+layer:27, std:4.950357571077011e+33
+layer:28, std:8.150925520353362e+34
+layer:29, std:1.322983152787379e+36
+layer:30, std:2.0786820453988485e+37
+layer:31, std:nan
+output is nan in 31 layers
+tensor([[        inf, -2.6817e+38,         inf,  ...,         inf,
+                 inf,         inf],
+        [       -inf,        -inf,  1.4387e+38,  ..., -1.3409e+38,
+         -1.9659e+38,        -inf],
+        [-1.5873e+37,         inf,        -inf,  ...,         inf,
+                -inf,  1.1484e+38],
+        ...,
+        [ 2.7754e+38, -1.6783e+38, -1.5531e+38,  ...,         inf,
+         -9.9440e+37, -2.5132e+38],
+        [-7.7184e+37,        -inf,         inf,  ..., -2.6505e+38,
+                 inf,         inf],
+        [        inf,         inf,        -inf,  ...,        -inf,
+                 inf,  1.7432e+38]], grad_fn=&lt;MmBackward&gt;)
+</pre></td></tr></tbody></table></code></pre></div></div>
+
+<p>可以看到，当进行到 31 层的时候，数据的标准差就已经变为 <code class="language-plaintext highlighter-rouge">nan</code> 了。我们看到，在第 31 层的时候，数据的值都非常大或者非常小，再往后传播，计算机当前的精度就已经没办法去表示这些特别大或者特别小的数据了。另外，可以看到每一层网络的标准差都是逐渐增大的，直到第 31 层，大约在 $10^{38} \sim 10^{39}$ 之间，而这已经超出了我们当前精度可以表示的数据范围。</p>
+
+<p>下面我们通过方差的公式推导来观察为什么网络层输出的标准差会越来越大，最终超出可表示的范围。假设 $X$ 和 $Y$ 是两个相互独立的随机变量，我们知道：</p>
+
+\[\begin{aligned}
+\mathrm{E}(X*Y) &amp;= \mathrm{E}(X) * \mathrm{E}(Y) \\[2ex]
+\mathrm{Var}(X) &amp;= \mathrm{E}(X^2) - [\mathrm{E}(X)]^2 \\[2ex]
+\mathrm{Var}(X+Y) &amp;= \mathrm{Var}(X) + \mathrm{Var}(Y)
+\end{aligned}\]
+
+<p>然后，我们有：</p>
+
+\[\mathrm{Var}(X*Y) = \mathrm{Var}(X) * \mathrm{Var}(Y) + \mathrm{Var}(X) * [\mathrm{E}(Y)]^2 + \mathrm{Var}(Y) * [\mathrm{E}(X)]^2\]
+
+<p>如果 $\mathrm{E}(X) =0,\;\mathrm{E}(Y) =0$，那么我们有：</p>
+
+\[\mathrm{Var}(X*Y) = \mathrm{Var}(X) * \mathrm{Var}(Y)\]
+
+<p>下面我们来计算网络层神经元的标准差：</p>
+
+<p><img src="http://andy-blog.oss-cn-beijing.aliyuncs.com/blog/2020-12-19-WX20201219-111822%402x.png" width="50%" /></p>
+
+\[H_{11} = \sum_{i=0}^{n}X_i * W_{1i}\]
+
+<p>由于 $X$ 和 $W$ 都是均值为 $0$，标准差为 $1$，我们有：</p>
+
+\[\begin{aligned}
+\mathrm{Var}(H_{11}) &amp;= \sum_{i=0}^{n} \mathrm{Var}(X_{i}) * \mathrm{Var}(W_{1i}) \\
+&amp;= n * (1 * 1) \\
+&amp;= n
+\end{aligned}\]
+
+<p>所以，</p>
+
+\[\mathrm{Std}(H_{11}) = \sqrt{\mathrm{Var}(H_{11})} = \sqrt{n}\]
+
+<p>可以看到，第一个隐藏层中神经元的方差变为了 $n$，而输入 $X$ 的方差为 $1$。也就是说，经过第一个网络层 $H_1$ 的前向传播，数据的方差扩大了 $n$ 倍，标准差扩大了 $\sqrt{n}$ 倍。同理，如果继续传播到下一个隐藏层 $H_2$，通过公式推导，可知该层神经元的标准差为 $n$。这样不断传播下去，每经过一层，输出数据的尺度范围都将不断扩大 $\sqrt{n}$ 倍，最终将超出我们的精度可表示的范围，变为 <code class="language-plaintext highlighter-rouge">nan</code>。</p>
+
+<p>在代码中，我们设置的每层网络中神经元个数 $n=256$，所以 $\sqrt{n} = 16$。我们来看一下前面输出结果中的每个网络层输出的标准差是否符合这一规律：</p>
+
+<ul>
+  <li>第 0 层数据标准差为 $15.959932327270508 \approx 16$</li>
+  <li>第 1 层数据标准差为 $256.6237487792969 \approx 16^2=256$</li>
+  <li>第 2 层数据标准差为 $4107.24560546875 \approx 16^3 = 4096$</li>
+  <li>第 3 层数据标准差为 $65576.8125 \approx 16^4 = 65536$</li>
+  <li>……</li>
+</ul>
+
+<p>每经过一层，数据的标准差都会扩大 $16$ 倍，经过一层层传播后，数据的标准差将变得非常大，最终在第 31 层时超出了精度可表示的范围，即为 <code class="language-plaintext highlighter-rouge">nan</code>。</p>
+
+<p>下面我们将每层神经元个数修改为 $n=400$，所以 $\sqrt{n}=20$，观察结果是否会发生相应的变化：</p>
+
+<div class="language-python highlighter-rouge"><div class="highlight"><pre class="highlight"><code><table class="rouge-table"><tbody><tr><td class="rouge-gutter gl"><pre class="lineno">1
+2
+3
+</pre></td><td class="rouge-code"><pre><span class="n">layer_nums</span> <span class="o">=</span> <span class="mi">100</span>  <span class="c1"># 网络层数
+</span><span class="n">neural_nums</span> <span class="o">=</span> <span class="mi">400</span>  <span class="c1"># 每层的神经元个数
+</span><span class="n">batch_size</span> <span class="o">=</span> <span class="mi">16</span>  <span class="c1"># 输入数据的 batch size
+</span></pre></td></tr></tbody></table></code></pre></div></div>
+
+<p>输出结果：</p>
+
+<div class="language-plaintext highlighter-rouge"><div class="highlight"><pre class="highlight"><code><table class="rouge-table"><tbody><tr><td class="rouge-gutter gl"><pre class="lineno">1
+2
+3
+4
+5
+6
+7
+8
+9
+10
+11
+12
+13
+14
+15
+16
+17
+18
+19
+20
+21
+22
+23
+24
+25
+26
+27
+28
+29
+30
+31
+32
+33
+34
+35
+36
+37
+38
+</pre></td><td class="rouge-code"><pre>layer:0, std:20.191545486450195
+layer:1, std:406.2967834472656
+layer:2, std:8196.0322265625
+layer:3, std:164936.546875
+layer:4, std:3324399.75
+layer:5, std:65078964.0
+layer:6, std:1294259712.0
+layer:7, std:25718734848.0
+layer:8, std:509478502400.0
+layer:9, std:10142528569344.0
+layer:10, std:204187744862208.0
+layer:11, std:4146330289045504.0
+layer:12, std:8.175371463688192e+16
+layer:13, std:1.6178185228915835e+18
+layer:14, std:3.201268126493075e+19
+layer:15, std:6.43244420071468e+20
+layer:16, std:1.2768073112864894e+22
+layer:17, std:2.5327442663597998e+23
+layer:18, std:4.97064812888673e+24
+layer:19, std:9.969679340542473e+25
+layer:20, std:1.9616922876332235e+27
+layer:21, std:3.926491184057203e+28
+layer:22, std:7.928349353787082e+29
+layer:23, std:1.5731294716685355e+31
+layer:24, std:3.156214979388958e+32
+layer:25, std:6.18353463606124e+33
+layer:26, std:1.2453666891690611e+35
+layer:27, std:2.467429285844339e+36
+layer:28, std:4.977222187097705e+37
+layer:29, std:nan
+output is nan in 29 layers
+tensor([[-inf, inf, inf,  ..., -inf, nan, nan],
+        [nan, nan, inf,  ..., -inf, -inf, nan],
+        [nan, -inf, nan,  ..., inf, nan, nan],
+        ...,
+        [nan, -inf, -inf,  ..., -inf, nan, nan],
+        [inf, -inf, nan,  ..., inf, -inf, nan],
+        [inf, nan, inf,  ..., inf, nan, inf]], grad_fn=&lt;MmBackward&gt;)
+</pre></td></tr></tbody></table></code></pre></div></div>
+
+<p>可以看到：</p>
+
+<ul>
+  <li>第 0 层数据标准差为 $20.191545486450195 \approx 20$</li>
+  <li>第 1 层数据标准差为 $406.2967834472656 \approx 20^2=400$</li>
+  <li>第 2 层数据标准差为 $8196.0322265625 \approx 20^3 = 8000$</li>
+  <li>第 3 层数据标准差为 $164936.546875 \approx 20^4 = 160000$</li>
+  <li>……</li>
+</ul>
+
+<p>每经过一层，数据的标准差大约会扩大 $20$ 倍，最终在第 29 层时超出了精度可表示的范围，变为 <code class="language-plaintext highlighter-rouge">nan</code>。</p>
+
+<p>从前面的公式中可以看到，每个网络层输出数据的标准差由三个因素决定：网络层的神经元个数 $n$、输入值 $X$ 的方差 $\mathrm{Var}(X)$，以及网络层权值 $W$ 的方差 $\mathrm{Var}(W)$。因此，如果我们希望让网络层输出数据的方差保持尺度不变，那么我们必须令其方差等于 $1$，即：</p>
+
+\[\mathrm{Var}(H_{1}) = n * \mathrm{Var}(X) * \mathrm{Var}(W) = 1\]
+
+<p>因此，</p>
+
+\[\mathrm{Var}(W) = \dfrac{1}{n} \quad \Longrightarrow \quad \mathrm{Std}(W) = \sqrt{\dfrac{1}{n}}\]
+
+<p>所以，当我们将网络层权值的标准差设为 $\sqrt{\frac{1}{n}}$ 时，输出数据的标准差将变为 $1$。</p>
+
+<p>下面我们修改代码，使用一个均值为 $0$，标准差为 $\sqrt{\frac{1}{n}}$ 的分布来初始化权值矩阵 $W$，观察网络层输出数据的标准差会如何变化：</p>
+
+<div class="language-python highlighter-rouge"><div class="highlight"><pre class="highlight"><code><table class="rouge-table"><tbody><tr><td class="rouge-gutter gl"><pre class="lineno">1
+2
+3
+4
+</pre></td><td class="rouge-code"><pre> <span class="k">def</span> <span class="nf">initialize</span><span class="p">(</span><span class="bp">self</span><span class="p">):</span>
+    <span class="k">for</span> <span class="n">m</span> <span class="ow">in</span> <span class="bp">self</span><span class="p">.</span><span class="n">modules</span><span class="p">():</span>
+        <span class="k">if</span> <span class="nb">isinstance</span><span class="p">(</span><span class="n">m</span><span class="p">,</span> <span class="n">nn</span><span class="p">.</span><span class="n">Linear</span><span class="p">):</span>
+            <span class="n">nn</span><span class="p">.</span><span class="n">init</span><span class="p">.</span><span class="n">normal_</span><span class="p">(</span><span class="n">m</span><span class="p">.</span><span class="n">weight</span><span class="p">.</span><span class="n">data</span><span class="p">,</span> <span class="n">std</span><span class="o">=</span><span class="n">np</span><span class="p">.</span><span class="n">sqrt</span><span class="p">(</span><span class="mi">1</span><span class="o">/</span><span class="bp">self</span><span class="p">.</span><span class="n">neural_num</span><span class="p">))</span>    <span class="c1"># normal: mean=0, std=sqrt(1/n)
+</span></pre></td></tr></tbody></table></code></pre></div></div>
+
+<p>输出结果：</p>
+
+<div class="language-plaintext highlighter-rouge"><div class="highlight"><pre class="highlight"><code><table class="rouge-table"><tbody><tr><td class="rouge-gutter gl"><pre class="lineno">1
+2
+3
+4
+5
+6
+7
+8
+9
+10
+11
+12
+13
+14
+15
+16
+17
+18
+19
+20
+21
+22
+23
+24
+25
+26
+27
+28
+29
+30
+31
+32
+33
+34
+35
+36
+37
+38
+39
+40
+41
+42
+43
+44
+45
+46
+47
+48
+49
+50
+51
+52
+53
+54
+55
+56
+57
+58
+59
+60
+61
+62
+63
+64
+65
+66
+67
+68
+69
+70
+71
+72
+73
+74
+75
+76
+77
+78
+79
+80
+81
+82
+83
+84
+85
+86
+87
+88
+89
+90
+91
+92
+93
+94
+95
+96
+97
+98
+99
+100
+101
+102
+103
+104
+105
+106
+107
+108
+</pre></td><td class="rouge-code"><pre>layer:0, std:0.9974957704544067
+layer:1, std:1.0024365186691284
+layer:2, std:1.002745509147644
+layer:3, std:1.0006227493286133
+layer:4, std:0.9966009855270386
+layer:5, std:1.019859790802002
+layer:6, std:1.026173710823059
+layer:7, std:1.0250457525253296
+layer:8, std:1.0378952026367188
+layer:9, std:1.0441951751708984
+layer:10, std:1.0181655883789062
+layer:11, std:1.0074602365493774
+layer:12, std:0.9948930144309998
+layer:13, std:0.9987586140632629
+layer:14, std:0.9981392025947571
+layer:15, std:1.0045733451843262
+layer:16, std:1.0055204629898071
+layer:17, std:1.0122840404510498
+layer:18, std:1.0076017379760742
+layer:19, std:1.000280737876892
+layer:20, std:0.9943006038665771
+layer:21, std:1.012800931930542
+layer:22, std:1.012657642364502
+layer:23, std:1.018149971961975
+layer:24, std:0.9776086211204529
+layer:25, std:0.9592394828796387
+layer:26, std:0.9317858815193176
+layer:27, std:0.9534041881561279
+layer:28, std:0.9811319708824158
+layer:29, std:0.9953019022941589
+layer:30, std:0.9773916006088257
+layer:31, std:0.9655940532684326
+layer:32, std:0.9270440936088562
+layer:33, std:0.9329946637153625
+layer:34, std:0.9311841726303101
+layer:35, std:0.9354336261749268
+layer:36, std:0.9492132067680359
+layer:37, std:0.9679954648017883
+layer:38, std:0.9849981665611267
+layer:39, std:0.9982335567474365
+layer:40, std:0.9616852402687073
+layer:41, std:0.9439758658409119
+layer:42, std:0.9631161093711853
+layer:43, std:0.958673894405365
+layer:44, std:0.9675614237785339
+layer:45, std:0.9837557077407837
+layer:46, std:0.9867278337478638
+layer:47, std:0.9920817017555237
+layer:48, std:0.9650403261184692
+layer:49, std:0.9991624355316162
+layer:50, std:0.9946174025535583
+layer:51, std:0.9662044048309326
+layer:52, std:0.9827387928962708
+layer:53, std:0.9887880086898804
+layer:54, std:0.9932605624198914
+layer:55, std:1.0237400531768799
+layer:56, std:0.9702046513557434
+layer:57, std:1.0045380592346191
+layer:58, std:0.9943899512290955
+layer:59, std:0.9900636076927185
+layer:60, std:0.99446702003479
+layer:61, std:0.9768352508544922
+layer:62, std:0.9797843098640442
+layer:63, std:0.9951220750808716
+layer:64, std:0.9980446696281433
+layer:65, std:1.0086933374404907
+layer:66, std:1.0276142358779907
+layer:67, std:1.0429234504699707
+layer:68, std:1.0197855234146118
+layer:69, std:1.0319130420684814
+layer:70, std:1.0540012121200562
+layer:71, std:1.026781439781189
+layer:72, std:1.0331352949142456
+layer:73, std:1.0666675567626953
+layer:74, std:1.0413838624954224
+layer:75, std:1.0733673572540283
+layer:76, std:1.0404183864593506
+layer:77, std:1.0344083309173584
+layer:78, std:1.0022705793380737
+layer:79, std:0.99835205078125
+layer:80, std:0.9732587337493896
+layer:81, std:0.9777462482452393
+layer:82, std:0.9753198623657227
+layer:83, std:0.9938382506370544
+layer:84, std:0.9472599029541016
+layer:85, std:0.9511011242866516
+layer:86, std:0.9737769961357117
+layer:87, std:1.005651831626892
+layer:88, std:1.0043526887893677
+layer:89, std:0.9889539480209351
+layer:90, std:1.0130352973937988
+layer:91, std:1.0030947923660278
+layer:92, std:0.9993206262588501
+layer:93, std:1.0342745780944824
+layer:94, std:1.031973123550415
+layer:95, std:1.0413124561309814
+layer:96, std:1.0817031860351562
+layer:97, std:1.128799557685852
+layer:98, std:1.1617802381515503
+layer:99, std:1.2215303182601929
+tensor([[-1.0696, -1.1373,  0.5047,  ..., -0.4766,  1.5904, -0.1076],
+        [ 0.4572,  1.6211,  1.9659,  ..., -0.3558, -1.1235,  0.0979],
+        [ 0.3908, -0.9998, -0.8680,  ..., -2.4161,  0.5035,  0.2814],
+        ...,
+        [ 0.1876,  0.7971, -0.5918,  ...,  0.5395, -0.8932,  0.1211],
+        [-0.0102, -1.5027, -2.6860,  ...,  0.6954, -0.1858, -0.8027],
+        [-0.5871, -1.3739, -2.9027,  ...,  1.6734,  0.5094, -0.9986]],
+       grad_fn=&lt;MmBackward&gt;)
+</pre></td></tr></tbody></table></code></pre></div></div>
+
+<p>可以看到，第 99 层的输出值都在一个比较正常的范围，并且每一层输出数据的标准差都在 $1$ 附近，所以现在我们得到了一个比较理想的输出数据分布。代码实验的结果也验证了我们前面公式推导的正确性：通过采用合适的权值初始化方法，可以使得多层全连接网络的输出值的数据尺度维持在一定范围内，而不会变得过大或者过小。</p>
+
+<p>在上面的例子中，我们通过权重初始化保证了每层输出数据的方差为 $1$，但是这里我们还没有考虑激活函数的存在。下面我们看一下 <strong>具有激活函数时的权值初始化</strong>。我们在前向传播 <code class="language-plaintext highlighter-rouge">forward</code> 函数中加入 tanh 激活函数：</p>
+
+<div class="language-python highlighter-rouge"><div class="highlight"><pre class="highlight"><code><table class="rouge-table"><tbody><tr><td class="rouge-gutter gl"><pre class="lineno">1
+2
+3
+4
+5
+6
+7
+8
+9
+10
+11
+</pre></td><td class="rouge-code"><pre><span class="k">def</span> <span class="nf">forward</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">x</span><span class="p">):</span>
+    <span class="k">for</span> <span class="p">(</span><span class="n">i</span><span class="p">,</span> <span class="n">linear</span><span class="p">)</span> <span class="ow">in</span> <span class="nb">enumerate</span><span class="p">(</span><span class="bp">self</span><span class="p">.</span><span class="n">linears</span><span class="p">):</span>
+        <span class="n">x</span> <span class="o">=</span> <span class="n">linear</span><span class="p">(</span><span class="n">x</span><span class="p">)</span>
+        <span class="n">x</span> <span class="o">=</span> <span class="n">torch</span><span class="p">.</span><span class="n">tanh</span><span class="p">(</span><span class="n">x</span><span class="p">)</span>
+
+        <span class="k">print</span><span class="p">(</span><span class="s">"layer:{}, std:{}"</span><span class="p">.</span><span class="nb">format</span><span class="p">(</span><span class="n">i</span><span class="p">,</span> <span class="n">x</span><span class="p">.</span><span class="n">std</span><span class="p">()))</span>  <span class="c1"># 打印每层的标准差
+</span>        <span class="k">if</span> <span class="n">torch</span><span class="p">.</span><span class="n">isnan</span><span class="p">(</span><span class="n">x</span><span class="p">.</span><span class="n">std</span><span class="p">()):</span>
+            <span class="k">print</span><span class="p">(</span><span class="s">"output is nan in {} layers"</span><span class="p">.</span><span class="nb">format</span><span class="p">(</span><span class="n">i</span><span class="p">))</span>
+            <span class="k">break</span>
+
+    <span class="k">return</span> <span class="n">x</span>
+</pre></td></tr></tbody></table></code></pre></div></div>
+
+<p>输出结果：</p>
+
+<div class="language-plaintext highlighter-rouge"><div class="highlight"><pre class="highlight"><code><table class="rouge-table"><tbody><tr><td class="rouge-gutter gl"><pre class="lineno">1
+2
+3
+4
+5
+6
+7
+8
+9
+10
+11
+12
+13
+14
+15
+16
+17
+18
+19
+20
+21
+22
+23
+24
+25
+26
+27
+28
+29
+30
+31
+32
+33
+34
+35
+36
+37
+38
+39
+40
+41
+42
+43
+44
+45
+46
+47
+48
+49
+50
+51
+52
+53
+54
+55
+56
+57
+58
+59
+60
+61
+62
+63
+64
+65
+66
+67
+68
+69
+70
+71
+72
+73
+74
+75
+76
+77
+78
+79
+80
+81
+82
+83
+84
+85
+86
+87
+88
+89
+90
+91
+92
+93
+94
+95
+96
+97
+98
+99
+100
+101
+102
+103
+104
+105
+106
+107
+108
+</pre></td><td class="rouge-code"><pre>layer:0, std:0.6273701786994934
+layer:1, std:0.48910173773765564
+layer:2, std:0.4099564850330353
+layer:3, std:0.35637012124061584
+layer:4, std:0.32117360830307007
+layer:5, std:0.2981105148792267
+layer:6, std:0.27730831503868103
+layer:7, std:0.2589356303215027
+layer:8, std:0.2468511462211609
+layer:9, std:0.23721906542778015
+layer:10, std:0.22171513736248016
+layer:11, std:0.21079954504966736
+layer:12, std:0.19820132851600647
+layer:13, std:0.19069305062294006
+layer:14, std:0.18555502593517303
+layer:15, std:0.17953835427761078
+layer:16, std:0.17485806345939636
+layer:17, std:0.1702701896429062
+layer:18, std:0.16508983075618744
+layer:19, std:0.1591130942106247
+layer:20, std:0.15480300784111023
+layer:21, std:0.15263864398002625
+layer:22, std:0.148549422621727
+layer:23, std:0.14617665112018585
+layer:24, std:0.13876432180404663
+layer:25, std:0.13316625356674194
+layer:26, std:0.12660598754882812
+layer:27, std:0.12537942826747894
+layer:28, std:0.12535445392131805
+layer:29, std:0.12589804828166962
+layer:30, std:0.11994210630655289
+layer:31, std:0.11700887233018875
+layer:32, std:0.11137297749519348
+layer:33, std:0.11154612898826599
+layer:34, std:0.10991233587265015
+layer:35, std:0.10996390879154205
+layer:36, std:0.10969001054763794
+layer:37, std:0.10975216329097748
+layer:38, std:0.11063200235366821
+layer:39, std:0.11021336913108826
+layer:40, std:0.10465587675571442
+layer:41, std:0.10141163319349289
+layer:42, std:0.1026025265455246
+layer:43, std:0.10079070925712585
+layer:44, std:0.10096712410449982
+layer:45, std:0.10117629915475845
+layer:46, std:0.10145658999681473
+layer:47, std:0.09987485408782959
+layer:48, std:0.09677786380052567
+layer:49, std:0.099615179002285
+layer:50, std:0.09867013245820999
+layer:51, std:0.09398546814918518
+layer:52, std:0.09388342499732971
+layer:53, std:0.09352942556142807
+layer:54, std:0.09336657077074051
+layer:55, std:0.0948176234960556
+layer:56, std:0.08856320381164551
+layer:57, std:0.09024856984615326
+layer:58, std:0.088644839823246
+layer:59, std:0.08766943216323853
+layer:60, std:0.08726289123296738
+layer:61, std:0.08623495697975159
+layer:62, std:0.08549778908491135
+layer:63, std:0.0855521708726883
+layer:64, std:0.0853666365146637
+layer:65, std:0.08462794870138168
+layer:66, std:0.0852193832397461
+layer:67, std:0.08562126755714417
+layer:68, std:0.08368431031703949
+layer:69, std:0.08476374298334122
+layer:70, std:0.0853630006313324
+layer:71, std:0.08237560093402863
+layer:72, std:0.08133518695831299
+layer:73, std:0.08416958898305893
+layer:74, std:0.08226992189884186
+layer:75, std:0.08379074186086655
+layer:76, std:0.08003697544336319
+layer:77, std:0.07888862490653992
+layer:78, std:0.07618380337953568
+layer:79, std:0.07458437979221344
+layer:80, std:0.07207276672124863
+layer:81, std:0.07079190015792847
+layer:82, std:0.0712786465883255
+layer:83, std:0.07165777683258057
+layer:84, std:0.06893909722566605
+layer:85, std:0.0690247192978859
+layer:86, std:0.07030878216028214
+layer:87, std:0.07283661514520645
+layer:88, std:0.07280214875936508
+layer:89, std:0.07130246609449387
+layer:90, std:0.07225215435028076
+layer:91, std:0.0712454542517662
+layer:92, std:0.07088854163885117
+layer:93, std:0.0730612576007843
+layer:94, std:0.07276967912912369
+layer:95, std:0.07259567081928253
+layer:96, std:0.07586522400379181
+layer:97, std:0.07769150286912918
+layer:98, std:0.07842090725898743
+layer:99, std:0.08206238597631454
+tensor([[-0.1103, -0.0739,  0.1278,  ..., -0.0508,  0.1544, -0.0107],
+        [ 0.0807,  0.1208,  0.0030,  ..., -0.0385, -0.1887, -0.0294],
+        [ 0.0321, -0.0833, -0.1482,  ..., -0.1133,  0.0206,  0.0155],
+        ...,
+        [ 0.0108,  0.0560, -0.1099,  ...,  0.0459, -0.0961, -0.0124],
+        [ 0.0398, -0.0874, -0.2312,  ...,  0.0294, -0.0562, -0.0556],
+        [-0.0234, -0.0297, -0.1155,  ...,  0.1143,  0.0083, -0.0675]],
+       grad_fn=&lt;TanhBackward&gt;)
+</pre></td></tr></tbody></table></code></pre></div></div>
+
+<p>可以看到，随着网络层的前向传播，每层输出值的标准差越来越小，最终可能会导致 <strong>梯度消失</strong>，这并不是我们所希望看到的。</p>
+
+<h2 id="2-xavier-初始化">2. Xavier 初始化</h2>
+
+<p><strong>方差一致性</strong>：保持数据尺度维持在恰当范围，通常方差为 $1$。</p>
+
+<p><strong>激活函数</strong>：饱和函数，如 Sigmoid、Tanh。</p>
+
+\[n_i * \mathrm{Var}(W) =1\]
+
+\[n_{i+1} * \mathrm{Var}(W) =1\]
+
+\[\mathrm{Var}(W) = \dfrac{2}{n_i + n_{i+1}}\]
+
+\[W \sim U[-a, a]\]
+
+\[\mathrm{Var}(W) = \dfrac{(-a-a)^2}{12} = \dfrac{(2a)^2}{12} = \dfrac{a^2}{3}\]
+
+\[\dfrac{2}{n_i + n_{i+1}} = \dfrac{a^2}{3} \quad \Longrightarrow \quad a = \dfrac{\sqrt{6}}{\sqrt{n_i + n_{i+1}}}\]
+
+<p><strong>参考文献</strong>：<em>Understanding the difficulty of training deep feedforward neural networks</em></p>
+
+<p>下节内容：权值初始化</p>
+:ET

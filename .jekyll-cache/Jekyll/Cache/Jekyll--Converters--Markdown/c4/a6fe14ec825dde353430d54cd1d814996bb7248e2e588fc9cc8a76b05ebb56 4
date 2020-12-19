@@ -1,0 +1,480 @@
+I"d�<h1 id="lecture-03-搜索算法-2">Lecture 03 搜索算法 (2)</h1>
+
+<p>上周我们讨论了一些盲目搜索算法，我们可以利用这些算法来寻找一条从起始结点到目标结点的路径。另外，我们也简单地提到了启发式搜索算法在大部分任务中要比盲目搜索算法表现更好。</p>
+
+<h2 id="3-启发函数">3. 启发函数</h2>
+<h3 id="31-系统算法和局部算法">3.1 系统算法和局部算法</h3>
+<p>$\to$ 在经典规划领域，启发式搜索算法是最常见，并且几乎也是最成功的搜索算法。</p>
+
+<p><strong>系统启发式搜索算法</strong>：</p>
+<ul>
+  <li><span style="color:blue">贪婪最佳优先搜索（Greedy best-ﬁrst search）</span><br />
+<span style="color:red">$\to$ 满意规划（satisﬁcing planning）中最流行的 3 种算法之一。</span></li>
+  <li><span style="color:blue">加权 $\rm{A}^*$<br />
+<span style="color:red">$\to$ 满意规划（satisﬁcing planning）中最流行的 3 种算法之一。</span></span></li>
+  <li><span style="color:blue">$\rm{A}^*$</span><br />
+<span style="color:red">$\to$ 最优规划（optimal planning）中最流行的算法。</span>（在满意规划中很少使用。）</li>
+  <li>还有很多，诸如 $\rm{IDA}^*$、深度优先分支定界搜索（depth-ﬁrst branch-and-bound search）、宽度优先启发式搜索（breadth-ﬁrst heuristic search）等等。</li>
+</ul>
+
+<p><strong>局部启发式搜索算法</strong>：</p>
+<ul>
+  <li><span style="color:blue">爬山算法（Hill-climbing）</span></li>
+  <li><span style="color:blue">增强爬山算法（Enforced hill-climbing）</span><br />
+<span style="color:red">$\to$ 满意规划（satisﬁcing planning）中最流行的 3 种算法之一。</span></li>
+  <li>还有很多，诸如 波束搜索（Beam search）、禁忌搜索（tabu search）、遗传算法（genetic algorithms）、模拟退火（simulated annealing）等等。</li>
+</ul>
+
+<h3 id="32-基本思想">3.2 基本思想</h3>
+<p>本质上，启发式搜索是一种对于从某个状态到目标状态所需代价的估计。</p>
+
+<p><img src="http://andy-blog.oss-cn-beijing.aliyuncs.com/blog/2020-03-19-WX20200319-212829%402x.png" width="70%" /></p>
+
+<p>$\to$ <strong>启发函数（Heuristic function）</strong> $h$ 估计了到达目标的一条最优路径的代价；搜索会倾向于探索具有较小 $h$ 的状态。</p>
+
+<h3 id="33-启发函数">3.3 启发函数</h3>
+<p>启发式搜索需要一个启发函数来估计剩余代价：</p>
+
+<p><strong>定义（<span style="color:blue">启发函数</span>）</strong>：令 $\Pi$ 表示一个状态空间为 $\Theta_{\Pi}$ 的规划任务。$\Pi$ 的一个 <span style="color:blue">启发函数</span>（简称 <span style="color:blue">启发</span>）是一个函数 <span style="color:blue">\(h:S\to \mathbb R_0^+ \cup \{\infty\}\)</span>。对于某个状态 $s$，其对应的启发函数的值 <span style="color:blue">$h(s)$</span> 被称为该状态的 <span style="color:blue">启发值（heuristic value）</span>，或者 <span style="color:blue">$h$ 值</span>。</p>
+
+<p>本质上，启发函数是一种映射：它将状态空间 $S$ 映射到一个包含 $0$、正实数以及 $\infty$ 的一个空间。</p>
+
+<p><strong>定义（<span style="color:blue">剩余代价，$h^*$</span>）</strong>：令 $\Pi$ 表示一个状态空间为 $\Theta_{\Pi}$ 的规划任务。对于一个状态 $s\in S$，该状态的 <span style="color:blue">剩余代价（remaining cost）</span> 为对于 $s$ 而言的一个最优规划的代价；或者如果对于 $s$ 不存在这种规划，则其对应的剩余代价为 $\infty$。对于任务 $\Pi$，它的 <span style="color:blue">完美启发（perfect heuristic）</span>，记为 <span style="color:blue">$h^*$</span>，为每一个 $s\in S$ 分配的启发值都等于各自的剩余代价。</p>
+
+<p>如果一个启发函数是完美启发 $h^*$，这意味着它可以准确地估计从当前状态到目标状态的代价。</p>
+
+<h3 id="34-关于启发函数的讨论">3.4 关于启发函数的讨论</h3>
+<p><strong>前面提到的 “估计剩余代价” 是什么意思？</strong></p>
+<ul>
+  <li>对于很多启发式搜索算法，$h$ 不需要具备任何能够让算法 “工作”（即正确或者完备）的性质。<br />
+$\to$ $h$ 可以是任何将状态映射到数字的函数。</li>
+  <li>搜索 <span style="color:blue">性能</span> 关键取决于 “$h$ 对于 $h^*$ 的反映程度有多好”。<br />
+$\to$ 这可以被非正式地称为 $h$ 的 <span style="color:blue">信息性（informedness）</span>或者 <span style="color:blue">量（quality）</span> 。</li>
+  <li>对于某些搜索算法，例如 $\rm{A}^*$，我们可以证明 $h$ 的正式的量性质（formal quality properties）和搜索效率（主要是结点扩展的次数）之间的关系。</li>
+  <li>对于其他的搜索算法，“它在实践中效果很好” 通常是一种很好的分析方法。</li>
+</ul>
+
+<p><span style="color:blue">$\to$ 我们将详细分析规划中的一个特别重要的启发函数 $h^+$ 的近似值。</span></p>
+
+<p>“搜索性能的关键取决于 $h$ 的信息性。”</p>
+
+<p><span style="color:red">那么，搜索性能的关键还取决于 $h$ 的其他性质吗？</span></p>
+
+<p>“还有计算 $h$ 时的额外计算开销。”</p>
+
+<p><strong>极端情况</strong>：</p>
+<ul>
+  <li>$h=h^*$：完美的信息性；计算它 $=$ 在第一步就解决规划问题。</li>
+  <li>$h=0$：没有任何信息；可以在常数项时间内被 “计算” 出来。</li>
+</ul>
+
+<p>$\to$ 成功的启发式搜索需要在 $h$ 的信息性和计算它所产生的额外计算开销之间寻找一个好的平衡点。</p>
+
+<p><span style="color:red">$\to$ 这就是有关搜索的全部内容的本质。</span>设计方法，以合理的计算成本得出良好的估计。</p>
+
+<h3 id="35-启发函数的性质">3.5 启发函数的性质</h3>
+<p><strong>定义（<span style="color:blue">安全性/目标察觉性/可采纳性/一致性</span>）</strong>：令 $\Pi$ 表示一个状态空间 $\Theta_{\Pi}=(S,L,c,T,I,S^G)$ 的规划任务，令 $h$ 为 $\Pi$ 的一个启发。那么该启发被认为具有：</p>
+
+<ul>
+  <li>
+    <p><span style="color:blue">安全性（safe）</span>：如果对于所有满足 $h(s)=\infty$ 的 $s\in S$，都有 $h^*(s)=\infty$；</p>
+
+    <p>如果启发函数认为当前状态 $s$ 到达目标状态的代价为 $\infty$，即不存在一条到达目标状态的路径，那么 $h^*(s)=\infty$ 则保证了事实上确实不存在这样一条路径。</p>
+  </li>
+  <li>
+    <p><span style="color:blue">目标察觉性（goal-aware）</span>：如果对于所有的目标状态 $s\in S^G$，都有 $h(s)=0$；</p>
+
+    <p>如果启发函数认为当前状态到目标状态的代价为 $0$，那么当前状态应该已经是目标状态了。</p>
+  </li>
+  <li>
+    <p><span style="color:blue">可采纳性（admissible）</span>：如果对于所有的 $s\in S$，都有 $h(s)\le h^*(s)$；</p>
+
+    <p>启发函数估计的从当前状态到目标状态的代价总是小于或者等于实际到达目标状态所需的代价。这意味着我们总是希望启发函数是乐观的，总是低估到达目标状态所需的代价。</p>
+  </li>
+  <li>
+    <p><span style="color:blue">一致性（consistent）</span>：如果对于所有的状态转移 $s\xrightarrow{\,a\,} s’$，都有 $h(s)\le h(s’)+c(a)$。</p>
+
+    <p>如果一致性条件成立，那么意味着任何行动 $a$ 产生的状态转移所导致的启发值的减小量 $h(s)-h(s’)$ 都不会超过这次行动的代价 $c(a)$</p>
+  </li>
+</ul>
+
+<p><span style="color:red">$\to$ 彼此之间的关系？</span></p>
+
+<p><strong>命题</strong>：令 $\Pi$ 表示一个状态空间为 $\Theta_{\Pi}=(S,L,c,T,I,S^G)$ 的规划任务，令 $h$ 为 $\Pi$ 的一个启发。如果 $h$ 具有一致性和目标察觉性，那么 $h$ 具有可采纳性。如果 $h$ 具有可采纳性，那么 $h$ 具有目标察觉性和安全性。除此以外，不存在任何其他关系。</p>
+
+<p><strong>证明</strong>：<span style="color:orange">$\to$ 作为练习</span></p>
+
+<h2 id="4-系统启发式搜索算法">4. 系统启发式搜索算法</h2>
+
+<h3 id="41-贪婪最佳优先搜索greedy-best-first-search">4.1 贪婪最佳优先搜索（Greedy Best-First Search）</h3>
+<p>我们已经知道了什么是启发函数，接下来我们可能希望利用一些结合了启发函数的搜索算法来更高效地找出到达目标状态的路径。其中最常见的一算法就是贪婪最佳优先搜索。</p>
+
+<p>在介绍算法的伪代码之前，我们先看一段视频：</p>
+
+<video width="705" controls="">
+  <source src="http://andy-blog.oss-cn-beijing.aliyuncs.com/blog/2020-03-20-GBFS.mp4" type="video/mp4" />
+</video>
+
+<p>可以看到，贪婪最佳优先搜索算法真正所做的是贪婪地试图寻找最优路径，因此它总是优先扩展那些启发函数认为距离目标最近的结点，而并不在意达到目标需要的总的代价。所以，图中那些黄色的方块代表边缘，搜索算法所做的是寻找启发函数认为距离目标最近的路径，在这里，我们可能将启发函数设置为估计距离目标的曼哈顿距离（Manhattan Distance），并且不考虑迷宫内那些墙的存在。可以看到，算法开始向目标所在方位扩展结点，但是在距离目标较近的地方连续碰壁之后，算法会退回原先的地方，重新朝另一个方向再次搜索，并且最终找到了目标。</p>
+
+<p>所以，贪婪优先搜索背后的主要思想是，我们可以计算问题中的每个结点的启发值，然后简单地基于启发值进一步扩展那些距离目标最近的结点，从而找到到达目标状态的路径。</p>
+
+<p><strong>贪婪最佳优先搜索算法（包含重复检测）的伪代码描述</strong>：</p>
+
+<p><img src="http://andy-blog.oss-cn-beijing.aliyuncs.com/blog/2020-03-20-WX20200320-141446%402x.png" /></p>
+
+<p>我们先初始化一个优先队列，队列优先级按照启发值 $h(\rm{state}(\sigma))$ 给出（$h(\rm{state}(\sigma))$ 越小，优先级越高），所以当我们从队列中 pop 出一个元素时，我们将得到一个基于启发值估计的距离目标最近的结点。初始时，我们将根结点插入优先队列。同时我们初始化一个空的闭合列表。只要优先队列中还存在结点时，我们就将其中距离目标最近的结点 pop 出队列。将它们存储在闭合列表 $\rm{closed}$ 中，确保我们清除重复，在探索时将重复结点一起探索。如果我们找到了目标状态，那么返回解。否则，我们将对当前结点的所有邻接结点进行扩展，将它们加入优先队列，然后重复先前的步骤，直到找到距离目标状态最近的结点。</p>
+
+<p><strong>贪婪最佳优先搜索算法评估</strong>：</p>
+<ul>
+  <li><strong>性质</strong>：
+    <ul>
+      <li><span style="color:red">完整性</span> 可以保证吗？<br />
+可以，对于具备安全性的启发。（并且重复检测可以避免图中存在环的情况）</li>
+      <li>
+        <p><span style="color:red">最优性</span> 可以保证吗？<br />
+不能，即使对于完美启发也是。例如：起始状态到目标状态之间存在两种状态转移方式，一个需要付出一百万元的代价，而另一个是免费的。没有什么可以防止贪婪最佳优先搜索选择更差的那个。</p>
+
+        <video width="620" controls="">
+  <source src="http://andy-blog.oss-cn-beijing.aliyuncs.com/blog/2020-03-20-GBFS1.mp4" type="video/mp4" />
+</video>
+
+        <p>可以看到，刚开始，算法探索了左边和上边两个方向，因为它们到目标的距离是一样的。但是当算法探索到上方接近边界处时，发现了右边方向有一条接近目标的路径，最终找到了视频中所示的路径，但是，这条路径显然不是最优的。可以看到，从左边出发然后向下再向右的方向还存在一条更短的路径，但是贪婪最佳优先搜索算法并没有给出。</p>
+      </li>
+      <li>在 $h$ 的所有严格单调变换下不变（例如，使用一个正的常数缩放或着增加一个常数）。</li>
+    </ul>
+  </li>
+  <li><strong>实现</strong>：
+    <ul>
+      <li>优先队列：例如一个 <span style="color:blue">最小堆（min heap）</span></li>
+      <li>“检查重复”：可能已经在 “展开状态” 中探索过了；之所以在 “找到当前最优状态”（即将优先队列中距离目标最近的结点 pop 出队列）之后进行此操作只是为了更清楚地指出与 $\rm{A}^*$ 算法的关系。</li>
+    </ul>
+  </li>
+</ul>
+
+<h3 id="42-rma-算法">4.2 $\rm{A}^*$ 算法</h3>
+
+<p>我们已经介绍了贪婪最佳优先搜索算法，它是满意规划中最常见的搜索算法之一，它旨在找到一个存在的规划，而不关心结果是否是最优的。但是涉及最优规划问题，最常见的还是 $\rm{A}^*$ 算法。</p>
+
+<p>$\rm{A}^*$ 算法的思想是：相比优先扩展距离目标状态最近的结点（即贪婪最佳优先搜索中具有最小启发值 $h(\rm{state}(\sigma))$ 的结点），我们增加一项，用 $g(\mathrm{state(\sigma)})+h(\mathrm{state}(\sigma))$ 来衡量优先级。其中，启发值 $h(\rm{state}(\sigma))$ 估计了当前结点到达目标结点的代价，而 $g(\mathrm{state(\sigma)})$ 则代表了从起始结点到达当前结点的代价，二者之和越小，则对应的结点扩展优先级越高。</p>
+
+<p>在介绍 $\rm{A}^*$ 算法的伪代码之前，我们先看一个例子：</p>
+<ul>
+  <li>
+    <p>我们从初始结点 $I$ 开始，它的 $g(\mathrm{state}(I))=0$ 因为是起始结点，启发值 $h(\mathrm{state}(I))=3$。然后，我们有一个目标结点 $\gamma$。</p>
+
+    <p><img src="http://andy-blog.oss-cn-beijing.aliyuncs.com/blog/2020-03-21-WX20200321-113104%402x.png" width="80%" /></p>
+  </li>
+  <li>
+    <p>我们对结点 $I$ 进行扩展，得到两个后继结点，它们对应的 $g(\mathrm{state(\sigma)})+h(\mathrm{state}(\sigma))$ 分别为 $(1+2)$ 和 $(1+3)$。</p>
+
+    <p><img src="http://andy-blog.oss-cn-beijing.aliyuncs.com/blog/2020-03-21-WX20200321-120848%402x.png" width="80%" /></p>
+  </li>
+  <li>
+    <p>我们选择 $(1+2)$ 对应的结点继续进行扩展，得到 $(2+6)$ 和 $(2+7)$ 对应的两个后继结点。</p>
+
+    <p><img src="http://andy-blog.oss-cn-beijing.aliyuncs.com/blog/2020-03-21-WX20200321-114450%402x.png" width="80%" /></p>
+  </li>
+  <li>
+    <p>此时，我们的优先队列中一共存在 3 个结点：$(1+3)$、$(2+6)$ 和 $(2+7)$，因此，接下来我们选择 $(1+3)$ 对应的结点进行扩展，并将后继结点 $(2+5)$ 和 $(2+2)$ 放入优先队列中。</p>
+
+    <p><img src="http://andy-blog.oss-cn-beijing.aliyuncs.com/blog/2020-03-21-WX20200321-115302%402x.png" width="80%" /></p>
+  </li>
+  <li>
+    <p>此时，优先队列中一共存在 4 个结点：$(2+6)$、$(2+7)$、$(2+5)$ 和 $(2+2)$，我们选择结点 $(2+2)$ 进行扩展，得到 $(3+5)$ 和 $(3+1)$，继续将这两个后继结点加入优先队列中。</p>
+
+    <p><img src="http://andy-blog.oss-cn-beijing.aliyuncs.com/blog/2020-03-21-WX20200321-120037%402x.png" width="80%" /></p>
+  </li>
+  <li>
+    <p>此时，优先队列中一共存在 5 个结点：$(2+6)$、$(2+7)$、$(2+5)$、$(3+5)$ 和 $(3+1)$，我们选择结点 $(3+1)$ 进行扩展，得到 $\gamma$ 和 $(4+8)$。至此，我们已经找到了目标结点 $\gamma$，并且得到了一条代价为 $4$ 的最优路径：$I\to (1+3) \to (2+2) \to (3+1) \to \gamma$。</p>
+
+    <p><img src="http://andy-blog.oss-cn-beijing.aliyuncs.com/blog/2020-03-21-WX20200321-120320%402x.png" width="80%" /></p>
+  </li>
+</ul>
+
+<p><strong>$\rm{A}^*$ 算法相关术语</strong>：</p>
+<ul>
+  <li>一个状态的 <span style="color:blue">$f$ 值</span>：定义为 <span style="color:blue">$f(s):=g(s)+h(s)$</span><br />
+正如之前提到的，$g(s)$ 衡量了起始状态到当前状态的代价，$h(s)$ 则估计了当前状态到目标状态的代价，两者之和 $f(s)$ 则估计了这条搜索路径的代价。$f$ 值越小，对应结点在优先队列中的扩展优先级越高。</li>
+  <li><span style="color:blue">生成结点（Generated nodes）</span>：在某个位置插入 $\rm{open}$ 的结点（即由当前结点扩展所生成的后继结点）。</li>
+  <li><span style="color:blue">扩展结点（Expanded nodes）</span>：从 $\rm{open}$ 中 pop 出的结点 $\sigma$，用于根据测试 $\rm{closed}$ 和距离来生成后继结点。</li>
+  <li>
+    <p><span style="color:blue">重新扩展结点（Re-expanded nodes）</span>：扩展那些状态 $\mathrm{state}(\sigma)\in \mathrm{closed}$ 的结点（又称 <span style="color:blue">重新开放（re-opened）</span>结点）。<br />
+所以，在 $\rm{A}^*$ 算法中，那些 $\rm{closed}$ 中的结点是有可能重新加入 $\rm{open}$ 中的。</p>
+
+    <p>例如，下图中 $I$ 为起始结点，$G$ 为目标结点：</p>
+
+    <p><img src="http://andy-blog.oss-cn-beijing.aliyuncs.com/blog/2020-03-21-WX20200321-142000%402x.png" width="35%" /></p>
+
+    <p>当我们扩展结点 $I$ 时，我们会得到 $A$、$B$ 两个后继结点。我们选择 $B$ 结点进行扩展，然后再次得到后继结点 $A$。然后，我们发现同样是从 $I$ 到 $A$：路径 $I\to B\to A$ 的代价要比路径 $I\to A$ 的代价更小。</p>
+  </li>
+</ul>
+
+<p><strong>$\rm{A}^*$ 算法（包含重复检测和重新开放）的伪代码描述</strong>：</p>
+
+<p><img src="http://andy-blog.oss-cn-beijing.aliyuncs.com/blog/2020-03-20-WX20200321-002017%402x.png" /></p>
+
+<p><strong>$\rm{A}^*$ 算法评估</strong>：</p>
+<ul>
+  <li><strong>性质</strong>：
+    <ul>
+      <li><span style="color:red">完整性</span> 可以保证吗？<br />
+可以，对于具备安全性的启发。（即使没有重复检测）</li>
+      <li><span style="color:red">最优性</span> 可以保证吗？<br />
+可以，对于具备可采纳性的启发。（即使没有重复检测）</li>
+    </ul>
+  </li>
+  <li><strong>实现</strong>：
+    <ul>
+      <li>流行方法：对于 $f(s)=f(s’)$ 的情况，选择其中 $h$ 值较小的状态对应的结点进行扩展。</li>
+      <li>如果 $h$ 具备可采纳性和一致性，那么 $\rm{A}^*$ 算法永远不会 re-open 一个 state。所以，如果我们事先知道这一点，可以对算法进行简化。</li>
+      <li>常见的难以察觉的错误：在错误的位置检查重复项。<span style="color:red">（Russel &amp; Norvig 在《人工智能：一种现代方法》一书中对这一点的描述太不精确了。）</span></li>
+      <li><span style="color:red">上面的伪代码实现是基于可读性而非效率进行了优化。</span></li>
+    </ul>
+  </li>
+</ul>
+
+<p><strong>问题</strong>：如果对于所有结点 $n$，我们都设置 $h(n):=0$，那么 $\rm{A}^*$ 算法会变成什么？</p>
+
+<p>A. 宽度优先搜索 $\qquad$ B. 深度优先搜索 $\qquad$ C. 一致代价搜索 $\qquad$ D. 深度受限搜索</p>
+
+<p><strong>答案</strong>：C，两者具有相同的结点扩展顺序。（$\rm{open / closed}$ 状态的细节可能存在一些差异）</p>
+
+<h3 id="43--加权-rma-算法weighted-rma">4.3  加权 $\rm{A}^*$ 算法（Weighted $\rm{A}^*$）</h3>
+
+<p>当我们希望得到一个虽然不是最优但还算不错的解时，加权 $\rm{A}^*$ 是一种很常见的算法。它的思想和 $\rm{A}^*$ 算法非常类似，可以说几乎完全一样，唯一的差别就是我们给启发函数 $h$ 加了一个权重项 $W$。</p>
+
+<p><strong>加权 $\rm{A}^*$ 算法（包含重复检测和重新开放）的伪代码描述</strong>：</p>
+
+<p><img src="http://andy-blog.oss-cn-beijing.aliyuncs.com/blog/2020-03-21-WX20200321-151350%402x.png" /></p>
+
+<p><strong>加权 $\rm{A}^*$ 算法评估</strong>：</p>
+<ul>
+  <li>
+    <p><span style="color:blue">权重</span> $W\in \mathbb R_0^+$ 是一个 <strong>算法参数</strong>：</p>
+
+    <ul>
+      <li>对于 $W=0$ 的情况，加权 $\rm{A}^*$ 的行为就像一致代价搜索；</li>
+      <li>对于 $W=1$ 的情况，加权 $\rm{A}^*$ 的行为就像 $\rm{A}^*$；</li>
+      <li>对于 $W\to \infty$ 的情况，加权 $\rm{A}^*$ 的行为就像贪婪最佳优先搜索。</li>
+    </ul>
+  </li>
+  <li>
+    <p><strong>性质</strong>：</p>
+    <ul>
+      <li>对于 $W&gt;1$ 的情况，加权 $\rm{A}^*$ 是 <span style="color:blue">有界次优的（bounded suboptimal）</span>：如果 $h$ 具备可采纳性，那么算法返回解的代价不会超过最优解代价的 $W$ 倍。<br />
+这个性质在实践中非常强大，这也是加权 \(\rm{A}^*\) 算法在实践中如此受欢迎的原因。假设我们的预期的算法搜索时间是半个小时，最优解的时间在半小时以内，那么一种技巧是采用加权 $\rm{A}^*$ 算法，并且将初始 $W$ 设置的非常大，我们将得到一个类似贪婪最佳优先搜索的算法，通常会很快给出一个解（一般会比 $\rm{A}^*$ 算法快很多），然后我们可以逐步降低 $W$ 的值，每次我们都会得到一个具有更小路径代价的解，然后我们可以通过不断这样尝试找到一个次优解。</li>
+    </ul>
+  </li>
+</ul>
+
+<p>以上这些就是有信息系统搜索算法背后的思想：“有信息” 是因为涉及启发函数，而 “系统” 则体现在遍历了整个搜索树。在进入局部启发式搜索算法之前，我们最后再看一段关于 $\rm{A}^*$ 算法的应用视频：</p>
+
+<video width="705" controls="">
+  <source src="http://andy-blog.oss-cn-beijing.aliyuncs.com/blog/2020-03-21-CAR.mp4" type="video/mp4" />
+</video>
+
+<h2 id="5-局部启发式搜索算法">5. 局部启发式搜索算法</h2>
+<p>与系统搜索中考虑整棵搜索树相比，在局部搜索算法中，我们只考虑其中的一小部分。</p>
+<h3 id="51-爬山算法hill-climbing">5.1 爬山算法（Hill-Climbing）</h3>
+<p>爬山算法是一种最基本的局部搜索算法。</p>
+
+<p>它的思想很简单：假设现在我们有一个初始结点 $I$，它对应的启发值 $h=7$，然后我们有一个目标结点 $G$。</p>
+
+<p><img src="http://andy-blog.oss-cn-beijing.aliyuncs.com/blog/2020-03-21-WX20200321-180341%402x.png" width="50%" /></p>
+
+<p>接下来，我们将一步步向目标移动，但是和贪婪搜索等其他系统搜索算法不同的是，当我们移动到一个结点时，我们将只考虑接下来的后继结点，而不再管那些搜索树中的其他分支结点。我们对结点 $I$ 进行扩展，得到三个后继结点，其中，结点 $C$ 具有最小启发值 $h=5$，我们丢弃其余两个结点 $A$、$B$ 及其所在的分支，选择结点 $C$ 进行扩展，得到后继结点 $D$、$E$。同理，我们丢弃结点 $E$ 所在分支，扩展具有较小 $h$ 值的结点 $D$，得到后继结点 $F$、$H$。然后，我们丢弃 $H$ 所在分支，扩展结点 $F$，最终达到目标结点 $G$。</p>
+
+<p><strong>爬山算法的伪代码描述</strong>：</p>
+
+<p><img src="http://andy-blog.oss-cn-beijing.aliyuncs.com/blog/2020-03-21-WX20200321-165531%402x.png" /></p>
+
+<p><strong>爬山算法评估</strong>：</p>
+<ul>
+  <li>仅当对于所有 $s\notin S^G$ 都有 $h(s)&gt;0$ 时，算法才有意义。</li>
+  <li><span style="color:red">完整性或者最优性</span>可以满足吗？<br />
+不能。</li>
+  <li>当 $h(\sigma)$ 无法立即增加时，爬山算法非常容易陷入局部代价最小值点。<br />
+如果爬山算法在搜索过程中进入死胡同怎么办？<br />
+没有办法。本质上来看，爬山算法可以视为梯度下降的连续版本。梯度下降通常用于寻找图中的最高点或者最低点，所以它经常会陷入局部最优解。</li>
+  <li>很多策略可以处理这种情况：平局决胜制（tie-breaking strategies）、重启（restarts）、……</li>
+  <li>在大部分 AI 规划问题中，我们通常不会直接使用爬山算法，尽管它在很多机器学习问题中应用很普遍。</li>
+</ul>
+
+<h3 id="52-增强爬山算法enforced-hill-climbing">5.2 增强爬山算法（Enforced Hill-Climbing）</h3>
+<p>尽管爬山算法很少直接用于规划问题，但是作为它的变体之一的增强爬山算法在很多规划问题中都应用很普遍。</p>
+
+<p>我们来看一个和之前类似的例子：</p>
+
+<p><img src="http://andy-blog.oss-cn-beijing.aliyuncs.com/blog/2020-03-21-WX20200321-180805%402x.png" width="55%" /></p>
+
+<p>和之前的爬山算法类似，我们首先扩展 $h=7$ 的初始结点 $I$，得到三个后继结点 $A$、$B$、$C$，其中结点 $C$ 的 $h=5&lt;7$，我们直接丢弃 $A$、$B$ 所在分支，扩展结点 $C$。但是，请注意，当我们得到结点 $C$ 的后继结点 $D$、$E$ 时，这些后继结点中的最小 $h$ 值还是 $5$，并没有减小，所以我们分别扩展结点 $D$、$E$，得到后继结点 $F$、$H$、$J$、$K$，发现 $h$ 值仍然没有减小。于是，我们继续扩展，直到找到一个具有更小的 $h=4$ 的结点 $N$，然后我们才选择丢弃其他分支的结点，继续沿着结点 $N$ 扩展下去。</p>
+
+<p><strong>增强爬山算法（包含过程改进）的伪代码描述</strong>：</p>
+
+<p><img src="http://andy-blog.oss-cn-beijing.aliyuncs.com/blog/2020-03-21-WX20200321-175803%402x.png" /></p>
+
+<p><span style="color:red">$\to$ 在找到具有严格更小 $h$ 值的后继结点之前，采用宽度优先搜索策略。</span></p>
+
+<p><img src="http://andy-blog.oss-cn-beijing.aliyuncs.com/blog/2020-03-21-WX20200321-182316%402x.png" /></p>
+
+<p><strong>增强爬山算法评估</strong>：</p>
+<ul>
+  <li>仅当对于所有 $s\notin S^G$ 都有 $h(s)&gt;0$ 时，算法才有意义。</li>
+  <li><span style="color:red">最优性</span>可以满足吗？<br />
+不能。它在选择路径时很像贪婪优先搜索，在实际问题中我们不太可能得到最优解。</li>
+  <li><span style="color:red">完整性</span>可以满足吗？<br />
+通常来说，不能。在特定情况下，可以，假设 $h$ 具备目标察觉性（goal-aware）。<br />
+$\to$ 过程改进有可能失败：在所有从状态 $s$ 出发所能够抵达的后继结点中，可能并不存在具备严格更小 $h$ 值的状态。在这种情况下，从状态 $s$ 出发并不能到达（我们假设的）目标状态。<br />
+$\to$ 如果状态空间是无向的，那么这种情况就不会发生，即对于状态空间 $\Theta_{\Pi}$ 中的所有可能的状态转移 $s\to s’$，都存在一个对应的状态转移 $s’\to s$。</li>
+</ul>
+
+<h3 id="53-几种搜索算法的性质对比">5.3 几种搜索算法的性质对比</h3>
+
+<p>了解每种算法的优缺点是很重要的，下表给出了几种搜索算法的性质对比：</p>
+
+<table>
+  <thead>
+    <tr>
+      <th> </th>
+      <th style="text-align: center">DFS</th>
+      <th style="text-align: center">BFS</th>
+      <th style="text-align: center">ID</th>
+      <th style="text-align: center">A<sup>*</sup></th>
+      <th style="text-align: center">HC</th>
+      <th style="text-align: center">IDA<sup>*</sup></th>
+    </tr>
+  </thead>
+  <tbody>
+    <tr>
+      <td><strong>完整性</strong></td>
+      <td style="text-align: center">不能</td>
+      <td style="text-align: center">可以</td>
+      <td style="text-align: center">可以</td>
+      <td style="text-align: center">可以</td>
+      <td style="text-align: center">不能</td>
+      <td style="text-align: center">可以</td>
+    </tr>
+    <tr>
+      <td><strong>最优性</strong></td>
+      <td style="text-align: center">不能</td>
+      <td style="text-align: center">可以<sup>*</sup></td>
+      <td style="text-align: center">可以</td>
+      <td style="text-align: center">可以</td>
+      <td style="text-align: center">不能</td>
+      <td style="text-align: center">可以</td>
+    </tr>
+    <tr>
+      <td><strong>时间复杂度</strong></td>
+      <td style="text-align: center">$\infty$</td>
+      <td style="text-align: center">$b^d$</td>
+      <td style="text-align: center">$b^d$</td>
+      <td style="text-align: center">$b^d$</td>
+      <td style="text-align: center">$\infty$</td>
+      <td style="text-align: center">$b^d$</td>
+    </tr>
+    <tr>
+      <td><strong>空间复杂度</strong></td>
+      <td style="text-align: center">$b\cdot d$</td>
+      <td style="text-align: center">$b^d$</td>
+      <td style="text-align: center">$b\cdot d$</td>
+      <td style="text-align: center">$b^d$</td>
+      <td style="text-align: center">$b$</td>
+      <td style="text-align: center">$b\cdot d$</td>
+    </tr>
+  </tbody>
+</table>
+
+<ul>
+  <li>参数：$d$ 是解所在的深度；$b$ 是分支因子</li>
+  <li>宽度优先搜索（BFS）满足最优性的前提是代价一致。</li>
+  <li>$\rm{A}^*\,/\,\rm{IDA}^*$ 满足最优性的前提是 $h$ 具备 <strong>可采纳性（admissible）</strong>：$h&lt; h^*$</li>
+</ul>
+
+<h2 id="6-总结">6. 总结</h2>
+<h3 id="61-思考">6.1 思考</h3>
+<ul>
+  <li>
+    <p><strong>问题 1</strong>：如果对于所有结点 $n$，我们都设置 $h(n):=0$，那么 $\rm{A}^*$ 算法会变成什么？</p>
+
+    <p>A. 宽度优先搜索 $\qquad$ B. 深度优先搜索 $\qquad$ C. 一致代价搜索 $\qquad$ D. 深度受限搜索</p>
+
+    <p><strong>答案</strong>：C，两者具有相同的结点扩展顺序。（$\rm{open / closed}$ 状态的细节可能存在一些差异）</p>
+
+    <p><br /></p>
+  </li>
+  <li>
+    <p><strong>问题 2</strong>：如果对于所有结点 $n$，我们都设置 $h(n):=0$，那么贪婪最佳优先搜索会变成什么？</p>
+
+    <p>A. 宽度优先搜索 $\qquad$ B. 深度优先搜索 $\qquad$ C. 一致代价搜索 $\qquad$ D. A、B 和 C</p>
+
+    <p><strong>答案</strong>：D，我们对 $h$ 的设置使得所有的结点的优先级顺序都不复存在，因此，问题完全取决于我们对于 $\textrm{open list}$ 中的结点采用哪种平局决胜制：A 选项对应 FIFO；B 选项对应 LIFO；C 选项对应将 $g$ 作为优先级标准。（$\rm{open / closed}$ 状态的细节可能存在一些差异）</p>
+
+    <p><br /></p>
+  </li>
+  <li>
+    <p><strong>问题 3</strong>：有信息搜索总是比盲目搜索更好吗？<br />
+<strong>答案</strong>：不是的。<br />
+$\to$ 在贪婪最佳优先搜索中，启发函数可能会导致巨大的搜索空间，可能远超代价一致搜索。例如，在路径规划中，假如你想从墨尔本去往悉尼，但是 $h($珀斯$)&lt;h($堪培拉$)$。<br />
+$\to$ 在具有一个可采纳启发函数和重复检查的 $\rm{A}^*$ 搜索中，我们得到的结果不可能比一致代价搜索更差：$h(s)&gt;0$ 只能减少为了证明最优性所必须考虑的状态数。<br />
+$\to$ 同样，在上面的例子中，任何具有可采纳启发函数的 $\rm{A}^*$ 算法都不会对 “珀斯” 结点进行展开，因为 $g($珀斯$)&gt;g($悉尼$)$。<br />
+$\to$ “信任启发函数” 这种做法有其自身的危险性，有时候，$g$ 可以帮助我们减少搜索次数。</p>
+  </li>
+</ul>
+
+<h3 id="62-总结">6.2 总结</h3>
+<p><strong>区分概念</strong>：<span style="color:blue">世界状态、搜索状态、搜索结点</span>。</p>
+<ul>
+  <li><span style="color:blue">世界状态</span>：通过规划任务所建模的世界中的情况。</li>
+  <li><span style="color:blue">搜索状态</span>：留待解决的子问题。
+    <ul>
+      <li>在 <span style="color:blue">前进</span> 搜索中，世界状态和搜索状态是相同的。</li>
+      <li>在 <span style="color:blue">后退</span> 搜索中，搜索状态是描述世界状态集的子目标。</li>
+    </ul>
+  </li>
+  <li><span style="color:blue">搜索结点</span>：搜索状态 + 有关 “我们如何到达该状态” 的信息。</li>
+</ul>
+
+<p><strong>搜索算法</strong> 主要区别在于 <span style="color:blue">结点扩展的顺序</span>：</p>
+<ul>
+  <li><span style="color:blue">盲目</span> vs. <span style="color:blue">启发式</span>（<span style="color:blue">有信息</span>）搜索</li>
+  <li><span style="color:blue">系统</span> vs. <span style="color:blue">局部</span> 搜索</li>
+</ul>
+
+<p><span style="color:blue">搜索策略</span> 主要区别在于它们 <span style="color:blue">扩展搜索结点</span> 的顺序，以及它们用于 <span style="color:blue">重复检测</span> 的方法。相应的评估指标有：<span style="color:blue">完整性、最优性、时间复杂度、空间复杂度</span>。</p>
+
+<p><span style="color:blue">宽度优先搜索</span> 满足最优性，但是需要使用指数级的空间；<span style="color:blue">深度优先搜索</span> 使用线性空间，但不是最优的；<span style="color:blue">迭代加深搜索</span> 结合了两者的优点。</p>
+
+<p><strong>启发函数</strong>：<span style="color:blue">剩余代价</span> 的估计量。</p>
+<ul>
+  <li>通常：<span style="color:blue">信息</span> 越多，表现越好。</li>
+  <li>性质：<span style="color:blue">安全性、目标察觉性、可采纳性、一致性</span>。</li>
+  <li>理想情况：<span style="color:blue">完美启发 $h^*$</span>。</li>
+</ul>
+
+<p><strong>启发式搜索算法</strong>：</p>
+<ul>
+  <li>用于 <span style="color:blue">满意规划</span> 的最常见算法：
+    <ul>
+      <li><span style="color:blue">贪婪最佳优先搜索</span></li>
+      <li><span style="color:blue">加权 $\rm{A}^*$</span></li>
+      <li><span style="color:blue">增强爬山算法</span></li>
+    </ul>
+  </li>
+  <li>用于 <span style="color:blue">最优规划</span> 的最常见算法：
+    <ul>
+      <li><span style="color:blue">$\rm{A}^*$</span></li>
+    </ul>
+  </li>
+</ul>
+
+<h2 id="7-扩展阅读">7. 扩展阅读</h2>
+<ul>
+  <li><em>Artiﬁcial Intelligence: A Modern Approach (Third Edition)</em>, Chapter 3 “Solving Problems by Searching” and the ﬁrst half of Chapter 4 “Beyond Classical Search”.</li>
+  <li>Content: An overview of various search algorithms, including blind searches as well as greedy best-ﬁrst search and $\rm{A}^*$.</li>
+  <li>Search Tutorial in the context of path-ﬁnding <a href="http://www.redblobgames.com/pathfinding/a-star/introduction.html">http://www.redblobgames.com/pathfinding/a-star/introduction.html</a></li>
+</ul>
+
+<p>下节内容：规划入门</p>
+
+:ET

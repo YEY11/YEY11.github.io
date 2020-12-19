@@ -1,0 +1,214 @@
+I"�,<h1 id="lecture-12-qa">Lecture 12 Q&amp;A</h1>
+
+<p><strong>参考教材</strong>：</p>
+
+<ul>
+  <li><em>Gareth, J., Daniela, W., Trevor, H., &amp; Robert, T. (2013). An intruduction to statistical learning: with applications in R. Spinger.</em></li>
+  <li><em>Hastie, T., Tibshirani, R., &amp; Friedman, J. (2009). The elements of statistical learning: data mining, inference, and prediction. Spinger Science &amp; Business Media.</em></li>
+</ul>
+
+<h2 id="ch2-统计学习">CH2 统计学习</h2>
+
+<h3 id="q1高灵活度模型-vs-低灵活度模型">Q1：高灵活度模型 vs. 低灵活度模型</h3>
+<h4 id="a-样本数-n-很大预测变量数-p-很小">(a) 样本数 $n$ 很大，预测变量数 $p$ 很小</h4>
+
+<p>高灵活度模型，因为样本数量足够大，而预测变量本身并不多，不会导致太高的模型复杂度，过拟合风险较低。</p>
+
+<h4 id="b-预测变量数-p-很大样本数-n-很小">(b) 预测变量数 $p$ 很大，样本数 $n$ 很小</h4>
+
+<p>低灵活度模型，过多的预测变量会导致过于复杂的模型，加上观测数量不足，选择灵活模型很容易发生过拟合。</p>
+
+<h4 id="c-预测变量与响应之间的关系是高度非线性的">(c) 预测变量与响应之间的关系是高度非线性的</h4>
+
+<p>高灵活度模型，适用于高度非线性的情况，如果采用低灵活度模型，则容易发生欠拟合。</p>
+
+<h4 id="d-误差项的方差即-sigma2--mathrmvarepsilon-非常大">(d) 误差项的方差即 $\sigma^2 = \mathrm{Var}(\epsilon)$ 非常大</h4>
+
+<p>低灵活度模型，不可减小误差 $\mathrm{Var}(\epsilon)$ 很大说明测试错误率的 U 型曲线较早到达底部，因此，为了使得测试错误率尽可能低，应选择低灵活度模型。</p>
+
+<h3 id="q3绘制偏差平方方差测试误差训练误差不可减小误差的曲线并解释">Q3：绘制偏差平方、方差、测试误差、训练误差、不可减小误差的曲线并解释</h3>
+
+<p><img src="http://andy-blog.oss-cn-beijing.aliyuncs.com/blog/2020-11-10-WX20201110-180620%402x.png" width="60%" /></p>
+
+\[E\left [(y_0 - \hat f(x_0))^2 \right] = \mathrm{Var}(\hat f(x_0)) + [\mathrm{Bias}(\hat f(x_0))]^2 + \mathrm{Var}(\epsilon)\]
+
+<ul>
+  <li><strong>偏差</strong>：模型假设带来的误差。灵活度越高，模型假设越少，偏差越低。</li>
+  <li><strong>方差</strong>：用不同训练集拟合模型时拟合值的变化。灵活度越高，模型越容易过拟合，方差越高。</li>
+  <li><strong>不可减小误差</strong>：由未测量变量或者不可测量变化带来的系统噪声。是一个大于零的常数，与模型灵活度无关。无论选择怎样的模型去拟合真实函数，始终存在的一个误差下界。</li>
+  <li><strong>训练误差</strong>：随模型灵活度增加而减小。过于灵活的模型可能会得到非常小的训练误差，存在过拟合风险。</li>
+  <li><strong>测试误差</strong>：随模型灵活度增加，先减小后增大，最低点左边欠拟合，右边过拟合。</li>
+</ul>
+
+<h3 id="q4分类回归聚类例子各三个">Q4：分类、回归、聚类例子各三个</h3>
+
+<h4 id="a-分类的例子">(a) 分类的例子</h4>
+
+<ul>
+  <li>申请学校 (University Application)
+    <ul>
+      <li>响应变量：1 (success) 或者 0 (fail)</li>
+      <li>预测变量：GPA, IELTS score, working experience</li>
+      <li>目标：prediction</li>
+    </ul>
+  </li>
+  <li>糖尿病诊断 (Diabetes Diagnosis)
+    <ul>
+      <li>响应变量：1 (Positive) 或者 0 (negative)</li>
+      <li>预测变量：age, BMI, family medical history (yes or no)</li>
+      <li>目标：prediction</li>
+    </ul>
+  </li>
+  <li>信用卡违约 (Credit Default)
+    <ul>
+      <li>响应变量：1 (Default) 或者 0 (not default)</li>
+      <li>预测变量：income, balance, student (yes or no)</li>
+      <li>目标：inference</li>
+    </ul>
+  </li>
+</ul>
+
+<h4 id="b-回归的例子">(b) 回归的例子</h4>
+
+<ul>
+  <li>个人收入 (Personal Salary)
+    <ul>
+      <li>响应变量：income</li>
+      <li>预测变量：age, gender, education</li>
+      <li>目标：inference</li>
+    </ul>
+  </li>
+  <li>房价评估 (House Price)
+    <ul>
+      <li>响应变量：house price</li>
+      <li>预测变量：area, city, year, number of rooms</li>
+      <li>目标：prediction</li>
+    </ul>
+  </li>
+  <li>广告销量 (Advertise Sales)
+    <ul>
+      <li>响应变量：sales</li>
+      <li>预测变量：advertisement budget on audio, neswpaper and TV</li>
+      <li>目标：prediction</li>
+    </ul>
+  </li>
+</ul>
+
+<h4 id="c-聚类的例子">(c) 聚类的例子</h4>
+
+<ul>
+  <li>用户分组 (Group users)
+    <ul>
+      <li>特征变量：age, gender, education, income</li>
+      <li>目标：make different marketing strategies for different group users</li>
+    </ul>
+  </li>
+  <li>产品分组 (Group products)
+    <ul>
+      <li>特征变量：size, weight, sweetness, grown area</li>
+      <li>目标：giving different price for apples in different groups</li>
+    </ul>
+  </li>
+  <li>推荐系统 (Recommendation systems)
+    <ul>
+      <li>特征变量：age, gender, hobbies, browsing history</li>
+      <li>目标：recommend different types of movies to different users</li>
+    </ul>
+  </li>
+</ul>
+
+<h3 id="q5高灵活度模型的优缺点如何选择">Q5：高灵活度模型的优缺点，如何选择</h3>
+
+<ul>
+  <li>高灵活度模型
+    <ul>
+      <li>优点：低偏差，假设少，捕获非线性，捕获复杂变量交互</li>
+      <li>缺点：高方差，过拟合风险，难以解释，需要调整，训练时间长</li>
+    </ul>
+  </li>
+  <li>适用场景
+    <ul>
+      <li>高灵活度模型：存在非线性和交互效应、大量变量、大量数据、算力充足、主要关注预测</li>
+      <li>低灵活度模型：低灵活度模型假设基本满足 (例如线性、正态性等)、主要关注推断和可解释性</li>
+    </ul>
+  </li>
+</ul>
+
+<h3 id="q6比较参数方法与非参数方法以及各自的优缺点">Q6：比较参数方法与非参数方法以及各自的优缺点</h3>
+
+<ul>
+  <li>参数方法：基于模型估计的两阶段方法，首先对函数 $f$ 的形式给出假设，然后估计模型参数。
+    <ul>
+      <li>优点：将估计真实函数 $f$ 的问题简化为估计一组参数。</li>
+      <li>缺点：选定的模型与真实 $f$ 在形式上并非是一致，若差别过大会导致效果很差。如果选择灵活模型，则存在过拟合风险。</li>
+    </ul>
+  </li>
+  <li>非参数方法：不需要对 $f$ 的形式进行假设。
+    <ul>
+      <li>优点：不限定 $f$ 的形式，可以在更大范围内选择更适合 $f$ 的形状。</li>
+      <li>缺点：由于没有简化为参数估计问题，需要大量观测数据 (远多于非参数方法) 以得到一个 $f$ 的准确估计。</li>
+    </ul>
+  </li>
+</ul>
+
+<h3 id="q7用-knn-方法在给定数据集上进行预测">Q7：用 KNN 方法在给定数据集上进行预测</h3>
+
+<p>贝叶斯决策边界非线性情况下，我们应当选择更小的 $K$。$K$ 越小，模型灵活度越高，得到的决策边界更接近真实情况。如果选择很大的 $K$，最终得到的决策边界会接近线性。</p>
+
+<h2 id="ch3-线性回归">CH3 线性回归</h2>
+
+<h3 id="q2knn-分类与-knn-回归之间的差异">Q2：KNN 分类与 KNN 回归之间的差异</h3>
+
+<ul>
+  <li>相同点：两种方法都属于非参数方法，都考虑了目标观测附近的 $K$ 个最近邻样本。</li>
+  <li>不同点：
+    <ul>
+      <li>KNN 分类：用于处理分类问题，响应变量为类别变量。它将 $K$ 个最近邻样本响应类别的多数投票作为分类结果。</li>
+      <li>KNN 回归：用于处理回归问题，响应变量为数值变量。它将 $K$ 个最近邻样本的响应均值作为预测结果。</li>
+    </ul>
+  </li>
+</ul>
+
+<h3 id="q3毕业起薪预测">Q3：毕业起薪预测</h3>
+
+<h4 id="c-判断真假由于-gpaiq-交互项的系数很小表明二者之间不存在交互作用">(c) 判断真假：由于 GPA/IQ 交互项的系数很小表明二者之间不存在交互作用。</h4>
+
+<p>错误。线性回归中，交互项系数的绝对值大小和相关预测变量以及响应变量的测量尺度有关，并不能反映出交互项对于响应变量效应的重要性。如果我们需要检验某个回归系数的重要性，应当采用 $t$ 检验。</p>
+
+<h3 id="q4线性回归-vs-多项式回归训练测试-rss">Q4：线性回归 vs. 多项式回归：训练/测试 RSS</h3>
+
+<h4 id="a-假设真实函数满足线性关系比较线性回归与多项式回归的训练-rss">(a) 假设真实函数满足线性关系，比较线性回归与多项式回归的训练 RSS</h4>
+
+<p>多项式回归的训练 RSS 更小，因为该模型灵活度更高，可以更好地拟合训练数据。</p>
+
+<h4 id="b-与-a-同样条件下比较二者的测试-rss">(b) 与 (a) 同样条件下，比较二者的测试 RSS</h4>
+
+<p>线性回归的测试 RSS 更小，因为真实函数满足线性关系，线性回归足以很好地拟合数据，而多项式回归由于高灵活度可能存在轻微的过拟合。</p>
+
+<h4 id="c-假设真实函数非线性且非线性程度未知比较线性回归与多项式回归的训练-rss">(c) 假设真实函数非线性，且非线性程度未知，比较线性回归与多项式回归的训练 RSS</h4>
+
+<p>如果真实函数具有很强的非线性，并且可以通过三次拟合很好地近似，那么多项式回归的训练 RSS 将明显低得多。如果真实函数非线性较弱或者无法通过三次函数很好地拟合，那么多项式回归的训练 RSS 可能会略低于线性回归。但不论哪种情况，多项式回归的训练 RSS 都会更低一些，因为其模型灵活度更高。</p>
+
+<h4 id="d-与-c-同样条件下比较二者的测试-rss">(d) 与 (c) 同样条件下，比较二者的测试 RSS</h4>
+
+<p>这取决于真实函数的非线性程度。如果真实函数非线性程度很高，这种情况下线性回归中的假设无法满足，这种情况下多项式回归的测试 RSS 可能更低一些。如果真实函数仅存在轻微的非线性，由于多项式回归的高灵活度导致模型方差较高，存在过拟合风险，而线性回归假设基本满足，这种情况下线性回归的 RSS 可能低一些。</p>
+
+<h2 id="ch4">CH4</h2>
+
+<h2 id="ch5">CH5</h2>
+
+<h2 id="ch6线性模型选择与正则化">CH6：线性模型选择与正则化</h2>
+
+<h3 id="q1对比最优子集前向选择后向选择">Q1：对比最优子集、前向选择、后向选择</h3>
+<h4 id="a-含有-k-个预测变量的模型中哪种方法的训练-rss-最小">(a) 含有 $k$ 个预测变量的模型中，哪种方法的训练 RSS 最小</h4>
+
+<p>通常最优子集会得到最小的训练 RSS (尽管前向、后向选择有一定机会得到相同的模型)，因为它会检查所有可能的变量子集上的模型。</p>
+
+<h4 id="a-含有-k-个预测变量的模型中哪种方法的测试-rss-最小">(a) 含有 $k$ 个预测变量的模型中，哪种方法的测试 RSS 最小</h4>
+
+<p>不清楚。三种算法都在测试集上使用交叉验证选择最终模型，我们无法判断哪种在测试集上的性能更好。</p>
+
+<h4 id="c">(c)</h4>
+
+<p>下节内容：非线性模型</p>
+:ET

@@ -1,0 +1,530 @@
+I".K<h1 id="lecture-16-概率图模型">Lecture 16 概率图模型</h1>
+<h2 id="主要内容">主要内容</h2>
+<ul>
+  <li><strong>联合分布的表示</strong></li>
+  <li><strong>条件 / 边缘独立</strong>
+    <ul>
+      <li>有向 vs 无向</li>
+    </ul>
+  </li>
+</ul>
+
+<h2 id="1-概率图模型">1. 概率图模型</h2>
+<p><strong>图论与概率论的结合，贝叶斯统计学习的首选工具。我们将从简单的离散情况出发，再延伸到连续情况。</strong></p>
+<h3 id="11-实际意义驱动">1.1 实际意义驱动</h3>
+
+<p><img src="http://andy-blog.oss-cn-beijing.aliyuncs.com/blog/2020-02-22-WX20200222-135207%402x.png" width="50%" /></p>
+
+<p><strong><span style="color:steelblue">很多应用</span></strong></p>
+<ul>
+  <li>进化树</li>
+  <li>谱分析、关联分析</li>
+  <li>错误控制代码</li>
+  <li>语音识别</li>
+  <li>文档主题模型</li>
+  <li>概率解析</li>
+  <li>图像分割</li>
+  <li>…</li>
+</ul>
+
+<p><strong><span style="color:steelblue">发现的算法</span></strong></p>
+<ul>
+  <li>HMM</li>
+  <li>卡尔曼滤波器</li>
+  <li>混合模型</li>
+  <li>LDA</li>
+  <li>MRF</li>
+  <li>CRF</li>
+  <li>Logistic 回归、线性回归</li>
+  <li>…</li>
+</ul>
+
+<h3 id="12-比较方式驱动">1.2 比较方式驱动</h3>
+<p><strong><span style="color:steelblue">贝叶斯统计学习</span></strong></p>
+<ul>
+  <li>对 $\boldsymbol X, \boldsymbol y$ 和参数随机变量的联合分布进行建模
+    <ul>
+      <li>“先验”：参数边缘化</li>
+    </ul>
+  </li>
+  <li>训练：利用观测数据，将先验更新为后验</li>
+  <li>预测：输出后验，或者后验的某个函数（MAP）</li>
+</ul>
+
+<p><strong><span style="color:steelblue">概率图模型（PGM），又称 “贝叶斯网络”</span></strong></p>
+<ul>
+  <li>高效的联合表示
+    <ul>
+      <li>显式表示独立性</li>
+      <li>容易在表达性和数据需求之间做出权衡</li>
+      <li>易于从业者建模</li>
+      <li>拟合参数、计算边缘和后验的算法</li>
+    </ul>
+  </li>
+</ul>
+
+<h3 id="13-一切始于联合分布">1.3 一切始于联合分布</h3>
+<ul>
+  <li>所有离散随机变量的联合分布都可以用表格表示</li>
+  <li>随着随机变量数量的增加，表格行数呈指数上升</li>
+  <li>例子：真值表
+    <ul>
+      <li>$m$ 个布尔随机变量需要 $(2^m-1)$ 行</li>
+      <li>表格为每行分配概率</li>
+    </ul>
+
+    <p><img src="http://andy-blog.oss-cn-beijing.aliyuncs.com/blog/2020-02-22-WX20200222-144337%402x.png" width="80%" /></p>
+  </li>
+</ul>
+
+<h3 id="14-好处我们可以基于联合分布做些什么">1.4 好处：我们可以基于联合分布做些什么？</h3>
+<ul>
+  <li>根据随机变量的联合分布进行 <strong>概率推断</strong>
+    <ul>
+      <li>计算任何涉及这些随机变量的其他分布</li>
+    </ul>
+  </li>
+  <li>模式：已有联合分布，希望得到一个分布<br />
+利用：<span style="color:steelblue">贝叶斯规则</span> + <span style="color:red">边缘化</span></li>
+  <li><strong>例子：朴素贝叶斯分类器</strong>
+    <ul>
+      <li>预测实例 $\boldsymbol x$ 的类别 $y$，通过最大化</li>
+    </ul>
+
+\[\Pr(Y=y|\boldsymbol X=\boldsymbol x)=\dfrac{\color{steelblue}{\Pr(Y=y,\boldsymbol X=\boldsymbol x)}}{\color{steelblue}{\Pr(\boldsymbol X=\boldsymbol x)}}=\dfrac{\Pr(Y=y,\boldsymbol X=\boldsymbol x)}{\color{red}{\sum_y \Pr(\boldsymbol X=\boldsymbol x,Y=y)}}\]
+
+    <p>回忆：连续分布（在参数上）的积分与离散分布的求和等价（均称为边缘化）</p>
+  </li>
+</ul>
+
+<h3 id="15-坏处和丑陋表格会变得非常大">1.5 坏处和丑陋：表格会变得非常大</h3>
+<p><img src="http://andy-blog.oss-cn-beijing.aliyuncs.com/blog/2020-02-22-WX20200222-161819%402x.png" width="30%" align="right" /></p>
+
+<ul>
+  <li><strong>坏处：</strong> 计算复杂度
+    <ul>
+      <li>表格行数随着随机变量的增加呈指数增长</li>
+      <li>因此 $\to$ 边缘化的空间和时间不足</li>
+    </ul>
+  </li>
+  <li><strong>丑陋：</strong> 模型复杂度
+    <ul>
+      <li>太过灵活</li>
+      <li>太多参数需要拟合<br />
+$\to$ 需要大量数据，否则会过拟合</li>
+    </ul>
+  </li>
+  <li>对抗手段：假设独立<br />
+<br /></li>
+</ul>
+
+<h3 id="16-例子你迟到了">1.6 例子：你迟到了</h3>
+<ul>
+  <li>对一个喜欢迟到的老师进行建模，使用布尔随机变量
+    <ul>
+      <li>$\color{red}{T}$：班级教学老师是 Ben</li>
+      <li>$\color{steelblue}{S}$：大晴天（否则为坏天气）</li>
+      <li>$\color{purple}{L}$：老师迟到了（否则为准时到达）</li>
+    </ul>
+  </li>
+  <li>假设：Ben 有时会因为坏天气而迟到，Ben 比其他教师更容易迟到
+    <ul>
+      <li>
+        <p>$\Pr(\color{steelblue}{S}|\color{red}{T})=\Pr(\color{steelblue}{S})$</p>
+
+        <p>$\Pr(\color{steelblue}{S})=0.3$</p>
+
+        <p>$\Pr(\color{red}{T})=0.6$</p>
+      </li>
+    </ul>
+  </li>
+  <li>迟到不独立于天气和老师
+    <ul>
+      <li>需要考虑 $\Pr(\color{purple}{L}| \color{red}{T=t},\color{steelblue}{S=s})$ 的所有组合<br />
+<img src="http://andy-blog.oss-cn-beijing.aliyuncs.com/blog/2020-02-22-WX20200222-163733%402x.png" width="50%" /></li>
+    </ul>
+  </li>
+  <li>只需要 6 个参数</li>
+</ul>
+
+<h3 id="17-独立性">1.7 独立性</h3>
+
+<p><img src="http://andy-blog.oss-cn-beijing.aliyuncs.com/blog/2020-02-22-WX20200222-164111%402x.png" /></p>
+
+<ul>
+  <li>独立性假设
+    <ul>
+      <li>随机变量之间是否满足独立性，可以根据领域专业知识做出合理判断</li>
+      <li>允许我们通过直接因式分解来计算联合概率 $\to$ 模型易处理的关键</li>
+    </ul>
+  </li>
+</ul>
+
+<h3 id="18-联合分布因式分解">1.8 联合分布因式分解</h3>
+<ul>
+  <li>
+    <p><span style="color:red">链式法则：</span> 对于任意顺序的随机变量总是可以因式分解为</p>
+
+\[\Pr(X_1,X_2,...,X_k)=\prod_{i=1}^{k}\Pr(X_i|X_{i+1},...,X_k)\]
+  </li>
+  <li>模型的独立性假设对应于
+    <ul>
+      <li>消除因子中的条件随机变量</li>
+      <li><span style="color:red">无条件独立</span> 的例子：$\Pr(X_1|X_2)=\Pr(X_1)$</li>
+      <li><span style="color:red">条件独立</span> 的例子：$\Pr(X_1|X_2,X_3)=\Pr(X_1|X_2)$</li>
+    </ul>
+  </li>
+  <li>例子：独立随机变量 $\Pr(X_1,…,X_k)=\prod_{i=1}^{k}\Pr(X_i)$</li>
+  <li>更简单的因式分解可以：<span style="color:red">加速推断过程</span>，以及 <span style="color:red">防止过拟合</span></li>
+</ul>
+
+<h3 id="19-有向-pgm">1.9 有向 PGM</h3>
+<ul>
+  <li><span style="color:red">节点</span> 表示 <span style="color:red">随机变量</span></li>
+  <li><span style="color:red">边</span>（无环的）表示 <span style="color:red">条件独立</span>
+    <ul>
+      <li><span style="color:red">节点表：</span> $\Pr(child \mid parents)$</li>
+      <li>子节点（$child$）直接取决于 父母节点（$parents$）</li>
+    </ul>
+  </li>
+  <li>
+    <p><span style="color:red">联合因式分解</span></p>
+
+\[\Pr(X_1,X_2,...,X_k)=\prod_{i=1}^{k}\Pr(X_i|X_j \in parents(X_i))\]
+  </li>
+</ul>
+
+<p><strong><span style="color:steelblue">迟到教师的例子</span></strong></p>
+
+<p><img src="http://andy-blog.oss-cn-beijing.aliyuncs.com/blog/2020-02-22-WX20200222-171406%402x.png" width="80%" /></p>
+
+<h3 id="110-例子核电站">1.10 例子：核电站</h3>
+<ul>
+  <li>核心温度 $\to$ 温度表 $\to$ 警报</li>
+  <li>监控故障中的模型不确定性
+    <ul>
+      <li>GRL：gauge reads low（温度表显示低数值）</li>
+      <li>CTL: core temperature low（核心温度低）</li>
+      <li>FG: faulty gauge（温度表故障）</li>
+      <li>FA: faulty alarm（警报故障）</li>
+      <li>AS: alarm sounds（警报响起）</li>
+    </ul>
+  </li>
+  <li>
+    <p>PGM 解决问题</p>
+
+    <p><img src="http://andy-blog.oss-cn-beijing.aliyuncs.com/blog/2020-02-22-WX20200222-173144%402x.png" width="50%" /></p>
+
+    <p>联合概率 $\Pr(CTL,FG,FA,GRL,AS)$ 由下式给出：</p>
+
+\[\Pr(AS|FA,GRL) \Pr(FA) \Pr(GRL|CTL,FG) \Pr(CTL) \Pr(FG)\]
+  </li>
+</ul>
+
+<h3 id="111-朴素贝叶斯">1.11 朴素贝叶斯</h3>
+
+<p><img src="http://andy-blog.oss-cn-beijing.aliyuncs.com/blog/2020-02-22-WX20200222-173838%402x-1.png" width="65%" /></p>
+
+\[\begin{align}
+\Pr(Y,X_1,...,X_d) &amp;= \Pr(X_d,...,X_1,Y) \\
+&amp;= \Pr(X_1|Y)\Pr(X_2|X_1,Y) ... \Pr(X_d|X_1,...,X_{d-1},Y) \Pr(Y) \\
+&amp;= \Pr(X_1|Y) \Pr(X_2|Y) ...  \Pr(X_d|Y) \Pr(Y)
+\end{align}\]
+
+<p>预测：基于最大化 $\Pr(Y|X_1,…,X_d)$ 预测标签</p>
+
+<p><strong><a href="https://www.cnblogs.com/wintergrass/archive/2011/11/14/2248317.html">重复的简记：盘子表示（Plate notation）</a></strong></p>
+
+<p><img src="http://andy-blog.oss-cn-beijing.aliyuncs.com/blog/2020-02-22-WX20200222-175513%402x.png" width="60%" /></p>
+
+<h3 id="112-pgm-频率学家或者贝叶斯人">1.12 PGM 频率学家或者贝叶斯人</h3>
+<ul>
+  <li>PGM 表示联合概率，这是贝叶斯学派的中心</li>
+  <li>
+    <p>贝叶斯在此基础上：<span style="color:red">为每个参数添加节点</span>，以及参数先验的表格<br /></p>
+
+    <p><img src="http://andy-blog.oss-cn-beijing.aliyuncs.com/blog/2020-02-22-WX20200222-180146%402x.png" width="65%" /></p>
+  </li>
+</ul>
+
+<h2 id="2-无向-pgm">2. 无向 PGM</h2>
+<p><strong>PGM 的无向变体，通过变量的任意正值函数进行参数化，并进行全局归一化。又称为 “马尔可夫随机场”。</strong></p>
+<h3 id="21-无向-vs-有向">2.1 无向 vs 有向</h3>
+<p><strong><span style="color:red">无向 PGM（Undirected PGM, U-PGM）</span></strong></p>
+<ul>
+  <li>图
+    <ul>
+      <li>边是无向的</li>
+    </ul>
+  </li>
+  <li>概率
+    <ul>
+      <li>每个节点都是一个随机变量</li>
+      <li>每个 clique $C$ 都有 “因子（factor）”：$\psi_C(X_j:j\in C)\ge 0$</li>
+      <li>联合概率 $\propto$ 因子的乘积</li>
+    </ul>
+  </li>
+</ul>
+
+<p><strong><span style="color:red">有向 PGM（Directed PGM, D-PGM）</span></strong></p>
+<ul>
+  <li>图
+    <ul>
+      <li>边是有向的</li>
+    </ul>
+  </li>
+  <li>概率
+    <ul>
+      <li>每个节点都是一个随机变量</li>
+      <li>每个节点都有条件概率：$\Pr\left(X_i|X_j \in parents(X_i)\right)$</li>
+      <li>联合概率 $=$ 条件概率的乘积</li>
+    </ul>
+  </li>
+</ul>
+
+<p><strong><span style="color:red">关键区别：归一化</span></strong></p>
+
+<h3 id="22-无向-pgm-公式">2.2 无向 PGM 公式</h3>
+
+<p><img src="http://andy-blog.oss-cn-beijing.aliyuncs.com/blog/2020-02-22-WX20200222-191201%402x.png" width="40%" align="right" /></p>
+
+<ul>
+  <li><strong><span style="color:orange">Clique：</span></strong> 一个 <strong>全连接</strong> 节点的集合
+    <ul>
+      <li>全连接的意思是集合中的各点之间两两相连，例如：A-D, C-D, C-D-F。</li>
+    </ul>
+  </li>
+  <li><strong><span style="color:orange">Maximal clique：</span></strong> 图中 <strong>最大的</strong> cliques
+    <ul>
+      <li>注意：这里最大 cliques <strong>不是指节点数量最多，而是说不能再加入新的节点了</strong>，所以， C-D 不是, 因为还有 C-D-F。</li>
+      <li>此外，D-E 也是，因为再往这个集合之中添加任何节点，都不能满足各节点两两相连从而构成一个 clique 了。</li>
+    </ul>
+  </li>
+  <li>
+    <p>联合概率由下式定义</p>
+
+\[\Pr(a,b,c,d,e,f)=\dfrac{1}{Z}\psi_1(a,b)\,\psi_2(b,c)\,\psi_3(a,d)\,\psi_4(d,c,f)\,\psi_5(d,e)\]
+
+    <ul>
+      <li>
+        <p>其中，$\psi$ 是一个正值函数，$Z$ 是归一化 “分区” 函数</p>
+
+\[Z=\sum \limits_{a,b,c,d,e,f}\psi_1(a,b)\,\psi_2(b,c)\,\psi_3(a,d)\,\psi_4(d,c,f)\,\psi_5(d,e)\]
+      </li>
+    </ul>
+  </li>
+</ul>
+
+<h3 id="23-有向到无向">2.3 有向到无向</h3>
+<ul>
+  <li>
+    <p>有向 PGM 公式为</p>
+
+\[P(X_1,X_2,...,X_k)=\prod_{i=1}^{k}\Pr(X_i|X_{\pi_i})\]
+
+    <p>其中，$\boldsymbol \pi$ 是父母节点的索引。</p>
+  </li>
+  <li>
+    <p>等价于无向 PGM，其中</p>
+    <ul>
+      <li>每个条件概率项都包含在一个因子函数（factor function）$\psi_c$ 里面</li>
+      <li>Clique 结构连接着 <span style="color:red">变量的群体</span>，即 \(\{\{X_i\}\cup X_{\pi_i}, \forall i\}\)</li>
+      <li>归一化项可以忽略，$Z=1$</li>
+    </ul>
+  </li>
+</ul>
+
+<p><strong><span style="color:steelblue">有向 PGM 转为无向 PGM 的步骤：</span></strong></p>
+<ol>
+  <li>复制节点</li>
+  <li>复制边，移除方向</li>
+  <li>“伦理化” 父母节点</li>
+</ol>
+
+<p><img src="http://andy-blog.oss-cn-beijing.aliyuncs.com/blog/2020-02-22-WX20200222-230218%402x.png" /></p>
+
+<h3 id="24-为什么需要-u-pgm">2.4 为什么需要 U-PGM？</h3>
+<ul>
+  <li>优点
+    <ul>
+      <li>D-PGM 的泛化</li>
+      <li>建模方法更简单，不需要每个因子（factor）归一化</li>
+      <li>通用的推断算法使用 U-PGM 表示（同时支持两种 PGM）</li>
+    </ul>
+  </li>
+  <li>缺点
+    <ul>
+      <li>($\,$稍微$\,$) 较弱的独立性</li>
+      <li>计算全局归一化项（$Z$）通常比较困难（但对于链 / 树则易于处理，例如，CRF）</li>
+    </ul>
+  </li>
+</ul>
+
+<h2 id="3-pgm-例子">3. PGM 例子</h2>
+<p><strong>隐马尔可夫模型（HMM）；格子马尔可夫随机场（MRF）；条件随机场（CRF）</strong></p>
+<h3 id="31-hmm-和卡尔曼滤波器">3.1 HMM 和卡尔曼滤波器</h3>
+<ul>
+  <li>
+    <p>顺序观测的 <span style="color:red">输出</span> 来自隐藏 <span style="color:red">状态</span></p>
+
+    <p><img src="http://andy-blog.oss-cn-beijing.aliyuncs.com/blog/2020-02-22-WX20200222-233048%402x.png" width="40%" /></p>
+
+    <p>$A=\{a_{ij}\}$ $\qquad$ 转移概率矩阵；$\forall i: \sum_j a_{ij}=1$</p>
+
+    <p>$B=\{b_i(o_k)\}$ $\qquad$ 输出概率矩阵；$\forall i: \sum_k b_i(o_k)=1$</p>
+
+    <p>$\Pi =\{\pi_i\}$ $\qquad$ 初始状态分布；$\sum_i \pi_i=1$</p>
+  </li>
+  <li><span style="color:red">卡尔曼滤波器</span> 也是一样，具有连续高斯随机变量</li>
+  <li>
+    <p><span style="color:red">CRF</span> 模型与之类似，只不过是无向的</p>
+
+    <p><img src="http://andy-blog.oss-cn-beijing.aliyuncs.com/blog/2020-02-22-WX20200222-234156%402x.png" width="75%" /></p>
+  </li>
+</ul>
+
+<h3 id="32-hmm-应用">3.2 HMM 应用</h3>
+<ul>
+  <li>NLP - <span style="color:red">部分语音标记</span>：给定句子中的词，推断语音中的隐藏部分<br />
+<br />
+“I love Machine Learning” $\to$ noun, verb, noun, noun</li>
+  <li>
+    <p><span style="color:red">语音识别</span>：给定波形，确定音素</p>
+
+    <p><img src="http://andy-blog.oss-cn-beijing.aliyuncs.com/blog/2020-02-22-WX20200222-234831%402x.png" width="60%" /></p>
+  </li>
+  <li>生物序列：分类、搜索、<span style="color:red">比对</span></li>
+  <li>计算机视觉：识别视频中行走的物体，<span style="color:red">进行追踪</span></li>
+</ul>
+
+<h3 id="33-hmm-基本任务">3.3 HMM 基本任务</h3>
+
+<table>
+  <thead>
+    <tr>
+      <th>HMM 任务</th>
+      <th>PGM 任务</th>
+    </tr>
+  </thead>
+  <tbody>
+    <tr>
+      <td><strong><span style="color:red">估计：</span></strong> 给定一个 HMM 均值 $\mu$ 和观测序列 $O$，求解似然函数 $\Pr(O \mid \mu)$</td>
+      <td>概率推断</td>
+    </tr>
+    <tr>
+      <td><strong><span style="color:red">解码：</span></strong> 给定一个 HMM 均值 $\mu$ 和观测序列 $O$，求解最可能的隐藏状态序列 $Q$</td>
+      <td>MAP 点估计</td>
+    </tr>
+    <tr>
+      <td><strong><span style="color:red">学习：</span></strong> 给定一个观测序列 $O$ 和状态集合，学习参数 $A, B, \Pi$</td>
+      <td>统计推断</td>
+    </tr>
+  </tbody>
+</table>
+
+<h3 id="34-计算机视觉中的像素标签任务">3.4 计算机视觉中的像素标签任务</h3>
+<ul>
+  <li>
+    <p>语义标注</p>
+
+    <p><img src="http://andy-blog.oss-cn-beijing.aliyuncs.com/blog/2020-02-22-WX20200223-000631%402x.png" width="70%" /></p>
+  </li>
+  <li>
+    <p>交互式图形-场地分割</p>
+
+    <p><img src="http://andy-blog.oss-cn-beijing.aliyuncs.com/blog/2020-02-22-WX20200223-000641%402x.png" width="70%" /></p>
+  </li>
+  <li>
+    <p>图像去噪</p>
+
+    <p><img src="http://andy-blog.oss-cn-beijing.aliyuncs.com/blog/2020-02-22-WX20200223-000658%402x.png" width="50%" /></p>
+  </li>
+</ul>
+
+<h3 id="35-这些任务的共同点是什么">3.5 这些任务的共同点是什么？</h3>
+<ul>
+  <li>隐藏状态表示图像的语义
+    <ul>
+      <li>语义标注：牛 vs. 树 vs. 草地 vs. 天空 vs. 房子</li>
+      <li>前后分割：图形 vs. 场地</li>
+      <li>去噪：清理像素</li>
+    </ul>
+  </li>
+  <li>图片的像素
+    <ul>
+      <li>是我们从隐藏状态中观测到的东西</li>
+    </ul>
+  </li>
+  <li>
+    <p>想起 HMM 了吗？</p>
+
+    <p><img src="http://andy-blog.oss-cn-beijing.aliyuncs.com/blog/2020-02-22-WX20200222-233048%402x.png" width="30%" /></p>
+  </li>
+</ul>
+
+<h3 id="36-一个隐藏的方格马尔可夫随机场">3.6 一个隐藏的方格马尔可夫随机场</h3>
+<ul>
+  <li>
+    <p><span style="color:red">隐藏状态</span>：方格模型</p>
+
+    <p><img src="http://andy-blog.oss-cn-beijing.aliyuncs.com/blog/2020-02-22-WX20200223-003119%402x.png" width="60%" align="right" /></p>
+
+    <ul>
+      <li>
+        <p>两个类别状态为布尔的<br />
+<img src="http://andy-blog.oss-cn-beijing.aliyuncs.com/blog/2020-02-22-WX20200223-003046%402x.png" width="20%" /></p>
+      </li>
+      <li>
+        <p>多个类别状态为离散的<br />
+<img src="http://andy-blog.oss-cn-beijing.aliyuncs.com/blog/2020-02-22-WX20200223-003054%402x.png" width="20%" /></p>
+      </li>
+      <li>
+        <p>去噪任务则为连续的<br />
+<img src="http://andy-blog.oss-cn-beijing.aliyuncs.com/blog/2020-02-22-WX20200223-003101%402x.png" width="20%" /></p>
+      </li>
+    </ul>
+  </li>
+  <li>
+    <p><span style="color:red">像素</span>：观测到的输出</p>
+    <ul>
+      <li>连续的，例如：正态</li>
+    </ul>
+  </li>
+</ul>
+
+<h3 id="37-应用于序列crf">3.7 应用于序列：CRF</h3>
+<ul>
+  <li><span style="color:red">条件随机场：同样的模型应用于序列</span>
+    <ul>
+      <li>观测到的输出为单词、语音、氨基酸等</li>
+      <li>状态是标签：词性、音素、序列</li>
+    </ul>
+  </li>
+  <li>CRF 是判别式模型，对 $\Pr(Q|O)$ 建模
+    <ul>
+      <li>对比 HMM 是生成式模型，对 $\Pr(Q,O)$ 建模</li>
+      <li>
+        <p>无向 PGM 更通用，表达性更强</p>
+
+        <p><img src="http://andy-blog.oss-cn-beijing.aliyuncs.com/blog/2020-02-22-WX20200223-004553%402x.png" width="60%" /></p>
+      </li>
+    </ul>
+  </li>
+</ul>
+
+<h2 id="总结">总结</h2>
+<ul>
+  <li>概率图模型
+    <ul>
+      <li>动机：应用，统一算法</li>
+      <li>动机：贝叶斯理论的理想工具</li>
+      <li>独立性降低了计算 / 模型复杂度</li>
+      <li>PGM：联合概率因式分解的简洁表示</li>
+      <li>U-PGM</li>
+    </ul>
+  </li>
+  <li>PGM 的例子与应用</li>
+</ul>
+
+<p>下节内容：PGM 的概率推断和统计推断</p>
+:ET
