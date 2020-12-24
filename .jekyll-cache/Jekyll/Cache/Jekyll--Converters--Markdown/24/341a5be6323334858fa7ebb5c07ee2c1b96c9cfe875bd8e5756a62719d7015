@@ -1,0 +1,801 @@
+I"��<h1 id="lecture-15-损失函数-一">Lecture 15 损失函数 (一)</h1>
+
+<p>在前几节课中，我们学习了模型模块中的一些知识，包括如何构建模型以及怎样进行模型初始化。本节课我们将开始学习损失函数模块。</p>
+
+<h2 id="1-损失函数的概念">1. 损失函数的概念</h2>
+
+<p><strong>损失函数 (Loss Function)</strong>：衡量模型输出与真实标签之间的差异。</p>
+
+<p>下面是一个一元线性回归的拟合过程示意图：</p>
+
+<p><img src="http://andy-blog.oss-cn-beijing.aliyuncs.com/blog/2020-12-20-WX20201220-200705%402x.png" width="60%" /></p>
+
+<p>图中的绿色方块代表训练样本点 $(x_i, y_i)$，蓝色直线代表训练得到的模型 $\hat y = w_0 + w_1 x$，其中，$w_0$ 代表截距，$w_1 = \Delta y / \Delta x$ 代表斜率。可以看到，模型并没有完美地拟合每一个数据点，所以数据点和模型之间存在一个 <strong>损失 (Loss)</strong>，这里我们采用垂直方向上模型输出与真实数据点之差的绝对值 $|\hat y -y|$ 作为损失函数的度量。</p>
+
+<p>另外，当我们谈到损失函数时，经常会涉及到以下三个概念：</p>
+
+<ul>
+  <li>
+    <p><strong>损失函数 (Loss Function)</strong>：计算单个样本的差异。</p>
+
+\[\mathrm{Loss} = f(\hat y, y)\]
+  </li>
+  <li>
+    <p><strong>代价函数 (Cost Function)</strong>：计算整个训练集 $\mathrm{Loss}$ 的平均值。</p>
+
+\[\mathrm{Cost} = \dfrac{1}{n}\sum_{i=1}^{n} f(\hat y_i, y_i)\]
+  </li>
+  <li>
+    <p><strong>目标函数 (Objective Function)</strong>：最终需要优化的目标，通常包含代价函数和正则项。</p>
+
+\[\mathrm{Obj} = \mathrm{Cost} + \mathrm{Regularization}\]
+  </li>
+</ul>
+
+<p>注意，代价函数并不是越小越好，因为存在过拟合的风险。所以我们需要加上一些约束 (即正则项) 来防止模型变得过于复杂而导致过拟合，常用的有 L1 和 L2 正则项。因此，代价函数和正则项最终构成了我们的目标函数。</p>
+
+<p>下面我们来看一下 PyTorch 中的 <code class="language-plaintext highlighter-rouge">_Loss</code> 类：</p>
+
+<div class="language-python highlighter-rouge"><div class="highlight"><pre class="highlight"><code><table class="rouge-table"><tbody><tr><td class="rouge-gutter gl"><pre class="lineno">1
+2
+3
+4
+5
+6
+7
+</pre></td><td class="rouge-code"><pre><span class="k">class</span> <span class="nc">_Loss</span><span class="p">(</span><span class="n">Module</span><span class="p">):</span>
+    <span class="k">def</span> <span class="nf">__init__</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">size_average</span><span class="o">=</span><span class="bp">None</span><span class="p">,</span> <span class="nb">reduce</span><span class="o">=</span><span class="bp">None</span><span class="p">,</span> <span class="n">reduction</span><span class="o">=</span><span class="s">'mean'</span><span class="p">):</span>
+        <span class="nb">super</span><span class="p">(</span><span class="n">_Loss</span><span class="p">,</span> <span class="bp">self</span><span class="p">).</span><span class="n">__init__</span><span class="p">()</span>
+        <span class="k">if</span> <span class="n">size_average</span> <span class="ow">is</span> <span class="ow">not</span> <span class="bp">None</span> <span class="ow">or</span> <span class="nb">reduce</span> <span class="ow">is</span> <span class="ow">not</span> <span class="bp">None</span><span class="p">:</span>
+            <span class="bp">self</span><span class="p">.</span><span class="n">reduction</span> <span class="o">=</span> <span class="n">_Reduction</span><span class="p">.</span><span class="n">legacy_get_string</span><span class="p">(</span><span class="n">size_average</span><span class="p">,</span> <span class="nb">reduce</span><span class="p">)</span>
+        <span class="k">else</span><span class="p">:</span>
+            <span class="bp">self</span><span class="p">.</span><span class="n">reduction</span> <span class="o">=</span> <span class="n">reduction</span>
+</pre></td></tr></tbody></table></code></pre></div></div>
+
+<p>可以看到，<code class="language-plaintext highlighter-rouge">_Loss</code> 是继承于 <code class="language-plaintext highlighter-rouge">Module</code> 类的，所以从某种程度上我们可以将 <code class="language-plaintext highlighter-rouge">_Loss</code> 也视为一个网络层。它的初始化函数中主要有 3 个参数，其中 <code class="language-plaintext highlighter-rouge">size_average</code> 和 <code class="language-plaintext highlighter-rouge">reduce</code> 这两个参数即将在后续版本中被舍弃，因为 <code class="language-plaintext highlighter-rouge">reduction</code> 参数已经可以实现前两者的功能。</p>
+
+<h2 id="2-交叉熵损失函数">2. 交叉熵损失函数</h2>
+
+<p>在分类任务中，我们经常采用的是交叉熵损失函数。在分类任务中我们常常需要计算不同类别的概率值，所以交叉熵可以用来衡量两个概率分布之间的差异，交叉熵值越低说明两个概率分布越接近。</p>
+
+<p>那么为什么交叉熵值越低，两个概率分布越接近呢？这需要从它与信息熵和相对熵之间的关系说起：</p>
+
+<p><span><center>交叉熵 $=$ 信息熵 $+$ 相对熵</center></span></p>
+
+<p>我们先来看最基本的 <strong>熵 (Entropy)</strong> 的概念：熵准确来说应该叫做 <strong>信息熵 (Information Entropy)</strong>，它是由信息论之父香农从热力学中借鉴过来的一个概念，用于描述某个事件的不确定性：某个事件不确定性越高，它的熵就越大。例如：“明天下雨” 这一事件要比 “明天太阳会升起” 这一事件的熵大得多，因为前者的不确定性较高。这里我们需要引入 <strong>自信息</strong> 的概念。</p>
+
+<ul>
+  <li>
+    <p><strong>自信息 (Self-information)</strong>：用于衡量单个事件的不确定性。</p>
+
+\[I(X) = -\log [P(X)]\]
+
+    <p>其中，$P(X)$ 为事件 $X$ 的概率。</p>
+  </li>
+  <li>
+    <p><strong>熵 (Entropy)</strong>：自信息的期望，用于描述整个概率分布的不确定性。事件的不确定性越高，它的熵就越大。</p>
+
+\[H(P) = \mathrm{E}_{X\sim P}[I(X)] = \sum_{i=1}^{n}P(x_i)\log P(x_i)\]
+  </li>
+</ul>
+
+<p>为了更好地理解熵与事件不确定性的关系，我们来看一个示意图：</p>
+
+<p><img src="http://andy-blog.oss-cn-beijing.aliyuncs.com/blog/2020-12-20-entropy.png" width="60%" /></p>
+
+<p>上面是伯努利分布 (两点分布) 的信息熵，可以看到，当事件概率为 $0.5$ 时，它的信息熵最大，大约在 $0.69$ 附近，即此时该事件的不确定性是最大的。注意，这里的 $0.69$ 是在二分类模型训练过程中经常会碰到的一个 Loss 值：有时在模型训练出问题时，无论我们如何进行迭代，模型的 Loss 值始终恒定在 $0.69$；或者在模型刚初始化完成第一次迭代后，其 Loss 值也很可能是 $0.69$，这表明我们的模型当前是不具备任何判别能力的，因为其对于两个类别中的任何一个都认为概率是 $0.5$。</p>
+
+<p>下面我们来看一下相对熵的概念：</p>
+
+<ul>
+  <li>
+    <p><strong>相对熵 (Relative Entropy)</strong>：又称 <strong>KL 散度 (Kullback-Leibler Divergence, KLD)</strong>，用于衡量两个概率分布之间的差异 (或者说距离)。注意，虽然 KL 散度可以衡量两个分布之间的距离，但它本身并不是一个距离函数，因为距离函数具有对称性，即 $P$ 到 $Q$ 的距离必须等于 $Q$ 到 $P$ 的距离，而相对熵不具备这种对称性。</p>
+
+\[D_{\mathrm{KL}}(P, Q) = \mathrm{E}_{X \sim P}\left[\log \dfrac{P(X)}{Q(X)}\right]\]
+
+    <p>其中，$P$ 是数据的真实分布，$Q$ 是模型拟合的分布，二者定义在相同的概率空间上。我们需要用拟合分布 $Q$ 去逼近真实分布 $P$，所以相对熵不具备对称性。</p>
+  </li>
+</ul>
+
+<p>下面我们再来看一下交叉熵的公式：</p>
+
+<ul>
+  <li>
+    <p><strong>交叉熵 (Cross Entropy)</strong>：用于衡量两个分布之间的相似度。</p>
+
+\[H(P,Q)= -\sum_{i=1}^{n}P(x_i)\log Q(x_i)\]
+  </li>
+</ul>
+
+<p>下面我们对相对熵的公式进行展开推导变换，来观察一下相对熵与信息熵和交叉熵之间的关系：</p>
+
+\[\begin{aligned}
+D_{\mathrm{KL}}(P, Q) &amp;= \mathrm{E}_{X \sim P}\left[\log \dfrac{P(X)}{Q(X)}\right] \\[2ex]
+&amp;= \mathrm{E}_{X \sim P} [\log P(X) - \log Q(X) ] \\[2ex]
+&amp;= \sum_{i=1}^{n} P(x_i) [\log P(x_i) - \log Q(x_i) ] \\[2ex]
+&amp;= \sum_{i=1}^{n} P(x_i) \log P(x_i) - \sum_{i=1}^{n} P(x_i) \log Q(x_i) \\[2ex]
+&amp;= H(P, Q) - H(P)
+\end{aligned}\]
+
+<p>所以，<strong>交叉熵等于信息熵加上相对熵</strong>：</p>
+
+\[H(P, Q) = H(P) + D_{\mathrm{KL}}(P, Q)\]
+
+<p>这里，$P$ 为训练集中的样本分布，$Q$ 为模型给出的分布。所以在机器学习中，我们最小化交叉熵实际上等价于最小化相对熵，因为训练集是固定的，所以 $H(P)$ 在这里是一个常数。</p>
+
+<h4 id="nncrossentropyloss"><code class="language-plaintext highlighter-rouge">nn.CrossEntropyLoss</code></h4>
+
+<p><strong>功能</strong>：<code class="language-plaintext highlighter-rouge">nn.LogSoftmax()</code> 与 <code class="language-plaintext highlighter-rouge">nn.NLLLoss()</code> 结合，进行交叉熵计算。</p>
+
+<div class="language-python highlighter-rouge"><div class="highlight"><pre class="highlight"><code><table class="rouge-table"><tbody><tr><td class="rouge-gutter gl"><pre class="lineno">1
+2
+3
+4
+5
+6
+7
+</pre></td><td class="rouge-code"><pre><span class="n">nn</span><span class="p">.</span><span class="n">CrossEntropyLoss</span><span class="p">(</span>
+    <span class="n">weight</span><span class="o">=</span><span class="bp">None</span><span class="p">,</span>
+    <span class="n">size_average</span><span class="o">=</span><span class="bp">None</span><span class="p">,</span>
+    <span class="n">ignore_index</span><span class="o">=-</span><span class="mi">100</span><span class="p">,</span>
+    <span class="nb">reduce</span><span class="o">=</span><span class="bp">None</span><span class="p">,</span>
+    <span class="n">reduction</span><span class="o">=</span><span class="s">'mean'</span>
+<span class="p">)</span>
+</pre></td></tr></tbody></table></code></pre></div></div>
+
+<p><strong>主要参数</strong>：</p>
+
+<ul>
+  <li><code class="language-plaintext highlighter-rouge">weight</code>：各类别的 loss 设置权值。</li>
+  <li><code class="language-plaintext highlighter-rouge">ignore_index</code>：忽略某个类别，不计算其 loss。</li>
+  <li><code class="language-plaintext highlighter-rouge">reduction</code>：计算模式，可为 <code class="language-plaintext highlighter-rouge">none/sum/mean</code>。
+    <ul>
+      <li><code class="language-plaintext highlighter-rouge">none</code>：逐个元素计算。</li>
+      <li><code class="language-plaintext highlighter-rouge">sum</code>：所有元素求和，返回标量。</li>
+      <li><code class="language-plaintext highlighter-rouge">mean</code>：加权平均，返回标量。</li>
+    </ul>
+  </li>
+</ul>
+
+<p><strong>PyTorch 中 <code class="language-plaintext highlighter-rouge">nn.CrossEntropyLoss</code> 的交叉熵计算公式</strong>：</p>
+
+<ul>
+  <li>
+    <p>没有针对各类别 loss 设置权值的情况：</p>
+
+\[\mathrm{loss}(x, class) = -\log \left(\dfrac{\exp(x[class])}{\sum_j \exp(x[j])} \right) = -x[class] + \log \left(\sum_j \exp(x[j])\right)\]
+  </li>
+  <li>
+    <p>对各类别 loss 设置权值的情况：</p>
+
+\[\mathrm{loss}(x, class) = \mathrm{weight}[class] \left(-x[class] + \log \left(\sum_j \exp(x[j])\right)\right)\]
+  </li>
+</ul>
+
+<p>注意，这里的计算过程和交叉熵公式存在一些差异：</p>
+
+\[H(P,Q)= -\sum_{i=1}^{n}P(x_i)\log Q(x_i)\]
+
+<p>因为这里我们已经将一个具体数据点取出，所以这里 $\Sigma$ 求和式不再需要，并且 $P(x_i)=1$，因此公式变为：</p>
+
+\[H(P,Q)= -\log Q(x_i)\]
+
+<p>然后，为了使输出概率在 $[0,1]$ 之间，PyTorch 在这里使用了一个 Softmax 函数对数据进行了归一化处理，使其落在一个正常的概率值范围内。</p>
+
+<p><strong>代码示例</strong>：</p>
+
+<div class="language-python highlighter-rouge"><div class="highlight"><pre class="highlight"><code><table class="rouge-table"><tbody><tr><td class="rouge-gutter gl"><pre class="lineno">1
+2
+3
+4
+5
+6
+7
+8
+9
+10
+11
+12
+13
+14
+15
+16
+17
+18
+19
+20
+21
+</pre></td><td class="rouge-code"><pre><span class="kn">import</span> <span class="nn">torch</span>
+<span class="kn">import</span> <span class="nn">torch.nn</span> <span class="k">as</span> <span class="n">nn</span>
+<span class="kn">import</span> <span class="nn">numpy</span> <span class="k">as</span> <span class="n">np</span>
+
+<span class="c1"># fake data
+</span><span class="n">inputs</span> <span class="o">=</span> <span class="n">torch</span><span class="p">.</span><span class="n">tensor</span><span class="p">([[</span><span class="mi">1</span><span class="p">,</span> <span class="mi">2</span><span class="p">],</span> <span class="p">[</span><span class="mi">1</span><span class="p">,</span> <span class="mi">3</span><span class="p">],</span> <span class="p">[</span><span class="mi">1</span><span class="p">,</span> <span class="mi">3</span><span class="p">]],</span> <span class="n">dtype</span><span class="o">=</span><span class="n">torch</span><span class="p">.</span><span class="nb">float</span><span class="p">)</span>
+<span class="n">target</span> <span class="o">=</span> <span class="n">torch</span><span class="p">.</span><span class="n">tensor</span><span class="p">([</span><span class="mi">0</span><span class="p">,</span> <span class="mi">1</span><span class="p">,</span> <span class="mi">1</span><span class="p">],</span> <span class="n">dtype</span><span class="o">=</span><span class="n">torch</span><span class="p">.</span><span class="nb">long</span><span class="p">)</span>  <span class="c1"># 注意 label 在这里必须设置为长整型
+</span>
+<span class="c1"># ------------------------ CrossEntropy loss: reduction ----------------------
+# def loss function
+</span><span class="n">loss_f_none</span> <span class="o">=</span> <span class="n">nn</span><span class="p">.</span><span class="n">CrossEntropyLoss</span><span class="p">(</span><span class="n">weight</span><span class="o">=</span><span class="bp">None</span><span class="p">,</span> <span class="n">reduction</span><span class="o">=</span><span class="s">'none'</span><span class="p">)</span>
+<span class="n">loss_f_sum</span> <span class="o">=</span> <span class="n">nn</span><span class="p">.</span><span class="n">CrossEntropyLoss</span><span class="p">(</span><span class="n">weight</span><span class="o">=</span><span class="bp">None</span><span class="p">,</span> <span class="n">reduction</span><span class="o">=</span><span class="s">'sum'</span><span class="p">)</span>
+<span class="n">loss_f_mean</span> <span class="o">=</span> <span class="n">nn</span><span class="p">.</span><span class="n">CrossEntropyLoss</span><span class="p">(</span><span class="n">weight</span><span class="o">=</span><span class="bp">None</span><span class="p">,</span> <span class="n">reduction</span><span class="o">=</span><span class="s">'mean'</span><span class="p">)</span>
+
+<span class="c1"># forward
+</span><span class="n">loss_none</span> <span class="o">=</span> <span class="n">loss_f_none</span><span class="p">(</span><span class="n">inputs</span><span class="p">,</span> <span class="n">target</span><span class="p">)</span>
+<span class="n">loss_sum</span> <span class="o">=</span> <span class="n">loss_f_sum</span><span class="p">(</span><span class="n">inputs</span><span class="p">,</span> <span class="n">target</span><span class="p">)</span>
+<span class="n">loss_mean</span> <span class="o">=</span> <span class="n">loss_f_mean</span><span class="p">(</span><span class="n">inputs</span><span class="p">,</span> <span class="n">target</span><span class="p">)</span>
+
+<span class="c1"># view
+</span><span class="k">print</span><span class="p">(</span><span class="s">"Cross Entropy Loss:</span><span class="se">\n</span><span class="s"> "</span><span class="p">,</span> <span class="n">loss_none</span><span class="p">,</span> <span class="n">loss_sum</span><span class="p">,</span> <span class="n">loss_mean</span><span class="p">)</span>
+</pre></td></tr></tbody></table></code></pre></div></div>
+
+<p>输出结果：</p>
+
+<div class="language-plaintext highlighter-rouge"><div class="highlight"><pre class="highlight"><code><table class="rouge-table"><tbody><tr><td class="rouge-gutter gl"><pre class="lineno">1
+2
+</pre></td><td class="rouge-code"><pre>Cross Entropy Loss:
+  tensor([1.3133, 0.1269, 0.1269]) tensor(1.5671) tensor(0.5224)
+</pre></td></tr></tbody></table></code></pre></div></div>
+
+<p>可以看到，<code class="language-plaintext highlighter-rouge">reduction</code> 参数项在 <code class="language-plaintext highlighter-rouge">none</code> 模式下，计算出的 3 个样本的 loss 值分别为 $1.3133$、$0.1269$ 和 $0.1269$；在 <code class="language-plaintext highlighter-rouge">sum</code> 模式下，计算出 3 个样本的 loss 之和为 $1.5671$；在 <code class="language-plaintext highlighter-rouge">mean</code> 模式下，计算出 3 个样本的 loss 平均为 $0.5224$。</p>
+
+<p>下面我们以第一个样本的 loss 值为例，通过手动计算来验证一下我们前面推导出的公式的正确性：</p>
+
+\[\mathrm{loss}(x, class) = -x[class] + \log \left(\sum_j \exp(x[j])\right)\]
+
+<div class="language-python highlighter-rouge"><div class="highlight"><pre class="highlight"><code><table class="rouge-table"><tbody><tr><td class="rouge-gutter gl"><pre class="lineno">1
+2
+3
+4
+5
+6
+7
+8
+9
+10
+11
+12
+13
+14
+15
+16
+</pre></td><td class="rouge-code"><pre><span class="n">idx</span> <span class="o">=</span> <span class="mi">0</span>
+
+<span class="n">input_1</span> <span class="o">=</span> <span class="n">inputs</span><span class="p">.</span><span class="n">detach</span><span class="p">().</span><span class="n">numpy</span><span class="p">()[</span><span class="n">idx</span><span class="p">]</span>      <span class="c1"># [1, 2]
+</span><span class="n">target_1</span> <span class="o">=</span> <span class="n">target</span><span class="p">.</span><span class="n">numpy</span><span class="p">()[</span><span class="n">idx</span><span class="p">]</span>              <span class="c1"># [0]
+</span>
+<span class="c1"># 第一项
+</span><span class="n">x_class</span> <span class="o">=</span> <span class="n">input_1</span><span class="p">[</span><span class="n">target_1</span><span class="p">]</span>
+
+<span class="c1"># 第二项
+</span><span class="n">sigma_exp_x</span> <span class="o">=</span> <span class="n">np</span><span class="p">.</span><span class="nb">sum</span><span class="p">(</span><span class="nb">list</span><span class="p">(</span><span class="nb">map</span><span class="p">(</span><span class="n">np</span><span class="p">.</span><span class="n">exp</span><span class="p">,</span> <span class="n">input_1</span><span class="p">)))</span>
+<span class="n">log_sigma_exp_x</span> <span class="o">=</span> <span class="n">np</span><span class="p">.</span><span class="n">log</span><span class="p">(</span><span class="n">sigma_exp_x</span><span class="p">)</span>
+
+<span class="c1"># 输出loss
+</span><span class="n">loss_1</span> <span class="o">=</span> <span class="o">-</span><span class="n">x_class</span> <span class="o">+</span> <span class="n">log_sigma_exp_x</span>
+
+<span class="k">print</span><span class="p">(</span><span class="s">"第一个样本的 loss 为: "</span><span class="p">,</span> <span class="n">loss_1</span><span class="p">)</span>
+</pre></td></tr></tbody></table></code></pre></div></div>
+
+<p>输出结果：</p>
+
+<div class="language-plaintext highlighter-rouge"><div class="highlight"><pre class="highlight"><code><table class="rouge-table"><tbody><tr><td class="rouge-gutter gl"><pre class="lineno">1
+</pre></td><td class="rouge-code"><pre>第一个样本的 loss 为:  1.3132617
+</pre></td></tr></tbody></table></code></pre></div></div>
+
+<p>下面我们来看一下针对各类别 loss 设置权值的情况：</p>
+
+<div class="language-python highlighter-rouge"><div class="highlight"><pre class="highlight"><code><table class="rouge-table"><tbody><tr><td class="rouge-gutter gl"><pre class="lineno">1
+2
+3
+4
+5
+6
+7
+8
+9
+10
+11
+12
+13
+14
+15
+16
+17
+18
+</pre></td><td class="rouge-code"><pre><span class="c1"># def loss function
+# 向量长度应该与类别数量一致，如果 reduction 参数为 'mean'，那么我们不需要关注
+# weight 的尺度，只需要关注各类别的 weight 比例即可。
+</span><span class="n">weights</span> <span class="o">=</span> <span class="n">torch</span><span class="p">.</span><span class="n">tensor</span><span class="p">([</span><span class="mi">1</span><span class="p">,</span> <span class="mi">2</span><span class="p">],</span> <span class="n">dtype</span><span class="o">=</span><span class="n">torch</span><span class="p">.</span><span class="nb">float</span><span class="p">)</span>
+<span class="c1"># weights = torch.tensor([0.7, 0.3], dtype=torch.float)
+</span>
+<span class="n">loss_f_none_w</span> <span class="o">=</span> <span class="n">nn</span><span class="p">.</span><span class="n">CrossEntropyLoss</span><span class="p">(</span><span class="n">weight</span><span class="o">=</span><span class="n">weights</span><span class="p">,</span> <span class="n">reduction</span><span class="o">=</span><span class="s">'none'</span><span class="p">)</span>
+<span class="n">loss_f_sum</span> <span class="o">=</span> <span class="n">nn</span><span class="p">.</span><span class="n">CrossEntropyLoss</span><span class="p">(</span><span class="n">weight</span><span class="o">=</span><span class="n">weights</span><span class="p">,</span> <span class="n">reduction</span><span class="o">=</span><span class="s">'sum'</span><span class="p">)</span>
+<span class="n">loss_f_mean</span> <span class="o">=</span> <span class="n">nn</span><span class="p">.</span><span class="n">CrossEntropyLoss</span><span class="p">(</span><span class="n">weight</span><span class="o">=</span><span class="n">weights</span><span class="p">,</span> <span class="n">reduction</span><span class="o">=</span><span class="s">'mean'</span><span class="p">)</span>
+
+<span class="c1"># forward
+</span><span class="n">loss_none_w</span> <span class="o">=</span> <span class="n">loss_f_none_w</span><span class="p">(</span><span class="n">inputs</span><span class="p">,</span> <span class="n">target</span><span class="p">)</span>
+<span class="n">loss_sum</span> <span class="o">=</span> <span class="n">loss_f_sum</span><span class="p">(</span><span class="n">inputs</span><span class="p">,</span> <span class="n">target</span><span class="p">)</span>
+<span class="n">loss_mean</span> <span class="o">=</span> <span class="n">loss_f_mean</span><span class="p">(</span><span class="n">inputs</span><span class="p">,</span> <span class="n">target</span><span class="p">)</span>
+
+<span class="c1"># view
+</span><span class="k">print</span><span class="p">(</span><span class="s">"</span><span class="se">\n</span><span class="s">weights: "</span><span class="p">,</span> <span class="n">weights</span><span class="p">)</span>
+<span class="k">print</span><span class="p">(</span><span class="n">loss_none_w</span><span class="p">,</span> <span class="n">loss_sum</span><span class="p">,</span> <span class="n">loss_mean</span><span class="p">)</span>
+</pre></td></tr></tbody></table></code></pre></div></div>
+
+<p>输出结果：</p>
+
+<div class="language-plaintext highlighter-rouge"><div class="highlight"><pre class="highlight"><code><table class="rouge-table"><tbody><tr><td class="rouge-gutter gl"><pre class="lineno">1
+2
+</pre></td><td class="rouge-code"><pre>weights:  tensor([1., 2.])
+tensor([1.3133, 0.2539, 0.2539]) tensor(1.8210) tensor(0.3642)
+</pre></td></tr></tbody></table></code></pre></div></div>
+
+<p>对比之前没有设置权值的结果，我们发现，在 <code class="language-plaintext highlighter-rouge">none</code> 模式下，由于第一个样本类别为 0，而其权值为 $1$，所以结果和之前一样，都是 $1.3133$。而第二个和第三个样本类别为 $1$，权值为 $2$，所以这里的 loss 是之前的 $2$ 倍，即 $0.2539$。对于 <code class="language-plaintext highlighter-rouge">sum</code> 模式，其结果为三个样本的 loss 之和，即 $1.8210$。而对于 <code class="language-plaintext highlighter-rouge">mean</code> 模式，现在不再是简单地将三个 loss 相加求平均，而是采用了加权平均的计算方式：因为第一个样本权值为 $1$，第二个和第三个样本权值都是 $2$，所以一共有 $1+2+2=5$ 份，loss 的加权均值为 $1.8210 / 5 = 0.3642$。</p>
+
+<p>下面我们通过手动计算来验证在设置权值的情况下，<code class="language-plaintext highlighter-rouge">mean</code> 模式下的 loss 计算方式是否正确：</p>
+
+<div class="language-python highlighter-rouge"><div class="highlight"><pre class="highlight"><code><table class="rouge-table"><tbody><tr><td class="rouge-gutter gl"><pre class="lineno">1
+2
+3
+4
+5
+6
+7
+8
+9
+10
+11
+12
+</pre></td><td class="rouge-code"><pre><span class="n">weights</span> <span class="o">=</span> <span class="n">torch</span><span class="p">.</span><span class="n">tensor</span><span class="p">([</span><span class="mi">1</span><span class="p">,</span> <span class="mi">2</span><span class="p">],</span> <span class="n">dtype</span><span class="o">=</span><span class="n">torch</span><span class="p">.</span><span class="nb">float</span><span class="p">)</span>
+<span class="n">weights_all</span> <span class="o">=</span> <span class="n">np</span><span class="p">.</span><span class="nb">sum</span><span class="p">(</span><span class="nb">list</span><span class="p">(</span><span class="nb">map</span><span class="p">(</span><span class="k">lambda</span> <span class="n">x</span><span class="p">:</span> <span class="n">weights</span><span class="p">.</span><span class="n">numpy</span><span class="p">()[</span><span class="n">x</span><span class="p">],</span> <span class="n">target</span><span class="p">.</span><span class="n">numpy</span><span class="p">())))</span>
+
+<span class="n">mean</span> <span class="o">=</span> <span class="mi">0</span>
+<span class="n">loss_sep</span> <span class="o">=</span> <span class="n">loss_none</span><span class="p">.</span><span class="n">detach</span><span class="p">().</span><span class="n">numpy</span><span class="p">()</span>
+
+<span class="k">for</span> <span class="n">i</span> <span class="ow">in</span> <span class="nb">range</span><span class="p">(</span><span class="n">target</span><span class="p">.</span><span class="n">shape</span><span class="p">[</span><span class="mi">0</span><span class="p">]):</span>
+    <span class="n">x_class</span> <span class="o">=</span> <span class="n">target</span><span class="p">.</span><span class="n">numpy</span><span class="p">()[</span><span class="n">i</span><span class="p">]</span>
+    <span class="n">tmp</span> <span class="o">=</span> <span class="n">loss_sep</span><span class="p">[</span><span class="n">i</span><span class="p">]</span> <span class="o">*</span> <span class="p">(</span><span class="n">weights</span><span class="p">.</span><span class="n">numpy</span><span class="p">()[</span><span class="n">x_class</span><span class="p">]</span> <span class="o">/</span> <span class="n">weights_all</span><span class="p">)</span>
+    <span class="n">mean</span> <span class="o">+=</span> <span class="n">tmp</span>
+
+<span class="k">print</span><span class="p">(</span><span class="n">mean</span><span class="p">)</span>
+</pre></td></tr></tbody></table></code></pre></div></div>
+
+<p>输出结果：</p>
+
+<div class="language-plaintext highlighter-rouge"><div class="highlight"><pre class="highlight"><code><table class="rouge-table"><tbody><tr><td class="rouge-gutter gl"><pre class="lineno">1
+</pre></td><td class="rouge-code"><pre>0.3641947731375694
+</pre></td></tr></tbody></table></code></pre></div></div>
+
+<p>可以看到，手动计算的结果和 PyTorch 中自动求取的结果一致，所以对于设置权值的情况，<code class="language-plaintext highlighter-rouge">mean</code> 模式下的 loss 不是简单的求和之后除以样本个数，而是除以权值的份数，即实际计算的是加权均值。</p>
+
+<h2 id="3-nllbcebcewithlogits-loss">3. NLL/BCE/BCEWithLogits Loss</h2>
+
+<h4 id="nnnllloss"><code class="language-plaintext highlighter-rouge">nn.NLLLoss</code></h4>
+
+<p><strong>功能</strong>：实现负对数似然函数中的 <strong>负号功能</strong>。</p>
+
+<div class="language-python highlighter-rouge"><div class="highlight"><pre class="highlight"><code><table class="rouge-table"><tbody><tr><td class="rouge-gutter gl"><pre class="lineno">1
+2
+3
+4
+5
+6
+7
+</pre></td><td class="rouge-code"><pre><span class="n">nn</span><span class="p">.</span><span class="n">NLLLoss</span><span class="p">(</span>
+    <span class="n">weight</span><span class="o">=</span><span class="bp">None</span><span class="p">,</span>
+    <span class="n">size_average</span><span class="o">=</span><span class="bp">None</span><span class="p">,</span>
+    <span class="n">ignore_index</span><span class="o">=-</span><span class="mi">100</span><span class="p">,</span>
+    <span class="nb">reduce</span><span class="o">=</span><span class="bp">None</span><span class="p">,</span>
+    <span class="n">reduction</span><span class="o">=</span><span class="s">'mean'</span>
+<span class="p">)</span>
+</pre></td></tr></tbody></table></code></pre></div></div>
+
+<p><strong>主要参数</strong>：</p>
+
+<ul>
+  <li><code class="language-plaintext highlighter-rouge">weight</code>：各类别的 loss 设置权值。</li>
+  <li><code class="language-plaintext highlighter-rouge">ignore_index</code>：忽略某个类别。</li>
+  <li><code class="language-plaintext highlighter-rouge">reduction</code>：计算模式，可为 <code class="language-plaintext highlighter-rouge">none/sum/mean</code>。
+    <ul>
+      <li><code class="language-plaintext highlighter-rouge">none</code>：逐个元素计算。</li>
+      <li><code class="language-plaintext highlighter-rouge">sum</code>：所有元素求和，返回标量。</li>
+      <li><code class="language-plaintext highlighter-rouge">mean</code>：加权平均，返回标量。</li>
+    </ul>
+  </li>
+</ul>
+
+<p><strong>计算公式</strong>：</p>
+
+\[\ell(x,y) = L = \{l_1,\dots,l_N\}^{\mathrm T}\;,\qquad l_n = -w_{y_n}x_{n,y_n}\]
+
+<p><strong>代码示例</strong>：</p>
+
+<div class="language-python highlighter-rouge"><div class="highlight"><pre class="highlight"><code><table class="rouge-table"><tbody><tr><td class="rouge-gutter gl"><pre class="lineno">1
+2
+3
+4
+5
+6
+7
+8
+9
+10
+11
+12
+13
+14
+15
+16
+17
+18
+19
+20
+</pre></td><td class="rouge-code"><pre><span class="c1"># fake data, 这里我们使用的还是之前的数据，注意 label 在这里必须设置为 long
+</span><span class="n">inputs</span> <span class="o">=</span> <span class="n">torch</span><span class="p">.</span><span class="n">tensor</span><span class="p">([[</span><span class="mi">1</span><span class="p">,</span> <span class="mi">2</span><span class="p">],</span> <span class="p">[</span><span class="mi">1</span><span class="p">,</span> <span class="mi">3</span><span class="p">],</span> <span class="p">[</span><span class="mi">1</span><span class="p">,</span> <span class="mi">3</span><span class="p">]],</span> <span class="n">dtype</span><span class="o">=</span><span class="n">torch</span><span class="p">.</span><span class="nb">float</span><span class="p">)</span>
+<span class="n">target</span> <span class="o">=</span> <span class="n">torch</span><span class="p">.</span><span class="n">tensor</span><span class="p">([</span><span class="mi">0</span><span class="p">,</span> <span class="mi">1</span><span class="p">,</span> <span class="mi">1</span><span class="p">],</span> <span class="n">dtype</span><span class="o">=</span><span class="n">torch</span><span class="p">.</span><span class="nb">long</span><span class="p">)</span>
+
+<span class="c1"># weights
+</span><span class="n">weights</span> <span class="o">=</span> <span class="n">torch</span><span class="p">.</span><span class="n">tensor</span><span class="p">([</span><span class="mi">1</span><span class="p">,</span> <span class="mi">1</span><span class="p">],</span> <span class="n">dtype</span><span class="o">=</span><span class="n">torch</span><span class="p">.</span><span class="nb">float</span><span class="p">)</span>
+
+<span class="c1"># NLL loss
+</span><span class="n">loss_f_none_w</span> <span class="o">=</span> <span class="n">nn</span><span class="p">.</span><span class="n">NLLLoss</span><span class="p">(</span><span class="n">weight</span><span class="o">=</span><span class="n">weights</span><span class="p">,</span> <span class="n">reduction</span><span class="o">=</span><span class="s">'none'</span><span class="p">)</span>
+<span class="n">loss_f_sum</span> <span class="o">=</span> <span class="n">nn</span><span class="p">.</span><span class="n">NLLLoss</span><span class="p">(</span><span class="n">weight</span><span class="o">=</span><span class="n">weights</span><span class="p">,</span> <span class="n">reduction</span><span class="o">=</span><span class="s">'sum'</span><span class="p">)</span>
+<span class="n">loss_f_mean</span> <span class="o">=</span> <span class="n">nn</span><span class="p">.</span><span class="n">NLLLoss</span><span class="p">(</span><span class="n">weight</span><span class="o">=</span><span class="n">weights</span><span class="p">,</span> <span class="n">reduction</span><span class="o">=</span><span class="s">'mean'</span><span class="p">)</span>
+
+<span class="c1"># forward
+</span><span class="n">loss_none_w</span> <span class="o">=</span> <span class="n">loss_f_none_w</span><span class="p">(</span><span class="n">inputs</span><span class="p">,</span> <span class="n">target</span><span class="p">)</span>
+<span class="n">loss_sum</span> <span class="o">=</span> <span class="n">loss_f_sum</span><span class="p">(</span><span class="n">inputs</span><span class="p">,</span> <span class="n">target</span><span class="p">)</span>
+<span class="n">loss_mean</span> <span class="o">=</span> <span class="n">loss_f_mean</span><span class="p">(</span><span class="n">inputs</span><span class="p">,</span> <span class="n">target</span><span class="p">)</span>
+
+<span class="c1"># view
+</span><span class="k">print</span><span class="p">(</span><span class="s">"</span><span class="se">\n</span><span class="s">weights: "</span><span class="p">,</span> <span class="n">weights</span><span class="p">)</span>
+<span class="k">print</span><span class="p">(</span><span class="s">"NLL Loss"</span><span class="p">,</span> <span class="n">loss_none_w</span><span class="p">,</span> <span class="n">loss_sum</span><span class="p">,</span> <span class="n">loss_mean</span><span class="p">)</span>
+</pre></td></tr></tbody></table></code></pre></div></div>
+
+<p>输出结果：</p>
+
+<div class="language-plaintext highlighter-rouge"><div class="highlight"><pre class="highlight"><code><table class="rouge-table"><tbody><tr><td class="rouge-gutter gl"><pre class="lineno">1
+2
+</pre></td><td class="rouge-code"><pre>weights:  tensor([1., 1.])
+NLL Loss tensor([-1., -3., -3.]) tensor(-7.) tensor(-2.3333)
+</pre></td></tr></tbody></table></code></pre></div></div>
+
+<p>注意，这里 <code class="language-plaintext highlighter-rouge">nn.NLLLoss</code> 实际上只是实现了一个负号的功能。对于 <code class="language-plaintext highlighter-rouge">none</code> 模式：这里第一个样本是第 0 类，所以我们这里只对第一个神经元进行计算，取负号得到 NLL Loss 为 $-1$；第二个样本是第 1 类，我们对第二个神经元进行计算，取负号得到 NLL Loss 为 $-3$；第三个样本也是第 1 类，我们对第二个神经元进行计算，取负号得到 NLL Loss 为 $-3$。对于 <code class="language-plaintext highlighter-rouge">sum</code> 模式，将三个样本的 NLL Loss 求和，得到 $-7$。对于 <code class="language-plaintext highlighter-rouge">mean</code> 模式，将三个样本的 NLL Loss 加权平均，得到 $-2.3333$。</p>
+
+<h4 id="nnbceloss"><code class="language-plaintext highlighter-rouge">nn.BCELoss</code></h4>
+
+<p><strong>功能</strong>：二分类交叉熵。</p>
+
+<div class="language-python highlighter-rouge"><div class="highlight"><pre class="highlight"><code><table class="rouge-table"><tbody><tr><td class="rouge-gutter gl"><pre class="lineno">1
+2
+3
+4
+5
+6
+</pre></td><td class="rouge-code"><pre><span class="n">nn</span><span class="p">.</span><span class="n">BCELoss</span><span class="p">(</span>
+    <span class="n">weight</span><span class="o">=</span><span class="bp">None</span><span class="p">,</span>
+    <span class="n">size_average</span><span class="o">=</span><span class="bp">None</span><span class="p">,</span>
+    <span class="nb">reduce</span><span class="o">=</span><span class="bp">None</span><span class="p">,</span>
+    <span class="n">reduction</span><span class="o">=</span><span class="s">'mean'</span>
+<span class="p">)</span>
+</pre></td></tr></tbody></table></code></pre></div></div>
+
+<p><strong>主要参数</strong>：</p>
+
+<ul>
+  <li><code class="language-plaintext highlighter-rouge">weight</code>：各类别的 loss 设置权值。</li>
+  <li><code class="language-plaintext highlighter-rouge">ignore_index</code>：忽略某个类别。</li>
+  <li><code class="language-plaintext highlighter-rouge">reduction</code>：计算模式，可为 <code class="language-plaintext highlighter-rouge">none/sum/mean</code>。
+    <ul>
+      <li><code class="language-plaintext highlighter-rouge">none</code>：逐个元素计算。</li>
+      <li><code class="language-plaintext highlighter-rouge">sum</code>：所有元素求和，返回标量。</li>
+      <li><code class="language-plaintext highlighter-rouge">mean</code>：加权平均，返回标量。</li>
+    </ul>
+  </li>
+</ul>
+
+<p><strong>计算公式</strong>：</p>
+
+\[l_n = -w_n [y_n \cdot \log x_n + (1- y_n) \cdot \log(1-x_n)]\]
+
+<p><strong>注意事项</strong>：由于交叉熵是衡量两个概率分布之间的差异，因此输入值取值必须在 $[0, 1]$。</p>
+
+<p><strong>代码示例</strong>：</p>
+
+<div class="language-python highlighter-rouge"><div class="highlight"><pre class="highlight"><code><table class="rouge-table"><tbody><tr><td class="rouge-gutter gl"><pre class="lineno">1
+2
+3
+4
+5
+6
+7
+8
+9
+10
+11
+12
+13
+14
+15
+16
+17
+18
+19
+20
+21
+22
+23
+24
+25
+</pre></td><td class="rouge-code"><pre><span class="c1"># fake data, 这里我们设置 4 个样本，注意 label 在这里必须设置为 float
+</span><span class="n">inputs</span> <span class="o">=</span> <span class="n">torch</span><span class="p">.</span><span class="n">tensor</span><span class="p">([[</span><span class="mi">1</span><span class="p">,</span> <span class="mi">2</span><span class="p">],</span> <span class="p">[</span><span class="mi">2</span><span class="p">,</span> <span class="mi">2</span><span class="p">],</span> <span class="p">[</span><span class="mi">3</span><span class="p">,</span> <span class="mi">4</span><span class="p">],</span> <span class="p">[</span><span class="mi">4</span><span class="p">,</span> <span class="mi">5</span><span class="p">]],</span> <span class="n">dtype</span><span class="o">=</span><span class="n">torch</span><span class="p">.</span><span class="nb">float</span><span class="p">)</span>
+<span class="n">target</span> <span class="o">=</span> <span class="n">torch</span><span class="p">.</span><span class="n">tensor</span><span class="p">([[</span><span class="mi">1</span><span class="p">,</span> <span class="mi">0</span><span class="p">],</span> <span class="p">[</span><span class="mi">1</span><span class="p">,</span> <span class="mi">0</span><span class="p">],</span> <span class="p">[</span><span class="mi">0</span><span class="p">,</span> <span class="mi">1</span><span class="p">],</span> <span class="p">[</span><span class="mi">0</span><span class="p">,</span> <span class="mi">1</span><span class="p">]],</span> <span class="n">dtype</span><span class="o">=</span><span class="n">torch</span><span class="p">.</span><span class="nb">float</span><span class="p">)</span>
+
+<span class="n">target_bce</span> <span class="o">=</span> <span class="n">target</span>
+
+<span class="c1"># itarget
+</span><span class="n">inputs</span> <span class="o">=</span> <span class="n">torch</span><span class="p">.</span><span class="n">sigmoid</span><span class="p">(</span><span class="n">inputs</span><span class="p">)</span>  <span class="c1"># 利用 Sigmoid 函数将输入值压缩到 [0,1]
+</span>
+<span class="c1"># weights
+</span><span class="n">weights</span> <span class="o">=</span> <span class="n">torch</span><span class="p">.</span><span class="n">tensor</span><span class="p">([</span><span class="mi">1</span><span class="p">,</span> <span class="mi">1</span><span class="p">],</span> <span class="n">dtype</span><span class="o">=</span><span class="n">torch</span><span class="p">.</span><span class="nb">float</span><span class="p">)</span>
+
+<span class="c1"># BCE loss
+</span><span class="n">loss_f_none_w</span> <span class="o">=</span> <span class="n">nn</span><span class="p">.</span><span class="n">BCELoss</span><span class="p">(</span><span class="n">weight</span><span class="o">=</span><span class="n">weights</span><span class="p">,</span> <span class="n">reduction</span><span class="o">=</span><span class="s">'none'</span><span class="p">)</span>
+<span class="n">loss_f_sum</span> <span class="o">=</span> <span class="n">nn</span><span class="p">.</span><span class="n">BCELoss</span><span class="p">(</span><span class="n">weight</span><span class="o">=</span><span class="n">weights</span><span class="p">,</span> <span class="n">reduction</span><span class="o">=</span><span class="s">'sum'</span><span class="p">)</span>
+<span class="n">loss_f_mean</span> <span class="o">=</span> <span class="n">nn</span><span class="p">.</span><span class="n">BCELoss</span><span class="p">(</span><span class="n">weight</span><span class="o">=</span><span class="n">weights</span><span class="p">,</span> <span class="n">reduction</span><span class="o">=</span><span class="s">'mean'</span><span class="p">)</span>
+
+<span class="c1"># forward
+</span><span class="n">loss_none_w</span> <span class="o">=</span> <span class="n">loss_f_none_w</span><span class="p">(</span><span class="n">inputs</span><span class="p">,</span> <span class="n">target_bce</span><span class="p">)</span>
+<span class="n">loss_sum</span> <span class="o">=</span> <span class="n">loss_f_sum</span><span class="p">(</span><span class="n">inputs</span><span class="p">,</span> <span class="n">target_bce</span><span class="p">)</span>
+<span class="n">loss_mean</span> <span class="o">=</span> <span class="n">loss_f_mean</span><span class="p">(</span><span class="n">inputs</span><span class="p">,</span> <span class="n">target_bce</span><span class="p">)</span>
+
+<span class="c1"># view
+</span><span class="k">print</span><span class="p">(</span><span class="s">"</span><span class="se">\n</span><span class="s">weights: "</span><span class="p">,</span> <span class="n">weights</span><span class="p">)</span>
+<span class="k">print</span><span class="p">(</span><span class="s">"BCE Loss"</span><span class="p">,</span> <span class="n">loss_none_w</span><span class="p">,</span> <span class="n">loss_sum</span><span class="p">,</span> <span class="n">loss_mean</span><span class="p">)</span>
+</pre></td></tr></tbody></table></code></pre></div></div>
+
+<p>输出结果：</p>
+
+<div class="language-plaintext highlighter-rouge"><div class="highlight"><pre class="highlight"><code><table class="rouge-table"><tbody><tr><td class="rouge-gutter gl"><pre class="lineno">1
+2
+3
+4
+5
+</pre></td><td class="rouge-code"><pre>weights:  tensor([1., 1.])
+BCE Loss tensor([[0.3133, 2.1269],
+        [0.1269, 2.1269],
+        [3.0486, 0.0181],
+        [4.0181, 0.0067]]) tensor(11.7856) tensor(1.4732)
+</pre></td></tr></tbody></table></code></pre></div></div>
+
+<p>由于这里我们有 4 个样本，每个样本有 2 个神经元，因此在 <code class="language-plaintext highlighter-rouge">none</code> 模式下我们这里得到 8 个 loss，即每一个神经元会一一对应地计算 loss。而 <code class="language-plaintext highlighter-rouge">sum</code> 模式就是简单地将这 8 个 loss 进行相加，<code class="language-plaintext highlighter-rouge">mean</code> 模式就是对这 8 个 loss 求加权均值。</p>
+
+<p>下面我们通过手动计算来验证第一个神经元的 BCE loss 值是否等于 $0.3133$：</p>
+
+<div class="language-python highlighter-rouge"><div class="highlight"><pre class="highlight"><code><table class="rouge-table"><tbody><tr><td class="rouge-gutter gl"><pre class="lineno">1
+2
+3
+4
+5
+6
+7
+8
+9
+10
+11
+12
+</pre></td><td class="rouge-code"><pre><span class="n">idx</span> <span class="o">=</span> <span class="mi">0</span>
+
+<span class="n">x_i</span> <span class="o">=</span> <span class="n">inputs</span><span class="p">.</span><span class="n">detach</span><span class="p">().</span><span class="n">numpy</span><span class="p">()[</span><span class="n">idx</span><span class="p">,</span> <span class="n">idx</span><span class="p">]</span>  <span class="c1"># 获取第一个神经元的输出值
+</span><span class="n">y_i</span> <span class="o">=</span> <span class="n">target</span><span class="p">.</span><span class="n">numpy</span><span class="p">()[</span><span class="n">idx</span><span class="p">,</span> <span class="n">idx</span><span class="p">]</span>  <span class="c1"># 获取第一个神经元的标签
+</span>
+<span class="c1"># loss
+# l_i = -[ y_i * np.log(x_i) + (1-y_i) * np.log(1-y_i) ]      # np.log(0) = nan
+</span><span class="n">l_i</span> <span class="o">=</span> <span class="o">-</span><span class="n">y_i</span> <span class="o">*</span> <span class="n">np</span><span class="p">.</span><span class="n">log</span><span class="p">(</span><span class="n">x_i</span><span class="p">)</span> <span class="k">if</span> <span class="n">y_i</span> <span class="k">else</span> <span class="o">-</span><span class="p">(</span><span class="mi">1</span><span class="o">-</span><span class="n">y_i</span><span class="p">)</span> <span class="o">*</span> <span class="n">np</span><span class="p">.</span><span class="n">log</span><span class="p">(</span><span class="mi">1</span><span class="o">-</span><span class="n">x_i</span><span class="p">)</span>
+
+<span class="c1"># 输出loss
+</span><span class="k">print</span><span class="p">(</span><span class="s">"BCE inputs: "</span><span class="p">,</span> <span class="n">inputs</span><span class="p">)</span>
+<span class="k">print</span><span class="p">(</span><span class="s">"第一个 loss 为: "</span><span class="p">,</span> <span class="n">l_i</span><span class="p">)</span>
+</pre></td></tr></tbody></table></code></pre></div></div>
+
+<p>输出结果：</p>
+
+<div class="language-plaintext highlighter-rouge"><div class="highlight"><pre class="highlight"><code><table class="rouge-table"><tbody><tr><td class="rouge-gutter gl"><pre class="lineno">1
+2
+3
+4
+5
+</pre></td><td class="rouge-code"><pre>BCE inputs:  tensor([[0.7311, 0.8808],
+        [0.8808, 0.8808],
+        [0.9526, 0.9820],
+        [0.9820, 0.9933]])
+第一个 loss 为:  0.31326166
+</pre></td></tr></tbody></table></code></pre></div></div>
+
+<p>可以看到，手动计算的结果与 PyTorch 中 <code class="language-plaintext highlighter-rouge">nn.BCELoss</code> 的计算结果一致。</p>
+
+<h4 id="nnbcewithlogitsloss"><code class="language-plaintext highlighter-rouge">nn.BCEWithLogitsLoss</code></h4>
+
+<p><strong>功能</strong>：结合 Sigmoid 与 二分类交叉熵。</p>
+
+<div class="language-python highlighter-rouge"><div class="highlight"><pre class="highlight"><code><table class="rouge-table"><tbody><tr><td class="rouge-gutter gl"><pre class="lineno">1
+2
+3
+4
+5
+6
+7
+</pre></td><td class="rouge-code"><pre><span class="n">nn</span><span class="p">.</span><span class="n">BCEWithLogitsLoss</span><span class="p">(</span>
+    <span class="n">weight</span><span class="o">=</span><span class="bp">None</span><span class="p">,</span>
+    <span class="n">size_average</span><span class="o">=</span><span class="bp">None</span><span class="p">,</span>
+    <span class="nb">reduce</span><span class="o">=</span><span class="bp">None</span><span class="p">,</span>
+    <span class="n">reduction</span><span class="o">=</span><span class="s">'mean'</span><span class="p">,</span>
+    <span class="n">pos_weight</span><span class="o">=</span><span class="bp">None</span>
+<span class="p">)</span>
+</pre></td></tr></tbody></table></code></pre></div></div>
+
+<p><strong>主要参数</strong>：</p>
+
+<ul>
+  <li><code class="language-plaintext highlighter-rouge">pos_weight</code>：正样本的权值，用于平衡正负样本。
+    <ul>
+      <li>例如：正样本有 100 个，负样本有 300 个，正负样本比例为 $1:3$。因此我们可以将该项设为 $3$，这样即等价于正负样本各 300 个。</li>
+    </ul>
+  </li>
+  <li><code class="language-plaintext highlighter-rouge">weight</code>：各类别的 loss 设置权值。</li>
+  <li><code class="language-plaintext highlighter-rouge">ignore_index</code>：忽略某个类别。</li>
+  <li><code class="language-plaintext highlighter-rouge">reduction</code>：计算模式，可为 <code class="language-plaintext highlighter-rouge">none/sum/mean</code>。
+    <ul>
+      <li><code class="language-plaintext highlighter-rouge">none</code>：逐个元素计算。</li>
+      <li><code class="language-plaintext highlighter-rouge">sum</code>：所有元素求和，返回标量。</li>
+      <li><code class="language-plaintext highlighter-rouge">mean</code>：加权平均，返回标量。</li>
+    </ul>
+  </li>
+</ul>
+
+<p><strong>计算公式</strong>：</p>
+
+\[l_n = -w_n[y_n \cdot \log \sigma(x_n) + (1-y_n)\cdot \log (1-\sigma (x_n))]\]
+
+<p><strong>注意事项</strong>：网络最后不加 Sigmoid 函数。</p>
+
+<p><strong>代码示例</strong>：</p>
+
+<div class="language-python highlighter-rouge"><div class="highlight"><pre class="highlight"><code><table class="rouge-table"><tbody><tr><td class="rouge-gutter gl"><pre class="lineno">1
+2
+3
+4
+5
+6
+7
+8
+9
+10
+11
+12
+13
+14
+15
+16
+17
+18
+19
+20
+21
+</pre></td><td class="rouge-code"><pre><span class="n">inputs</span> <span class="o">=</span> <span class="n">torch</span><span class="p">.</span><span class="n">tensor</span><span class="p">([[</span><span class="mi">1</span><span class="p">,</span> <span class="mi">2</span><span class="p">],</span> <span class="p">[</span><span class="mi">2</span><span class="p">,</span> <span class="mi">2</span><span class="p">],</span> <span class="p">[</span><span class="mi">3</span><span class="p">,</span> <span class="mi">4</span><span class="p">],</span> <span class="p">[</span><span class="mi">4</span><span class="p">,</span> <span class="mi">5</span><span class="p">]],</span> <span class="n">dtype</span><span class="o">=</span><span class="n">torch</span><span class="p">.</span><span class="nb">float</span><span class="p">)</span>
+<span class="n">target</span> <span class="o">=</span> <span class="n">torch</span><span class="p">.</span><span class="n">tensor</span><span class="p">([[</span><span class="mi">1</span><span class="p">,</span> <span class="mi">0</span><span class="p">],</span> <span class="p">[</span><span class="mi">1</span><span class="p">,</span> <span class="mi">0</span><span class="p">],</span> <span class="p">[</span><span class="mi">0</span><span class="p">,</span> <span class="mi">1</span><span class="p">],</span> <span class="p">[</span><span class="mi">0</span><span class="p">,</span> <span class="mi">1</span><span class="p">]],</span> <span class="n">dtype</span><span class="o">=</span><span class="n">torch</span><span class="p">.</span><span class="nb">float</span><span class="p">)</span>
+
+<span class="n">target_bce</span> <span class="o">=</span> <span class="n">target</span>
+
+<span class="c1"># inputs = torch.sigmoid(inputs)  # 这里增加 sigmoid 会使得计算不准确，因为相当于加了两层 sigmoid
+</span>
+<span class="n">weights</span> <span class="o">=</span> <span class="n">torch</span><span class="p">.</span><span class="n">tensor</span><span class="p">([</span><span class="mi">1</span><span class="p">,</span> <span class="mi">1</span><span class="p">],</span> <span class="n">dtype</span><span class="o">=</span><span class="n">torch</span><span class="p">.</span><span class="nb">float</span><span class="p">)</span>
+
+<span class="n">loss_f_none_w</span> <span class="o">=</span> <span class="n">nn</span><span class="p">.</span><span class="n">BCEWithLogitsLoss</span><span class="p">(</span><span class="n">weight</span><span class="o">=</span><span class="n">weights</span><span class="p">,</span> <span class="n">reduction</span><span class="o">=</span><span class="s">'none'</span><span class="p">)</span>
+<span class="n">loss_f_sum</span> <span class="o">=</span> <span class="n">nn</span><span class="p">.</span><span class="n">BCEWithLogitsLoss</span><span class="p">(</span><span class="n">weight</span><span class="o">=</span><span class="n">weights</span><span class="p">,</span> <span class="n">reduction</span><span class="o">=</span><span class="s">'sum'</span><span class="p">)</span>
+<span class="n">loss_f_mean</span> <span class="o">=</span> <span class="n">nn</span><span class="p">.</span><span class="n">BCEWithLogitsLoss</span><span class="p">(</span><span class="n">weight</span><span class="o">=</span><span class="n">weights</span><span class="p">,</span> <span class="n">reduction</span><span class="o">=</span><span class="s">'mean'</span><span class="p">)</span>
+
+<span class="c1"># forward
+</span><span class="n">loss_none_w</span> <span class="o">=</span> <span class="n">loss_f_none_w</span><span class="p">(</span><span class="n">inputs</span><span class="p">,</span> <span class="n">target_bce</span><span class="p">)</span>
+<span class="n">loss_sum</span> <span class="o">=</span> <span class="n">loss_f_sum</span><span class="p">(</span><span class="n">inputs</span><span class="p">,</span> <span class="n">target_bce</span><span class="p">)</span>
+<span class="n">loss_mean</span> <span class="o">=</span> <span class="n">loss_f_mean</span><span class="p">(</span><span class="n">inputs</span><span class="p">,</span> <span class="n">target_bce</span><span class="p">)</span>
+
+<span class="c1"># view
+</span><span class="k">print</span><span class="p">(</span><span class="s">"</span><span class="se">\n</span><span class="s">weights: "</span><span class="p">,</span> <span class="n">weights</span><span class="p">)</span>
+<span class="k">print</span><span class="p">(</span><span class="n">loss_none_w</span><span class="p">,</span> <span class="n">loss_sum</span><span class="p">,</span> <span class="n">loss_mean</span><span class="p">)</span>
+</pre></td></tr></tbody></table></code></pre></div></div>
+
+<p>输出结果：</p>
+
+<div class="language-plaintext highlighter-rouge"><div class="highlight"><pre class="highlight"><code><table class="rouge-table"><tbody><tr><td class="rouge-gutter gl"><pre class="lineno">1
+2
+3
+4
+5
+</pre></td><td class="rouge-code"><pre>weights:  tensor([1., 1.])
+tensor([[0.3133, 2.1269],
+        [0.1269, 2.1269],
+        [3.0486, 0.0181],
+        [4.0181, 0.0067]]) tensor(11.7856) tensor(1.4732)
+</pre></td></tr></tbody></table></code></pre></div></div>
+
+<p>我们来看一下 <code class="language-plaintext highlighter-rouge">pos_weight</code> 的设置：</p>
+
+<div class="language-python highlighter-rouge"><div class="highlight"><pre class="highlight"><code><table class="rouge-table"><tbody><tr><td class="rouge-gutter gl"><pre class="lineno">1
+2
+3
+4
+5
+6
+7
+8
+9
+10
+11
+12
+13
+14
+15
+16
+17
+18
+19
+20
+</pre></td><td class="rouge-code"><pre><span class="n">inputs</span> <span class="o">=</span> <span class="n">torch</span><span class="p">.</span><span class="n">tensor</span><span class="p">([[</span><span class="mi">1</span><span class="p">,</span> <span class="mi">2</span><span class="p">],</span> <span class="p">[</span><span class="mi">2</span><span class="p">,</span> <span class="mi">2</span><span class="p">],</span> <span class="p">[</span><span class="mi">3</span><span class="p">,</span> <span class="mi">4</span><span class="p">],</span> <span class="p">[</span><span class="mi">4</span><span class="p">,</span> <span class="mi">5</span><span class="p">]],</span> <span class="n">dtype</span><span class="o">=</span><span class="n">torch</span><span class="p">.</span><span class="nb">float</span><span class="p">)</span>
+<span class="n">target</span> <span class="o">=</span> <span class="n">torch</span><span class="p">.</span><span class="n">tensor</span><span class="p">([[</span><span class="mi">1</span><span class="p">,</span> <span class="mi">0</span><span class="p">],</span> <span class="p">[</span><span class="mi">1</span><span class="p">,</span> <span class="mi">0</span><span class="p">],</span> <span class="p">[</span><span class="mi">0</span><span class="p">,</span> <span class="mi">1</span><span class="p">],</span> <span class="p">[</span><span class="mi">0</span><span class="p">,</span> <span class="mi">1</span><span class="p">]],</span> <span class="n">dtype</span><span class="o">=</span><span class="n">torch</span><span class="p">.</span><span class="nb">float</span><span class="p">)</span>
+
+<span class="n">target_bce</span> <span class="o">=</span> <span class="n">target</span>
+
+<span class="n">weights</span> <span class="o">=</span> <span class="n">torch</span><span class="p">.</span><span class="n">tensor</span><span class="p">([</span><span class="mi">1</span><span class="p">],</span> <span class="n">dtype</span><span class="o">=</span><span class="n">torch</span><span class="p">.</span><span class="nb">float</span><span class="p">)</span>
+<span class="n">pos_w</span> <span class="o">=</span> <span class="n">torch</span><span class="p">.</span><span class="n">tensor</span><span class="p">([</span><span class="mi">1</span><span class="p">],</span> <span class="n">dtype</span><span class="o">=</span><span class="n">torch</span><span class="p">.</span><span class="nb">float</span><span class="p">)</span>  <span class="c1"># 将 pos_weight 设为 1 
+</span>
+<span class="n">loss_f_none_w</span> <span class="o">=</span> <span class="n">nn</span><span class="p">.</span><span class="n">BCEWithLogitsLoss</span><span class="p">(</span><span class="n">weight</span><span class="o">=</span><span class="n">weights</span><span class="p">,</span> <span class="n">reduction</span><span class="o">=</span><span class="s">'none'</span><span class="p">,</span> <span class="n">pos_weight</span><span class="o">=</span><span class="n">pos_w</span><span class="p">)</span>
+<span class="n">loss_f_sum</span> <span class="o">=</span> <span class="n">nn</span><span class="p">.</span><span class="n">BCEWithLogitsLoss</span><span class="p">(</span><span class="n">weight</span><span class="o">=</span><span class="n">weights</span><span class="p">,</span> <span class="n">reduction</span><span class="o">=</span><span class="s">'sum'</span><span class="p">,</span> <span class="n">pos_weight</span><span class="o">=</span><span class="n">pos_w</span><span class="p">)</span>
+<span class="n">loss_f_mean</span> <span class="o">=</span> <span class="n">nn</span><span class="p">.</span><span class="n">BCEWithLogitsLoss</span><span class="p">(</span><span class="n">weight</span><span class="o">=</span><span class="n">weights</span><span class="p">,</span> <span class="n">reduction</span><span class="o">=</span><span class="s">'mean'</span><span class="p">,</span> <span class="n">pos_weight</span><span class="o">=</span><span class="n">pos_w</span><span class="p">)</span>
+
+<span class="c1"># forward
+</span><span class="n">loss_none_w</span> <span class="o">=</span> <span class="n">loss_f_none_w</span><span class="p">(</span><span class="n">inputs</span><span class="p">,</span> <span class="n">target_bce</span><span class="p">)</span>
+<span class="n">loss_sum</span> <span class="o">=</span> <span class="n">loss_f_sum</span><span class="p">(</span><span class="n">inputs</span><span class="p">,</span> <span class="n">target_bce</span><span class="p">)</span>
+<span class="n">loss_mean</span> <span class="o">=</span> <span class="n">loss_f_mean</span><span class="p">(</span><span class="n">inputs</span><span class="p">,</span> <span class="n">target_bce</span><span class="p">)</span>
+
+<span class="c1"># view
+</span><span class="k">print</span><span class="p">(</span><span class="s">"</span><span class="se">\n</span><span class="s">pos_weights: "</span><span class="p">,</span> <span class="n">pos_w</span><span class="p">)</span>
+<span class="k">print</span><span class="p">(</span><span class="n">loss_none_w</span><span class="p">,</span> <span class="n">loss_sum</span><span class="p">,</span> <span class="n">loss_mean</span><span class="p">)</span>
+</pre></td></tr></tbody></table></code></pre></div></div>
+
+<p>输出结果：</p>
+
+<div class="language-plaintext highlighter-rouge"><div class="highlight"><pre class="highlight"><code><table class="rouge-table"><tbody><tr><td class="rouge-gutter gl"><pre class="lineno">1
+2
+3
+4
+5
+</pre></td><td class="rouge-code"><pre>pos_weights:  tensor([1.])
+tensor([[0.3133, 2.1269],
+        [0.1269, 2.1269],
+        [3.0486, 0.0181],
+        [4.0181, 0.0067]]) tensor(11.7856) tensor(1.4732)
+</pre></td></tr></tbody></table></code></pre></div></div>
+
+<p>可以看到，当 <code class="language-plaintext highlighter-rouge">pos_weight</code> 设为 $1$ 时，计算的 loss 结果与之前一样。接下来我们将 <code class="language-plaintext highlighter-rouge">pos_weight</code> 改为 $3$ 来看一下结果会如何变化：</p>
+
+<div class="language-python highlighter-rouge"><div class="highlight"><pre class="highlight"><code><table class="rouge-table"><tbody><tr><td class="rouge-gutter gl"><pre class="lineno">1
+</pre></td><td class="rouge-code"><pre><span class="n">pos_w</span> <span class="o">=</span> <span class="n">torch</span><span class="p">.</span><span class="n">tensor</span><span class="p">([</span><span class="mi">3</span><span class="p">],</span> <span class="n">dtype</span><span class="o">=</span><span class="n">torch</span><span class="p">.</span><span class="nb">float</span><span class="p">)</span>  <span class="c1"># 将 pos_weight 设为 3
+</span></pre></td></tr></tbody></table></code></pre></div></div>
+
+<p>输出结果：</p>
+
+<div class="language-plaintext highlighter-rouge"><div class="highlight"><pre class="highlight"><code><table class="rouge-table"><tbody><tr><td class="rouge-gutter gl"><pre class="lineno">1
+2
+3
+4
+5
+</pre></td><td class="rouge-code"><pre>pos_weights:  tensor([3.])
+tensor([[0.9398, 2.1269],
+        [0.3808, 2.1269],
+        [3.0486, 0.0544],
+        [4.0181, 0.0201]]) tensor(12.7158) tensor(1.5895)
+</pre></td></tr></tbody></table></code></pre></div></div>
+
+<p>下节内容：损失函数 (一)</p>
+:ET
