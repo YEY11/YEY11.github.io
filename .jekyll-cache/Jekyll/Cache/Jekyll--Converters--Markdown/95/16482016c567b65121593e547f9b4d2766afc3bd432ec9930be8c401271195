@@ -1,0 +1,148 @@
+I"�<h1 id="lecture-16-损失函数-二">Lecture 16 损失函数 (二)</h1>
+
+<p>上节课中，我们学习了损失函数的概念以及四种不同的损失函数。这节课我们继续学习 PyTorch 中提供的另外十四种损失函数。</p>
+
+<p>首先我们来看两个在回归任务中常用的损失函数：</p>
+
+<h4 id="nnl1loss"><code class="language-plaintext highlighter-rouge">nn.L1Loss</code></h4>
+
+<p><strong>功能</strong>：计算 <code class="language-plaintext highlighter-rouge">inputs</code> 与 <code class="language-plaintext highlighter-rouge">target</code> 之差的绝对值。</p>
+
+<div class="language-python highlighter-rouge"><div class="highlight"><pre class="highlight"><code><table class="rouge-table"><tbody><tr><td class="rouge-gutter gl"><pre class="lineno">1
+2
+3
+4
+5
+</pre></td><td class="rouge-code"><pre><span class="n">nn</span><span class="p">.</span><span class="n">L1Loss</span><span class="p">(</span>
+    <span class="n">size_average</span><span class="o">=</span><span class="bp">None</span><span class="p">,</span>
+    <span class="nb">reduce</span><span class="o">=</span><span class="bp">None</span><span class="p">,</span>
+    <span class="n">reduction</span><span class="o">=</span><span class="s">'mean'</span>
+<span class="p">)</span>
+</pre></td></tr></tbody></table></code></pre></div></div>
+
+<p><strong>主要参数</strong>：</p>
+
+<ul>
+  <li><code class="language-plaintext highlighter-rouge">reduction</code>：计算模式，可为 <code class="language-plaintext highlighter-rouge">none/sum/mean</code>。
+    <ul>
+      <li><code class="language-plaintext highlighter-rouge">none</code>：逐个元素计算。</li>
+      <li><code class="language-plaintext highlighter-rouge">sum</code>：所有元素求和，返回标量。</li>
+      <li><code class="language-plaintext highlighter-rouge">mean</code>：加权平均，返回标量。</li>
+    </ul>
+  </li>
+</ul>
+
+<p><strong>计算公式</strong>：</p>
+
+\[l_n = |x_n - y_n |\]
+
+<h4 id="nnmseloss"><code class="language-plaintext highlighter-rouge">nn.MSELoss</code></h4>
+
+<p><strong>功能</strong>：计算 <code class="language-plaintext highlighter-rouge">inputs</code> 与 <code class="language-plaintext highlighter-rouge">target</code> 之差的平方。</p>
+
+<div class="language-python highlighter-rouge"><div class="highlight"><pre class="highlight"><code><table class="rouge-table"><tbody><tr><td class="rouge-gutter gl"><pre class="lineno">1
+2
+3
+4
+5
+</pre></td><td class="rouge-code"><pre><span class="n">nn</span><span class="p">.</span><span class="n">MSELoss</span><span class="p">(</span>
+    <span class="n">size_average</span><span class="o">=</span><span class="bp">None</span><span class="p">,</span>
+    <span class="nb">reduce</span><span class="o">=</span><span class="bp">None</span><span class="p">,</span>
+    <span class="n">reduction</span><span class="o">=</span><span class="s">'mean'</span>
+<span class="p">)</span>
+</pre></td></tr></tbody></table></code></pre></div></div>
+
+<p><strong>主要参数</strong>：</p>
+
+<ul>
+  <li><code class="language-plaintext highlighter-rouge">reduction</code>：计算模式，可为 <code class="language-plaintext highlighter-rouge">none/sum/mean</code>。
+    <ul>
+      <li><code class="language-plaintext highlighter-rouge">none</code>：逐个元素计算。</li>
+      <li><code class="language-plaintext highlighter-rouge">sum</code>：所有元素求和，返回标量。</li>
+      <li><code class="language-plaintext highlighter-rouge">mean</code>：加权平均，返回标量。</li>
+    </ul>
+  </li>
+</ul>
+
+<p><strong>计算公式</strong>：</p>
+
+\[l_n = (x_n - y_n )^2\]
+
+<p><strong>代码示例</strong>：</p>
+
+<div class="language-python highlighter-rouge"><div class="highlight"><pre class="highlight"><code><table class="rouge-table"><tbody><tr><td class="rouge-gutter gl"><pre class="lineno">1
+2
+3
+4
+5
+6
+7
+8
+9
+10
+11
+12
+13
+14
+15
+16
+17
+18
+19
+20
+21
+22
+</pre></td><td class="rouge-code"><pre><span class="kn">import</span> <span class="nn">torch</span>
+<span class="kn">import</span> <span class="nn">torch.nn</span> <span class="k">as</span> <span class="n">nn</span>
+<span class="kn">import</span> <span class="nn">matplotlib.pyplot</span> <span class="k">as</span> <span class="n">plt</span>
+<span class="kn">import</span> <span class="nn">numpy</span> <span class="k">as</span> <span class="n">np</span>
+<span class="kn">from</span> <span class="nn">tools.common_tools</span> <span class="kn">import</span> <span class="n">set_seed</span>
+
+<span class="n">set_seed</span><span class="p">(</span><span class="mi">1</span><span class="p">)</span>  <span class="c1"># 设置随机种子
+</span>
+<span class="n">inputs</span> <span class="o">=</span> <span class="n">torch</span><span class="p">.</span><span class="n">ones</span><span class="p">((</span><span class="mi">2</span><span class="p">,</span> <span class="mi">2</span><span class="p">))</span>
+<span class="n">target</span> <span class="o">=</span> <span class="n">torch</span><span class="p">.</span><span class="n">ones</span><span class="p">((</span><span class="mi">2</span><span class="p">,</span> <span class="mi">2</span><span class="p">))</span> <span class="o">*</span> <span class="mi">3</span>
+
+<span class="c1"># ------------------------------------ L1 loss ----------------------------------
+</span><span class="n">loss_f</span> <span class="o">=</span> <span class="n">nn</span><span class="p">.</span><span class="n">L1Loss</span><span class="p">(</span><span class="n">reduction</span><span class="o">=</span><span class="s">'none'</span><span class="p">)</span>
+<span class="n">loss</span> <span class="o">=</span> <span class="n">loss_f</span><span class="p">(</span><span class="n">inputs</span><span class="p">,</span> <span class="n">target</span><span class="p">)</span>
+
+<span class="k">print</span><span class="p">(</span><span class="s">"input:{}</span><span class="se">\n</span><span class="s">target:{}</span><span class="se">\n</span><span class="s">L1 loss:{}"</span><span class="p">.</span><span class="nb">format</span><span class="p">(</span><span class="n">inputs</span><span class="p">,</span> <span class="n">target</span><span class="p">,</span> <span class="n">loss</span><span class="p">))</span>
+
+<span class="c1"># ------------------------------------ MSE loss ---------------------------------
+</span><span class="n">loss_f_mse</span> <span class="o">=</span> <span class="n">nn</span><span class="p">.</span><span class="n">MSELoss</span><span class="p">(</span><span class="n">reduction</span><span class="o">=</span><span class="s">'none'</span><span class="p">)</span>
+<span class="n">loss_mse</span> <span class="o">=</span> <span class="n">loss_f_mse</span><span class="p">(</span><span class="n">inputs</span><span class="p">,</span> <span class="n">target</span><span class="p">)</span>
+
+<span class="k">print</span><span class="p">(</span><span class="s">"MSE loss:{}"</span><span class="p">.</span><span class="nb">format</span><span class="p">(</span><span class="n">loss_mse</span><span class="p">))</span>
+</pre></td></tr></tbody></table></code></pre></div></div>
+
+<p>输出结果：</p>
+
+<div class="language-plaintext highlighter-rouge"><div class="highlight"><pre class="highlight"><code><table class="rouge-table"><tbody><tr><td class="rouge-gutter gl"><pre class="lineno">1
+2
+3
+4
+5
+6
+7
+8
+</pre></td><td class="rouge-code"><pre>input:tensor([[1., 1.],
+        [1., 1.]])
+target:tensor([[3., 3.],
+        [3., 3.]])
+L1 loss:tensor([[2., 2.],
+        [2., 2.]])
+MSE loss:tensor([[4., 4.],
+        [4., 4.]])
+</pre></td></tr></tbody></table></code></pre></div></div>
+
+<p>可以看到，这里我们的每个神经元的输入为 $x_i = 1$，输出为 $y_i=3$。所以，每个神经元的 L1 loss 为 $|x_i - y_i| = |1-3| = 2$，MSE loss 为 $(x_i - y_i)^2 = (1-3)^2 = 4$。</p>
+
+<h4 id="nnsmoothl1loss"><code class="language-plaintext highlighter-rouge">nn.SmoothL1Loss</code></h4>
+
+<p><strong>功能</strong>：平滑的 L1 Loss。</p>
+
+<p><strong>主要参数</strong>：</p>
+
+<p>下节内容：损失函数 (二)</p>
+:ET

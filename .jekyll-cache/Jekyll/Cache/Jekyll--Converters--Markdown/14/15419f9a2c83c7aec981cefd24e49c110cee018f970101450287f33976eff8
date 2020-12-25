@@ -1,0 +1,22 @@
+I"S<h1 id="lecture-16-损失函数-二">Lecture 16 损失函数 (二)</h1>
+
+<p>上节课中，我们学习了损失函数的概念以及四种不同的损失函数。这节课我们继续学习 PyTorch 中提供的另外十四种损失函数。</p>
+
+<p>首先我们来看两个在回归任务中常用的损失函数：</p>
+
+<h4 id="nnl1loss"><code class="language-plaintext highlighter-rouge">nn.L1Loss</code></h4>
+
+<p><strong>功能</strong>：计算 <code class="language-plaintext highlighter-rouge">inputs</code> 与 <code class="language-plaintext highlighter-rouge">target</code> 之差的绝对值。</p>
+
+<div class="language-python highlighter-rouge"><div class="highlight"><pre class="highlight"><code><table class="rouge-table"><tbody><tr><td class="rouge-gutter gl"><pre class="lineno">1
+2
+3
+4
+</pre></td><td class="rouge-code"><pre><span class="n">nn</span><span class="p">.</span><span class="n">L1Loss</span><span class="p">(</span>
+    <span class="n">size_average</span><span class="o">=</span><span class="bp">None</span><span class="p">,</span>
+    <span class="nb">reduce</span><span class="o">=</span><span class="bp">None</span><span class="p">,</span>
+    <span class="n">reduction</span><span class="o">=</span><span class="s">'mean)
+</span></pre></td></tr></tbody></table></code></pre></div></div>
+
+<p>下节内容：损失函数 (二)</p>
+:ET

@@ -1,0 +1,10 @@
+I"�<h1 id="lecture-16-损失函数-二">Lecture 16 损失函数 (二)</h1>
+
+<p>上节课中，我们学习了损失函数的概念以及四种不同的损失函数。这节课我们继续学习 PyTorch 中提供的另外十四种损失函数。</p>
+
+<p>首先我们来看两个在回归任务中常用的损失函数：</p>
+
+<h4 id="nn--l-1loss"><code class="language-plaintext highlighter-rouge">nn . L 1Loss</code></h4>
+
+<p>下节内容：损失函数 (二)</p>
+:ET

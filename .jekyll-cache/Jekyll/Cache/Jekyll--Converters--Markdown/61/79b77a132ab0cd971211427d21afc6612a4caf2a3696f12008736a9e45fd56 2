@@ -1,0 +1,617 @@
+I"m�<h1 id="lecture-02-数据的访问存储和事务处理基础">Lecture 02 数据的访问、存储和事务处理基础</h1>
+
+<p><strong>参考教材</strong>：<em>Transaction Processing: Concepts and Techniques, Jim Gray and Andreas Reuter, Morgan Kaufmann, 1993</em></p>
+
+<h2 id="1-硬件系统">1. 硬件系统</h2>
+<h3 id="11-基础硬件">1.1 基础硬件</h3>
+<p><strong>内存（Memory）</strong></p>
+<ul>
+  <li>
+    <p><strong>摩尔定律 (Moore’s law)</strong>：内存芯片容量 (memory chip capacity) 以一定速度增长（自 1970 年以来每 18 个月翻一番）</p>
+
+\[=2^{(\text{year}-1970)\times2 / 3} \text{ Kb}/\text{chip}\]
+
+    <p><img src="http://andy-blog.oss-cn-beijing.aliyuncs.com/blog/2020-07-14-WX20200714-172400%402x.png" width="60%" /></p>
+  </li>
+  <li>
+    <p>在2012年，每芯片 32 GB 是可行的。</p>
+  </li>
+</ul>
+
+<p><strong>处理器（Processors）</strong></p>
+
+<ul>
+  <li>
+    <p><strong>乔伊定律 (Joy’s law)</strong>：处理器性能以一定速度增长（自 1984 年以来，每两年翻一番）</p>
+
+\[=2^{(\text{year}-1970) / 2} \text{ mips}\]
+  </li>
+  <li>IBM 的超级计算机 Blue Gene/P 每秒可以进行 1 PB（$2^{50}=10^{15}$ 个字节）的浮点运算，它使用了大约 300,000 个 CPU。</li>
+  <li>IBM 的超级计算机 Summit 的峰值性能达到 200 petaflop，即每秒 20 万亿次计算，Summit 的最高速度是 TaihuLight (神威·太湖之光) 的两倍以上。</li>
+  <li>很快，我们将根据单个 CPU 性能达到其最大极限时的内核数来衡量性能。英特尔目前在售的有支持 36 个线程的 18 核芯片。</li>
+</ul>
+
+<p><strong>字节大小的单位</strong></p>
+
+<p><img src="http://andy-blog.oss-cn-beijing.aliyuncs.com/blog/2020-07-14-WX20200714-172640%402x.png" width="90%" /></p>
+
+<h3 id="12-内存等级">1.2 内存等级</h3>
+
+<p><img src="http://andy-blog.oss-cn-beijing.aliyuncs.com/blog/2020-07-14-WX20200714-161619%402x.png" width="80%" /></p>
+
+<p><img src="http://andy-blog.oss-cn-beijing.aliyuncs.com/blog/2020-07-14-WX20200714-173146%402x.png" width="80%" /></p>
+
+<p>对于一般传统的单核系统，处理器和 L1 缓存属于片上 (on-chip) 存储器，即在 CPU 芯片上具有存储功能，目的是减少关键/常用数据的等待时间；而 L2 缓存、主存以及磁盘则属于片外 (off-chip) 存储器。</p>
+
+<h3 id="13-多核系统">1.3 多核系统</h3>
+
+<p><img src="http://andy-blog.oss-cn-beijing.aliyuncs.com/blog/2020-07-14-WX20200714-174240%402x.png" width="40%" /></p>
+
+<p>在 <strong>多核系统 (Multi-Core System)</strong> 中，有多个 CPU，其中，每个 CPU 都有各自的寄存器和 L1 缓存，并且通过总线接口 (Bus Interface) 连接到其他级别的共享缓存（如 L2、L3 缓存），然后再连接到主存等。</p>
+
+<p>当然，具体情况取决于 CPU 类型，多核芯片并不是必须共享 L2 缓存，它们也可以具有各自专用的 L2 缓存。</p>
+
+<p>目前，L1、L2、L3 缓存通常都在片上 (on-chip)。</p>
+
+<p><img src="http://andy-blog.oss-cn-beijing.aliyuncs.com/blog/2020-07-14-WX20200714-175538%402x.png" width="60%" /></p>
+
+<p>可以看到，L1 缓存距离 CPU 最近，其速度最快，但是容量最小 (32KB)；其次是 L2，其容量和速度都属于中等水平；L3 缓存由于距离 CPU 最远，其速度最慢，但是其容量是三者中最大的 (8MB)。在三级缓存之后，连接到内存，然后再到磁盘。</p>
+
+<h2 id="2-数据访问">2. 数据访问</h2>
+<h3 id="21-访问内存数据">2.1 访问内存数据</h3>
+<p><strong>命中率 (Hit Ratio)</strong>：对于需要访问的数据，已经存在于缓存中的字节数占需要访问的总字节数的比重。我们可以基于缓存命中率来估计访问这些数据所需要的时间。</p>
+
+\[\text{Hit ratio}=\dfrac{\text{references satisfied by cache}}{\text{total references}}\]
+
+<ul>
+  <li>命中：直接从缓存中读取到想要的数据。</li>
+  <li>不命中：缓存中没有想要的数据，还需要到数据库进行一次查询才能读取到想要的数据。</li>
+</ul>
+
+<p>命中率越高，数据库查询的次数就越少。读取缓存的速度远比数据库查询的速度高得多。所以命中率越高，性能越高。</p>
+
+<p><strong>有效内存访问时间 (Effective Memory Access Time)</strong> 为：</p>
+
+\[\textit{EA} =H\cdot C+(1-H)\cdot S\]
+
+<ul>
+  <li>$H$ 为缓存命中率</li>
+  <li>$C$ 为缓存访问时间 (cache access time)</li>
+  <li>$S$ 为内存访问时间 (memory access time)</li>
+</ul>
+
+<p><img src="http://andy-blog.oss-cn-beijing.aliyuncs.com/blog/2020-07-14-WX20200714-195258%402x.png" width="50%" /></p>
+
+<p><img src="http://andy-blog.oss-cn-beijing.aliyuncs.com/blog/2020-07-14-WX20200714-200333%402x.png" width="70%" /></p>
+
+<p>如果我们可以保证很高的缓存命中率，那么这些数据的内存访问时间将非常小。可以看到，当命中率从 99.90% 下降到 90.00% 时，访问时间增加了 10 倍；当命中率从 90.00% 下降到 50.00% 时，访问时间继续增加了 5 倍，因此，二者之间并非线性关系。</p>
+
+<p>对于不同的系统，时间消耗方面会存在一些差异，上面的结果是 $S=100 C$ 的情况下得到的。另外，我们还可以通过一些策略来保证高缓存命中率，但是这里不再展开讨论。</p>
+
+<h3 id="22-访问磁盘数据">2.2 访问磁盘数据</h3>
+<p>有时，我们需要访问的信息并不在缓存或者主存，而是在磁盘中，这种情况下，我们需要访问磁盘。我们先来看一下磁盘的结构：</p>
+
+<p><img src="http://andy-blog.oss-cn-beijing.aliyuncs.com/blog/2020-07-14-WX20200714-211700%402x.png" width="80%" /></p>
+
+<p><img src="http://andy-blog.oss-cn-beijing.aliyuncs.com/blog/2020-07-14-WX20200714-202955%402x.png" width="40%" /></p>
+
+<ul>
+  <li><strong>磁头 (Head)</strong>：
+    <ul>
+      <li>驱动臂 (Actuator Arm) 的头部部分，用于读/写数据</li>
+      <li>磁盘盘面 (Platter) 上的磁头</li>
+      <li>磁头数量 $=$ 盘面数量</li>
+    </ul>
+  </li>
+  <li><strong>磁道 (Track)</strong>：
+    <ul>
+      <li>磁盘上的圆环区域</li>
+      <li>数据首先写入最外圈的磁道</li>
+      <li>一个磁盘上的磁道数量一般在 1000 个以上</li>
+    </ul>
+  </li>
+  <li><strong>扇区 (Sector)</strong>：
+    <ul>
+      <li>划分磁道上的区域</li>
+      <li>扇区是一个磁盘上的最小物理存储单位</li>
+      <li>每个扇区存储 512 个字节的数据</li>
+    </ul>
+  </li>
+  <li><strong>柱面 (Cylinder)</strong>：
+    <ul>
+      <li>磁盘单元中每个磁盘表面上相同磁道的逻辑分组</li>
+      <li>磁道在硬盘内产生了柱面</li>
+      <li>柱面数量 $=$ 单个盘面上的磁道数量</li>
+    </ul>
+  </li>
+  <li><strong>簇/块 (Cluster/Block)</strong>：
+    <ul>
+      <li>操作系统所使用的扇区组：由于扇区的空间比较小且数目众多，在寻址时比较困难，所以操作系统就将多个的扇区组合在一起，形成一个更大的单位，再对这个单位进行整体的操作。Windows 下的 FAT，FAT32 和 NTFS 文件系统中称为簇（cluster），Linux 下的 Ext4 等文件系统中称为块（block）。</li>
+      <li>每个簇或者块可以包含 $2^{n}$ 个扇区（例如：64 个扇区）</li>
+    </ul>
+  </li>
+</ul>
+
+<p>我们先看一下数据是如何从磁盘中读取的：</p>
+
+<p>当磁头接触扇区时，表示该扇区上正在读/写数据。在磁盘上访问数据的过程可以分为两部分：</p>
+
+<p><img src="http://andy-blog.oss-cn-beijing.aliyuncs.com/blog/2020-07-14-WX20200714-213349%402x.png" width="40%" /></p>
+
+<ul>
+  <li><strong>寻道时间 (seek time)</strong><br />
+首先，读写头沿径向移动，移到要读取的扇区所在磁道的上方，这段时间称为寻道时间 (seek time)。</li>
+  <li><strong>旋转时间 (rotational time)</strong><br />
+然后，通过盘片的旋转，使得要读取的扇区转到读写头的下方，这段时间称为旋转延迟时间 (rotational latency time)。</li>
+</ul>
+
+<p><strong>磁盘访问时间 (Disk Access Time)</strong> 为：</p>
+
+\[\text{Disk access time} =\text{seek time}+\text{rotational time}+\dfrac{\text{transferlength}}{\text{bandwidth}}\]
+
+<p>它可以分为两部分：</p>
+<ul>
+  <li><strong>访问时间 (access time)</strong>：包含寻道时间和旋转时间。</li>
+  <li><strong>数据传输时间 (data transfer time)</strong>：需要传输的数据总量除以带宽，即数据读/写时间。</li>
+</ul>
+
+<p><strong>有效磁盘缓冲区高速缓存访问时间 (Effective Disk Buffer Cache Access Time)</strong> 为：</p>
+
+\[\textit{EA} =H\cdot C+(1-H)\cdot S\]
+
+<ul>
+  <li>$H$ 为缓存命中率</li>
+  <li>$C$ 为缓冲区访问时间 (buffer access time)</li>
+  <li>$S$ 为磁盘访问时间 (disk access time)</li>
+</ul>
+
+<p><img src="http://andy-blog.oss-cn-beijing.aliyuncs.com/blog/2020-07-14-WX20200714-215835%402x.png" width="70%" /></p>
+
+<p>上面的结果是 $S=1000 C$ 的情况下得到的。可以看到，当缓存命中率从 99.00% 增加到 99.99% 时，访问时间缩短了大约 100 倍，而当缓存命中率从 50.00% 增加到 99.00% 时，访问时间缩短了大约 5 倍，所以，二者之间的关系同样是非线性的。</p>
+
+<p>通常，磁盘容量要比高速缓存的容量大得多。为了获得良好的性能，我们需要非常大的缓冲区高速缓存（数百兆位），但是对于大多数应用程序而言，这会带来很高的成本，同时，在 CPU 上布置大量的片上高速缓存也不现实，因此，很多企业在设计商用芯片时会在高速缓存容量和成本之间进行权衡。另外，可以采取一些策略将需要频繁访问的信息保存在高速缓存中，而将访问频率较低的信息存储在磁盘中。</p>
+
+<h3 id="23-例子hdd-规格参数">2.3 例子：HDD 规格参数</h3>
+
+<p><strong>Seagate Desktop HDD Specifications：</strong></p>
+
+<p><img src="http://andy-blog.oss-cn-beijing.aliyuncs.com/blog/2020-07-14-WX20200714-223731%402x.png" width="30%" align="right" /></p>
+
+<ul>
+  <li>Capacity: 4TB
+    <ul>
+      <li>4TB (ST4000DM000)</li>
+      <li>8 heads, 4 disks</li>
+    </ul>
+  </li>
+  <li>Interface: SATA 6Gb/s</li>
+  <li>Spindle: 5,900 RPM</li>
+  <li>Cache: 64MB</li>
+  <li>Throughput Max: 180 MBs = 1.440Gbs</li>
+  <li>Average Data Rate: 146MB/s</li>
+  <li>Average Latency: 5.16ms</li>
+  <li>Power:
+    <ul>
+      <li>Typical Idle Operating: 5W</li>
+      <li>Average Operating: 7.5W</li>
+    </ul>
+  </li>
+  <li>Environmental:
+    <ul>
+      <li>Operating Temperature: 0 to 60℃</li>
+      <li>Non-operating Temperature: -40 to 70℃</li>
+    </ul>
+  </li>
+  <li>Dimensions (LxWxH): 146.99mm × 101.60mm × 26.11mm</li>
+  <li>Weight: 1.345lb (610g)</li>
+  <li>Warranty: 2 years</li>
+  <li>HDD Hard Drive USB 3.0 Powered ~ $169 (2018)</li>
+</ul>
+
+<h3 id="24-固态硬盘-solid-state-drivesolid-state-disk-ssd">2.4 固态硬盘 (Solid-State Drive/Solid-State Disk, SSD)</h3>
+
+<ul>
+  <li>没有像 HDD（硬盘驱动器）中那种活动部件</li>
+  <li>内存是基于硅而非磁性材料，并且重量大约在 55 克（要比 5 枚 20 美分硬币还轻）</li>
+  <li>没有寻道时间或者旋转延迟的概念（没有移动部件）</li>
+  <li>2019 年，SSD 最大容量接近 4TB，价格约为 800 美元，而同样容量的 HDD 价格为 169 美元</li>
+  <li>没有类似 HDD 的启动时间</li>
+  <li>对于随机访问时间，SSD 通常在 100 微秒内，而 HDD 则需要 2000-3000 微秒</li>
+  <li>价格相当贵</li>
+</ul>
+
+<h3 id="25-例子ssd-规格参数">2.5 例子：SSD 规格参数</h3>
+<ul>
+  <li>容量：4TB SSD（现在甚至有 60TB 的，即 15 × 4TB 打包）</li>
+  <li>组件：NAND Flash Memory Multi Level Cell (MLC)</li>
+  <li>重量：&lt; 10 grams</li>
+  <li>带宽性能（SATA 标准串行）
+    <ul>
+      <li>连续顺序读取：高达 550MB/s ( $=$ 4.4Gb/s)</li>
+      <li>连续顺序写入：高达 520MB/s ( $=$ 4.16 Gb/s)</li>
+    </ul>
+  </li>
+  <li>读写 IOPS (Input/Output Per Second)
+    <ul>
+      <li>随机 4KB 读取：高达 9,608,000 IOPS</li>
+      <li>随机 4KB 写入：高达 9,000,000 IOPS</li>
+    </ul>
+  </li>
+</ul>
+
+<h2 id="3-数据存储">3. 数据存储</h2>
+<h3 id="31-存储系统">3.1 存储系统</h3>
+<p><strong>存储系统 (Storage systems)</strong> 可以决定数据库系统的性能和可靠性，我们将讨论以下类型的存储系统：</p>
+<ul>
+  <li><strong>RAID</strong>：独立磁盘冗余阵列（Redundant Array of Independent Disks），曾经非常廉价</li>
+  <li><strong>SAN</strong>：存储区域网络（Storage Area Networks）</li>
+</ul>
+
+<h3 id="32-平均故障间隔时间">3.2 平均故障间隔时间</h3>
+
+<p><img src="http://andy-blog.oss-cn-beijing.aliyuncs.com/blog/2020-07-16-WX20200716-162523%402x.png" /></p>
+
+<p>起初，系统开始运行，一段时间后，由于崩溃或者组件故障，系统将宕机，然后需要一段时间进行系统恢复，之后重启。然后，在运行一段时间后，系统再次出现故障宕机，再次进行系统恢复，重启运行。</p>
+
+<p>由于系统宕机时间可能很长，对于某些应用程序可能是无法接受的，因此，我们需要使用诸如 RAID 和 SAN 这样的存储系统来保证即使系统出现故障，存储系统仍然可以使用并提供服务。</p>
+
+<h3 id="33-raid-0block-级别分条">3.3 RAID 0（Block 级别分条）</h3>
+
+<p>RAID 意为独立磁盘冗余阵列，即我们有很多磁盘来存储信息，因此，即使某块磁盘出现故障，其他磁盘仍然可以正常提供数据访问服务。另外，根据采取的不同顺序或者策略，RAID 又可以进一步细分为 RAID 0 到 RAID 5。其中，RAID 0 是最简单的策略。</p>
+
+<ul>
+  <li>A 表示块（Block）（4K 或者 8K 的存储字节）</li>
+  <li>MTTF 表示平均失效前时间（mean time to failure），即在故障出现之前，系统正常运行的平均时间。</li>
+</ul>
+
+<p><img src="http://andy-blog.oss-cn-beijing.aliyuncs.com/blog/2020-07-16-WX20200716-164053%402x.png" width="30%" /></p>
+
+<p>A0, A1, A2, A3, … 是一个文件中的连续数据块（blocks）。</p>
+
+<ul>
+  <li>提供平衡的磁盘驱动器 I/O —— 吞吐量大约翻倍。</li>
+  <li>任何一个磁盘故障都可能是灾难性的，MTTF 将减少为单个磁盘存储的一半。</li>
+</ul>
+
+<p>RAID 0 通常并不用于数据恢复，而是为了提高数据的吞吐量。在 RAID 0 策略中，我们使用两个磁盘 Disk 1 和 Disk 2。假设某个文件包含很多数据块（blocks），我们将其中第一个块 A0 存储在 Disk 1 上，将第二个块 A1 存储在 Disk 2 上，再将第三个块 A2 存储在 Disk 1 上，将第四个块 A3 存储在 Disk 2 上，以此类推。因此通过这种分布式方法，一个文件的数据块被分开存储在多个磁盘上。</p>
+
+<p>当我们从磁盘中读取文件数据时，可以让两个磁盘并行读取数据，这使得读取一个文件的时间将大大减少，大约可以将吞吐量提高到单个磁盘存储的两倍。</p>
+
+<h3 id="34-raid-1镜像">3.4 RAID 1（镜像）</h3>
+
+<ul>
+  <li>A 表示块（Block）（4K 或者 8K 的存储字节）</li>
+  <li>MTTF 表示平均失效前时间（mean time to failure）</li>
+</ul>
+
+<p><img src="http://andy-blog.oss-cn-beijing.aliyuncs.com/blog/2020-07-16-WX20200716-195837%402x.png" width="30%" /></p>
+
+<p>A0, A1, A2, A3, … 是一个文件中在逻辑上连续的数据块（blocks）。</p>
+
+<ul>
+  <li>提升了读取吞吐量，但是降低了写入吞吐量（写入速度大约是单个磁盘存储方案的一半），并且在存储利用率方面同样会减半。</li>
+  <li>MTTF 增长相当可观（相比单磁盘存储，呈二次方增长，即 MTTF<sup>2</sup>）。</li>
+</ul>
+
+<p>RAID 1 的策略是使用两个磁盘存储相同的信息，这种方式也被称为 <strong>镜像 (mirroring)</strong>。同样，RAID 1 也可以通过并行方式提升读取吞吐量，例如：在 Disk 1 上读取 A0 和 A1 的同时，在 Disk 2 上读取 A2 和 A3。但是对于写入操作，吞吐量会减小一半，因为我们需要在两个的磁盘上写入相同的信息。</p>
+
+<h3 id="35-raid-2bit-级别分条">3.5 RAID 2（bit 级别分条）</h3>
+
+<ul>
+  <li>b 表示位（bit）</li>
+  <li>MTTF 表示平均失效前时间（mean time to failure）</li>
+</ul>
+
+<p><img src="http://andy-blog.oss-cn-beijing.aliyuncs.com/blog/2020-07-16-WX20200716-231454%402x.png" width="30%" /></p>
+
+<p>b0, b1, b2, b3, … 是一个文件中的连续数据位（bits）。</p>
+
+<ul>
+  <li>分条（Striping）发生在 bit 级别</li>
+  <li>提供更高的传输速率（是单磁盘存储系统的 2 倍）</li>
+  <li>和 RAID 0 一样，MTTF 将减少为单磁盘系统的一半</li>
+  <li>很少使用</li>
+</ul>
+
+<p>相比 RAID 0 和 RAID 1 中在 blocks 级别上处理数据，RAID 2 在 bits 级别处理数据。在 RAID 2 中，假设某个文件包含很多数据位（bits），我们将其中第一个位 b0 存储在 Disk 1 上，将第二个位 b1 存储在 Disk 2 上，再将第三个位 b2 存储在 Disk 1 上，将第四个位 b3 存储在 Disk 2 上等等，这种方式和 RAID 0 类似，只是这里是在 bits 级别而非 blocks 级别。</p>
+
+<p>这种方案通常很少采用，因为我们很难在 bits 层面来维护并读写信息。类似 RAID 0，这种方式提供了很高的传输速率，因为我们可以并行读取数据；并且和 RAID 0 一样，MTTF 相比单磁盘系统减少了一半。</p>
+
+<p>另外注意，虽然这几种方案的实现通常采用 2 个磁盘，但是我们也可以将其扩展到多个磁盘。例如：假如我们在 RAID 0 中采用 3 个磁盘的实现，那么其 MTTF 将是单磁盘系统的 1/3。假如我们在 RAID 1 中采用 3 个磁盘的实现，那么其 MTTF 将是单磁盘系统的三次方，即 MTTF<sup>3</sup>。</p>
+
+<h3 id="36-raid-3byte-级别分条">3.6 RAID 3（Byte 级别分条）</h3>
+
+<ul>
+  <li>B 表示字节（Byte）（1Byte $=$ 8bits）</li>
+  <li>P 表示奇偶校验位（parity or check bits），用于错误检测</li>
+  <li>MTTF 表示平均失效前时间（mean time to failure）</li>
+</ul>
+
+<p><img src="http://andy-blog.oss-cn-beijing.aliyuncs.com/blog/2020-07-16-WX20200716-235723%402x.png" width="40%" /></p>
+
+<p>B0, B1, B2, B3, … 是一个文件中的连续数据字节（Bytes）。</p>
+
+<ul>
+  <li>分条发生在 byte 级别</li>
+  <li>和 RAID 0 类似，提供更高的传输速率</li>
+  <li>MTTF 增长相当可观（是 RAID 1 的 1/3，即 MTTF<sup>2</sup>/3）</li>
+  <li>P0 是字节 B0 和 B1 的奇偶校验位</li>
+  <li>P<sub>i</sub> $=$ B<sub>2i</sub> $\oplus$ B<sub>2i+1</sub>，其中 $\oplus$ 在这里表示异或运算</li>
+  <li>很少使用</li>
+</ul>
+
+<p>RAID 3 在 bytes 级别上处理数据。 数据本身交替存储在 Disk 1 和 Disk 2 两个磁盘上，Disk 3 用来存储一些被称为校验位的额外信息，校验位用于系统崩溃时的数据恢复，以及存储错误检测。尽管 RAID 3 提供了一些容错度，但是很少使用，因为还有其他更强大的 RAID 策略。</p>
+
+<h3 id="37-raid-4block-级别分条">3.7 RAID 4（Block 级别分条）</h3>
+
+<ul>
+  <li>A 表示块（Block）（4K 或者 8K 的存储字节）</li>
+  <li>P 表示奇偶校验位（parity or check bits）</li>
+</ul>
+
+<p><img src="http://andy-blog.oss-cn-beijing.aliyuncs.com/blog/2020-07-17-WX20200717-164042%402x.png" width="40%" /></p>
+
+<p>A0, A1, A2, A3, … 是一个文件中的连续数据块（blocks）。</p>
+
+<ul>
+  <li>和 RAID 0 一样，分条发生在 block 级别</li>
+  <li>奇偶校验块具有专用磁盘</li>
+  <li>提供更高的吞吐量，但是写入非常慢。注意：Disk 3 上的写入量要大于 Disk 1 或 Disk 2，因为每次写入操作都必须更新奇偶校验块。</li>
+  <li>MTTF 增长相当可观（和 RAID 3 相同）</li>
+  <li>P0 是块 A0 和 A1 的奇偶校验块</li>
+  <li>P<sub>i</sub> $=$ A<sub>2i</sub> $\oplus$ A<sub>2i+1</sub>，其中 $\oplus$ 在这里表示异或运算</li>
+</ul>
+
+<p>不同于 RAID 3，这里 RAID 4 在 block 级别上处理数据。数据块交替存储在 Disk 1 和 Disk 2 上，Disk 3 用来存储校验信息，它是通过 Disk 1 和 Disk 2 上的对应位置的数据信息通过异或计算得到的。和 RAID 3 一样，当 Disk 1 或 Disk 2 中的某个磁盘出现故障时，我们可以通过剩下的一个正常磁盘和校验信息进行数据恢复。</p>
+
+<p>对于 RAID 4，其在读取吞吐量方面有所提升，因为可以并行读取数据。但是会降低写入速度，因为我们需要将数据块分到两个磁盘上，并且需要计算相应的奇偶校验块并写入 Disk 3。</p>
+
+<h3 id="38-raid-5block-级别分条">3.8 RAID 5（Block 级别分条）</h3>
+
+<ul>
+  <li>A 表示块（Block）（4K 或者 8K 的存储字节）</li>
+  <li>P 表示奇偶校验位（parity or check bits）</li>
+</ul>
+
+<p><img src="http://andy-blog.oss-cn-beijing.aliyuncs.com/blog/2020-07-17-WX20200717-173115%402x.png" width="40%" /></p>
+
+<p>A0, A1, A2, A3, … 是一个文件中的连续数据块（blocks）。</p>
+
+<ul>
+  <li>和 RAID 0 一样，分条发生在 block 级别</li>
+  <li>没有用来存储奇偶校验块的专用磁盘，奇偶校验块同样是分条存储的</li>
+  <li>提供更高的吞吐量和较慢的写入速度，但是要比 RAID 4 的写入快一些。因为在 RAID 5 中，奇偶校验块分布式地存储在所有磁盘上，因此三个磁盘的平均写入操作次数是相等的。</li>
+  <li>MTTF 增长相当可观（和 RAID 3 相同）</li>
+  <li>P0 是块 A0 和 A1 的奇偶校验块</li>
+  <li>P<sub>i</sub> $=$ A<sub>2i</sub> $\oplus$ A<sub>2i+1</sub>，其中 $\oplus$ 在这里表示异或运算</li>
+</ul>
+
+<p>可以看到，对于前两个数据块 A0 和 A1，它们存储在 Disk 1 和 Disk 2 上，它们的奇偶校验位 P0 存储在 Disk 3 上。而对于接下来的两个数据块 A2 和 A3，它们存储在 Disk 1 和 Disk 3 上，奇偶校验块 P1 存储在 Disk 2 上。因此，每个奇偶校验块依次循环存储在不同的磁盘上。</p>
+
+<p>和 RAID 4 类似，RAID 5 提供更高的吞吐量和较慢的写入速度，但写入速度要略快于 RAID 4。我们可以通过一个例子进行说明：</p>
+<ul>
+  <li>考虑在 RAID 4 中，假设现在我们需要更改 Disk 1 上的 A2 和 Disk 2 上的 A5 数据块，尽管这种情况下我们可以并行写入数据，但是我们还需要在 Disk 3 上分别更新 P1 和 P2。所以 Disk 3 的写入要比 Disk 1 和 Disk 2 更慢，我们需要等待 Disk 3 完成才能结束整个写入操作。</li>
+  <li>而对于 RAID 5，假如我们更改了 Disk 1 中的 A2，我们需要更新 Disk 2 中的 P1，假如现在我们又更改了 Disk 3 中的 A5，那么我们可以同时更新 Disk 1 中的 P2。因此，这种情况下，写入操作要略快于 RAID 4。</li>
+</ul>
+
+<p>对于 RAID 4 和 RAID 5，当某个磁盘出现故障时，数据都可以通过剩下两个磁盘进行恢复。</p>
+
+<h3 id="39-raid-6block-级别分条">3.9 RAID 6（Block 级别分条）</h3>
+
+<ul>
+  <li>A 表示块（Block）（4K 或者 8K 的存储字节）</li>
+  <li>P 表示奇偶校验位（parity or check bits）</li>
+</ul>
+
+<p><img src="http://andy-blog.oss-cn-beijing.aliyuncs.com/blog/2020-07-17-WX20200717-195006%402x.png" width="80%" /></p>
+
+<p>A0, A1, A2, A3, … 是一个文件中的连续数据块（blocks）。</p>
+
+<ul>
+  <li>类似 RAID 5，区别是使用了 2 个校验块</li>
+  <li>可靠性约为 MTTF<sup>3</sup>/10</li>
+  <li>P0 和 P1 是数据块 A0、A1 和 A2 的校验块。假如我们总共使用 5 个磁盘，那么这种计算方式可以保证在任何两个磁盘同时发生故障的情况下，都可以安全地恢复数据。</li>
+</ul>
+
+<p>RAID 6 策略使用了更多的磁盘，增加了容错度。类似 RAID 5，我们用多个磁盘存储数据块，并且我们将校验块也分布式地存储在多个磁盘上。区别是相比 RAID 5 中只使用一个校验块，这里我们使用 2 个校验块。因此，当任意两个磁盘发生故障时，我们仍然可以通过剩余的磁盘安全地恢复数据。在可靠性方面，RAID 6 对于 MTTF 的提升相当显著。如果我们的应用程序对于数据的可靠性和容错度要求非常高，那么 RAID 6 是一个非常合理的选择。</p>
+
+<h3 id="310-sanstorage-area-networks">3.10 SAN（Storage Area Networks）</h3>
+
+<p>我们已经介绍了 RAID 类型的存储系统，现在我们来看一下另外一种类型的存储系统：<strong>SAN (Storage Area Networks，存储区域网络)</strong>，它是一种由多个存储设备组成的专用网络。</p>
+
+<p><img src="http://andy-blog.oss-cn-beijing.aliyuncs.com/blog/2020-07-17-WX20200717-202159%402x.png" width="80%" /></p>
+
+<ul>
+  <li>存储可以被组织为多个 RAID 系统</li>
+  <li>存储可以被划分和分配给每个系统，并且也可以被共享</li>
+</ul>
+
+<p>在 SAN 中，有一个控制器 (controller) 用来管理存储，并且不同系统可以通过控制器访问这些存储。</p>
+
+<h3 id="311-san-文件系统">3.11 SAN 文件系统</h3>
+
+<p><img src="http://andy-blog.oss-cn-beijing.aliyuncs.com/blog/2020-07-17-WX20200717-202857%402x.png" width="60%" /></p>
+
+<p>SAN 中有很多不同的磁盘，它们都有各自的备份和管理系统，并且这些系统同时还负责安全方面的协助。另外，还有一个中央平台负责来自不同系统的数据的输入和输出。例如：对于一个银行系统，它包含很多分支系统和 ATM 机等，这些系统需要从中央服务器中访问数据，中央服务器需要存储所有这些事务请求的历史信息，并且需要为这些数据访问提供安全性，并且在经过一段时间后，这些信息需要备份以应对故障情况。</p>
+
+<p>不同的分支可能使用不同的操作系统 (例如：Windows 和 Linux)，这些操作系统需要采用不同的协议来进行文件传输 (例如：NFS 和 FTP)，而这些采用不同操作系统和文件传输协议的分支在通过中央服务器访问数据时无需知道这些数据具体的存储技术细节，中央服务器将统一处理这些访问请求。在这些分支系统看来，这种网络存储和任何其他普通存储方式 (例如：硬盘) 一样，并无任何区别。</p>
+
+<p>下面是一个访问 SAN 文件系统的例子：</p>
+
+<blockquote>
+  <p>2006 年 3 月 17 日，IBM 对于单个文件的持续读取/写入性能达到了每秒 102GB 以上的新速度记录。该记录是使用 416 个单独的存储控制器与 104 个 Power-based eServer p575 节点组合而成的 (每个 p575 节点具有 8 个双核 2.2GHz POWER5 处理器)。</p>
+</blockquote>
+
+<ul>
+  <li>磁盘数量 $= 416$</li>
+  <li>处理器数量 $=104 \times 8 \times 2 = 1664$ 个运行在 2.2GHz 的核</li>
+</ul>
+
+<p>读取和写入的过程可以并行化，因此系统在数据的输入和输出方面可能到达非常高的性能。当我们对存储容量需求较高，并且需要通过多个设备访问这些存储，同时保证高速和高可靠性时，这种系统非常有用。中央文件系统将统一管理这些输入/输出的访问请求。</p>
+
+<h3 id="312-硬件通信">3.12 硬件通信</h3>
+
+<p>下面的公式描述了从一个磁盘到系统的传输时间：</p>
+
+\[\text{transmit time} = \text{distance}/\text{Cm} + \text{message}_\text{bits}/\text{bandwidth}\]
+
+<p>其中，$\text{Cm}$ 为媒介中的光速（约 $200 \text{ million meters}/\text{sec}$）</p>
+
+<p>由于数据的传输过程发生在网络上，公式的第一项计算了从磁盘到系统的传播时间，这里假设网络媒介采用光纤，当媒介为其他介质时这一项可能会变化。第二项计算的是数据传输时间，带宽 (bandwidth) 表示单位时间能够传输的数据量。</p>
+
+<p>由于物理距离上的传播延迟是一个常量 (公式中第一项)，我们永远无法减少延迟，因此，为了达到高效传输的目的，消息长度应该尽可能大，即一次传输全部数据的效率要高于将数据分段多次传输。</p>
+
+<h2 id="4-软件系统">4. 软件系统</h2>
+
+<p>目前为止，我们已经介绍了数据库的硬件方面的一些相关技术，包括不同的数据库架构、数据的存储和传输，以及影响数据库性能的一些硬件指标。现在，我们将介绍和数据库相关的一些软件方面的技术。</p>
+
+<h3 id="41-进程">4.1 进程</h3>
+
+<p><strong>进程 (Process)</strong>：在计算机中运行着许多进程，进程是一个虚拟概念，是运行中的应用程序或者系统调用的一种抽象。</p>
+
+<p><strong>进程地址空间 (Process address space)</strong>：每个进程在内存中都有一块对应的地址空间，它们是由字节(bytes) 组成的数组。进程可以访问对应的地址空间，并且可以在获得允许的情况下修改这些地址空间。</p>
+
+<p><strong>保护域 (Protection Domain)</strong>：每个进程还可以访问其对应的保护域，进程地址空间就是保护域的一个组成部分。一个进程可以在自己的保护域中执行任何允许的有效操作，而对于其他域提供的任何功能，则需要显式的控制权转移。</p>
+
+<p><img src="http://andy-blog.oss-cn-beijing.aliyuncs.com/blog/2020-07-17-WX20200717-220337%402x.png" width="70%" /></p>
+
+<h3 id="42-线程">4.2 线程</h3>
+
+<p><strong>线程 (Threads)</strong> 可以视为一种轻量级的进程。线程通常在运行在进程之上，线程可以由操作系统或者进程本身创建。</p>
+
+<p>一些操作系统可以直接对线程进行 <strong>调度 (schedule)</strong>。调度意味着一个运行中的线程可以访问某个资源，然后当该线程停止时，另一个线程可以获得该资源的访问权限，操作系统可以决定当前哪个线程可以运行，而其他线程可以停止运行 (具体取决于操作系统采用的协议)。因此，当系统包含多个处理器时，这些线程可以并行运行。</p>
+
+<p>线程可以使编写一些软件开发更加容易，但是调试可能非常困难。</p>
+
+<h3 id="43-调度">4.3 调度</h3>
+
+<p>当操作系统调度不同的线程和进程时，其一般目的是：</p>
+
+<ul>
+  <li>最大化资源利用率</li>
+  <li>最小化响应时间</li>
+</ul>
+
+<p>但是，这两个目的存在冲突，因为当我们最大化资源利用率时，响应时间可能会增加，反之亦然。</p>
+
+<p>一般来说，调度器不应该过于注重资源利用率，因为我们通常更加关心响应时间。</p>
+
+<h2 id="5-事务处理">5. 事务处理</h2>
+<p>我们已经介绍了数据库系统中的硬件和软件的一些相关技术，现在我们将介绍事务处理的一些相关内容。</p>
+
+<h3 id="51-事务处理">5.1 事务处理</h3>
+
+<p><strong>事务处理 (Transaction Processing)</strong>：一个事务是需要在物理和抽象应用状态上执行的操作集合。</p>
+
+<p>下面是一个一般的事务结构：</p>
+
+<div class="language-javascript highlighter-rouge"><div class="highlight"><pre class="highlight"><code><table class="rouge-table"><tbody><tr><td class="rouge-gutter gl"><pre class="lineno">1
+2
+3
+4
+5
+6
+</pre></td><td class="rouge-code"><pre><span class="nx">begin_Transaction</span><span class="p">()</span>
+       <span class="o">&lt;</span><span class="nx">Sequence</span> <span class="k">of</span> <span class="nx">operations</span> <span class="nx">to</span> <span class="nx">be</span> <span class="nx">performed</span><span class="o">&gt;</span>
+    <span class="k">if</span> <span class="p">(</span><span class="nx">successful</span><span class="p">)</span>
+        <span class="nx">commit_Trans</span><span class="p">()</span>  <span class="o">%</span> <span class="nx">Any</span> <span class="nx">changes</span> <span class="nx">made</span> <span class="nx">durable</span><span class="p">.</span>
+    <span class="k">else</span> <span class="nx">rollback</span><span class="p">()</span>     <span class="o">%</span> <span class="nx">Any</span> <span class="nx">changes</span> <span class="nx">made</span> <span class="nx">are</span> <span class="nx">all</span> <span class="nx">undone</span>
+<span class="nx">end_Transaction</span><span class="p">()</span>
+</pre></td></tr></tbody></table></code></pre></div></div>
+
+<p>当一个操作序列成功完成时，会生成一个提交声明 (commit)，表示所有的更改都将持久生效。如果任何更改需要返回到硬盘中或者其他一些地方，那么所有这些更改都将是永久的，即使在该事务结束之后，或者系统崩溃时，所有这些持久生效的事务将仍然可用。</p>
+
+<p>如果该操作序列没有完全成功，那么将会执行一个回滚操作 (rollback)，这意味着该事务涉及的这些更改将不再是永久的。</p>
+
+<p>事务处理在分布式计算和容错计算中贡献了许多概念。</p>
+
+<p>例如：分布式数据的可靠性 (reliability)、可用性 (availability)、并发性 (concurrency)、性能 (performance) 和 ACID 特性。</p>
+
+<h3 id="52-acid-特性">5.2 ACID 特性</h3>
+
+<p><strong>ACID (atomicity, consistency, isolation, durability) 特性</strong>：</p>
+
+<ul>
+  <li>
+    <p><strong>原子性 (Atomicity)</strong>：一个事务对于 (数据库) 状态的更改是原子性的，这意味着所有操作要么全部完成，要么全部都不执行。</p>
+  </li>
+  <li><strong>一致性 (Consistency)</strong>：事务是 (数据库) 状态的一个正确转换。一个事务将其采取的所有操作视为一个整体，这种做法不会违反应用程序状态的完整性。也就是说，我们假设事务是正确的程序。并发执行事务不会违反数据一致性。
+    <ul>
+      <li>例如：在银行系统中，在一次汇款操作后，汇款方账户余额的减少量应该和收款方账户余额的增加量相等。</li>
+    </ul>
+  </li>
+  <li><strong>隔离性 (Isolation)</strong>：即使同时执行多个事务，在每个事务 T 看来，其他事务所做出的状态更改要么在 T 之前，要么在 T 之后，但不会和事务 T 同时发生。
+    <ul>
+      <li>例如：在银行系统中，假如同时有两个汇款操作：事务一表示账户 A 汇款给账户 B；事务二表示账户 B 汇款给账户 C。那么，我们将发现要么账户 B 中的余额先增加后减少 (先完成事务一，再完成事务二)，要么发现账户 B 中的余额先减少后增加 (先完成事务二，再完成事务一)。</li>
+    </ul>
+  </li>
+  <li><strong>持久性 (Durability)</strong>：一个事务已经提交的状态更改，即使在系统崩溃或者失效时仍将保留。</li>
+</ul>
+
+<h3 id="53-分布式事务处理系统">5.3 分布式事务处理系统</h3>
+
+<p>下面是一个分布式事务处理系统的示意图：</p>
+
+<p><img src="http://andy-blog.oss-cn-beijing.aliyuncs.com/blog/2020-07-17-WX20200718-011732%402x.png" /></p>
+
+<p>这里，资源 (Resource) 可以是数据库或者共享网络等。应用程序 (Application) 向资源管理器 (Resource Managers) 发出请求 (request) 以访问资源，而事务管理器 (Transaction Manager) 负责处理这些事务，事务包含关于使用这些资源的一系列操作，当所有操作都成功完成时，事务管理器会提交 (commit) 这些更改，否则将进行回滚 (rollback)，并放弃 (abort) 所有更改。</p>
+
+<p>以上是发生在单个节点 (例如：Node A) 中的过程。对于分布式事务处理系统，还有一个被称为通信管理器 (Communication Manager) 的模块，它同样负责提交和回滚操作。并且，数据资源在多个节点之间共享。对于两个不同节点的数据库系统，无论一个节点中的某个事务成功与否，都会通过通信管理器告知其他节点，然后其他节点会据此决定该事务是否完成。</p>
+
+<h3 id="54-事务处理系统的功能">5.4 事务处理系统的功能</h3>
+
+<ul>
+  <li>数据库功能：
+    <ul>
+      <li>提供稳定的存储库</li>
+      <li>位置独立性（分布式系统）</li>
+      <li>提供用于数据定义和处理的标准接口，例如：SQL。</li>
+      <li>数据控制
+        <ul>
+          <li>安全、并发（锁机制）</li>
+        </ul>
+      </li>
+    </ul>
+  </li>
+  <li>数据库显示：
+    <ul>
+      <li>提供浏览和报告生成工具</li>
+    </ul>
+  </li>
+  <li>数据库操作实用程序，用于管理数据库：
+    <ul>
+      <li>加载数据库</li>
+      <li>存档</li>
+      <li>数据库恢复实用程序</li>
+      <li>调优</li>
+      <li>性能监控</li>
+      <li>应用程序开发工具</li>
+    </ul>
+  </li>
+</ul>
+
+<h2 id="6-总结">6. 总结</h2>
+
+<p>数据库系统的性能取决于以下几个方面：</p>
+
+<ul>
+  <li>硬件
+    <ul>
+      <li>CPU</li>
+      <li>内存</li>
+      <li>存储</li>
+    </ul>
+  </li>
+  <li>数据库架构
+    <ul>
+      <li>关系型</li>
+      <li>NoSQL</li>
+      <li>面向对象系统</li>
+      <li>集中式/分布式数据库系统</li>
+    </ul>
+  </li>
+  <li>应用程序本身</li>
+</ul>
+
+<p>下节内容：容错基础知识</p>
+:ET
