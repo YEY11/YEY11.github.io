@@ -1,0 +1,501 @@
+I"Ȓ<h1 id="lecture-17-优化器-一">Lecture 17 优化器 (一)</h1>
+
+<p>前两节课中，我们学习了损失函数的概念以及 PyTorch 中的一系列损失函数方法，我们知道了损失函数的作用是衡量模型输出与真实标签之间的差异。在得到了 loss 函数之后，我们应该如何去更新模型参数，使得 loss 逐步降低呢？这正是优化器的工作。本节课我们开始学习优化器模块。</p>
+
+<h2 id="1-什么是优化器">1. 什么是优化器</h2>
+
+<p>在学习优化器模块之前，我们先回顾一下机器学习模型训练的 5 个步骤：</p>
+
+<p><img src="http://andy-blog.oss-cn-beijing.aliyuncs.com/blog/2020-12-11-WX20201211-145639%402x.png" width="90%" /></p>
+
+<p>我们看到，优化器是第 4 个模块，那么它的作用是什么呢？我们知道，在前一步的损失函数模块中，我们会得到一个 loss 值，即模型输出与真实标签之间的差异。有了 loss 值之后，我们一般会采用 PyTorch 中的 AutoGrid 自动梯度求导模块对模型中参数的梯度进行求导计算，之后优化器会拿到这些梯度值并采用一些优化策略去更新模型参数，使得 loss 值下降。因此，优化器的作用就是利用梯度来更新模型中的可学习参数，使得模型输出与真实标签之间的差异更小，即让 loss 值下降。</p>
+
+<p><strong>PyTorch 的优化器</strong>：<strong>管理</strong> 并 <strong>更新</strong> 模型中可学习参数 (权值或偏置) 的值，使得模型输出更接近真实标签。</p>
+
+<p><img src="http://andy-blog.oss-cn-beijing.aliyuncs.com/blog/2020-12-27-WX20201227-123649%402x.png" width="80%" /></p>
+
+<ul>
+  <li><strong>导数</strong>：函数在指定坐标轴上的变化率。</li>
+  <li><strong>方向导数</strong>：指定方向上的变化率。</li>
+  <li><strong>梯度</strong>：一个向量，方向为方向导数取得最大值的方向。</li>
+</ul>
+
+<h2 id="2-optimizer-的属性">2. Optimizer 的属性</h2>
+
+<p><strong>PyTorch 中的 Optimizer 类</strong>：</p>
+
+<div class="language-python highlighter-rouge"><div class="highlight"><pre class="highlight"><code><table class="rouge-table"><tbody><tr><td class="rouge-gutter gl"><pre class="lineno">1
+2
+3
+4
+5
+6
+7
+</pre></td><td class="rouge-code"><pre><span class="k">class</span> <span class="nc">Optimizer</span><span class="p">(</span><span class="nb">object</span><span class="p">):</span>
+    <span class="k">def</span> <span class="nf">__init__</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">params</span><span class="p">,</span> <span class="n">defaults</span><span class="p">):</span>
+        <span class="bp">self</span><span class="p">.</span><span class="n">defaults</span> <span class="o">=</span> <span class="n">defaults</span>
+        <span class="bp">self</span><span class="p">.</span><span class="n">state</span> <span class="o">=</span> <span class="n">defaultdict</span><span class="p">(</span><span class="nb">dict</span><span class="p">)</span>
+        <span class="bp">self</span><span class="p">.</span><span class="n">param_groups</span> <span class="o">=</span> <span class="p">[]</span>
+        
+        <span class="n">param_groups</span> <span class="o">=</span> <span class="p">[{</span><span class="s">'params'</span><span class="p">:</span> <span class="n">param_groups</span><span class="p">}]</span>
+</pre></td></tr></tbody></table></code></pre></div></div>
+
+<p><strong>基本属性</strong>：</p>
+
+<ul>
+  <li><code class="language-plaintext highlighter-rouge">defaults</code>：优化器超参数。</li>
+  <li><code class="language-plaintext highlighter-rouge">state</code>：参数的缓存，如 <code class="language-plaintext highlighter-rouge">momentum</code> 的缓存。</li>
+  <li><code class="language-plaintext highlighter-rouge">params_groups</code>：管理的参数组。</li>
+  <li><code class="language-plaintext highlighter-rouge">_ step_count</code>：记录更新次数，学习率调整中使用。</li>
+</ul>
+
+<h2 id="3-optimizer-的方法">3. Optimizer 的方法</h2>
+
+<div class="language-python highlighter-rouge"><div class="highlight"><pre class="highlight"><code><table class="rouge-table"><tbody><tr><td class="rouge-gutter gl"><pre class="lineno">1
+2
+3
+4
+5
+6
+7
+8
+9
+10
+11
+12
+13
+14
+15
+16
+17
+</pre></td><td class="rouge-code"><pre><span class="k">class</span> <span class="nc">Optimizer</span><span class="p">(</span><span class="nb">object</span><span class="p">):</span>
+    <span class="k">def</span> <span class="nf">zero_grad</span><span class="p">(</span><span class="bp">self</span><span class="p">):</span>
+        <span class="k">for</span> <span class="n">group</span> <span class="ow">in</span> <span class="bp">self</span><span class="p">.</span><span class="n">param_groups</span><span class="p">:</span>
+            <span class="k">for</span> <span class="n">p</span> <span class="ow">in</span> <span class="n">group</span><span class="p">[</span><span class="s">'params'</span><span class="p">]:</span>
+                <span class="k">if</span> <span class="n">p</span><span class="p">.</span><span class="n">grad</span> <span class="ow">is</span> <span class="ow">not</span> <span class="bp">None</span><span class="p">:</span>
+                    <span class="n">p</span><span class="p">.</span><span class="n">grad</span><span class="p">.</span><span class="n">detach_</span><span class="p">()</span>
+                    <span class="n">p</span><span class="p">.</span><span class="n">grad</span><span class="p">.</span><span class="n">zero_</span><span class="p">()</span>
+
+    <span class="k">def</span> <span class="nf">add_param_group</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">param_group</span><span class="p">):</span>
+        <span class="k">for</span> <span class="n">group</span> <span class="ow">in</span> <span class="bp">self</span><span class="p">.</span><span class="n">param_groups</span><span class="p">:</span>
+            <span class="n">param_set</span><span class="p">.</span><span class="n">update</span><span class="p">(</span><span class="nb">set</span><span class="p">(</span><span class="n">group</span><span class="p">[</span><span class="s">'params’]))
+        self.param_groups.append(param_group)
+    
+    def state_dict(self):
+        return {'</span><span class="n">state</span><span class="s">': packed_state, '</span><span class="n">param_groups</span><span class="s">': param_groups,}
+
+    def load_state_dict(self, state_dict):
+</span></pre></td></tr></tbody></table></code></pre></div></div>
+
+<p><strong>基本方法</strong>：</p>
+
+<ul>
+  <li><code class="language-plaintext highlighter-rouge">zero_grad()</code>：清空所管理参数的梯度 (PyTorch 特性：张量梯度不自动清零)。</li>
+  <li><code class="language-plaintext highlighter-rouge">step()</code>：执行一步更新。</li>
+  <li><code class="language-plaintext highlighter-rouge">add_param_group()</code>：添加参数组。</li>
+  <li><code class="language-plaintext highlighter-rouge">state_dict()</code>：获取优化器当前状态信息 <strong>字典</strong>。</li>
+  <li><code class="language-plaintext highlighter-rouge">load_state_dict()</code>：加载状态信息字典。</li>
+</ul>
+
+<h3 id="例子人民币二分类">例子：人民币二分类</h3>
+
+<div class="language-python highlighter-rouge"><div class="highlight"><pre class="highlight"><code><table class="rouge-table"><tbody><tr><td class="rouge-gutter gl"><pre class="lineno">1
+2
+3
+4
+5
+6
+7
+8
+9
+10
+11
+12
+13
+14
+15
+16
+17
+18
+19
+20
+21
+22
+23
+24
+25
+26
+27
+28
+29
+30
+31
+32
+33
+34
+35
+36
+37
+38
+39
+40
+41
+42
+43
+44
+45
+46
+47
+48
+49
+50
+51
+52
+53
+54
+55
+56
+57
+58
+59
+60
+61
+62
+63
+64
+65
+66
+67
+68
+69
+70
+71
+72
+73
+74
+75
+76
+77
+78
+79
+80
+81
+82
+83
+84
+85
+86
+87
+88
+89
+90
+91
+92
+93
+94
+95
+96
+97
+98
+99
+100
+101
+102
+103
+104
+105
+106
+107
+108
+109
+110
+111
+112
+113
+114
+115
+116
+117
+118
+119
+120
+121
+122
+123
+124
+125
+126
+127
+128
+129
+130
+131
+132
+133
+134
+135
+136
+137
+138
+139
+140
+141
+142
+143
+144
+145
+146
+147
+148
+149
+150
+151
+152
+153
+154
+155
+156
+157
+158
+159
+160
+161
+162
+163
+164
+165
+166
+167
+168
+169
+170
+</pre></td><td class="rouge-code"><pre><span class="c1"># -*- coding: utf-8 -*-
+</span>
+<span class="kn">import</span> <span class="nn">os</span>
+<span class="kn">import</span> <span class="nn">numpy</span> <span class="k">as</span> <span class="n">np</span>
+<span class="kn">import</span> <span class="nn">torch</span>
+<span class="kn">import</span> <span class="nn">torch.nn</span> <span class="k">as</span> <span class="n">nn</span>
+<span class="kn">from</span> <span class="nn">torch.utils.data</span> <span class="kn">import</span> <span class="n">DataLoader</span>
+<span class="kn">import</span> <span class="nn">torchvision.transforms</span> <span class="k">as</span> <span class="n">transforms</span>
+<span class="kn">import</span> <span class="nn">torch.optim</span> <span class="k">as</span> <span class="n">optim</span>
+<span class="kn">from</span> <span class="nn">matplotlib</span> <span class="kn">import</span> <span class="n">pyplot</span> <span class="k">as</span> <span class="n">plt</span>
+<span class="kn">from</span> <span class="nn">model.lenet</span> <span class="kn">import</span> <span class="n">LeNet</span>
+<span class="kn">from</span> <span class="nn">tools.my_dataset</span> <span class="kn">import</span> <span class="n">RMBDataset</span>
+<span class="kn">from</span> <span class="nn">tools.common_tools</span> <span class="kn">import</span> <span class="n">transform_invert</span><span class="p">,</span> <span class="n">set_seed</span>
+
+<span class="n">set_seed</span><span class="p">(</span><span class="mi">1</span><span class="p">)</span>  <span class="c1"># 设置随机种子
+</span><span class="n">rmb_label</span> <span class="o">=</span> <span class="p">{</span><span class="s">"1"</span><span class="p">:</span> <span class="mi">0</span><span class="p">,</span> <span class="s">"100"</span><span class="p">:</span> <span class="mi">1</span><span class="p">}</span>
+
+<span class="c1"># 参数设置
+</span><span class="n">MAX_EPOCH</span> <span class="o">=</span> <span class="mi">10</span>
+<span class="n">BATCH_SIZE</span> <span class="o">=</span> <span class="mi">16</span>
+<span class="n">LR</span> <span class="o">=</span> <span class="mf">0.01</span>
+<span class="n">log_interval</span> <span class="o">=</span> <span class="mi">10</span>
+<span class="n">val_interval</span> <span class="o">=</span> <span class="mi">1</span>
+
+<span class="c1"># ============================ step 1/5 数据 ============================
+</span>
+<span class="n">split_dir</span> <span class="o">=</span> <span class="n">os</span><span class="p">.</span><span class="n">path</span><span class="p">.</span><span class="n">join</span><span class="p">(</span><span class="s">".."</span><span class="p">,</span> <span class="s">".."</span><span class="p">,</span> <span class="s">"data"</span><span class="p">,</span> <span class="s">"rmb_split"</span><span class="p">)</span>
+<span class="n">train_dir</span> <span class="o">=</span> <span class="n">os</span><span class="p">.</span><span class="n">path</span><span class="p">.</span><span class="n">join</span><span class="p">(</span><span class="n">split_dir</span><span class="p">,</span> <span class="s">"train"</span><span class="p">)</span>
+<span class="n">valid_dir</span> <span class="o">=</span> <span class="n">os</span><span class="p">.</span><span class="n">path</span><span class="p">.</span><span class="n">join</span><span class="p">(</span><span class="n">split_dir</span><span class="p">,</span> <span class="s">"valid"</span><span class="p">)</span>
+
+<span class="n">norm_mean</span> <span class="o">=</span> <span class="p">[</span><span class="mf">0.485</span><span class="p">,</span> <span class="mf">0.456</span><span class="p">,</span> <span class="mf">0.406</span><span class="p">]</span>
+<span class="n">norm_std</span> <span class="o">=</span> <span class="p">[</span><span class="mf">0.229</span><span class="p">,</span> <span class="mf">0.224</span><span class="p">,</span> <span class="mf">0.225</span><span class="p">]</span>
+
+<span class="n">train_transform</span> <span class="o">=</span> <span class="n">transforms</span><span class="p">.</span><span class="n">Compose</span><span class="p">([</span>
+    <span class="n">transforms</span><span class="p">.</span><span class="n">Resize</span><span class="p">((</span><span class="mi">32</span><span class="p">,</span> <span class="mi">32</span><span class="p">)),</span>
+    <span class="n">transforms</span><span class="p">.</span><span class="n">RandomCrop</span><span class="p">(</span><span class="mi">32</span><span class="p">,</span> <span class="n">padding</span><span class="o">=</span><span class="mi">4</span><span class="p">),</span>
+    <span class="n">transforms</span><span class="p">.</span><span class="n">RandomGrayscale</span><span class="p">(</span><span class="n">p</span><span class="o">=</span><span class="mf">0.8</span><span class="p">),</span>
+    <span class="n">transforms</span><span class="p">.</span><span class="n">ToTensor</span><span class="p">(),</span>
+    <span class="n">transforms</span><span class="p">.</span><span class="n">Normalize</span><span class="p">(</span><span class="n">norm_mean</span><span class="p">,</span> <span class="n">norm_std</span><span class="p">),</span>
+<span class="p">])</span>
+
+<span class="n">valid_transform</span> <span class="o">=</span> <span class="n">transforms</span><span class="p">.</span><span class="n">Compose</span><span class="p">([</span>
+    <span class="n">transforms</span><span class="p">.</span><span class="n">Resize</span><span class="p">((</span><span class="mi">32</span><span class="p">,</span> <span class="mi">32</span><span class="p">)),</span>
+    <span class="n">transforms</span><span class="p">.</span><span class="n">ToTensor</span><span class="p">(),</span>
+    <span class="n">transforms</span><span class="p">.</span><span class="n">Normalize</span><span class="p">(</span><span class="n">norm_mean</span><span class="p">,</span> <span class="n">norm_std</span><span class="p">),</span>
+<span class="p">])</span>
+
+<span class="c1"># 构建MyDataset实例
+</span><span class="n">train_data</span> <span class="o">=</span> <span class="n">RMBDataset</span><span class="p">(</span><span class="n">data_dir</span><span class="o">=</span><span class="n">train_dir</span><span class="p">,</span> <span class="n">transform</span><span class="o">=</span><span class="n">train_transform</span><span class="p">)</span>
+<span class="n">valid_data</span> <span class="o">=</span> <span class="n">RMBDataset</span><span class="p">(</span><span class="n">data_dir</span><span class="o">=</span><span class="n">valid_dir</span><span class="p">,</span> <span class="n">transform</span><span class="o">=</span><span class="n">valid_transform</span><span class="p">)</span>
+
+<span class="c1"># 构建DataLoder
+</span><span class="n">train_loader</span> <span class="o">=</span> <span class="n">DataLoader</span><span class="p">(</span><span class="n">dataset</span><span class="o">=</span><span class="n">train_data</span><span class="p">,</span> <span class="n">batch_size</span><span class="o">=</span><span class="n">BATCH_SIZE</span><span class="p">,</span> <span class="n">shuffle</span><span class="o">=</span><span class="bp">True</span><span class="p">)</span>
+<span class="n">valid_loader</span> <span class="o">=</span> <span class="n">DataLoader</span><span class="p">(</span><span class="n">dataset</span><span class="o">=</span><span class="n">valid_data</span><span class="p">,</span> <span class="n">batch_size</span><span class="o">=</span><span class="n">BATCH_SIZE</span><span class="p">)</span>
+
+<span class="c1"># ============================ step 2/5 模型 ============================
+</span>
+<span class="n">net</span> <span class="o">=</span> <span class="n">LeNet</span><span class="p">(</span><span class="n">classes</span><span class="o">=</span><span class="mi">2</span><span class="p">)</span>
+<span class="n">net</span><span class="p">.</span><span class="n">initialize_weights</span><span class="p">()</span>
+
+<span class="c1"># ============================ step 3/5 损失函数 ============================
+</span><span class="n">criterion</span> <span class="o">=</span> <span class="n">nn</span><span class="p">.</span><span class="n">CrossEntropyLoss</span><span class="p">()</span>                                                   <span class="c1"># 选择损失函数
+</span>
+<span class="c1"># ============================ step 4/5 优化器 ============================
+</span><span class="n">optimizer</span> <span class="o">=</span> <span class="n">optim</span><span class="p">.</span><span class="n">SGD</span><span class="p">(</span><span class="n">net</span><span class="p">.</span><span class="n">parameters</span><span class="p">(),</span> <span class="n">lr</span><span class="o">=</span><span class="n">LR</span><span class="p">,</span> <span class="n">momentum</span><span class="o">=</span><span class="mf">0.9</span><span class="p">)</span>                        <span class="c1"># 选择优化器
+</span><span class="n">scheduler</span> <span class="o">=</span> <span class="n">torch</span><span class="p">.</span><span class="n">optim</span><span class="p">.</span><span class="n">lr_scheduler</span><span class="p">.</span><span class="n">StepLR</span><span class="p">(</span><span class="n">optimizer</span><span class="p">,</span> <span class="n">step_size</span><span class="o">=</span><span class="mi">10</span><span class="p">,</span> <span class="n">gamma</span><span class="o">=</span><span class="mf">0.1</span><span class="p">)</span>     <span class="c1"># 设置学习率下降策略
+</span>
+<span class="c1"># ============================ step 5/5 训练 ============================
+</span><span class="n">train_curve</span> <span class="o">=</span> <span class="nb">list</span><span class="p">()</span>
+<span class="n">valid_curve</span> <span class="o">=</span> <span class="nb">list</span><span class="p">()</span>
+
+<span class="k">for</span> <span class="n">epoch</span> <span class="ow">in</span> <span class="nb">range</span><span class="p">(</span><span class="n">MAX_EPOCH</span><span class="p">):</span>
+
+    <span class="n">loss_mean</span> <span class="o">=</span> <span class="mf">0.</span>
+    <span class="n">correct</span> <span class="o">=</span> <span class="mf">0.</span>
+    <span class="n">total</span> <span class="o">=</span> <span class="mf">0.</span>
+
+    <span class="n">net</span><span class="p">.</span><span class="n">train</span><span class="p">()</span>
+    <span class="k">for</span> <span class="n">i</span><span class="p">,</span> <span class="n">data</span> <span class="ow">in</span> <span class="nb">enumerate</span><span class="p">(</span><span class="n">train_loader</span><span class="p">):</span>
+
+        <span class="c1"># forward
+</span>        <span class="n">inputs</span><span class="p">,</span> <span class="n">labels</span> <span class="o">=</span> <span class="n">data</span>
+        <span class="n">outputs</span> <span class="o">=</span> <span class="n">net</span><span class="p">(</span><span class="n">inputs</span><span class="p">)</span>
+
+        <span class="c1"># backward
+</span>        <span class="n">optimizer</span><span class="p">.</span><span class="n">zero_grad</span><span class="p">()</span>
+        <span class="n">loss</span> <span class="o">=</span> <span class="n">criterion</span><span class="p">(</span><span class="n">outputs</span><span class="p">,</span> <span class="n">labels</span><span class="p">)</span>
+        <span class="n">loss</span><span class="p">.</span><span class="n">backward</span><span class="p">()</span>
+
+        <span class="c1"># update weights
+</span>        <span class="n">optimizer</span><span class="p">.</span><span class="n">step</span><span class="p">()</span>
+
+        <span class="c1"># 统计分类情况
+</span>        <span class="n">_</span><span class="p">,</span> <span class="n">predicted</span> <span class="o">=</span> <span class="n">torch</span><span class="p">.</span><span class="nb">max</span><span class="p">(</span><span class="n">outputs</span><span class="p">.</span><span class="n">data</span><span class="p">,</span> <span class="mi">1</span><span class="p">)</span>
+        <span class="n">total</span> <span class="o">+=</span> <span class="n">labels</span><span class="p">.</span><span class="n">size</span><span class="p">(</span><span class="mi">0</span><span class="p">)</span>
+        <span class="n">correct</span> <span class="o">+=</span> <span class="p">(</span><span class="n">predicted</span> <span class="o">==</span> <span class="n">labels</span><span class="p">).</span><span class="n">squeeze</span><span class="p">().</span><span class="nb">sum</span><span class="p">().</span><span class="n">numpy</span><span class="p">()</span>
+
+        <span class="c1"># 打印训练信息
+</span>        <span class="n">loss_mean</span> <span class="o">+=</span> <span class="n">loss</span><span class="p">.</span><span class="n">item</span><span class="p">()</span>
+        <span class="n">train_curve</span><span class="p">.</span><span class="n">append</span><span class="p">(</span><span class="n">loss</span><span class="p">.</span><span class="n">item</span><span class="p">())</span>
+        <span class="k">if</span> <span class="p">(</span><span class="n">i</span><span class="o">+</span><span class="mi">1</span><span class="p">)</span> <span class="o">%</span> <span class="n">log_interval</span> <span class="o">==</span> <span class="mi">0</span><span class="p">:</span>
+            <span class="n">loss_mean</span> <span class="o">=</span> <span class="n">loss_mean</span> <span class="o">/</span> <span class="n">log_interval</span>
+            <span class="k">print</span><span class="p">(</span><span class="s">"Training:Epoch[{:0&gt;3}/{:0&gt;3}] Iteration[{:0&gt;3}/{:0&gt;3}] Loss: {:.4f} Acc:{:.2%}"</span><span class="p">.</span><span class="nb">format</span><span class="p">(</span>
+                <span class="n">epoch</span><span class="p">,</span> <span class="n">MAX_EPOCH</span><span class="p">,</span> <span class="n">i</span><span class="o">+</span><span class="mi">1</span><span class="p">,</span> <span class="nb">len</span><span class="p">(</span><span class="n">train_loader</span><span class="p">),</span> <span class="n">loss_mean</span><span class="p">,</span> <span class="n">correct</span> <span class="o">/</span> <span class="n">total</span><span class="p">))</span>
+            <span class="n">loss_mean</span> <span class="o">=</span> <span class="mf">0.</span>
+
+    <span class="n">scheduler</span><span class="p">.</span><span class="n">step</span><span class="p">()</span>  <span class="c1"># 更新学习率
+</span>
+    <span class="c1"># validate the model
+</span>    <span class="k">if</span> <span class="p">(</span><span class="n">epoch</span><span class="o">+</span><span class="mi">1</span><span class="p">)</span> <span class="o">%</span> <span class="n">val_interval</span> <span class="o">==</span> <span class="mi">0</span><span class="p">:</span>
+
+        <span class="n">correct_val</span> <span class="o">=</span> <span class="mf">0.</span>
+        <span class="n">total_val</span> <span class="o">=</span> <span class="mf">0.</span>
+        <span class="n">loss_val</span> <span class="o">=</span> <span class="mf">0.</span>
+        <span class="n">net</span><span class="p">.</span><span class="nb">eval</span><span class="p">()</span>
+        <span class="k">with</span> <span class="n">torch</span><span class="p">.</span><span class="n">no_grad</span><span class="p">():</span>
+            <span class="k">for</span> <span class="n">j</span><span class="p">,</span> <span class="n">data</span> <span class="ow">in</span> <span class="nb">enumerate</span><span class="p">(</span><span class="n">valid_loader</span><span class="p">):</span>
+                <span class="n">inputs</span><span class="p">,</span> <span class="n">labels</span> <span class="o">=</span> <span class="n">data</span>
+                <span class="n">outputs</span> <span class="o">=</span> <span class="n">net</span><span class="p">(</span><span class="n">inputs</span><span class="p">)</span>
+                <span class="n">loss</span> <span class="o">=</span> <span class="n">criterion</span><span class="p">(</span><span class="n">outputs</span><span class="p">,</span> <span class="n">labels</span><span class="p">)</span>
+
+                <span class="n">_</span><span class="p">,</span> <span class="n">predicted</span> <span class="o">=</span> <span class="n">torch</span><span class="p">.</span><span class="nb">max</span><span class="p">(</span><span class="n">outputs</span><span class="p">.</span><span class="n">data</span><span class="p">,</span> <span class="mi">1</span><span class="p">)</span>
+                <span class="n">total_val</span> <span class="o">+=</span> <span class="n">labels</span><span class="p">.</span><span class="n">size</span><span class="p">(</span><span class="mi">0</span><span class="p">)</span>
+                <span class="n">correct_val</span> <span class="o">+=</span> <span class="p">(</span><span class="n">predicted</span> <span class="o">==</span> <span class="n">labels</span><span class="p">).</span><span class="n">squeeze</span><span class="p">().</span><span class="nb">sum</span><span class="p">().</span><span class="n">numpy</span><span class="p">()</span>
+
+                <span class="n">loss_val</span> <span class="o">+=</span> <span class="n">loss</span><span class="p">.</span><span class="n">item</span><span class="p">()</span>
+
+            <span class="n">valid_curve</span><span class="p">.</span><span class="n">append</span><span class="p">(</span><span class="n">loss_val</span><span class="p">)</span>
+            <span class="k">print</span><span class="p">(</span><span class="s">"Valid:</span><span class="se">\t</span><span class="s"> Epoch[{:0&gt;3}/{:0&gt;3}] Iteration[{:0&gt;3}/{:0&gt;3}] Loss: {:.4f} Acc:{:.2%}"</span><span class="p">.</span><span class="nb">format</span><span class="p">(</span>
+                <span class="n">epoch</span><span class="p">,</span> <span class="n">MAX_EPOCH</span><span class="p">,</span> <span class="n">j</span><span class="o">+</span><span class="mi">1</span><span class="p">,</span> <span class="nb">len</span><span class="p">(</span><span class="n">valid_loader</span><span class="p">),</span> <span class="n">loss_val</span><span class="p">,</span> <span class="n">correct</span> <span class="o">/</span> <span class="n">total</span><span class="p">))</span>
+
+
+<span class="n">train_x</span> <span class="o">=</span> <span class="nb">range</span><span class="p">(</span><span class="nb">len</span><span class="p">(</span><span class="n">train_curve</span><span class="p">))</span>
+<span class="n">train_y</span> <span class="o">=</span> <span class="n">train_curve</span>
+
+<span class="n">train_iters</span> <span class="o">=</span> <span class="nb">len</span><span class="p">(</span><span class="n">train_loader</span><span class="p">)</span>
+<span class="n">valid_x</span> <span class="o">=</span> <span class="n">np</span><span class="p">.</span><span class="n">arange</span><span class="p">(</span><span class="mi">1</span><span class="p">,</span> <span class="nb">len</span><span class="p">(</span><span class="n">valid_curve</span><span class="p">)</span><span class="o">+</span><span class="mi">1</span><span class="p">)</span> <span class="o">*</span> <span class="n">train_iters</span><span class="o">*</span><span class="n">val_interval</span> <span class="c1"># 由于valid中记录的是epochloss，需要对记录点进行转换到iterations
+</span><span class="n">valid_y</span> <span class="o">=</span> <span class="n">valid_curve</span>
+
+<span class="n">plt</span><span class="p">.</span><span class="n">plot</span><span class="p">(</span><span class="n">train_x</span><span class="p">,</span> <span class="n">train_y</span><span class="p">,</span> <span class="n">label</span><span class="o">=</span><span class="s">'Train'</span><span class="p">)</span>
+<span class="n">plt</span><span class="p">.</span><span class="n">plot</span><span class="p">(</span><span class="n">valid_x</span><span class="p">,</span> <span class="n">valid_y</span><span class="p">,</span> <span class="n">label</span><span class="o">=</span><span class="s">'Valid'</span><span class="p">)</span>
+
+<span class="n">plt</span><span class="p">.</span><span class="n">legend</span><span class="p">(</span><span class="n">loc</span><span class="o">=</span><span class="s">'upper right'</span><span class="p">)</span>
+<span class="n">plt</span><span class="p">.</span><span class="n">ylabel</span><span class="p">(</span><span class="s">'loss value'</span><span class="p">)</span>
+<span class="n">plt</span><span class="p">.</span><span class="n">xlabel</span><span class="p">(</span><span class="s">'Iteration'</span><span class="p">)</span>
+<span class="n">plt</span><span class="p">.</span><span class="n">show</span><span class="p">()</span>
+
+<span class="c1"># ============================ inference ============================
+</span>
+<span class="n">BASE_DIR</span> <span class="o">=</span> <span class="n">os</span><span class="p">.</span><span class="n">path</span><span class="p">.</span><span class="n">dirname</span><span class="p">(</span><span class="n">os</span><span class="p">.</span><span class="n">path</span><span class="p">.</span><span class="n">abspath</span><span class="p">(</span><span class="n">__file__</span><span class="p">))</span>
+<span class="n">test_dir</span> <span class="o">=</span> <span class="n">os</span><span class="p">.</span><span class="n">path</span><span class="p">.</span><span class="n">join</span><span class="p">(</span><span class="n">BASE_DIR</span><span class="p">,</span> <span class="s">"test_data"</span><span class="p">)</span>
+
+<span class="n">test_data</span> <span class="o">=</span> <span class="n">RMBDataset</span><span class="p">(</span><span class="n">data_dir</span><span class="o">=</span><span class="n">test_dir</span><span class="p">,</span> <span class="n">transform</span><span class="o">=</span><span class="n">valid_transform</span><span class="p">)</span>
+<span class="n">valid_loader</span> <span class="o">=</span> <span class="n">DataLoader</span><span class="p">(</span><span class="n">dataset</span><span class="o">=</span><span class="n">test_data</span><span class="p">,</span> <span class="n">batch_size</span><span class="o">=</span><span class="mi">1</span><span class="p">)</span>
+
+<span class="k">for</span> <span class="n">i</span><span class="p">,</span> <span class="n">data</span> <span class="ow">in</span> <span class="nb">enumerate</span><span class="p">(</span><span class="n">valid_loader</span><span class="p">):</span>
+    <span class="c1"># forward
+</span>    <span class="n">inputs</span><span class="p">,</span> <span class="n">labels</span> <span class="o">=</span> <span class="n">data</span>
+    <span class="n">outputs</span> <span class="o">=</span> <span class="n">net</span><span class="p">(</span><span class="n">inputs</span><span class="p">)</span>
+    <span class="n">_</span><span class="p">,</span> <span class="n">predicted</span> <span class="o">=</span> <span class="n">torch</span><span class="p">.</span><span class="nb">max</span><span class="p">(</span><span class="n">outputs</span><span class="p">.</span><span class="n">data</span><span class="p">,</span> <span class="mi">1</span><span class="p">)</span>
+
+    <span class="n">rmb</span> <span class="o">=</span> <span class="mi">1</span> <span class="k">if</span> <span class="n">predicted</span><span class="p">.</span><span class="n">numpy</span><span class="p">()[</span><span class="mi">0</span><span class="p">]</span> <span class="o">==</span> <span class="mi">0</span> <span class="k">else</span> <span class="mi">100</span>
+
+    <span class="n">img_tensor</span> <span class="o">=</span> <span class="n">inputs</span><span class="p">[</span><span class="mi">0</span><span class="p">,</span> <span class="p">...]</span>  <span class="c1"># C H W
+</span>    <span class="n">img</span> <span class="o">=</span> <span class="n">transform_invert</span><span class="p">(</span><span class="n">img_tensor</span><span class="p">,</span> <span class="n">train_transform</span><span class="p">)</span>
+    <span class="n">plt</span><span class="p">.</span><span class="n">imshow</span><span class="p">(</span><span class="n">img</span><span class="p">)</span>
+    <span class="n">plt</span><span class="p">.</span><span class="n">title</span><span class="p">(</span><span class="s">"LeNet got {} Yuan"</span><span class="p">.</span><span class="nb">format</span><span class="p">(</span><span class="n">rmb</span><span class="p">))</span>
+    <span class="n">plt</span><span class="p">.</span><span class="n">show</span><span class="p">()</span>
+    <span class="n">plt</span><span class="p">.</span><span class="n">pause</span><span class="p">(</span><span class="mf">0.5</span><span class="p">)</span>
+    <span class="n">plt</span><span class="p">.</span><span class="n">close</span><span class="p">()</span>
+</pre></td></tr></tbody></table></code></pre></div></div>
+
+<p>下面我们来看一下优化器中的 5 种基本方法的具体使用方式：</p>
+
+<h4 id="step"><code class="language-plaintext highlighter-rouge">step()</code></h4>
+
+<p>为了方便计算，我们先设置学习率 <code class="language-plaintext highlighter-rouge">lr=1</code>：</p>
+
+<div class="language-python highlighter-rouge"><div class="highlight"><pre class="highlight"><code><table class="rouge-table"><tbody><tr><td class="rouge-gutter gl"><pre class="lineno">1
+2
+3
+4
+5
+6
+7
+8
+9
+10
+11
+12
+13
+14
+15
+16
+17
+</pre></td><td class="rouge-code"><pre><span class="kn">import</span> <span class="nn">os</span>
+<span class="kn">import</span> <span class="nn">torch</span>
+<span class="kn">import</span> <span class="nn">torch.optim</span> <span class="k">as</span> <span class="n">optim</span>
+<span class="kn">from</span> <span class="nn">tools.common_tools</span> <span class="kn">import</span> <span class="n">set_seed</span>
+
+<span class="n">BASE_DIR</span> <span class="o">=</span> <span class="n">os</span><span class="p">.</span><span class="n">path</span><span class="p">.</span><span class="n">dirname</span><span class="p">(</span><span class="n">os</span><span class="p">.</span><span class="n">path</span><span class="p">.</span><span class="n">abspath</span><span class="p">(</span><span class="n">__file__</span><span class="p">))</span>
+
+<span class="n">set_seed</span><span class="p">(</span><span class="mi">1</span><span class="p">)</span>  <span class="c1"># 设置随机种子
+</span>
+<span class="n">weight</span> <span class="o">=</span> <span class="n">torch</span><span class="p">.</span><span class="n">randn</span><span class="p">((</span><span class="mi">2</span><span class="p">,</span> <span class="mi">2</span><span class="p">),</span> <span class="n">requires_grad</span><span class="o">=</span><span class="bp">True</span><span class="p">)</span>
+<span class="n">weight</span><span class="p">.</span><span class="n">grad</span> <span class="o">=</span> <span class="n">torch</span><span class="p">.</span><span class="n">ones</span><span class="p">((</span><span class="mi">2</span><span class="p">,</span> <span class="mi">2</span><span class="p">))</span>
+
+<span class="n">optimizer</span> <span class="o">=</span> <span class="n">optim</span><span class="p">.</span><span class="n">SGD</span><span class="p">([</span><span class="n">weight</span><span class="p">],</span> <span class="n">lr</span><span class="o">=</span><span class="mi">1</span><span class="p">)</span>
+
+<span class="k">print</span><span class="p">(</span><span class="s">"weight before step:{}"</span><span class="p">.</span><span class="nb">format</span><span class="p">(</span><span class="n">weight</span><span class="p">.</span><span class="n">data</span><span class="p">))</span>
+<span class="n">optimizer</span><span class="p">.</span><span class="n">step</span><span class="p">()</span>        <span class="c1"># 修改lr=1 0.1观察结果
+</span><span class="k">print</span><span class="p">(</span><span class="s">"weight after step:{}"</span><span class="p">.</span><span class="nb">format</span><span class="p">(</span><span class="n">weight</span><span class="p">.</span><span class="n">data</span><span class="p">))</span>
+</pre></td></tr></tbody></table></code></pre></div></div>
+
+<p>输出结果：</p>
+
+<div class="language-plaintext highlighter-rouge"><div class="highlight"><pre class="highlight"><code><table class="rouge-table"><tbody><tr><td class="rouge-gutter gl"><pre class="lineno">1
+2
+3
+4
+</pre></td><td class="rouge-code"><pre>weight before step:tensor([[0.6614, 0.2669],
+        [0.0617, 0.6213]])
+weight after step:tensor([[-0.3386, -0.7331],
+        [-0.9383, -0.3787]])
+</pre></td></tr></tbody></table></code></pre></div></div>
+
+<p>可以看到，第一个梯度在更新之前的值为 $0.6614$，更新之后的值为 $0.6614 - 1 = -0.3386$。现在，我们将学习率设置为 <code class="language-plaintext highlighter-rouge">lr=0.1</code></p>
+
+<p>下节内容：优化器 (一)</p>
+:ET
