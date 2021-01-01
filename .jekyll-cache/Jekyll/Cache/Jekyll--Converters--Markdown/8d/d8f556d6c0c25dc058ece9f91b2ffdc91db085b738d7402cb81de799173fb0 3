@@ -1,0 +1,17 @@
+I"�<h1 id="lecture-10-软间隔-svm-拉格朗日对偶">Lecture 10 软间隔 SVM 、拉格朗日对偶</h1>
+<h2 id="主要内容">主要内容</h2>
+<ul>
+  <li><strong>软间隔 SVM</strong>
+    <ul>
+      <li>直觉和问题的数学表述</li>
+    </ul>
+  </li>
+  <li><strong>拉格朗日对偶</strong>
+    <ul>
+      <li>具有不同训练复杂度的替代数学表述</li>
+      <li>解释支持向量</li>
+      <li>为学习核函数做准备（下节内容）</li>
+    </ul>
+  </li>
+</ul>
+:ET

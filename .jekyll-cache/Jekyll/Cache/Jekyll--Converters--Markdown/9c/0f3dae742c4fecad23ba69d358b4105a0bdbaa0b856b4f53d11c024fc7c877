@@ -1,0 +1,627 @@
+I"��<h1 id="lecture-18-优化器-二">Lecture 18 优化器 (二)</h1>
+
+<p>上节课我们学习了 PyTorch 中优化器的主要属性和基本方法。我们知道优化器的主要作用是管理并更新我们的参数，并且在更新时会利用到参数的梯度信息，然后采用一定的更新策略来更新我们的参数。本节课我们将学习一些最常用的更新策略，例如随机梯度下降法等。</p>
+
+<h2 id="1-学习率">1. 学习率</h2>
+
+<p>梯度下降中的参数更新过程：</p>
+
+\[w_{i+1} = w_i - g(w_i)\]
+
+<p>其中，$g(w_i)$ 表示 $w_i$ 的梯度。</p>
+
+<p>下面我们通过一个例子来观察梯度下降的过程以及可能存在的问题：</p>
+
+<p><img src="http://andy-blog.oss-cn-beijing.aliyuncs.com/blog/2020-12-28-y.png" width="60%" /></p>
+
+<p>假设我们现在有一个函数：</p>
+
+\[y=f(x) = 4x^2\]
+
+<p>假设我们的起始点为 $x_0=2$，现在我们采用梯度下降法更新函数值 $y$ 使其达到其极小值点 $x=0$。首先我们求取 $y$ 的导函数：</p>
+
+\[y' = f'(x) = 8x\]
+
+<p>我们从起始点 $x_0=2$ 开始沿负梯度方向更新 $y$ 值：</p>
+
+<ul>
+  <li>
+    <p>$x_0 = 2, \; y_0 = 16,\; f’(x_0) = 16$</p>
+
+    <p>$x_1 = x_0 - f’(x_0) = 2 -16 = -14$</p>
+  </li>
+  <li>
+    <p>$x_1 = -14, \; y_1 = 784,\; f’(x_1) = -112$</p>
+
+    <p>$x_2 = x_1 - f’(x_1) = -14 + 112 = 98,\; y_2 = 38416$</p>
+  </li>
+  <li>
+    <p>……</p>
+  </li>
+</ul>
+
+<p>我们发现，$y$ 值不但没有减小，反而越来越大了。这是什么原因导致的呢？下面我们先通过代码来演示这一过程，然后再分析导致该问题的原因。</p>
+
+<p>首先，我们先绘制出函数曲线：</p>
+
+<div class="language-python highlighter-rouge"><div class="highlight"><pre class="highlight"><code><table class="rouge-table"><tbody><tr><td class="rouge-gutter gl"><pre class="lineno">1
+2
+3
+4
+5
+6
+7
+8
+9
+10
+11
+12
+13
+14
+15
+16
+17
+18
+19
+20
+21
+22
+23
+24
+</pre></td><td class="rouge-code"><pre><span class="kn">import</span> <span class="nn">torch</span>
+<span class="kn">import</span> <span class="nn">numpy</span> <span class="k">as</span> <span class="n">np</span>
+<span class="kn">import</span> <span class="nn">matplotlib.pyplot</span> <span class="k">as</span> <span class="n">plt</span>
+
+<span class="n">torch</span><span class="p">.</span><span class="n">manual_seed</span><span class="p">(</span><span class="mi">1</span><span class="p">)</span>
+
+<span class="k">def</span> <span class="nf">func</span><span class="p">(</span><span class="n">x_t</span><span class="p">):</span>
+    <span class="s">"""
+    y = (2x)^2 = 4*x^2      dy/dx = 8x
+    """</span>
+    <span class="k">return</span> <span class="n">torch</span><span class="p">.</span><span class="nb">pow</span><span class="p">(</span><span class="mi">2</span><span class="o">*</span><span class="n">x_t</span><span class="p">,</span> <span class="mi">2</span><span class="p">)</span>
+
+<span class="c1"># init
+</span><span class="n">x</span> <span class="o">=</span> <span class="n">torch</span><span class="p">.</span><span class="n">tensor</span><span class="p">([</span><span class="mf">2.</span><span class="p">],</span> <span class="n">requires_grad</span><span class="o">=</span><span class="bp">True</span><span class="p">)</span>
+
+<span class="c1"># plot data
+</span><span class="n">x_t</span> <span class="o">=</span> <span class="n">torch</span><span class="p">.</span><span class="n">linspace</span><span class="p">(</span><span class="o">-</span><span class="mi">3</span><span class="p">,</span> <span class="mi">3</span><span class="p">,</span> <span class="mi">100</span><span class="p">)</span>
+<span class="n">y</span> <span class="o">=</span> <span class="n">func</span><span class="p">(</span><span class="n">x_t</span><span class="p">)</span>
+<span class="n">plt</span><span class="p">.</span><span class="n">plot</span><span class="p">(</span><span class="n">x_t</span><span class="p">.</span><span class="n">numpy</span><span class="p">(),</span> <span class="n">y</span><span class="p">.</span><span class="n">numpy</span><span class="p">(),</span> <span class="n">label</span><span class="o">=</span><span class="s">"y = 4*x^2"</span><span class="p">)</span>
+<span class="n">plt</span><span class="p">.</span><span class="n">grid</span><span class="p">()</span>
+<span class="n">plt</span><span class="p">.</span><span class="n">xlabel</span><span class="p">(</span><span class="s">"x"</span><span class="p">)</span>
+<span class="n">plt</span><span class="p">.</span><span class="n">ylabel</span><span class="p">(</span><span class="s">"y"</span><span class="p">)</span>
+<span class="n">plt</span><span class="p">.</span><span class="n">legend</span><span class="p">()</span>
+<span class="n">plt</span><span class="p">.</span><span class="n">show</span><span class="p">()</span>
+</pre></td></tr></tbody></table></code></pre></div></div>
+
+<p>输出结果：</p>
+
+<p><img src="http://andy-blog.oss-cn-beijing.aliyuncs.com/blog/2020-12-28-y1.png" width="60%" /></p>
+
+<p>下面我们通过代码来演示一下前面例子中的梯度下降过程：</p>
+
+<div class="language-python highlighter-rouge"><div class="highlight"><pre class="highlight"><code><table class="rouge-table"><tbody><tr><td class="rouge-gutter gl"><pre class="lineno">1
+2
+3
+4
+5
+6
+7
+8
+9
+10
+11
+12
+13
+14
+15
+16
+17
+18
+19
+20
+21
+22
+23
+24
+25
+26
+27
+28
+29
+30
+31
+32
+</pre></td><td class="rouge-code"><pre><span class="n">iter_rec</span><span class="p">,</span> <span class="n">loss_rec</span><span class="p">,</span> <span class="n">x_rec</span> <span class="o">=</span> <span class="nb">list</span><span class="p">(),</span> <span class="nb">list</span><span class="p">(),</span> <span class="nb">list</span><span class="p">()</span>
+
+<span class="n">lr</span> <span class="o">=</span> <span class="mf">1.</span>
+<span class="n">max_iteration</span> <span class="o">=</span> <span class="mi">4</span>
+
+<span class="k">for</span> <span class="n">i</span> <span class="ow">in</span> <span class="nb">range</span><span class="p">(</span><span class="n">max_iteration</span><span class="p">):</span>
+    <span class="n">y</span> <span class="o">=</span> <span class="n">func</span><span class="p">(</span><span class="n">x</span><span class="p">)</span>
+    <span class="n">y</span><span class="p">.</span><span class="n">backward</span><span class="p">()</span>
+
+    <span class="k">print</span><span class="p">(</span><span class="s">"Iter:{}, X:{:8}, X.grad:{:8}, loss:{:10}"</span><span class="p">.</span><span class="nb">format</span><span class="p">(</span>
+        <span class="n">i</span><span class="p">,</span> <span class="n">x</span><span class="p">.</span><span class="n">detach</span><span class="p">().</span><span class="n">numpy</span><span class="p">()[</span><span class="mi">0</span><span class="p">],</span> <span class="n">x</span><span class="p">.</span><span class="n">grad</span><span class="p">.</span><span class="n">detach</span><span class="p">().</span><span class="n">numpy</span><span class="p">()[</span><span class="mi">0</span><span class="p">],</span> <span class="n">y</span><span class="p">.</span><span class="n">item</span><span class="p">()))</span>
+
+    <span class="n">x_rec</span><span class="p">.</span><span class="n">append</span><span class="p">(</span><span class="n">x</span><span class="p">.</span><span class="n">item</span><span class="p">())</span>
+
+    <span class="n">x</span><span class="p">.</span><span class="n">data</span><span class="p">.</span><span class="n">sub_</span><span class="p">(</span><span class="n">lr</span> <span class="o">*</span> <span class="n">x</span><span class="p">.</span><span class="n">grad</span><span class="p">)</span>    <span class="c1"># x -= x.grad  数学表达式意义:  x = x - x.grad
+</span>    <span class="n">x</span><span class="p">.</span><span class="n">grad</span><span class="p">.</span><span class="n">zero_</span><span class="p">()</span>
+
+    <span class="n">iter_rec</span><span class="p">.</span><span class="n">append</span><span class="p">(</span><span class="n">i</span><span class="p">)</span>
+    <span class="n">loss_rec</span><span class="p">.</span><span class="n">append</span><span class="p">(</span><span class="n">y</span><span class="p">)</span>
+
+<span class="n">plt</span><span class="p">.</span><span class="n">subplot</span><span class="p">(</span><span class="mi">121</span><span class="p">).</span><span class="n">plot</span><span class="p">(</span><span class="n">iter_rec</span><span class="p">,</span> <span class="n">loss_rec</span><span class="p">,</span> <span class="s">'-ro'</span><span class="p">)</span>
+<span class="n">plt</span><span class="p">.</span><span class="n">xlabel</span><span class="p">(</span><span class="s">"Iteration"</span><span class="p">)</span>
+<span class="n">plt</span><span class="p">.</span><span class="n">ylabel</span><span class="p">(</span><span class="s">"Loss value"</span><span class="p">)</span>
+
+<span class="n">x_t</span> <span class="o">=</span> <span class="n">torch</span><span class="p">.</span><span class="n">linspace</span><span class="p">(</span><span class="o">-</span><span class="mi">3</span><span class="p">,</span> <span class="mi">3</span><span class="p">,</span> <span class="mi">100</span><span class="p">)</span>
+<span class="n">y</span> <span class="o">=</span> <span class="n">func</span><span class="p">(</span><span class="n">x_t</span><span class="p">)</span>
+<span class="n">plt</span><span class="p">.</span><span class="n">subplot</span><span class="p">(</span><span class="mi">122</span><span class="p">).</span><span class="n">plot</span><span class="p">(</span><span class="n">x_t</span><span class="p">.</span><span class="n">numpy</span><span class="p">(),</span> <span class="n">y</span><span class="p">.</span><span class="n">numpy</span><span class="p">(),</span> <span class="n">label</span><span class="o">=</span><span class="s">"y = 4*x^2"</span><span class="p">)</span>
+<span class="n">plt</span><span class="p">.</span><span class="n">grid</span><span class="p">()</span>
+<span class="n">y_rec</span> <span class="o">=</span> <span class="p">[</span><span class="n">func</span><span class="p">(</span><span class="n">torch</span><span class="p">.</span><span class="n">tensor</span><span class="p">(</span><span class="n">i</span><span class="p">)).</span><span class="n">item</span><span class="p">()</span> <span class="k">for</span> <span class="n">i</span> <span class="ow">in</span> <span class="n">x_rec</span><span class="p">]</span>
+<span class="n">plt</span><span class="p">.</span><span class="n">subplot</span><span class="p">(</span><span class="mi">122</span><span class="p">).</span><span class="n">plot</span><span class="p">(</span><span class="n">x_rec</span><span class="p">,</span> <span class="n">y_rec</span><span class="p">,</span> <span class="s">'-ro'</span><span class="p">)</span>
+<span class="n">plt</span><span class="p">.</span><span class="n">legend</span><span class="p">()</span>
+<span class="n">plt</span><span class="p">.</span><span class="n">show</span><span class="p">()</span>
+</pre></td></tr></tbody></table></code></pre></div></div>
+
+<p>输出结果：</p>
+
+<div class="language-plaintext highlighter-rouge"><div class="highlight"><pre class="highlight"><code><table class="rouge-table"><tbody><tr><td class="rouge-gutter gl"><pre class="lineno">1
+2
+3
+4
+</pre></td><td class="rouge-code"><pre>Iter:0, X:     2.0, X.grad:    16.0, loss:      16.0
+Iter:1, X:   -14.0, X.grad:  -112.0, loss:     784.0
+Iter:2, X:    98.0, X.grad:   784.0, loss:   38416.0
+Iter:3, X:  -686.0, X.grad: -5488.0, loss: 1882384.0
+</pre></td></tr></tbody></table></code></pre></div></div>
+
+<p><img src="http://andy-blog.oss-cn-beijing.aliyuncs.com/blog/2020-12-28-2.png" width="60%" /></p>
+
+<p>左边是 loss 曲线图，横轴是迭代次数，纵轴是 loss 值；右边是函数曲线图，由于尺度过大这里暂时看不出来函数形状。</p>
+
+<p>从打印信息可以看到，在第 0 次迭代时，$x$ 的初始值为 $2$，对应梯度为 $16$，loss 值也是 $16$。随着迭代次数的增加，我们发现 loss 值激增到 $1882384$。所以，$y$ 并没有减小，反而是激增的，而梯度也达到了 $10^3$ 数量级，所以存在梯度爆炸的问题。</p>
+
+<p>回到前面的梯度更新公式：</p>
+
+\[w_{i+1} = w_i - g(w_i)\]
+
+<p>这里可能存在一个问题，我们目前是直接减去梯度项 $g(w_i)$，而这里减去的梯度项可能由于其尺度过大从而导致参数项越来越大，从而导致函数值无法降低。因此，通常我们会在梯度项前面乘以一个系数，用于缩减尺度：</p>
+
+\[w_{i+1} = w_i - \mathrm{LR}\cdot g(w_i)\]
+
+<p>这里，我们将系数 $\mathrm{LR}$ 称为 <strong>学习率 (learning rate)</strong>，它被用来控制更新的步伐。</p>
+
+<p>下面我们在代码中调整学习率，观察函数值的变化：</p>
+
+<h5 id="mathrmlr--05">$\mathrm{LR} = 0.5$</h5>
+
+<div class="language-python highlighter-rouge"><div class="highlight"><pre class="highlight"><code><table class="rouge-table"><tbody><tr><td class="rouge-gutter gl"><pre class="lineno">1
+</pre></td><td class="rouge-code"><pre><span class="n">lr</span> <span class="o">=</span> <span class="mf">0.5</span>
+</pre></td></tr></tbody></table></code></pre></div></div>
+
+<p>输出结果：</p>
+
+<div class="language-plaintext highlighter-rouge"><div class="highlight"><pre class="highlight"><code><table class="rouge-table"><tbody><tr><td class="rouge-gutter gl"><pre class="lineno">1
+2
+3
+4
+</pre></td><td class="rouge-code"><pre>Iter:0, X:     2.0, X.grad:    16.0, loss:      16.0
+Iter:1, X:    -6.0, X.grad:   -48.0, loss:     144.0
+Iter:2, X:    18.0, X.grad:   144.0, loss:    1296.0
+Iter:3, X:   -54.0, X.grad:  -432.0, loss:   11664.0
+</pre></td></tr></tbody></table></code></pre></div></div>
+
+<p><img src="http://andy-blog.oss-cn-beijing.aliyuncs.com/blog/2020-12-28-Picture1.png" width="60%" /></p>
+
+<p>可以看到，loss 值仍然呈激增趋势，但是情况有所缓解，尺度比之前小了很多。</p>
+
+<h5 id="mathrmlr--02">$\mathrm{LR} = 0.2$</h5>
+
+<div class="language-python highlighter-rouge"><div class="highlight"><pre class="highlight"><code><table class="rouge-table"><tbody><tr><td class="rouge-gutter gl"><pre class="lineno">1
+</pre></td><td class="rouge-code"><pre><span class="n">lr</span> <span class="o">=</span> <span class="mf">0.2</span>
+</pre></td></tr></tbody></table></code></pre></div></div>
+
+<p>输出结果：</p>
+
+<div class="language-plaintext highlighter-rouge"><div class="highlight"><pre class="highlight"><code><table class="rouge-table"><tbody><tr><td class="rouge-gutter gl"><pre class="lineno">1
+2
+3
+4
+</pre></td><td class="rouge-code"><pre>Iter:0, X:     2.0, X.grad:    16.0, loss:      16.0
+Iter:1, X:-1.2000000476837158, X.grad:-9.600000381469727, loss:5.760000228881836
+Iter:2, X:0.7200000286102295, X.grad:5.760000228881836, loss:2.0736000537872314
+Iter:3, X:-0.4320000410079956, X.grad:-3.456000328063965, loss:0.7464961409568787
+</pre></td></tr></tbody></table></code></pre></div></div>
+
+<p><img src="http://andy-blog.oss-cn-beijing.aliyuncs.com/blog/2020-12-28-Picture1-1.png" width="60%" /></p>
+
+<p>可以看到，现在 loss 值呈下降趋势，同时右图也可以看到正常的函数图像了。当前学习率为 $0.2$，从右图可以看到：初始点为 $x=2$，loss 值为 $16$；经过一步更新后来到点 $x = -1.2$，此时 loss 值为 $5.76$；然后再次迭代后来到 $x=0.72$，loss 值为 $2.07$；第三次迭代后，$x = -0.43$，loss 值为 $0.75$。</p>
+
+<p>现在我们将增加迭代次数增加到 $20$ 次，来观察函数是否能够到达极小值点 $x=0$ 附近：</p>
+
+<div class="language-plaintext highlighter-rouge"><div class="highlight"><pre class="highlight"><code><table class="rouge-table"><tbody><tr><td class="rouge-gutter gl"><pre class="lineno">1
+</pre></td><td class="rouge-code"><pre>max_iteration = 20
+</pre></td></tr></tbody></table></code></pre></div></div>
+
+<p>输出结果：</p>
+
+<div class="language-plaintext highlighter-rouge"><div class="highlight"><pre class="highlight"><code><table class="rouge-table"><tbody><tr><td class="rouge-gutter gl"><pre class="lineno">1
+2
+3
+4
+5
+6
+7
+8
+9
+10
+11
+12
+13
+14
+15
+16
+17
+18
+19
+20
+</pre></td><td class="rouge-code"><pre>Iter:0, X:     2.0, X.grad:    16.0, loss:      16.0
+Iter:1, X:-1.2000000476837158, X.grad:-9.600000381469727, loss:5.760000228881836
+Iter:2, X:0.7200000286102295, X.grad:5.760000228881836, loss:2.0736000537872314
+Iter:3, X:-0.4320000410079956, X.grad:-3.456000328063965, loss:0.7464961409568787
+Iter:4, X:0.2592000365257263, X.grad:2.0736002922058105, loss:0.26873862743377686
+Iter:5, X:-0.1555200219154358, X.grad:-1.2441601753234863, loss:0.09674590826034546
+Iter:6, X:0.09331201016902924, X.grad:0.7464960813522339, loss:0.03482852503657341
+Iter:7, X:-0.05598720908164978, X.grad:-0.44789767265319824, loss:0.012538270093500614
+Iter:8, X:0.03359232842922211, X.grad:0.26873862743377686, loss:0.004513778258115053
+Iter:9, X:-0.020155396312475204, X.grad:-0.16124317049980164, loss:0.0016249599866569042
+Iter:10, X:0.012093238532543182, X.grad:0.09674590826034546, loss:0.0005849856534041464
+Iter:11, X:-0.007255943492054939, X.grad:-0.058047547936439514, loss:0.000210594866075553
+Iter:12, X:0.0043535660952329636, X.grad:0.03482852876186371, loss:7.581415411550552e-05
+Iter:13, X:-0.0026121395640075207, X.grad:-0.020897116512060165, loss:2.729309198912233e-05
+Iter:14, X:0.001567283645272255, X.grad:0.01253826916217804, loss:9.825512279348914e-06
+Iter:15, X:-0.0009403701405972242, X.grad:-0.007522961124777794, loss:3.537184056767728e-06
+Iter:16, X:0.0005642221076413989, X.grad:0.004513776861131191, loss:1.2733863741232199e-06
+Iter:17, X:-0.00033853325294330716, X.grad:-0.0027082660235464573, loss:4.584190662626497e-07
+Iter:18, X:0.00020311994012445211, X.grad:0.001624959520995617, loss:1.6503084054875217e-07
+Iter:19, X:-0.00012187196989543736, X.grad:-0.0009749757591634989, loss:5.941110714502429e-08
+</pre></td></tr></tbody></table></code></pre></div></div>
+
+<p><img src="http://andy-blog.oss-cn-beijing.aliyuncs.com/blog/2020-12-28-142219.jpg" width="60%" /></p>
+
+<p>可以看到，在迭代 $5$ 到 $7$ 次之后，左图中的 loss 曲线已经趋近于零了，即已经达到收敛，同时右图可以看到最后几次迭代都在极小值点附近来回振动，这说明我们的学习率是比较合理的。</p>
+
+<h5 id="mathrmlr--01">$\mathrm{LR} = 0.1$</h5>
+
+<p>那么，是否还存在更好的学习率呢？我们尝试将学习率调整到 $0.1$，观察函数值的变化：</p>
+
+<div class="language-python highlighter-rouge"><div class="highlight"><pre class="highlight"><code><table class="rouge-table"><tbody><tr><td class="rouge-gutter gl"><pre class="lineno">1
+</pre></td><td class="rouge-code"><pre><span class="n">lr</span> <span class="o">=</span> <span class="mf">0.1</span>
+</pre></td></tr></tbody></table></code></pre></div></div>
+
+<p>输出结果：</p>
+
+<div class="language-plaintext highlighter-rouge"><div class="highlight"><pre class="highlight"><code><table class="rouge-table"><tbody><tr><td class="rouge-gutter gl"><pre class="lineno">1
+2
+3
+4
+5
+6
+7
+8
+9
+10
+11
+12
+13
+14
+15
+16
+17
+18
+19
+20
+</pre></td><td class="rouge-code"><pre>Iter:0, X:     2.0, X.grad:    16.0, loss:      16.0
+Iter:1, X:0.3999999761581421, X.grad:3.1999998092651367, loss:0.6399999260902405
+Iter:2, X:0.07999998331069946, X.grad:0.6399998664855957, loss:0.025599990040063858
+Iter:3, X:0.015999995172023773, X.grad:0.12799996137619019, loss:0.0010239994153380394
+Iter:4, X:0.0031999992206692696, X.grad:0.025599993765354156, loss:4.0959981561172754e-05
+Iter:5, X:0.0006399997510015965, X.grad:0.005119998008012772, loss:1.6383987713197712e-06
+Iter:6, X:0.00012799992691725492, X.grad:0.0010239994153380394, loss:6.553592868385749e-08
+Iter:7, X:2.5599983928259462e-05, X.grad:0.0002047998714260757, loss:2.621436623329032e-09
+Iter:8, X:5.1199967856518924e-06, X.grad:4.095997428521514e-05, loss:1.0485746992916489e-10
+Iter:9, X:1.0239991752314381e-06, X.grad:8.191993401851505e-06, loss:4.194297253262702e-12
+Iter:10, X:2.047998464149714e-07, X.grad:1.6383987713197712e-06, loss:1.6777191073034936e-13
+Iter:11, X:4.095996075648145e-08, X.grad:3.276796860518516e-07, loss:6.710873481539318e-15
+Iter:12, X:8.191992861839026e-09, X.grad:6.553594289471221e-08, loss:2.6843498478959363e-16
+Iter:13, X:1.6383983059142793e-09, X.grad:1.3107186447314234e-08, loss:1.0737395785076275e-17
+Iter:14, X:3.2767966118285585e-10, X.grad:2.621437289462847e-09, loss:4.294958520825663e-19
+Iter:15, X:6.55359377876863e-11, X.grad:5.242875023014903e-10, loss:1.7179836926736008e-20
+Iter:16, X:1.3107185475869088e-11, X.grad:1.048574838069527e-10, loss:6.871932690625968e-22
+Iter:17, X:2.62143692170147e-12, X.grad:2.097149537361176e-11, loss:2.748772571379408e-23
+Iter:18, X:5.242874277083809e-13, X.grad:4.194299421667047e-12, loss:1.0995092021011623e-24
+Iter:19, X:1.0485747469965445e-13, X.grad:8.388597975972356e-13, loss:4.398036056521599e-26
+</pre></td></tr></tbody></table></code></pre></div></div>
+
+<p><img src="http://andy-blog.oss-cn-beijing.aliyuncs.com/blog/2020-12-28-142954.jpg" width="60%" /></p>
+
+<p>可以看到，当学习率调整为 $0.1$ 时，loss 曲线也可以快速收敛。</p>
+
+<h5 id="mathrmlr--0125">$\mathrm{LR} = 0.125$</h5>
+
+<p>那么，有没有能够使得收敛速度更快的学习率呢？我们尝试将学习率设置为 $0.125$：</p>
+
+<div class="language-python highlighter-rouge"><div class="highlight"><pre class="highlight"><code><table class="rouge-table"><tbody><tr><td class="rouge-gutter gl"><pre class="lineno">1
+</pre></td><td class="rouge-code"><pre><span class="n">lr</span> <span class="o">=</span> <span class="mf">0.125</span>
+</pre></td></tr></tbody></table></code></pre></div></div>
+
+<p>输出结果：</p>
+
+<div class="language-plaintext highlighter-rouge"><div class="highlight"><pre class="highlight"><code><table class="rouge-table"><tbody><tr><td class="rouge-gutter gl"><pre class="lineno">1
+2
+3
+4
+5
+6
+7
+8
+9
+10
+11
+12
+13
+14
+15
+16
+17
+18
+19
+20
+</pre></td><td class="rouge-code"><pre>Iter:0, X:     2.0, X.grad:    16.0, loss:      16.0
+Iter:1, X:     0.0, X.grad:     0.0, loss:       0.0
+Iter:2, X:     0.0, X.grad:     0.0, loss:       0.0
+Iter:3, X:     0.0, X.grad:     0.0, loss:       0.0
+Iter:4, X:     0.0, X.grad:     0.0, loss:       0.0
+Iter:5, X:     0.0, X.grad:     0.0, loss:       0.0
+Iter:6, X:     0.0, X.grad:     0.0, loss:       0.0
+Iter:7, X:     0.0, X.grad:     0.0, loss:       0.0
+Iter:8, X:     0.0, X.grad:     0.0, loss:       0.0
+Iter:9, X:     0.0, X.grad:     0.0, loss:       0.0
+Iter:10, X:     0.0, X.grad:     0.0, loss:       0.0
+Iter:11, X:     0.0, X.grad:     0.0, loss:       0.0
+Iter:12, X:     0.0, X.grad:     0.0, loss:       0.0
+Iter:13, X:     0.0, X.grad:     0.0, loss:       0.0
+Iter:14, X:     0.0, X.grad:     0.0, loss:       0.0
+Iter:15, X:     0.0, X.grad:     0.0, loss:       0.0
+Iter:16, X:     0.0, X.grad:     0.0, loss:       0.0
+Iter:17, X:     0.0, X.grad:     0.0, loss:       0.0
+Iter:18, X:     0.0, X.grad:     0.0, loss:       0.0
+Iter:19, X:     0.0, X.grad:     0.0, loss:       0.0
+</pre></td></tr></tbody></table></code></pre></div></div>
+
+<p><img src="http://andy-blog.oss-cn-beijing.aliyuncs.com/blog/2020-12-28-143346.jpg" width="60%" /></p>
+
+<p>可以看到，当学习率为 $0.125$ 时，仅经过一次迭代，loss 值就已经达到收敛。那么，这个 $0.125$ 是如何得到的呢？如果我们不知道函数表达式，我们是没办法直接计算出最佳学习率的。所以，通常我们会尝试性地设置一系列的学习率，以找到最佳学习率。下面我们来观察设置多个学习率时的 loss 变化情况。</p>
+
+<h5 id="设置多个学习率">设置多个学习率</h5>
+
+<p>我们在 $0.01$ 到 $0.5$ 之间线性地设置 10 个学习率：</p>
+
+<div class="language-python highlighter-rouge"><div class="highlight"><pre class="highlight"><code><table class="rouge-table"><tbody><tr><td class="rouge-gutter gl"><pre class="lineno">1
+2
+3
+4
+5
+6
+7
+8
+9
+10
+11
+12
+13
+14
+15
+16
+17
+18
+19
+20
+21
+22
+23
+24
+25
+</pre></td><td class="rouge-code"><pre><span class="n">iteration</span> <span class="o">=</span> <span class="mi">100</span>
+<span class="n">num_lr</span> <span class="o">=</span> <span class="mi">10</span>
+<span class="n">lr_min</span><span class="p">,</span> <span class="n">lr_max</span> <span class="o">=</span> <span class="mf">0.01</span><span class="p">,</span> <span class="mf">0.5</span>
+
+<span class="n">lr_list</span> <span class="o">=</span> <span class="n">np</span><span class="p">.</span><span class="n">linspace</span><span class="p">(</span><span class="n">lr_min</span><span class="p">,</span> <span class="n">lr_max</span><span class="p">,</span> <span class="n">num</span><span class="o">=</span><span class="n">num_lr</span><span class="p">).</span><span class="n">tolist</span><span class="p">()</span>
+<span class="n">loss_rec</span> <span class="o">=</span> <span class="p">[[]</span> <span class="k">for</span> <span class="n">l</span> <span class="ow">in</span> <span class="nb">range</span><span class="p">(</span><span class="nb">len</span><span class="p">(</span><span class="n">lr_list</span><span class="p">))]</span>
+<span class="n">iter_rec</span> <span class="o">=</span> <span class="nb">list</span><span class="p">()</span>
+
+<span class="k">for</span> <span class="n">i</span><span class="p">,</span> <span class="n">lr</span> <span class="ow">in</span> <span class="nb">enumerate</span><span class="p">(</span><span class="n">lr_list</span><span class="p">):</span>
+    <span class="n">x</span> <span class="o">=</span> <span class="n">torch</span><span class="p">.</span><span class="n">tensor</span><span class="p">([</span><span class="mf">2.</span><span class="p">],</span> <span class="n">requires_grad</span><span class="o">=</span><span class="bp">True</span><span class="p">)</span>
+    <span class="k">for</span> <span class="nb">iter</span> <span class="ow">in</span> <span class="nb">range</span><span class="p">(</span><span class="n">iteration</span><span class="p">):</span>
+
+        <span class="n">y</span> <span class="o">=</span> <span class="n">func</span><span class="p">(</span><span class="n">x</span><span class="p">)</span>
+        <span class="n">y</span><span class="p">.</span><span class="n">backward</span><span class="p">()</span>
+        <span class="n">x</span><span class="p">.</span><span class="n">data</span><span class="p">.</span><span class="n">sub_</span><span class="p">(</span><span class="n">lr</span> <span class="o">*</span> <span class="n">x</span><span class="p">.</span><span class="n">grad</span><span class="p">)</span>  <span class="c1"># x.data -= x.grad
+</span>        <span class="n">x</span><span class="p">.</span><span class="n">grad</span><span class="p">.</span><span class="n">zero_</span><span class="p">()</span>
+
+        <span class="n">loss_rec</span><span class="p">[</span><span class="n">i</span><span class="p">].</span><span class="n">append</span><span class="p">(</span><span class="n">y</span><span class="p">.</span><span class="n">item</span><span class="p">())</span>
+
+<span class="k">for</span> <span class="n">i</span><span class="p">,</span> <span class="n">loss_r</span> <span class="ow">in</span> <span class="nb">enumerate</span><span class="p">(</span><span class="n">loss_rec</span><span class="p">):</span>
+    <span class="n">plt</span><span class="p">.</span><span class="n">plot</span><span class="p">(</span><span class="nb">range</span><span class="p">(</span><span class="nb">len</span><span class="p">(</span><span class="n">loss_r</span><span class="p">)),</span> <span class="n">loss_r</span><span class="p">,</span> <span class="n">label</span><span class="o">=</span><span class="s">"LR: {}"</span><span class="p">.</span><span class="nb">format</span><span class="p">(</span><span class="n">lr_list</span><span class="p">[</span><span class="n">i</span><span class="p">]))</span>
+<span class="n">plt</span><span class="p">.</span><span class="n">legend</span><span class="p">()</span>
+<span class="n">plt</span><span class="p">.</span><span class="n">xlabel</span><span class="p">(</span><span class="s">'Iterations'</span><span class="p">)</span>
+<span class="n">plt</span><span class="p">.</span><span class="n">ylabel</span><span class="p">(</span><span class="s">'Loss value'</span><span class="p">)</span>
+<span class="n">plt</span><span class="p">.</span><span class="n">show</span><span class="p">()</span>
+</pre></td></tr></tbody></table></code></pre></div></div>
+
+<p>输出结果：</p>
+
+<p><img src="http://andy-blog.oss-cn-beijing.aliyuncs.com/blog/2020-12-29-031334.jpg" width="60%" /></p>
+
+<p>我们得到了 10 个不同的 loss 曲线，横轴表示迭代次数，纵轴表示 loss 值。可以看到，loss 值的尺度是 $10^{38}$，这是一个非常大的数字，不是我们所希望的。可以看到，从 $0.5$ 到 $0.337$ 这 4 条曲线都存在激增趋势。这表明我们的学习率上限设置得过大了，导致了 loss 激增和梯度爆炸。现在，我们将学习率上限改为 $0.3$，观察一下 loss 曲线的变化情况：</p>
+
+<div class="language-python highlighter-rouge"><div class="highlight"><pre class="highlight"><code><table class="rouge-table"><tbody><tr><td class="rouge-gutter gl"><pre class="lineno">1
+</pre></td><td class="rouge-code"><pre><span class="n">lr_min</span><span class="p">,</span> <span class="n">lr_max</span> <span class="o">=</span> <span class="mf">0.01</span><span class="p">,</span> <span class="mf">0.3</span>
+</pre></td></tr></tbody></table></code></pre></div></div>
+
+<p>输出结果：</p>
+
+<p><img src="http://andy-blog.oss-cn-beijing.aliyuncs.com/blog/2020-12-29-032014.jpg" width="60%" /></p>
+
+<p>可以看到，在学习率取到最大值 $0.3$ 时，loss 值尺度为 $10^{30}$，相比之前 $10^{38}$ 有所下降，但是 loss 值仍然存在激增现象。下面我们将学习率上限改为 $0.2$，观察一下 loss 曲线的变化情况：</p>
+
+<div class="language-python highlighter-rouge"><div class="highlight"><pre class="highlight"><code><table class="rouge-table"><tbody><tr><td class="rouge-gutter gl"><pre class="lineno">1
+</pre></td><td class="rouge-code"><pre><span class="n">lr_min</span><span class="p">,</span> <span class="n">lr_max</span> <span class="o">=</span> <span class="mf">0.01</span><span class="p">,</span> <span class="mf">0.2</span>
+</pre></td></tr></tbody></table></code></pre></div></div>
+
+<p>输出结果：</p>
+
+<p><img src="http://andy-blog.oss-cn-beijing.aliyuncs.com/blog/2020-12-29-032318.jpg" width="60%" /></p>
+
+<p>可以看到，现在的 10 条曲线都呈现下降趋势，这正是我们所期望的。最右边的蓝色曲线对应最小学习率 $0.01$，其收敛速度也是最慢的，大约为 30 次。右数第二条橙色曲线对应第二小的学习率 $0.03$，其收敛速度也是第二慢的。那么，是否学习率越大，收敛越快呢？我们看到，收敛最快的曲线并不是最大学习率 $0.2$ 对应的青色曲线，而是学习率 $0.136$ 对应的粉色曲线。回忆一下，前面我们提到的最佳学习率 $0.125$，这些学习率中与其距离最近的正是 $0.136$。因此，当学习率距离最优学习率最近时，收敛速度最快。但是，我们没有上帝视角，无法提前知道最优学习率，所以我们通常会设置诸如 $0.01$ 这样非常小的学习率，以达到收敛效果，其代价就是收敛速度可能会较慢。</p>
+
+<p>综上所述，设置学习率时不能过大，否则将导致 loss 值激增，并且引发梯度爆炸；同时也不能过小，否则会导致收敛速度过慢，时间成本增加。通过将学习率设置为 $0.01$ 这样较小的值，就可以使得我们的 loss 值逐渐下降直到收敛。</p>
+
+<h2 id="2-动量">2. 动量</h2>
+
+<p><strong>Momentum (动量/冲量)</strong>：结合当前梯度与上一次更新信息，用于当前更新。</p>
+
+<p><strong>指数加权更新</strong>：求取当前时刻的平均值，常用于时间序列分析。对于那些距离当前时刻越近的参数值，它们的参考性越大，所占的权重也越大，而权重随时间间隔的增大呈指数下降。</p>
+
+\[v_t = \beta \cdot v_{t-1} + (1-\beta) \cdot \theta_t\]
+
+<p>其中，$v_t$ 是当前时刻的平均值，$v_{t-1}$ 是前一个时刻的平均值，$\theta_t$ 是当前时刻的参数值，$\beta$ 是权重参数。</p>
+
+<p><strong>例子</strong>：</p>
+
+<p>数据集为连续多天的温度值：</p>
+
+<p><img src="http://andy-blog.oss-cn-beijing.aliyuncs.com/blog/2021-01-01-temp.png" width="50%" /></p>
+
+<p>假设现在我们要求取第 100 天的温度平均值：</p>
+
+\[\begin{aligned}
+v_{100} &amp;= \beta \cdot v_{99} + (1-\beta) \cdot \theta_{100} \\[2ex]
+&amp;= (1-\beta) \cdot \theta_{100} + \beta \cdot (\beta \cdot v_{98} + (1-\beta) \cdot \theta_{99}) \\[2ex]
+&amp;= (1-\beta) \cdot \theta_{100} + (1-\beta) \cdot \beta \cdot \theta_{99} + \beta^2 \cdot v_{98} \\[2ex]
+&amp;= (1-\beta) \cdot \theta_{100} + (1-\beta) \cdot \beta \cdot \theta_{99} + (1-\beta) \cdot \beta^2 \cdot \theta_{98} + \beta^3 \cdot v_{97} \\[2ex]
+&amp;= \cdots \\[2ex]
+&amp;= \sum_{i=0}^{100} (1-\beta) \cdot \beta^i \cdot \theta_{n-i}
+\end{aligned}\]
+
+<p><strong>代码示例</strong>：</p>
+
+<div class="language-python highlighter-rouge"><div class="highlight"><pre class="highlight"><code><table class="rouge-table"><tbody><tr><td class="rouge-gutter gl"><pre class="lineno">1
+2
+3
+4
+5
+6
+7
+8
+9
+10
+11
+12
+13
+14
+15
+16
+17
+18
+19
+20
+21
+22
+23
+24
+25
+26
+</pre></td><td class="rouge-code"><pre><span class="kn">import</span> <span class="nn">torch</span>
+<span class="kn">import</span> <span class="nn">numpy</span> <span class="k">as</span> <span class="n">np</span>
+<span class="kn">import</span> <span class="nn">torch.optim</span> <span class="k">as</span> <span class="n">optim</span>
+<span class="kn">import</span> <span class="nn">matplotlib.pyplot</span> <span class="k">as</span> <span class="n">plt</span>
+
+<span class="n">torch</span><span class="p">.</span><span class="n">manual_seed</span><span class="p">(</span><span class="mi">1</span><span class="p">)</span>
+
+
+<span class="k">def</span> <span class="nf">exp_w_func</span><span class="p">(</span><span class="n">beta</span><span class="p">,</span> <span class="n">time_list</span><span class="p">):</span>
+    <span class="k">return</span> <span class="p">[(</span><span class="mi">1</span> <span class="o">-</span> <span class="n">beta</span><span class="p">)</span> <span class="o">*</span> <span class="n">np</span><span class="p">.</span><span class="n">power</span><span class="p">(</span><span class="n">beta</span><span class="p">,</span> <span class="n">exp</span><span class="p">)</span> <span class="k">for</span> <span class="n">exp</span> <span class="ow">in</span> <span class="n">time_list</span><span class="p">]</span>
+
+
+<span class="n">beta</span> <span class="o">=</span> <span class="mf">0.9</span>
+<span class="n">num_point</span> <span class="o">=</span> <span class="mi">100</span>
+<span class="n">time_list</span> <span class="o">=</span> <span class="n">np</span><span class="p">.</span><span class="n">arange</span><span class="p">(</span><span class="n">num_point</span><span class="p">).</span><span class="n">tolist</span><span class="p">()</span>
+
+<span class="n">weights</span> <span class="o">=</span> <span class="n">exp_w_func</span><span class="p">(</span><span class="n">beta</span><span class="p">,</span> <span class="n">time_list</span><span class="p">)</span>    <span class="c1"># 指数权重
+</span>
+<span class="n">plt</span><span class="p">.</span><span class="n">plot</span><span class="p">(</span><span class="n">time_list</span><span class="p">,</span> <span class="n">weights</span><span class="p">,</span> <span class="s">'-ro'</span><span class="p">,</span> <span class="n">label</span><span class="o">=</span><span class="s">"Beta: {}</span><span class="se">\n</span><span class="s">y = B^t * (1-B)"</span><span class="p">.</span><span class="nb">format</span><span class="p">(</span><span class="n">beta</span><span class="p">))</span>
+<span class="n">plt</span><span class="p">.</span><span class="n">xlabel</span><span class="p">(</span><span class="s">"time"</span><span class="p">)</span>
+<span class="n">plt</span><span class="p">.</span><span class="n">ylabel</span><span class="p">(</span><span class="s">"weight"</span><span class="p">)</span>
+<span class="n">plt</span><span class="p">.</span><span class="n">legend</span><span class="p">()</span>
+<span class="n">plt</span><span class="p">.</span><span class="n">title</span><span class="p">(</span><span class="s">"exponentially weighted average"</span><span class="p">)</span>
+<span class="n">plt</span><span class="p">.</span><span class="n">show</span><span class="p">()</span>
+
+<span class="k">print</span><span class="p">(</span><span class="n">np</span><span class="p">.</span><span class="nb">sum</span><span class="p">(</span><span class="n">weights</span><span class="p">))</span>
+</pre></td></tr></tbody></table></code></pre></div></div>
+
+<p>输出结果：</p>
+
+<div class="language-plaintext highlighter-rouge"><div class="highlight"><pre class="highlight"><code><table class="rouge-table"><tbody><tr><td class="rouge-gutter gl"><pre class="lineno">1
+</pre></td><td class="rouge-code"><pre>0.9999734386011124
+</pre></td></tr></tbody></table></code></pre></div></div>
+
+<p><img src="http://andy-blog.oss-cn-beijing.aliyuncs.com/blog/2021-01-01-023454.jpg" width="60%" /></p>
+
+<p>可以看到，权重随时间间隔的增加呈指数下降。下面我们尝试调整超参数 $\beta$ 的值，来观察一下权重的变化：</p>
+
+<div class="language-python highlighter-rouge"><div class="highlight"><pre class="highlight"><code><table class="rouge-table"><tbody><tr><td class="rouge-gutter gl"><pre class="lineno">1
+2
+3
+4
+5
+6
+7
+8
+9
+10
+11
+</pre></td><td class="rouge-code"><pre><span class="c1"># 多个权重曲线
+</span><span class="n">beta_list</span> <span class="o">=</span> <span class="p">[</span><span class="mf">0.98</span><span class="p">,</span> <span class="mf">0.95</span><span class="p">,</span> <span class="mf">0.9</span><span class="p">,</span> <span class="mf">0.8</span><span class="p">]</span>
+<span class="n">w_list</span> <span class="o">=</span> <span class="p">[</span><span class="n">exp_w_func</span><span class="p">(</span><span class="n">beta</span><span class="p">,</span> <span class="n">time_list</span><span class="p">)</span> <span class="k">for</span> <span class="n">beta</span> <span class="ow">in</span> <span class="n">beta_list</span><span class="p">]</span>
+
+<span class="k">for</span> <span class="n">i</span><span class="p">,</span> <span class="n">w</span> <span class="ow">in</span> <span class="nb">enumerate</span><span class="p">(</span><span class="n">w_list</span><span class="p">):</span>
+    <span class="n">plt</span><span class="p">.</span><span class="n">plot</span><span class="p">(</span><span class="n">time_list</span><span class="p">,</span> <span class="n">w</span><span class="p">,</span> <span class="n">label</span><span class="o">=</span><span class="s">"Beta: {}"</span><span class="p">.</span><span class="nb">format</span><span class="p">(</span><span class="n">beta_list</span><span class="p">[</span><span class="n">i</span><span class="p">]))</span>
+    <span class="n">plt</span><span class="p">.</span><span class="n">xlabel</span><span class="p">(</span><span class="s">"time"</span><span class="p">)</span>
+    <span class="n">plt</span><span class="p">.</span><span class="n">ylabel</span><span class="p">(</span><span class="s">"weight"</span><span class="p">)</span>
+
+<span class="n">plt</span><span class="p">.</span><span class="n">legend</span><span class="p">()</span>
+<span class="n">plt</span><span class="p">.</span><span class="n">show</span><span class="p">()</span>
+</pre></td></tr></tbody></table></code></pre></div></div>
+
+<p>输出结果：</p>
+
+<p><img src="http://andy-blog.oss-cn-beijing.aliyuncs.com/blog/2021-01-01-024053.jpg" width="60%" /></p>
+
+<p>可以看到，随着权重参数 $\beta$ 的增大，权重曲线逐渐变得平缓。我们可以将其理解为某种记忆周期，$\beta$ 值越小，其记忆周期越短，对于较长时间间隔参数的关注越少。通常我们将 $\beta$ 设置为 $0.9$，即权重曲线将更加关注距离当前时间 $1/(1-\beta) = 10$ 天以内的数据。</p>
+
+<p>我们已经了解了指数加权平均中的权重参数 $\beta$，在梯度下降中它对应的就是 Momentum。</p>
+
+<p><strong>梯度下降</strong>：</p>
+
+\[w_{i+1} = w_i - \mathrm{LR} \cdot g(w_i)\]
+
+<p><strong>PyTorch 中的更新公式</strong>：</p>
+
+\[v_i\]
+
+<p>下节内容：优化器 (二)</p>
+:ET

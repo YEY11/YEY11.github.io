@@ -1,0 +1,19 @@
+I"�<h1 id="lecture-10-logistic-回归模型分析分类数据">Lecture 10 Logistic 回归模型分析分类数据</h1>
+
+<p>本章我们主要讨论 GLM 的一个非常特殊的应用案例：基于 Logistic 回归的分类数据分析。主要包含以下内容：</p>
+
+<ul>
+  <li>介绍</li>
+  <li>例子预览</li>
+  <li>二项分布</li>
+  <li>Logistic 回归用于分组数据</li>
+  <li>Logistic 回归模型中的检验</li>
+  <li>Logistic 回归的残差</li>
+  <li>例子：Logistic 回归用于分组数据</li>
+  <li>Logistic 回归用于未分组数据</li>
+</ul>
+
+<h2 id="1-介绍">1. 介绍</h2>
+
+<p>下节内容：逻辑回归模型分析分类数据</p>
+:ET

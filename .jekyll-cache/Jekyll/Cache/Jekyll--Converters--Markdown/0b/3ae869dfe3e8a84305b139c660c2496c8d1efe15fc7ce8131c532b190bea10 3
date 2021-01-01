@@ -1,0 +1,275 @@
+I"�#<h1 id="lecture-01-概率论基础">Lecture 01 概率论基础</h1>
+<h2 id="主要内容">主要内容</h2>
+<ul>
+  <li><strong>机器学习：为什么和是什么？</strong></li>
+  <li><strong>关于 COMP90051</strong></li>
+  <li><strong>回顾：机器学习基础、概率论</strong></li>
+</ul>
+
+<h2 id="1-为什么需要机器学习">1. 为什么需要机器学习？</h2>
+<ul>
+  <li><strong>动机：数据只是信息，而知识是隐藏在数据背后的模式或者模型，我们需要从数据中获取知识。</strong>
+    <ul>
+      <li>Data = raw information</li>
+      <li>Knowledge = patterns or models behind the data</li>
+    </ul>
+  </li>
+  <li><strong>解决方案：机器学习</strong>
+    <ul>
+      <li>假设：现存的数据仓库中包含许多潜在的有价值的知识。</li>
+      <li>学习任务：发现这些知识。</li>
+      <li>学习定义：从任意数据集中，以规则、规律性、模式、约束或模型的形式，（半）自动提取有效、新颖、有用和可理解的知识。</li>
+    </ul>
+  </li>
+</ul>
+
+<p>如今，机器学习的应用广泛而深入，例如：</p>
+<ul>
+  <li>在线广告的选择与投放</li>
+  <li>金融、保险、安全等方面的风险管理</li>
+  <li>高频交易</li>
+  <li>医学诊断</li>
+  <li>采矿和自然资源</li>
+  <li>恶意软件分析</li>
+  <li>药物发现</li>
+  <li>搜索引擎</li>
+</ul>
+
+<p>涉及诸多学科：</p>
+<ul>
+  <li>人工智能</li>
+  <li>统计学</li>
+  <li>连续优化</li>
+  <li>数据库</li>
+  <li>信息检索</li>
+  <li>通讯/信息理论</li>
+  <li>信号处理</li>
+  <li>计算机科学理论</li>
+  <li>哲学</li>
+  <li>心理学与神经生物学
+…</li>
+</ul>
+
+<p>各行各业的许多公司聘请机器学习专家：</p>
+<ul>
+  <li>数据科学家</li>
+  <li>分析专家</li>
+  <li>商业分析师</li>
+  <li>统计学家</li>
+  <li>软件工程师</li>
+  <li>研究员
+…</li>
+</ul>
+
+<h2 id="2-关于本课程">2. 关于本课程</h2>
+<ul>
+  <li><strong>课程内容</strong><br />
+该主题将涵盖来自：统计学习基础、线性模型、非线性基础、核方法、神经网络、贝叶斯学习、概率图形模型（贝叶斯网络、马尔可夫随机场）、聚类分析、降维、正则化和模型选择。</li>
+  <li><strong>高级机器学习：背景要求</strong>
+    <ul>
+      <li>算法与复杂度：
+        <ul>
+          <li>Big-O、终止条件</li>
+          <li>基本数据结构与算法</li>
+          <li>扎实的代码功底（Python）</li>
+        </ul>
+      </li>
+      <li>数学:
+        <ul>
+          <li>概率论：概率微积分、离散/连续分布、多变量、指数族、贝叶斯规则</li>
+          <li>线性代数：向量内积和范数、正交基、矩阵运算、逆、特征向量/值</li>
+          <li>微积分与优化：偏导数、梯度下降、凸性、拉格朗日乘数</li>
+        </ul>
+      </li>
+    </ul>
+  </li>
+</ul>
+
+<h2 id="3-机器学习基础">3. 机器学习基础</h2>
+<h3 id="31-相关术语">3.1 相关术语</h3>
+<ul>
+  <li><strong>Instance (实例)</strong>: 有关单个实体/对象的度量。
+    <ul>
+      <li><em>例如：一条贷款申请。</em></li>
+    </ul>
+  </li>
+  <li><strong>Attribute (属性，又称特征、解释变量)</strong>: 实例的组成部分。
+    <ul>
+      <li><em>例如：贷款申请人的薪水、家属人数等。</em></li>
+    </ul>
+  </li>
+  <li><strong>Label (标签，又称响应、因变量)</strong>: 类别、数值等结果。
+    <ul>
+      <li><em>例如：罚金 vs 还清。</em></li>
+    </ul>
+  </li>
+  <li><strong>Examples (案例)</strong>: 带标签的实例。
+    <ul>
+      <li><em>例如：&lt;(100k, 3), “罚金”&gt;</em></li>
+    </ul>
+  </li>
+  <li><strong>Models (模型):</strong> 发现的属性和 / 或标签之间的关系。</li>
+</ul>
+
+<h3 id="32-监督-vs-无监督学习">3.2 监督 vs 无监督学习</h3>
+
+<table>
+  <thead>
+    <tr>
+      <th> </th>
+      <th>数据</th>
+      <th>模型作用</th>
+    </tr>
+  </thead>
+  <tbody>
+    <tr>
+      <td>监督学习</td>
+      <td>带标签</td>
+      <td>在新的实例上预测标签</td>
+    </tr>
+    <tr>
+      <td>无监督学习</td>
+      <td>不带标签</td>
+      <td>对相关实例进行集群分类；投影到更低的维度；理解属性之间的关系</td>
+    </tr>
+  </tbody>
+</table>
+
+<h3 id="33--评估监督学习">3.3  评估（监督学习）</h3>
+<ul>
+  <li>问题导向：采用何种评估指标取决于具体问题。</li>
+  <li>典型流程：
+    <ul>
+      <li>选择 <em>评估指标</em>，对比标签与预测结果。</li>
+      <li>获取一个独立的、带标签的 <em>测试集</em>。</li>
+      <li>在测试集上对评估指标进行 “平均”。</li>
+    </ul>
+  </li>
+  <li>评估指标
+    <ul>
+      <li>准确度、列联表、精度-召回率、ROC曲线</li>
+    </ul>
+  </li>
+  <li>当数据量不足时，采用 <em>交叉验证</em>。</li>
+</ul>
+
+<h2 id="4-概率论基础">4. 概率论基础</h2>
+<ul>
+  <li><strong>一个概率空间</strong>
+    <ul>
+      <li>集合 $\Omega$ : 所有可能的结果。<br />
+<em>例如：掷一次骰子 ${1,2,3,4,5,6}$</em></li>
+      <li>集合 $F$ : 事件集合（$\Omega$的子集）。<br />
+<em>例如：${\phi,{1},…,{6},{1,2},…,{5,6},…,{1,2,3,4,5,6}}$</em></li>
+      <li>概率测度 $P: F \to \Bbb{R} $<br />
+<em>例如：$P(\phi)=0,P({1})=1/6,P({1,2})=1/3,…$</em></li>
+    </ul>
+  </li>
+  <li><strong>概率公理</strong>
+    <ol>
+      <li>对于 $F$ 中的每一个事件 $f$，都有 $P(f)\ge0$</li>
+      <li>对于不相交事件对的所有集合，有 $P(U_f f)=\sum_f P(f)$</li>
+      <li>$P(\Omega)=1$</li>
+    </ol>
+  </li>
+  <li><strong>随机变量</strong>
+    <ul>
+      <li>随机变量 $X$ 是结果的一个数值函数，$X(\omega)\in \Bbb{R}$</li>
+      <li>$P(X\in A)$ 表示 $X$ 落在 $A$ 范围内的结果的概率<br />
+<em>例如: 赌注为 5 美金, $X$ 表示当掷出偶数时赢钱</em><br />
+<em>$X$ 将 $1,3,5$ 映射为 $-5$</em><br />
+<em>$X$ 将 $2,4,6$ 映射为 $5$</em><br />
+<em>$P(X=5)=P(X=-5)=1/2$</em></li>
+    </ul>
+  </li>
+  <li><strong>离散分布和连续分布</strong>
+    <ul>
+      <li>离散分布
+        <ul>
+          <li>随机变量取值为离散值</li>
+          <li>由概率质量函数 $p(x)$ 描述, 即 $P(X=x)$</li>
+          <li>$P(X\le x)=\sum_{a=-\infty}^{x} p(a)$</li>
+          <li>例如：伯努利分布、二项分布、多项式分布、泊松分布</li>
+        </ul>
+      </li>
+      <li>连续分布
+        <ul>
+          <li>随机变量取值为连续的实数值</li>
+          <li>由概率密度函数 $p(x)$ 描述</li>
+          <li>$P(X\le x)=\int_{-\infty}^{x} p(a)$</li>
+          <li>例如：均匀分布、正态分布、拉普拉斯分布、Gamma 分布、Beta 分布、狄利克雷分布</li>
+        </ul>
+      </li>
+    </ul>
+  </li>
+  <li><strong>期望与方差</strong>
+    <ul>
+      <li>期望 $E[X]$ 是随机变量 $X$ 的 “平均” 值
+        <ul>
+          <li>离散：$E[X]=\sum_x xP(X=x)$</li>
+          <li>连续：$E[X]=\int_x xP(x)dx$</li>
+        </ul>
+      </li>
+      <li>性质
+        <ul>
+          <li>线性：<br />
+$E[aX+b]=aE(X)+b$<br />
+$E[X+Y]=E(X)+E(Y)$</li>
+          <li>单调性：<br />
+$X\ge Y \Rightarrow E(X)\ge E(Y)$</li>
+        </ul>
+      </li>
+      <li>方差
+$Var(X)=E[(X-E[X])^2]$</li>
+    </ul>
+  </li>
+  <li><strong>独立性与条件概率</strong>
+    <ul>
+      <li>$X,Y$ 是互相独立的，如果
+        <ul>
+          <li>$P(X\in A,Y\in B)=P(X\in A)P(Y\in B)$</li>
+          <li>类似地，对于概率密度函数：$p_{X,Y}(x,y)=p_X(x)p_Y(y)$</li>
+          <li>直观地：知道 $Y$ 的值对于了解 $X$ 没有提供任何信息</li>
+          <li>代数上：$X,Y$ 的联合概率可以分解成两个因子的乘积</li>
+        </ul>
+      </li>
+      <li>条件概率
+        <ul>
+          <li>$P(A\mid B)=\frac{P(A\cap B)}{P(B)}$</li>
+          <li>类似地，对于概率密度函数：$p(y\mid x)=\frac{p(x,y)}{p(x)}$</li>
+          <li>直观地：已知事件 $B$ 发生的情况下，事件 $A$ 发生的概率</li>
+          <li>$X,Y$ 独立等价于 $P(Y=y\mid X=x)=P(Y=y)$</li>
+        </ul>
+      </li>
+    </ul>
+  </li>
+  <li><strong>逆转条件：贝叶斯定理</strong>
+    <ul>
+      <li>对于事件 $A,B$
+        <ul>
+          <li>$P(A\cap B)=P(A\mid B)P(B)=P(B\mid A)P(A)$</li>
+          <li>$P(A\mid B)=\frac{P(B\mid A)P(A)}{P(B)}$</li>
+        </ul>
+      </li>
+      <li>通过简单的规则让我们得以交换条件的顺序</li>
+      <li>贝叶斯统计推断大量使用
+        <ul>
+          <li>边缘概率：单个变量的概率</li>
+          <li>边缘化：将所有感兴趣的随机变量加起来<br />
+$P(A)=\sum_b P(A,B=b)$</li>
+        </ul>
+      </li>
+    </ul>
+  </li>
+</ul>
+
+<h2 id="总结">总结</h2>
+<ul>
+  <li>为什么需要机器学习？</li>
+  <li>COMP90051</li>
+  <li>机器学习基础</li>
+  <li>回顾概率论</li>
+</ul>
+
+<p>下节内容：统计思想流派-有多少种机器学习算法</p>
+:ET
