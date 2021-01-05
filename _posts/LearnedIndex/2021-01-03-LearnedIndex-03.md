@@ -4,7 +4,7 @@ title:      数据库中的 B 树与 B<sup>+</sup> 树   	# 标题
 subtitle:   学习索引笔记         #副标题
 date:       2021-01-02				# 时间
 author:     YEY 						# 作者
-header-img: img/post-bg-unimelb-blue.png 	#这篇文章标题背景图片
+header-img: img/post-bg-unimelb.png 	#这篇文章标题背景图片
 catalog: true 						# 是否归档
 mathjax: true
 tags:								#标签
