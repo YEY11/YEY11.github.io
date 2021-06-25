@@ -1,0 +1,15 @@
+I"c<h1 id="lecture-5-正则化">Lecture 5 正则化</h1>
+<h2 id="主要内容">主要内容</h2>
+<p><strong>正则化是通过引入其他信息以解决病态问题或防止过拟合的过程。</strong></p>
+<ul>
+  <li><strong>贯穿机器学习的主要技术和主题</strong></li>
+  <li><strong>解决以下一个或多个相关问题</strong>
+    <ul>
+      <li>避免病态（计算问题）</li>
+      <li>避免过度拟合（统计问题）</li>
+      <li>将先验知识引入建模过程</li>
+    </ul>
+  </li>
+  <li><strong>这是通过在目标函数上增加一些项来实现的</strong></li>
+</ul>
+:ET
