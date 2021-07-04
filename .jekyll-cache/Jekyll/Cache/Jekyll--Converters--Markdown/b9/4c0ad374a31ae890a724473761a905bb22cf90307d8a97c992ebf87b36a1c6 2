@@ -1,0 +1,254 @@
+I"�6<h1 id="lecture-09-支持向量机svm">Lecture 09 支持向量机（SVM）</h1>
+<h2 id="主要内容">主要内容</h2>
+<ul>
+  <li>支持向量机（SVM）作为最大间隔分类器</li>
+  <li>硬间隔 SVM 目标函数推导</li>
+  <li>SVM 目标函数作为正则化损失函数</li>
+</ul>
+
+<h2 id="1-最大间隔分类器动机">1. 最大间隔分类器：动机</h2>
+<p><strong>线性二分类问题的新突破</strong></p>
+<h3 id="11-开篇线性-svm">1.1 开篇：线性 SVM</h3>
+<ul>
+  <li>在第一部分中，我们将考虑 SVM 的基本设置，称为线性硬间隔 SVM。这些定义现在看来没有多大意义，但是在后面的学习中我们将回到这个定义上。</li>
+  <li>请记住：SVM 比最初出现时的功能更强大。</li>
+  <li>现在，我们将数据建模为线性可分的，即存在一个能够完美分离各个类别的超平面。</li>
+  <li>我们将考虑一次性使用所有数据进行训练。</li>
+</ul>
+
+<h3 id="12-svm-是一个线性二分类器">1.2 SVM 是一个线性二分类器</h3>
+<ul>
+  <li>如果 $s\ge 0$，预测为 $A$</li>
+  <li>如果 $s&lt; 0$，预测为 $B$<br />
+其中 $s=b+\sum_{i=1}^{m}x_iw_i$</li>
+</ul>
+
+<p>SVM 是一个线性分类器：$s$ 是输入的一个线性函数，并且分类边界是线性的。</p>
+
+<p><img src="https://tva1.sinaimg.cn/large/006y8mN6ly1g8o8qnuu02j30n20ew764.jpg" width="50%" /></p>
+
+<h3 id="13-svm-和感知器">1.3 SVM 和感知器</h3>
+<ul>
+  <li>在给定学习到的参数值的情况下，SVM 会像感知器一样预测。</li>
+  <li>SVM 的不同之处在于：学习参数的方式。
+    <ul>
+      <li>感知器：最小化感知器损失函数</li>
+      <li>SVM：选择参数的不同标准</li>
+    </ul>
+  </li>
+</ul>
+
+<h3 id="14-选择分类边界">1.4 选择分类边界</h3>
+<ul>
+  <li>SVM 是一个线性二分类器：选择参数意味着选择一个分类边界（超平面）。</li>
+  <li>2D 情况下：<br />
+<img src="https://tva1.sinaimg.cn/large/006y8mN6ly1g8o9b7lmmdj30n60gkjsc.jpg" width="40%" /></li>
+</ul>
+
+<h4 id="我们应该选择哪个边界">我们应该选择哪个边界？</h4>
+<ul>
+  <li>假设数据集是线性可分的，那么感知器将找到一个可以完美分离各个类别的边界。这可以是任何这样的边界，例如图中的 A 或 B。</li>
+  <li>
+    <p>对于感知器而言，所有这样的边界都一样好，因为对于每个感知器而言，其损失函数都为零。<br />
+<img src="https://tva1.sinaimg.cn/large/006y8mN6ly1g8ogretihaj30o80gyt9i.jpg" width="40%" /></p>
+  </li>
+  <li>但是它们对我们来说看起来并不一样好。A 边界似乎更可靠。当新数据点到达时，B 边界可能会对其分类错误。<br />
+<img src="https://tva1.sinaimg.cn/large/006y8mN6ly1g8ogx13xstj30o40hc754.jpg" width="40%" /></li>
+</ul>
+
+<h4 id="目标是找到最安全的边界">目标是找到最安全的边界</h4>
+<ul>
+  <li>从直觉上看，最可靠的边界应当位于两个类别之间，并且尽可能远离这两个类别。</li>
+  <li>SVM 的目标函数捕捉到了这一点，SVM 的目标是找到使得不同类别之间间隔最大化的分类边界。<br />
+<img src="https://tva1.sinaimg.cn/large/006y8mN6ly1g8ohio3uvrj30oe0he0u0.jpg" width="40%" /></li>
+</ul>
+
+<h3 id="15-最大间隔分类器">1.5 最大间隔分类器</h3>
+<ul>
+  <li>SVM 是一个线性二分类器。SVM 的训练目标是找到使间隔最大化的分类边界。</li>
+  <li>因此，SVM 又称为最大间隔分类器。</li>
+  <li>训练数据是固定的，因此间隔是由分类边界的位置和方向定义的，而分类边界的位置和方向则是由 SVM 参数定义的。</li>
+  <li>我们的下一步是通过将间隔宽度表示为一个参数（和数据）的函数来形式化我们的目标。</li>
+</ul>
+
+<h2 id="2-最大间隔分类器推导">2. 最大间隔分类器：推导</h2>
+<p><strong>关于 SVM 目标函数的几何推导</strong></p>
+<h3 id="21-间隔宽度">2.1 间隔宽度</h3>
+<ul>
+  <li>尽管间隔可以被视为两条虚线之间的空间，但更方便的做法是，将间隔宽度定义为分类边界与最近数据点之间的距离。</li>
+  <li>
+    <p>这个分类边界恰好在 “两个类别之间”：到最近的红色点和蓝色点的距离相同。<br />
+<img src="https://tva1.sinaimg.cn/large/006y8mN6ly1g8oijcia75j30oc0hmgmw.jpg" width="40%" /></p>
+  </li>
+  <li><strong>问题：</strong> 为了达到最大间隔必须这样。为什么？</li>
+  <li>落在间隔边界上的数据点称为 <strong>支持向量</strong>。</li>
+  <li>我们希望最大化分类边界到支持向量的距离。</li>
+  <li>但是，在此之前，让我们推导出任意一个点到一个超平面的距离的表达式。</li>
+</ul>
+
+<h3 id="22-一个点到超平面的距离">2.2 一个点到超平面的距离</h3>
+<h4 id="第一部分">第一部分</h4>
+<ul>
+  <li>考虑到任意一个点 $X$（可以来自任意一个类别，并且不需要是离分类边界最近的点），令 $X_p$ 表示点 $X$ 在分类边界上的投影。</li>
+  <li>
+    <p>现在，令 $\boldsymbol r$ 表示向量 $X_p-X$。注意，$\boldsymbol r$ <strong>垂直</strong> 于分类边界，并且 $\|\boldsymbol r\|$ 就是要求的 <strong>距离</strong>。<br />
+<img src="https://tva1.sinaimg.cn/large/006y8mN6ly1g8ojd4yyxcj30pw0ic3zo.jpg" width="40%" /></p>
+  </li>
+  <li>分类边界由参数 $\boldsymbol w$ 和 $b$ 定义</li>
+  <li>根据之前线性代数的讲义，回忆 $\boldsymbol w$ 是一个垂直于分类边界的向量</li>
+  <li>图中，$\boldsymbol w$ 的起点是分类边界上一个任意的点</li>
+  <li>$\|\boldsymbol w\|=\sqrt{w_1^2+…+w_m^2}$</li>
+</ul>
+
+<h4 id="第二部分">第二部分</h4>
+<ul>
+  <li>向量 $\boldsymbol r$ 和 $\boldsymbol w$ 平行，但是通常两者长度不同。简单来说，$\boldsymbol r=\boldsymbol w\dfrac{\|\boldsymbol r\|}{\|\boldsymbol w\|}$</li>
+  <li>
+    <p>接下来，点 $X$ 和点 $X_p$ 可以被视为向量 $\boldsymbol x$ 和 $\boldsymbol x_p$。<br />
+通过向量加法，我们可以得到 $\boldsymbol x+\boldsymbol r=\boldsymbol x_p$ 或者 $\boldsymbol x+\boldsymbol w\dfrac{\|\boldsymbol r\|}{\|\boldsymbol w\|}=\boldsymbol x_p$<br />
+<img src="https://tva1.sinaimg.cn/large/006y8mN6ly1g8ok4zhq12j30py0icdhk.jpg" width="40%" /></p>
+  </li>
+  <li>现在，我们将等式两边都乘上 $\boldsymbol w’$，然后加上 $b$，得到：<br />
+$\boldsymbol w’\boldsymbol x+b+\boldsymbol w’\boldsymbol w\dfrac{\|\boldsymbol r\|}{\|\boldsymbol w\|}=\boldsymbol w’\boldsymbol x_p+b$</li>
+  <li>因为 $\boldsymbol x_p$ 落在分类边界上，我们可以得到：<br />
+$\boldsymbol w’\boldsymbol x+b+\|\boldsymbol w\|^2\dfrac{\|\boldsymbol r\|}{\|\boldsymbol w\|}=0$</li>
+  <li>化简即可得到点 $X$ 到分类边界的距离为：<br />
+$\|\boldsymbol r\|=-\dfrac{\boldsymbol w’\boldsymbol x+b}{\|\boldsymbol w\|}$</li>
+</ul>
+
+<h4 id="第三部分">第三部分</h4>
+<ul>
+  <li>然而，如果我们将点取到分类边界的另一侧，向量 $\boldsymbol r$ 和 $\boldsymbol w$ 将会 <strong>反向平行</strong>，得到 $\boldsymbol r=-\boldsymbol w\dfrac{\|\boldsymbol r\|}{\|\boldsymbol w\|}$</li>
+  <li>
+    <p>在这种情况下，距离为 $\|\boldsymbol r\|=\dfrac{\boldsymbol w’\boldsymbol x+b}{\|\boldsymbol w\|}$<br />
+<img src="https://tva1.sinaimg.cn/large/006y8mN6ly1g8okwti1rlj30py0icjt5.jpg" width="40%" /></p>
+  </li>
+  <li>我们一会将再回到这里，现在我们可以将两种情况的结果结合起来：<br />
+距离为 $\|\boldsymbol r\|=\pm \dfrac{\boldsymbol w’\boldsymbol x+b}{\|\boldsymbol w\|}$</li>
+</ul>
+
+<h3 id="23-使用标签对类别进行编码">2.3 使用标签对类别进行编码</h3>
+<ul>
+  <li>训练数据是一个集合 \(\{\boldsymbol x_i,y_i\}, i=1,...,n\)，其中 $\boldsymbol x_i$ 是一个 $m$ 维的实例，$y_i$ 是对应的二分类标签，被编码为 $-1$ 或 $1$。</li>
+  <li>给定一个完美的分类边界，$y_i$ 编码了每一个 $\boldsymbol x_i$ 位于边界的哪一侧。</li>
+  <li>
+    <p>因此，第 $i$ 个点到一个完美边界的距离可以被编码为：</p>
+
+\[\|\boldsymbol r_i\|=\dfrac{y_i(\boldsymbol w'\boldsymbol x_i+b)}{\|\boldsymbol w\|}\]
+  </li>
+</ul>
+
+<h3 id="24-最大间隔目标">2.4 最大间隔目标</h3>
+<ul>
+  <li>第 $i$ 个点到一个完美边界的距离可以被编码为：$\|\boldsymbol r_i\|=\dfrac{y_i(\boldsymbol w’\boldsymbol x_i+b)}{\|\boldsymbol w\|}$</li>
+  <li>间隔宽度是到最近点的距离</li>
+  <li>因此，SVM 的目标是最大化 $\left(\min\limits_{i=1,…,n}\dfrac{y_i(\boldsymbol w’\boldsymbol x_i+b)}{\|\boldsymbol w\|}\right)$ 作为 $\boldsymbol w$ 和 $b$ 的一个函数</li>
+</ul>
+
+<p><strong>思考：</strong> 这样做的问题在哪里？</p>
+
+<h3 id="25-表示形式不唯一">2.5 表示形式不唯一</h3>
+<ul>
+  <li>一个分类边界（例如：2D 空间里的一条直线）是一系列点的集合，满足 $\boldsymbol w’\boldsymbol x+b=0$ ，对于某些给定的 $\boldsymbol w$ 和 $b$</li>
+  <li>然而，同样的点集也满足 $\tilde{\boldsymbol w’}\boldsymbol x+\tilde b=0$ ，其中 $\tilde{\boldsymbol w}=\alpha \boldsymbol w$ ，$\tilde b=\alpha b$ ，任意 $\alpha&gt;0$</li>
+  <li>同样的边界和本质上相同的分类器可以由无限多种参数的组合来表达。而这会造成分歧。</li>
+</ul>
+
+<h3 id="26-消除分歧">2.6 消除分歧</h3>
+<ul>
+  <li>考虑一个 “备选” 的分类边界，我们应该用哪一个参数组合表示它？
+    <ul>
+      <li>对于人类来说，这无关紧要</li>
+      <li>而数学 / 机器需要一个精确的答案</li>
+    </ul>
+  </li>
+  <li>
+    <p>一种消除分歧的可能做法是：测量到最近点（$i^*$）的距离，缩放参数使得</p>
+
+\[\dfrac{y_{i^*}(\boldsymbol w'\boldsymbol x_{i^*}+b)}{\|\boldsymbol w\|}=\dfrac{1}{\|\boldsymbol w\|}\]
+  </li>
+  <li>对于一个给定的 “备选” 边界和固定的训练数据点，存在唯一的缩放 $\boldsymbol w$ 和 $b$ 的方式，使得上面的等式成立。</li>
+</ul>
+
+<h3 id="27-约束目标函数">2.7 约束目标函数</h3>
+<ul>
+  <li>
+    <p>SVM 目标是最大化 $\left(\min\limits_{i=1,…,n}\dfrac{y_i(\boldsymbol w’\boldsymbol x_i+b)}{\|\boldsymbol w\|}\right)$
+<br /></p>
+  </li>
+  <li>引入（任意）额外要求 $\dfrac{y_{i^*}(\boldsymbol w’\boldsymbol x_{i^*}+b)}{\|\boldsymbol w\|}=\dfrac{1}{\|\boldsymbol w\|}$
+<br />
+    <ul>
+      <li>$i^*$ 表示距离分类边界最近的样本的索引
+<br /></li>
+    </ul>
+  </li>
+  <li>SVM 目标是找到：<br />
+\(\begin{array}{cc}\mathop{\operatorname{arg\,min}}\limits_{\boldsymbol w}\|\boldsymbol w\| \\\; \text{s.t.}\quad y_i(\boldsymbol w'\boldsymbol x_i+b)\ge 1 \;\text{for}\;i=1,...,n\end{array}\)</li>
+</ul>
+
+<h3 id="28-硬间隔-svm-的目标函数">2.8 硬间隔 SVM 的目标函数</h3>
+<ul>
+  <li>
+    <p>现在，我们有了一个主要的结果：SVM 目标是找到<br />
+\(\begin{array}{cc}\mathop{\operatorname{arg\,min}}\limits_{\boldsymbol w}\|\boldsymbol w\| \\\; \text{s.t.}\quad y_i(\boldsymbol w'\boldsymbol x_i+b)\ge 1 \;\text{for}\;i=1,...,n\end{array}\)<br />
+<img src="https://tva1.sinaimg.cn/large/006y8mN6ly1g8or1sx280j30oa0heta3.jpg" width="40%" />
+<br /></p>
+  </li>
+  <li>注意 1：参数 $b$ 是通过影响影响约束条件渐接优化的</li>
+  <li>注意 2：所有的点都被限制在间隔边界上或者外部</li>
+  <li>因此，这个版本的 SVM 被称为硬间隔 SVM</li>
+</ul>
+
+<h2 id="3-svm-的目标函数作为正则化损失函数">3. SVM 的目标函数作为正则化损失函数</h2>
+<p><strong>将我们得到的目标函数与其他机器学习方法的目标函数联系起来</strong></p>
+<h3 id="31-在之前课程中">3.1 在之前课程中</h3>
+<ol>
+  <li>选择 / 设计模型</li>
+  <li>选择 / 设计损失函数</li>
+  <li>寻找可以在训练数据上将差异最小化的参数值</li>
+</ol>
+
+<ul>
+  <li><strong>损失函数</strong> 度量了单个样本的预测值与真实值之间的差异</li>
+  <li><strong>训练误差</strong> 是在全部训练样本上的平均损失</li>
+</ul>
+
+<p>对于感知器和 ANN，我们定义了损失函数，目标是在训练中最小化损失
+但是，SVM 应当怎样匹配这种模式呢？</p>
+
+<h3 id="32-svm-作为正则化的-erm">3.2 SVM 作为正则化的 ERM</h3>
+<ul>
+  <li>回忆岭回归的目标函数：<br /><br />
+最小化 $\left(\sum_{i=1}^{n}(y_i-\boldsymbol w’\boldsymbol x_i)^2+\lambda\|\boldsymbol w\|^2\right)$<br />
+<br /></li>
+  <li>硬间隔 SVM 的目标函数：<br /><br />
+\(\begin{array}{cc}\mathop{\operatorname{arg\,min}}\limits_{\boldsymbol w}\|\boldsymbol w\| \\\; \text{s.t.}\quad y_i(\boldsymbol w'\boldsymbol x_i+b)\ge 1 \;\text{for}\;i=1,...,n\end{array}\)<br />
+<br /></li>
+  <li>约束条件可以理解为损失：<br />
+$l_{\infty} =\begin{cases}0\quad\;\, 1-y_i(\boldsymbol w’\boldsymbol x_i+b)\le0 \\<br />
+\infty\quad 1-y_i(\boldsymbol w’\boldsymbol x_i+b)&gt;0\end{cases}$</li>
+</ul>
+
+<h3 id="33-硬间隔-svm-的损失函数">3.3 硬间隔 SVM 的损失函数</h3>
+<ul>
+  <li>约束条件可以理解为损失：<br />
+\(l_{\infty} =\begin{cases}0\quad\;\, 1-y_i(\boldsymbol w'\boldsymbol x_i+b)\le0 \\
+\infty\quad 1-y_i(\boldsymbol w'\boldsymbol x_i+b)&gt;0\end{cases}\)</li>
+  <li>换而言之，对于每个数据点：
+    <ul>
+      <li>如果它在分类边界的正确的一侧，并且到分类边界的距离至少有 $\dfrac{1}{\|\boldsymbol w\|}$，那么我们接受它，损失为 $0$。</li>
+      <li>如果该点在错误的一侧，或者距离分类边界太近，那么我们立即给予其无穷大的损失，因此完全禁止这类解。</li>
+    </ul>
+  </li>
+</ul>
+
+<h2 id="总结">总结</h2>
+<ul>
+  <li>支持向量机（SVM）作为最大间隔分类器</li>
+  <li>硬间隔 SVM 的目标函数推导</li>
+  <li>SVM 作为正则化的 ERM</li>
+</ul>
+
+<p>下节内容：软间隔 SVM</p>
+:ET

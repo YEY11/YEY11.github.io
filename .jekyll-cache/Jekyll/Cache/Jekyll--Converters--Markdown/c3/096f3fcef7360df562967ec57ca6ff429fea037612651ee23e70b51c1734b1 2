@@ -1,0 +1,222 @@
+I"�<<h1 id="lecture-01-导论">Lecture 01 导论</h1>
+
+<p><strong>参考教材</strong>：</p>
+
+<ul>
+  <li><em>Gareth, J., Daniela, W., Trevor, H., &amp; Robert, T. (2013). An intruduction to statistical learning: with applications in R. Spinger.</em></li>
+  <li><em>Hastie, T., Tibshirani, R., &amp; Friedman, J. (2009). The elements of statistical learning: data mining, inference, and prediction. Spinger Science &amp; Business Media.</em></li>
+</ul>
+
+<h2 id="1-导论">1. 导论</h2>
+
+<h3 id="11-内容安排">1.1 内容安排</h3>
+
+<p>本课程中，我们将尝试覆盖以下 6 个主题：</p>
+
+<ul>
+  <li><strong>回归与分类</strong></li>
+  <li><strong>重采样和模型选择</strong></li>
+  <li><strong>样条 (Splines) 和 广义加性模型 (GAMs)</strong></li>
+  <li><strong>基于树的方法和 SVMs</strong></li>
+  <li><strong>无监督学习</strong></li>
+  <li><strong>神经网络</strong></li>
+</ul>
+
+<h3 id="12-统计学习概览">1.2 统计学习概览</h3>
+
+<p><strong>统计学习 (Statistical Learning)</strong> 是一套以 <strong>理解数据 (understanding data)</strong> 为目的的庞大工具集。</p>
+
+<p>统计学习的工具可以分为两大类：<strong>有监督的 (supervised)</strong> 和 <strong>无监督的 (unsupervised)</strong>。</p>
+
+<p><strong>有监督统计学习</strong> 主要有两种用途：1. 构建统计模型用于预测；2. 对一个或多个给定的 <strong>输入 (input)</strong> 估计某个 <strong>输出 (output)</strong>。</p>
+
+<p>在 <strong>无监督统计学习</strong> 中，有输入但无监督输出；但是，我们可以从这些数据中学习 <strong>关系和结构</strong>。</p>
+
+<h3 id="13-有监督学习回归与分类">1.3 有监督学习：回归与分类</h3>
+
+<ul>
+  <li>像工资数据这类涉及预测连续或定量的输出值。这通常称为 <strong>回归 (regression)</strong> 问题。</li>
+  <li>但是，在某些情况下，我们可能希望预测的是一个非数值的值，即一个类别或定性输出。这称为 <strong>分类 (classification)</strong> 问题。例如：股市数据。</li>
+</ul>
+
+<p><strong>回归的例子：工资预测</strong></p>
+
+<p>这个例子中，我们将考察与美国中部大西洋地区男性收入相关的几个因素。具体来说，我们希望理解员工的 <code class="language-plaintext highlighter-rouge">age</code> (年龄)、<code class="language-plaintext highlighter-rouge">education</code> (受教育程度)、<code class="language-plaintext highlighter-rouge">year</code> (工龄) 与其历年 <code class="language-plaintext highlighter-rouge">wage</code> (工资)的关系。</p>
+
+<ul>
+  <li><strong>输入 (特征)</strong>：<code class="language-plaintext highlighter-rouge">age</code>, <code class="language-plaintext highlighter-rouge">year</code> 和 <code class="language-plaintext highlighter-rouge">education</code></li>
+  <li><strong>输出 (标签)</strong>：<code class="language-plaintext highlighter-rouge">wage</code></li>
+</ul>
+
+<p><img src="http://andy-blog.oss-cn-beijing.aliyuncs.com/blog/2020-08-13-WX20200813-161423%402x.png" width="90%" /></p>
+
+<p><span style="font-size:10pt"> <span style="color:steelblue;font-weight:bold">图 1</span>：<code class="language-plaintext highlighter-rouge">Wage</code> 数据，其中包含美国大西洋中部地区男性收入调查信息。<strong>左图</strong>：<code class="language-plaintext highlighter-rouge">wage</code> 与 <code class="language-plaintext highlighter-rouge">age</code> 的函数关系，平均来看，随着 <code class="language-plaintext highlighter-rouge">age</code> 的增长 <code class="language-plaintext highlighter-rouge">wage</code> 是增加的，这种趋势在 60 岁左右终止，之后 <code class="language-plaintext highlighter-rouge">wage</code> 开始下降。<strong>中图</strong>：<code class="language-plaintext highlighter-rouge">wage</code> 与 <code class="language-plaintext highlighter-rouge">year</code> 的函数关系，呈现出缓慢而稳定的增长，2003 ~ 2009 年平均 <code class="language-plaintext highlighter-rouge">wage</code> 约增加了 10,000 美元。<strong>右图</strong>：箱型图反映了 <code class="language-plaintext highlighter-rouge">wage</code> 与 <code class="language-plaintext highlighter-rouge">education</code> 的函数关系，其中最低的教育水平取值 1 (没有高中文凭) ，最高的教育水平取值 5 (高级研究生学位) ，平均来说，<code class="language-plaintext highlighter-rouge">wage</code> 随受教育水平呈现递增关系。</span></p>
+
+<p><strong>分类的例子：股市数据</strong></p>
+
+<p>这里，我们将考察一个股票市场数据集 <code class="language-plaintext highlighter-rouge">Srnarket</code>，它收集了 2001 年至 2005 年间的标准普尔 500 股票指数 (S&amp;P) 每日股指变动数据。我们的目标是用过去 3 天指数的变动比例预测 3 天后股指的涨跌状态。这个问题中的统计学习模型不是对数值类型的变量预测，而是关注某一天的股市业绩是掉进 <code class="language-plaintext highlighter-rouge">Up</code> 桶还是 <code class="language-plaintext highlighter-rouge">Down</code> 桶。我们希望能够精准预测市场行情的变动方向。</p>
+
+<ul>
+  <li><strong>输入 (特征)</strong>：过去 3 天的标准普尔指数 (S&amp;P Index) 的变动比例</li>
+  <li><strong>输出 (标签)</strong>：<code class="language-plaintext highlighter-rouge">Up</code> (上涨) 或者 <code class="language-plaintext highlighter-rouge">Down</code> (下跌)</li>
+</ul>
+
+<p><img src="http://andy-blog.oss-cn-beijing.aliyuncs.com/blog/2020-08-13-WX20200813-165739%402x.png" width="90%" /></p>
+
+<p><span style="font-size:10pt"> <span style="color:steelblue;font-weight:bold">图 2</span>：<strong>左图</strong>：前一天标准普尔股指百分比变化，箱线图表示由 <code class="language-plaintext highlighter-rouge">Smarket</code> 数据所得到的市场上涨和下跌的情况。<strong>中图和右图</strong>：内容与左图类似，分别显示的是 2 天和 3 天前标准普尔股指百分比变化情况。</span></p>
+
+<h3 id="14-无监督学习聚类">1.4 无监督学习：聚类</h3>
+
+<p>前面两个应用的数据集中既有输入变量也有输出变量。然而，还有另一类不同的重要问题，即观察到的只有输入变量却没有相应的输出变量。例如，在营销领域中，可以采集到现有客户或潜在客户的人口信息。建模的目标是希望理解哪些类型的客户在他们所被观察到的属性上彼此相似，并形成一个族群。这就是一个 <strong>聚类(clustering)</strong> 问题。不同于之前的例子，这里我们并不打算预测输出变量。</p>
+
+<p><strong>聚类的例子：基因表达数据</strong></p>
+
+<p>这里，我们以 <code class="language-plaintext highlighter-rouge">NCI60</code> (基因表达) 数据集为例，其中包含了 64 个癌症细胞系 6830 个基因表达测量数据。这个例子中我们感兴趣的并不是要对某个指定的输出预测，而是在基因表达测量上的细胞系数据中是否有集群存在。</p>
+
+<p>这 64 个细胞系可以通过两个变量 <code class="language-plaintext highlighter-rouge">Z1</code> 和 <code class="language-plaintext highlighter-rouge">Z2</code> 来表达，这 两个变量是数据中的前两个 <strong>主成分 (principal component)</strong>，综合了各个细胞系 6830 个基因表达测量信息。虽然降维可能导致部分信息损失，但却使得能进行验证聚类合理性的可视化分析。</p>
+
+<p><img src="http://andy-blog.oss-cn-beijing.aliyuncs.com/blog/2020-08-13-WX20200813-172812%402x.png" width="90%" /></p>
+
+<p><span style="font-size:10pt"> <span style="color:steelblue;font-weight:bold">图 3</span>：<strong>左图</strong>：<code class="language-plaintext highlighter-rouge">NCI60</code> 数据集在一个由 <code class="language-plaintext highlighter-rouge">Z1</code> 和 <code class="language-plaintext highlighter-rouge">Z2</code> 构成的 2 维空间中的表示。每个点对应于 64 个细胞系中的一个。图上显示有 4 组细胞系，我们用不同的颜色表示它们。<strong>右图</strong>：与左图同理，14 个不同类型的癌症每一类使用不同颜色符号表示。对应于同一癌症类型的细胞系在这个 2 维空间中往往也是较为邻近的。</span></p>
+
+<h2 id="2-表示方法">2. 表示方法</h2>
+
+<p>$n$：不同数据点或样本观测的个数。</p>
+
+<p>$p$：用于预测的变量个数。</p>
+
+<p>例如，<code class="language-plaintext highlighter-rouge">Wage</code> 数据集包含 3000 个人的 12 个变量信息，因此，我们有 $n=3000$ 个观测，以及 $p=12$ 个变量 (例如：<code class="language-plaintext highlighter-rouge">year</code>、<code class="language-plaintext highlighter-rouge">age</code>、<code class="language-plaintext highlighter-rouge">sex</code> 等)。</p>
+
+<p>一般地，$x_{ij}$ 代表第 $i$ 个观测的第 $j$ 个变量值，$i=1,2,\dots,n$ 并且 $j=1,2,\dots,p$。在本课程中，$i$ 用于索引样本或观测 (从 $1$ 到 $n$)，$j$ 用于索引变量 (从 $1$ 到 $p$)。我们用 $\mathbf{X}$ 表示一个 $n\times p$ 的矩阵，其中位置 $(i,j)$ 上的元素为 $x_{ij}$。即，</p>
+
+\[\mathbf{X}=\begin{pmatrix}
+x_{11} &amp; x_{12} &amp; \cdots &amp; x_{1p} \\
+x_{21} &amp; x_{22} &amp; \cdots &amp; x_{2p} \\
+\vdots &amp; \vdots &amp; \ddots &amp; \vdots \\
+x_{n1} &amp; x_{n2} &amp; \cdots &amp; x_{np} \\
+\end{pmatrix}\]
+
+<p>有时，我们会对 $\mathbf{X}$ 的行进行研究，通常将其记为 $x_1,x_2,\dots,x_n$。这里，$x_i$ 是长度为 $p$ 的向量，包含了第 $i$ 个观测中的 $p$ 个变量测量。即，</p>
+
+\[x_i=\begin{pmatrix}
+x_{i1}\\
+x_{i2}\\
+\vdots\\
+x_{ip}\\
+\end{pmatrix}\]
+
+<p>向量默认用列表示。例如，对于 <code class="language-plaintext highlighter-rouge">Wage</code> 数据集，$x_i$ 是一个长度为 12 的向量，包含第 $i$ 个个体的 <code class="language-plaintext highlighter-rouge">year</code>、<code class="language-plaintext highlighter-rouge">age</code>、<code class="language-plaintext highlighter-rouge">sex</code> 和其他变量值。</p>
+
+<p>有时，我们也会研究 $\mathbf{X}$ 的列，将其记为 $\mathbf{x}_1,\mathbf{x}_2,\dots,\mathbf{x}_p$。其中每一个都是长度为 $n$ 的向量。即，</p>
+
+\[\mathbf{x}_j=\begin{pmatrix}
+x_{1j}\\
+x_{2j}\\
+\vdots\\
+x_{nj}\\
+\end{pmatrix}\]
+
+<p>例如，在 <code class="language-plaintext highlighter-rouge">Wage</code> 数据集中包含 $n=3000$ 个 <code class="language-plaintext highlighter-rouge">year</code> 的值。</p>
+
+<p>使用这种方式，矩阵 $\mathbf{X}$ 可以写成</p>
+
+\[\mathbf{X}=(\mathbf{x}_1 \quad \mathbf{x}_2 \quad \cdots \quad \mathbf{x}_p)\]
+
+<p>或者</p>
+
+\[\mathbf{X}=\begin{pmatrix}
+x_{1}^{\mathrm T}\\
+x_{2}^{\mathrm T}\\
+\vdots\\
+x_{n}^{\mathrm T}\\
+\end{pmatrix}\]
+
+<p>右上角记号 $\mathrm T$ 表示矩阵或向量的 <strong>转置 (transpose)</strong>。例如，有 $x_i^{\mathrm T}=(x_{i1} \quad x_{i2} \quad \cdots \quad x_{ip})$，以及</p>
+
+\[\mathbf{X}=\begin{pmatrix}
+x_{11} &amp; x_{21} &amp; \cdots &amp; x_{n1} \\
+x_{12} &amp; x_{22} &amp; \cdots &amp; x_{n2} \\
+\vdots &amp; \vdots &amp;  &amp; \vdots \\
+x_{1p} &amp; x_{2p} &amp; \cdots &amp; x_{np} \\
+\end{pmatrix}\]
+
+<p>$y_i$ 表示待预测的变量 (比如 <code class="language-plaintext highlighter-rouge">wage</code>) 的第 $i$ 个观测值。待预测变量的全部 $n$ 个观测值的集合，用如下向量表示：</p>
+
+\[\mathbf{y}=\begin{pmatrix}
+y_{1}\\
+y_{2}\\
+\vdots\\
+y_{n}\\
+\end{pmatrix}\]
+
+<p>观测数据集为 $\{(x_1,y_1),(x_2,y_2),\dots,(x_n,y_n)\}$，其中每个 $x_i$ 都是一个长度为 $p$ 的向量 (如果 $p=1$，则 $x_i$ 就是一个简单的标量)。</p>
+
+<p>总体来说，在本课程中我们将采用以下几种表示方式：</p>
+
+<ul>
+  <li><strong>向量</strong>：长度为 $n$，使用小写加粗字母表示，例如 $\mathbf{a}$。</li>
+  <li><strong>向量</strong>：长度不为 $n$ (比如为特征数 $p$)，使用小写常规字母表示，例如 $a$。</li>
+  <li><strong>标量</strong>：也用小写常规字母表示，例如 $a$。</li>
+  <li><strong>矩阵</strong>：使用大写加粗字母表示，例如 $\mathbf{A}$。</li>
+  <li><strong>随机变量</strong>：不论维数，一律使用大写常规字母表示，例如 $A$。</li>
+</ul>
+
+<p>有时需要指出对象的维数。记号 $a\in \mathbb R$ 表明对象是一个标量。记号 $a\in \mathbb R^k$ 表明对象是一个向量，其长度为 $k$ (若长度为 $n$，则用 $\mathbf a\in \mathbb R^n$ 表示)。记号 $\mathbf A\in \mathbb R^{r\times s}$ 表明对象是一个 $r\times s$ 的矩阵。</p>
+
+<p>我们尽可能地避免矩阵代数的使用。但在少数情况下，完全回避矩阵代数会使计算变得缓慢冗长。在这些情况下，理解矩阵乘法的概念是很重要的。设 $\mathbf A\in \mathbb R^{r\times d}, \; \mathbf B\in \mathbb R^{d\times s}$，则 $\mathbf A$ 和 $\mathbf B$ 相乘的结果记为 $\mathbf{AB}$。矩阵 $\mathbf{AB}$ 的第 $(i,j)$ 个元素等于 $\mathbf{A}$ 中第 $i$ 行和 $\mathbf{B}$ 中第 $j$ 列的对应元素乘积之和，即 \((\mathbf{AB})_{ij}=\sum_{k=1}^{d}a_{ik}b_{kj}\)。举例来说，设</p>
+
+\[\mathbf{A}=\begin{pmatrix}
+1 &amp; 2 \\
+3 &amp; 4 \\
+\end{pmatrix}, \quad
+\mathbf{B}=\begin{pmatrix}
+5 &amp; 6 \\
+7 &amp; 8 \\
+\end{pmatrix}\]
+
+<p>则</p>
+
+\[\mathbf{AB}=\begin{pmatrix}
+1 &amp; 2 \\
+3 &amp; 4 \\
+\end{pmatrix}
+\begin{pmatrix}
+5 &amp; 6 \\
+7 &amp; 8 \\
+\end{pmatrix}=
+\begin{pmatrix}
+1\times 5+ 2\times 7 &amp; 1\times 6+ 2\times 8 \\
+3\times 5+ 4\times 7 &amp; 3\times 6+ 4\times 8 \\
+\end{pmatrix}=
+\begin{pmatrix}
+19 &amp; 22 \\
+43 &amp; 50 \\
+\end{pmatrix}\]
+
+<p>注意到运算结果是一个 $r \times s$ 的矩阵。仅当 $\mathbf{A}$ 的列数与 $\mathbf{B}$ 的行数相同时，才能计算 $\mathbf{AB}$。</p>
+
+<h2 id="3-主要内容和数据集">3. 主要内容和数据集</h2>
+
+<p>本课程中，我们将尝试覆盖以下内容：</p>
+
+<ul>
+  <li>基本术语 (K 近邻分类器和一些相关问题)</li>
+  <li>线性回归</li>
+  <li>经典分类方法 (逻辑回归和线性判别分析)</li>
+  <li>交叉验证和 bootstrap (估计多种不同方法的准确性，以便选择最佳方法)</li>
+  <li>标准线性回归的潜在改进方式 (stepwise 选择、岭回归、主成分回归、偏最小二乘和 lasso)</li>
+  <li>非线性统计学习</li>
+  <li>基于树的方法，包括 bagging、boosting 和随机森林。</li>
+  <li>支持向量机</li>
+  <li>无监督学习：主成分分析、K 均值聚类和层次聚类</li>
+  <li>神经网络</li>
+</ul>
+
+<p>用于实验和习题的数据集：</p>
+
+<p><img src="http://andy-blog.oss-cn-beijing.aliyuncs.com/blog/2020-08-13-WX20200813-192953%402x.png" width="90%" /></p>
+
+<p><span style="font-size:10pt"> <span style="color:steelblue;font-weight:bold">表 1</span>：教材中实验和习题所需要的数据集列表。所有的数据集都包含在 ISLR 软件包中，但 <code class="language-plaintext highlighter-rouge">Boston</code> (<code class="language-plaintext highlighter-rouge">MASS</code> 程序包的一部分)和 <code class="language-plaintext highlighter-rouge">USArrests</code> (R 基础模块的一部分) 除外。</span></p>
+
+<p>下节内容：统计学习</p>
+:ET

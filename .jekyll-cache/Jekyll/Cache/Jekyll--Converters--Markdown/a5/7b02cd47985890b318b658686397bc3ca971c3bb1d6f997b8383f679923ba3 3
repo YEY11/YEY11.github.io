@@ -1,0 +1,260 @@
+I"�,<h1 id="lecture-17-pgm-的概率推断和统计推断">Lecture 17 PGM 的概率推断和统计推断</h1>
+<h2 id="主要内容">主要内容</h2>
+<ul>
+  <li><strong>PGM 的概率推断</strong></li>
+  <li><strong>PGM 的统计推断</strong>
+    <h2 id="1-pgm-的概率推断">1. PGM 的概率推断</h2>
+    <p><strong>利用贝叶斯规则和边缘化，根据一个 PGM 的联合分布，计算边缘和条件分布。这里我们将学习如何有效地做到这一点。</strong></p>
+    <h3 id="11-两个熟悉的例子">1.1 两个熟悉的例子</h3>
+  </li>
+  <li>
+    <p>朴素贝叶斯<span style="color:red">（频率学家 / 贝叶斯人）</span></p>
+
+    <p><img src="http://andy-blog.oss-cn-beijing.aliyuncs.com/blog/2020-02-23-WX20200223-164813%402x.png" width="20%" /></p>
+
+    <ul>
+      <li>根据给定数据选择最有可能的类别</li>
+      <li>$\Pr(Y|X_1,…,X_d)=\dfrac{\Pr(Y,X_1,…,X_d)}{\Pr(X_1,…,X_d)}=\dfrac{\Pr(Y,X_1,…,X_d)}{\sum_y\Pr(Y=y,X_1,…,X_d)}$<br />
+<br /></li>
+    </ul>
+  </li>
+  <li>
+    <p>数据 $X|\theta \sim N(\theta,1)$，其中先验 $\theta \sim N(0,1)$ <span style="color:red">（贝叶斯人）</span></p>
+
+    <p><img src="http://andy-blog.oss-cn-beijing.aliyuncs.com/blog/2020-02-23-WX20200223-165045%402x.png" width="20%" /></p>
+
+    <ul>
+      <li>给定观测 $X=x$，更新后验</li>
+      <li>$\Pr(\theta |X)=\dfrac{\Pr(\theta,X)}{\Pr(X)}=\dfrac{\Pr(\theta,X)}{\sum_{\theta}Pr(\theta,X)}$<br />
+<br /></li>
+    </ul>
+  </li>
+  <li><span style="color:red">联合分布 + 贝叶斯规则 + 边缘化 $\to$ 任何东西</span></li>
+</ul>
+
+<h3 id="12-继续-lecture-16-中核电站的例子">1.2 继续 Lecture 16 中核电站的例子</h3>
+<ul>
+  <li>
+    <p><strong><span style="color:steelblue">问题：</span></strong> 已知警报响了，最终核电站仍然由于高温熔毁的概率是多少？</p>
+
+    <p><img src="http://andy-blog.oss-cn-beijing.aliyuncs.com/blog/2020-02-23-WX20200223-170414%402x.png" width="45%" /></p>
+  </li>
+  <li>
+    <p>需要求解的概率为<br />
+\(\begin{align}
+\Pr(HT|AS=t) &amp;= \dfrac{\Pr(HT,AS=t)}{\Pr(AS=t)} \\
+&amp;= \dfrac{\sum_{FG,HG,FA}\Pr(AS=t,FA,HG,FG,HT)}{\sum_{FG,HG,FA,HT'}\Pr(AS=t,FA,HR,FG,HT')}\\
+\end{align}\)</p>
+  </li>
+  <li>
+    <p><span style="color:steelblue">分子部分</span>（分母部分类似）<br />
+\(\begin{align}
+&amp; 展开累加求和项，联合 \,\color{red}{2^5 \,个表格的累加求和}\\
+&amp;= \sum_{FG}\sum_{HG}\sum_{FA}\Pr(HT)\Pr(HG|HT,FG)\Pr(FG)\Pr(AS=t|FA,HG)\Pr(FA) \\\\
+&amp; 将累加求和分配到 \color{red}{\,尽可能小的几张表上}\\
+&amp;= \Pr(HT)\sum_{FG}\Pr(FG)\sum_{HG}\Pr(HG|HT,FG)\sum_{FA}\Pr(FA)\color{red}{\Pr(AS=t|FA,HG)}\\
+&amp; \color{red}{消除 \,AS}：由于\, AS \,为已观测到的变量，所以实际上无需操作\\\\
+&amp;= \Pr(HT)\sum_{FG}\Pr(FG)\sum_{HG}\Pr(HG|HT,FG)\sum_{FA}\color{red}{\Pr(FA)m_{AS}(FA,HG)}\\
+&amp; \color{red}{消除 \,FA}：将 \,1\times 2\,的表格和 \,2\times 2\,的表格相乘\\\\
+&amp;= \Pr(HT)\sum_{FG}\Pr(FG)\sum_{HG}\color{red}{\Pr(HG|HT,FG)m_{FA}(HG)}\\
+&amp; \color{red}{消除 \,HG}：将 \,2\times 2\times 2\,的表格和 \,2\times 1\,的表格相乘\\\\
+&amp;= \Pr(HT)\sum_{FG}\color{red}{\Pr(FG)m_{hg}(HT,FG)}\\
+&amp; \color{red}{消除 \,FG}：将 \,1\times 2\,的表格和 \,2\times 2\,的表格相乘\\\\
+&amp;= \Pr(HT)m_{FG}(HT)
+\end{align}\)</p>
+
+    <p><img src="http://andy-blog.oss-cn-beijing.aliyuncs.com/blog/2020-02-24-WX20200224-131401%402x.png" /></p>
+
+    <p>表格相乘，然后相加，实际上相当于矩阵乘法：</p>
+
+    <p><img src="http://andy-blog.oss-cn-beijing.aliyuncs.com/blog/2020-02-24-WX20200224-131526%402x.png" width="80%" /></p>
+  </li>
+</ul>
+
+<h3 id="13-消除算法">1.3 消除算法</h3>
+
+<p><img src="http://andy-blog.oss-cn-beijing.aliyuncs.com/blog/2020-02-24-WX20200224-140341%402x.png" /></p>
+
+<h3 id="14-消除算法的运行时">1.4 消除算法的运行时</h3>
+
+<p><img src="http://andy-blog.oss-cn-beijing.aliyuncs.com/blog/2020-02-24-WX20200224-132034%402x.png" /></p>
+
+<ul>
+  <li>在消除的每一步
+    <ul>
+      <li>移除一个节点</li>
+      <li>连接该节点剩下的相邻节点 $\to$ 在 “重构的” 图中 <span style="color:red">形成一个 clique</span>（cliques 就是包含在每个累加求和里的随机变量）</li>
+    </ul>
+  </li>
+  <li><span style="color:red">最大 clique</span> 中的时间复杂度是 <span style="color:red">指数级的</span></li>
+  <li>不同的消除顺序将产生不同的 cliques
+    <ul>
+      <li><span style="color:red">树的宽度</span>：最大 clique 顺序的最小值</li>
+      <li>最好的可能的时间复杂度与树的宽度呈指数关系</li>
+    </ul>
+  </li>
+</ul>
+
+<h3 id="15-通过模拟进行概率推断">1.5 通过模拟进行概率推断</h3>
+<ul>
+  <li>精确的概率推断可能（在计算上）成本高昂 / 不可能实现</li>
+  <li>我们可以对其在数值上近似求解吗？</li>
+  <li>思路：<span style="color:red">抽样方法</span>
+    <ul>
+      <li>从所需分布中获取样本（计算成本低）</li>
+      <li>
+        <p>通过 <span style="color:red">样本直方图</span> 得到概率的 <span style="color:steelblue">近似分布</span></p>
+
+        <p><img src="http://andy-blog.oss-cn-beijing.aliyuncs.com/blog/2020-02-24-WX20200224-133857%402x.png" width="40%" /></p>
+      </li>
+    </ul>
+  </li>
+</ul>
+
+<h3 id="16-蒙特卡洛近似概率推断">1.6 蒙特卡洛近似概率推断</h3>
+
+<p><img src="http://andy-blog.oss-cn-beijing.aliyuncs.com/blog/2020-02-24-WX20200224-142048%402x.png" width="20%" align="right" /></p>
+
+<ul>
+  <li>
+    <p><strong><span style="color:steelblue">算法：从联合分布中采样一次</span></strong><br />
+1.$\,$在子节点之前，先对父母节点排序（拓扑排序）<br />
+2.$\,$重复：<br />
+$\qquad$ a. 对于每个节点 $X_i$：<br />
+$\qquad \qquad$ I.$\;$ 用父母节点的值来索引到 $\Pr(X_i|parents(X_i))$<br />
+$\qquad \qquad$ II. 从该分布中采样 $X_i$<br />
+$\qquad$ b. 合并后的 $\boldsymbol X=(X_1,…,X_d)$ 是一个来自联合分布的样本
+<br /></p>
+  </li>
+  <li>
+    <p><strong><span style="color:steelblue">算法：从 $\Pr(X_Q|X_E=x_E)$ 中采样</span></strong><br />
+1.$\,$在子节点之前，先对父母节点排序<br />
+2.$\,$初始化一个空集 $S$，重复：<br />
+$\qquad$ a. 从联合分布中采样 $\boldsymbol X$<br />
+$\qquad$ b. 如果 $X_E=x_E$，那么将 $X_Q$ 加进 $S$<br />
+3.$\,$返回：$S$ 的直方图，通过除以 $|S|$ 对数量进行归一化
+<br /></p>
+  </li>
+  <li>
+    <p>其他采样方法：Importance weighting 采样、Gibbs 采样、Metropolis-Hastings 采样</p>
+  </li>
+</ul>
+
+<h3 id="17-概率推断的替代形式">1.7 概率推断的替代形式</h3>
+<ul>
+  <li>消除算法产生单个边缘化</li>
+  <li>树上的 <span style="color:red">和-积</span> 算法
+    <ul>
+      <li>2 倍的成本，满足所有边缘化</li>
+      <li>名称：边缘化只是表格 <span style="color:red">乘积的累加求和</span></li>
+      <li>“完全相同” 的变体：<span style="color:red">最大乘积</span>，用于MAP 估计</li>
+    </ul>
+  </li>
+  <li>总的来说，这些都属于 <span style="color:red">消息传递算法</span>
+    <ul>
+      <li>可以推广到树以外（超出范围）：连接树算法、循环信念传播</li>
+    </ul>
+  </li>
+  <li><span style="color:red">变分贝叶斯</span>：通过优化进行近似</li>
+</ul>
+
+<h2 id="2-pgm-的统计推断">2. PGM 的统计推断</h2>
+<p><strong>从数据中学习 —— 用概率表对观测值进行拟合（例如，作为一个频率学家；一个贝叶斯人可能仅仅使用概率推断来将先验更新为后验）</strong></p>
+<h3 id="21-重新梳理一下">2.1 重新梳理一下</h3>
+<ul>
+  <li>联合概率的表示
+    <ul>
+      <li>PGM 编码了条件独立性</li>
+    </ul>
+  </li>
+  <li>独立性，d-分割</li>
+  <li>概率推断
+    <ul>
+      <li>根据联合分布计算其他分布</li>
+      <li>消除算法、采样算法</li>
+    </ul>
+  </li>
+  <li><strong>统计推断</strong>
+    <ul>
+      <li>从数据中学习参数</li>
+    </ul>
+  </li>
+</ul>
+
+<h3 id="22-给定-pgm-和一些观测表格未知">2.2 给定 PGM 和一些观测，表格未知</h3>
+
+<p><img src="http://andy-blog.oss-cn-beijing.aliyuncs.com/blog/2020-02-24-WX20200224-192815%402x.png" width="75%" /></p>
+
+<h3 id="23-完全观测的情况比较简单">2.3 完全观测的情况比较简单</h3>
+
+<p><img src="http://andy-blog.oss-cn-beijing.aliyuncs.com/blog/2020-02-24-WX20200224-201604%402x.png" width="25%" /></p>
+
+<ul>
+  <li>最大似然估计（MLE）表明
+    <ul>
+      <li>如果在一个 PGM 中，我们可以观测到 <span style="color:red">所有的</span> 随机变量 $\boldsymbol X$，进行 $n$ 次独立观测 $\boldsymbol x_i$</li>
+      <li>
+        <p>那么，最大化 <span style="color:red">完全的</span> 联合分布</p>
+
+\[\mathop{\operatorname{arg\,max}}\limits_{\theta \in \Theta}\prod_{i=1}^{n}\prod_{j}p\left(X^j=x_i^j|X^{parents(j)}=x_i^{parents(j)}\right)\]
+      </li>
+    </ul>
+  </li>
+  <li>容易分解，推导出基于计数的估计
+    <ul>
+      <li>
+        <p>用最大化对数似然替代，转化为求对数的和</p>
+
+\[\mathop{\operatorname{arg\,max}}\limits_{\theta \in \Theta}\sum_{i=1}^{n}\sum_{j}\log p\left(X^j=x_i^j|X^{parents(j)}=x_i^{parents(j)}\right)\]
+      </li>
+      <li>
+        <p>将一个所有参数一起的最大化的大问题，<span style="color:red">分解为几个小的独立问题</span></p>
+      </li>
+    </ul>
+  </li>
+  <li>例如，训练一个朴素贝叶斯分类器</li>
+</ul>
+
+<h3 id="24-例子完全观测的情况">2.4 例子：完全观测的情况</h3>
+
+<p><img src="http://andy-blog.oss-cn-beijing.aliyuncs.com/blog/2020-02-24-WX20200224-201100%402x.png" /></p>
+
+<h3 id="25-不可观测变量的存在更加棘手">2.5 不可观测变量的存在更加棘手</h3>
+
+<p><img src="http://andy-blog.oss-cn-beijing.aliyuncs.com/blog/2020-02-24-WX20200224-201727%402x.png" width="25%" /></p>
+
+<ul>
+  <li>但是，我们以后将碰到的大部分 PGM 都会包含 <strong>隐变量</strong> 或者 <strong>未观测到的变量</strong></li>
+  <li>这种情况下，MLE 会导致什么问题？
+    <ul>
+      <li>只能最大化观测数据的似然函数</li>
+      <li>通过边缘化完全联合分布来得到我们所期望的 “部分” 联合分布</li>
+      <li>$\,$<br />
+\(\mathop{\operatorname{arg\,max}}\limits_{\theta \in \Theta}\prod_{i=1}^{n}\sum_{\text{latent } j}\prod_{j}p\left(X^j=x_i^j|X^{parents(j)}=x_i^{parents(j)}\right)\)<br />
+$\,$</li>
+      <li>上面这个式子不能被分解</li>
+    </ul>
+  </li>
+  <li>解决方法：使用 <span style="color:red">EM 算法</span></li>
+</ul>
+
+<h2 id="总结">总结</h2>
+<ul>
+  <li>PGM 的概率推断
+    <ul>
+      <li>什么是 PGM 的概率推断？我们为什么要研究它？</li>
+      <li>消除算法；用 cliques 量化复杂度</li>
+      <li>蒙特卡洛方法作为精确积分的近似替代</li>
+    </ul>
+  </li>
+  <li>PGM 的统计推断
+    <ul>
+      <li>什么是 PGM 的统计推断？我们为什么要研究它？</li>
+      <li>对于完全观测数据，直接使用 MLE</li>
+      <li>对于 隐变量 / 观测变量混合的数据，使用 EM 算法</li>
+    </ul>
+  </li>
+</ul>
+
+<p>下节内容：高斯混合模型（GMM）和期望最大化（EM）</p>
+:ET

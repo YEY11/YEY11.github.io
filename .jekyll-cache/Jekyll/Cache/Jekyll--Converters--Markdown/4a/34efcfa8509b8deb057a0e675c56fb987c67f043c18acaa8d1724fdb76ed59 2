@@ -1,0 +1,652 @@
+I"�<h1 id="lecture-02-文本预处理">Lecture 02 文本预处理</h1>
+
+<h2 id="1-引言">1. 引言</h2>
+<p>现在我们将学习文本预处理。通常情况下，语言数据是带有噪声的，是不干净的，你可能是从网上下载的，它可能有自己的格式，所以，在使用这些数据之前，我们需要对其进行清洗。</p>
+
+<h3 id="11-定义">1.1 定义</h3>
+<ul>
+  <li><strong>语料库（Corpus）</strong>：一个 <em>文档（documents）</em> 的 <em>集合（collection）</em>
+    <ul>
+      <li>例如：维基百科中全部的英文文章</li>
+    </ul>
+  </li>
+  <li><strong>文档（Document）</strong>：一个或者多个 <em>句子（sentence）</em>
+    <ul>
+      <li>通常，这些句子是经过理解性组织过的，可能是谈论某件事情，而不仅仅是一些随机的句子。</li>
+      <li>例如：维基百科的一篇文章</li>
+    </ul>
+  </li>
+  <li><strong>句子（Sentence）</strong>
+    <ul>
+      <li>$\textit{“The student is enrolled at the University of Melbourne.”}$</li>
+    </ul>
+  </li>
+  <li><strong>单词（Words）</strong>：带有意义或者功能的 <em>字符序列（sequence of characters）</em></li>
+  <li><strong>单词 <span style="color:red">token</span></strong>：数据中你所见的每个单词实例。
+    <ul>
+      <li>例如：上面的例句中有 9 个 tokens（单词 $“the”$ 算了 2 次）</li>
+    </ul>
+  </li>
+  <li><strong>单词 <span style="color:red">type</span></strong>：不同于 token，它是数据中的那些唯一的单词，即不包含重复单词
+    <ul>
+      <li>例如：上面的例句中有 8 个 type（单词 $“the”$ 只算 1 次）</li>
+    </ul>
+  </li>
+  <li><strong>词典（Lexicon 或者 Dictionary）</strong>：<em>单词 types</em> 的一个集合</li>
+</ul>
+
+<h3 id="12-有多少个唯一单词">1.2 有多少个唯一单词？</h3>
+
+<p>这个问题实际上取决于你的数据集有多大，你的数据越多，单词也就越多。当然，像在 Google N-gram 语料库中，并非每一个词都是合法的英文单词，例如：格式标签、URL 等等。所以，我们很难回答在某种语言中有多少个唯一单词，因为人们总是会创造一些新的名字、新的缩写等等，所以单词数量实际上是与数据规模成正比的。</p>
+
+<table>
+  <thead>
+    <tr>
+      <th style="text-align: center"> </th>
+      <th style="text-align: center">Token 数量（$N$）</th>
+      <th style="text-align: center">Type 数量（$|V|$）</th>
+    </tr>
+  </thead>
+  <tbody>
+    <tr>
+      <td style="text-align: center">交换台电话对话</td>
+      <td style="text-align: center">240 万</td>
+      <td style="text-align: center">2 万</td>
+    </tr>
+    <tr>
+      <td style="text-align: center">莎士比亚</td>
+      <td style="text-align: center">80 万</td>
+      <td style="text-align: center">3 万 1 千</td>
+    </tr>
+    <tr>
+      <td style="text-align: center">Google N-gram</td>
+      <td style="text-align: center">1 万亿</td>
+      <td style="text-align: center">1300 万</td>
+    </tr>
+  </tbody>
+</table>
+
+<h3 id="13-为什么要进行预处理">1.3 为什么要进行预处理？</h3>
+
+<ul>
+  <li>对于大多数 NLP 应用，我们的输入都是文档：
+    <ul>
+      <li>
+        <p>$\textit{“This movie is so great!!! U should definitely watch it in the theater! Best sci-fi}$<br />
+$\textit{ eva!”}\to$ 😀</p>
+
+        <p>在这个例子中，我们有一个情感预测任务：我们有一条用户评论，然后我们需要对其进行情感预测以便对电影进行评分。</p>
+      </li>
+      <li>
+        <p>$\textit{“Eu estive em Melbourne no ano passado.”} \to \textit{“I was in Melbourne last year.”}$</p>
+
+        <p>在这个例子中，我们有一个机器翻译任务：我们有一段某种语言的文本，然后我们试图将其转换为一段另一种语言的文本。</p>
+      </li>
+    </ul>
+  </li>
+  <li>
+    <p><strong>关键点</strong>：语言是具有 <span style="color:red">组合性的（compositional）</span>。作为人类，我们并不是直接浏览一段长长的文本，然后随机猜测它的意思。相反，我们可以将这些文档拆解为各个组件或单词，然后我们从左至右地阅读一个个的单词。意义是具有具有组合性的，单词也是具有组合性的，而单词流构成了意义。因此，从直觉上，为了让计算机程序理解语言，我们可以让其完成同样的事情。首先，我们需要将文档拆解成单词，程序对单词进行理解，然后再构成意义。</p>
+  </li>
+  <li><strong>预处理（Preprocessing）</strong> 是第一步，简单来说，它的目的是将文档拆解成单词以便计算机程序能够解释。</li>
+</ul>
+
+<h3 id="14-预处理的步骤">1.4 预处理的步骤</h3>
+<ol>
+  <li>移除不需要的格式（例如：HTML 标签）</li>
+  <li><strong>句子分割（Sentence segmentation）</strong>：将文档拆分成句子</li>
+  <li><strong>分词（Word tokenisation）</strong>：将句子拆分成单词</li>
+  <li><strong>词规范化（Word normalisation）</strong>：将单词转换为规范形式</li>
+  <li><strong>去停用词（Stopword removal）</strong>：删除不需要的词</li>
+</ol>
+
+<p><img src="http://andy-blog.oss-cn-beijing.aliyuncs.com/blog/2020-03-03-WX20200303-115620%402x.png" /></p>
+
+<h2 id="2-句子分割">2. 句子分割</h2>
+<h3 id="21-句子分割">2.1 句子分割</h3>
+<ul>
+  <li>朴素方法：在句子标点处断开（正则：[.?!]）
+    <ul>
+      <li>但是，句号 [.] 也常用于缩写词（例如：$U.S. dollar$），感叹号 [!] 有时也因为一些其他原因使用（例如：$Yahoo!$<em>（雅虎）</em> 其实是一个词）</li>
+    </ul>
+  </li>
+  <li>聪明一点的方法：使用正则表达式要求在标点之后有大写字母跟随时断开（正则：[.?!] [A-Z]）
+    <ul>
+      <li>但是，缩写词后面也会经常跟着一个名字（例如：$Mr.Brown$）</li>
+    </ul>
+  </li>
+  <li>更好的做法：构建词典（lexicons）
+    <ul>
+      <li>但是，我们很难将所有的名字和缩写词都枚举出来，因为每天都可能会有一些新的名字和缩写词产生</li>
+    </ul>
+  </li>
+  <li>最新技术是采用机器学习而不是依赖规则</li>
+</ul>
+
+<h3 id="22-二分类器">2.2 二分类器</h3>
+<ul>
+  <li>查看每一个句号 “.” 并判断它是不是表示一句话的结束。
+    <ul>
+      <li>选择一个 <strong>机器学习模型</strong>：例如，决策树、Logistic 回归、SVM 等</li>
+    </ul>
+  </li>
+  <li>因此，我们可以搜集一些句号 “.” 附近的相关信息作为模型的 <strong>特征</strong>：
+    <ul>
+      <li>查看句号 “.” 前后的词：
+        <ul>
+          <li>有些词经常出现在句子开头，有些词经常出现在句子结尾，所以，单词本身就包含了一些和句子分割相关的信息。</li>
+        </ul>
+      </li>
+      <li>词的形状（Word shapes）：
+        <ul>
+          <li>大写、小写、全大写、数字</li>
+          <li>字符长度</li>
+        </ul>
+      </li>
+      <li>词性标注（Part-of-speech tags）：
+        <ul>
+          <li>单词的词性为我们提供了更多的信息，例如：限定词（Determiners）通常代表了一个句子的开始</li>
+        </ul>
+      </li>
+    </ul>
+  </li>
+</ul>
+
+<h2 id="3-分词">3. 分词</h2>
+<h3 id="31-英文分词">3.1 英文分词</h3>
+<ul>
+  <li>朴素方法：分离出字母字符串（正则：\w+）</li>
+  <li>但这种方法可能无法很好地处理以下问题：
+    <ul>
+      <li>缩写（例如：$U.S.A.$）</li>
+      <li>连字符（例如：$merry\text{-}go\text{-}round$、$well\text{-}respected$、$yes\text{-}but$ 等）</li>
+      <li>数字（例如：$1,000,00.01$）</li>
+      <li>日期（例如：$3/1/2016$）</li>
+      <li>附着词（例如：$can’t$ 中的 $n’t$）</li>
+      <li>网络语言（例如：http://www.google.com、#metoo、:-) 等）</li>
+      <li>多词单位（例如：$New\;Zealand$）</li>
+    </ul>
+  </li>
+</ul>
+
+<h3 id="32-中文分词">3.2 中文分词</h3>
+<ul>
+  <li>一些亚洲语言的文字之间没有空格</li>
+  <li>在中文中，一个词通常对应多个字符</li>
+  <li>
+    <p>例如：
+<img src="http://andy-blog.oss-cn-beijing.aliyuncs.com/blog/2020-03-03-WX20200303-135044%402x.png" width="52%" /></p>
+  </li>
+  <li>标准方法假设一个词是现有词汇</li>
+  <li><strong>MaxMatch 算法</strong>
+    <ul>
+      <li>从左至右，贪婪地匹配词汇表中最长的单词，例如：</li>
+    </ul>
+
+    <p><img src="http://andy-blog.oss-cn-beijing.aliyuncs.com/blog/2020-03-03-WX20200303-135626%402x.png" width="70%" /></p>
+
+    <ul>
+      <li>但是该算法的难点在于如何构建词汇表，即我们如何能预先知道应该包含哪些词汇。很多时候，构建一个好的词汇表并不是件容易的事，因为人们每天都在创造新的词汇。</li>
+      <li>
+        <p>而且，即便我们有了一个完美的词汇表，该算法还是有可能会失效。例如：</p>
+
+        <p><img src="http://andy-blog.oss-cn-beijing.aliyuncs.com/blog/2020-03-03-WX20200303-143246%402x.png" width="45%" /></p>
+
+        <p>对于 <em>“去买新西蓝花”</em> 这个句子来说，如果我们采用 MaxMatch 算法，我们将得到上面第一个句子所示的分词结果，因为 “新西兰” 是一个合法的中文词汇，所以算法会基于贪婪规则去尝试匹配这个词。这将导致句子被解读为：<em>“去（花店）购买一些新西兰 🇳🇿花 🌸”</em>。但实际上，这个句子可能会由于上下文语境的差别而存在歧义，例如上面第二种分词方法所示，我们很可能只是想表达 <em>“去（菜市场）购买一些新鲜的西蓝花 🥦”</em> 而已。</p>
+      </li>
+    </ul>
+  </li>
+</ul>
+
+<h3 id="33-德语分词">3.3 德语分词</h3>
+<ul>
+  <li>德语中可能存在一些非常长的复合词（compound），例如：<br />
+$Lebensversicherungsgesellschaftsangestellter$<br />
+翻译过来的意思为：<br />
+$\textit{life insurance company employee}$<em>（人寿保险公司员工）</em></li>
+  <li>所以，假如我们仅仅采用空格分词的话，将会导致我们的词汇表变得非常大，因此，我们需要一个 <strong>复合词分离器（compound splitter）</strong></li>
+</ul>
+
+<h3 id="34-subword-分词">3.4 Subword 分词</h3>
+<p>现在，我们将介绍 <strong>Subword 分词（Subword Tokenisation）</strong>，它与我们之前介绍的普通分词技术（Word Tokenisation）所采用的范式略有不同。普通分词技术的目标是将句子拆分成我们所认为的一些合法的单词，而 Subword 分词是一种不同的技巧，我们将句子拆分成 subwords（或者 partial-words）。所以，相比于普通分词技术，我们不再关心拆分后的结果是否是合法的单词，我们只是希望将它们拆分成某种形式的单元。</p>
+
+<p>回顾上节课中的一个例子：</p>
+
+\[\begin{align}
+&amp; \textit{Colourless green ideas sleep furiously} \\ 
+\to\; &amp; [colour]\;[less]\;[green]\;[idea]\;[s]\;[sleep]\;[furious]\;[ly]
+\end{align}\]
+
+<p>可以看到，$Colourless$ 这个单词被拆分成了两个单元：$[colour]$ 和 $[less]$，类似的还有 $ideas$ 和 $furiously$ 这两个词也都各自被拆分成了两部分。</p>
+
+<p>那么，我们为什么要这么做呢？</p>
+
+<p>Subword 分词在目前非常流行，原因有很多，其中之一是因为很多深度学习方法已经开始采用这种分词技术，并取得了很好的结果。另外，Subword 分词还具有以下这些优势：</p>
+
+<ul>
+  <li><strong>数据信息分词（Data-informed tokenisation）</strong><br />
+Subword 分词是一种数据驱动的分词策略，它不需要使用者具备任何语言学知识，我们只需要一个大的语料库，然后在上面进行训练即可。</li>
+  <li><strong>适用于不同的语言</strong><br />
+我们将在后面介绍一种用于 Subword 分词的流行算法：<strong>Byte-Pair Encoding（BPE）</strong>，正如它的名字一样，BPE 算法运行在 byte 级别上，与具体的语言种类无关。</li>
+  <li><strong>能够更好地处理未知词汇</strong><br />
+当遇到未知词汇时，BPE 算法会将它们拆分为单个字符，所以我们不会因为未知词汇而困扰。</li>
+</ul>
+
+<h3 id="35-byte-pair-encodingbpe算法">3.5 Byte-Pair Encoding（BPE）算法</h3>
+
+<p>现在，我们将介绍一种用于 Subword 分词的简单高效的流行算法：<strong>Byte-Pair Encoding（BPE）</strong>。</p>
+
+<p>其核心思想是：<strong>迭代地合并频繁的字符对</strong>。我们需要一个用于训练的大的语料库（例如：维基百科），然后尝试对其中每个频繁出现的字符对迭代地进行合并，直到得到一个很大的词汇集。</p>
+
+<p><strong>示例：</strong> 假设我们有一个小的用于训练的语料库数据集，我们可以创建一个包含该语料库中所有单词的 <strong>字典（Dictionary）</strong>：方括号 “[ ]” 中的数字表示该词在语料库中出现的频率，并且我们将对其末尾的空格符 “_”（它们代表了一个单词的完结）进行一些预处理。然后，我们有一个初始的 <strong>词汇表（Vocabulary）</strong>，它是数据中所有出现过的字符的一个集合，可以看到例子中的词汇表包含了空格符和所有数据中出现过的字母字符。</p>
+
+<ul>
+  <li>Dictionary
+    <ul>
+      <li>[5] l o w _</li>
+      <li>[2] l o w e s t _</li>
+      <li>[6] n e w e r _</li>
+      <li>[3] w i d e r _</li>
+      <li>[2] n e w _</li>
+    </ul>
+  </li>
+  <li>Vocabulary
+    <ul>
+      <li>_, d, e, i, l, n, o, r, s, t, w</li>
+    </ul>
+  </li>
+</ul>
+
+<p>首先，找出字典中出现频率最高字符对，并且将它们合并后添加到词汇表中。<br />
+例如，示例中的 “r_” 字符对一共出现了 3 + 6 = 9 次，所以我们将其合并后加入词汇表中：</p>
+
+<ul>
+  <li>Dictionary
+    <ul>
+      <li>[5] l o w _</li>
+      <li>[2] l o w e s t _</li>
+      <li>[6] n e w e <span style="color:red">r_</span></li>
+      <li>[3] w i d e <span style="color:red">r_</span></li>
+      <li>[2] n e w _</li>
+    </ul>
+  </li>
+  <li>Vocabulary
+    <ul>
+      <li>_, d, e, i, l, n, o, r, s, t, w, <span style="color:red">r_</span></li>
+    </ul>
+  </li>
+</ul>
+
+<p>重复上面的过程。<br />
+例如，示例中的 “er_” 字符对也出现了 9 次，将其合并后加入词汇表中：</p>
+
+<ul>
+  <li>Dictionary
+    <ul>
+      <li>[5] l o w _</li>
+      <li>[2] l o w e s t _</li>
+      <li>[6] n e w <span style="color:red">er_</span></li>
+      <li>[3] w i d <span style="color:red">er_</span></li>
+      <li>[2] n e w _</li>
+    </ul>
+  </li>
+  <li>Vocabulary
+    <ul>
+      <li>_, d, e, i, l, n, o, r, s, t, w, r_, <span style="color:red">er_</span></li>
+    </ul>
+  </li>
+</ul>
+
+<p>继续：</p>
+
+<ul>
+  <li>Dictionary
+    <ul>
+      <li>[5] l o w _</li>
+      <li>[2] l o w e s t _</li>
+      <li>[6] n <span style="color:red">ew</span> er_</li>
+      <li>[3] w i d er_</li>
+      <li>[2] n <span style="color:red">ew</span> _</li>
+    </ul>
+  </li>
+  <li>Vocabulary
+    <ul>
+      <li>_, d, e, i, l, n, o, r, s, t, w, r_, er_, <span style="color:red">ew</span></li>
+    </ul>
+  </li>
+</ul>
+
+<p>随着上面过程的不断重复，我们可以看到词汇表的变化如下：</p>
+<ul>
+  <li>Vocabulary
+    <ul>
+      <li>_, d, e, i, l, n, o, r, s, t, w, r_, er_, ew</li>
+      <li>_, d, e, i, l, n, o, r, s, t, w, r_, er_, ew, <span style="color:red">new</span></li>
+      <li>_, d, e, i, l, n, o, r, s, t, w, r_, er_, ew, new, <span style="color:red">lo</span></li>
+      <li>_, d, e, i, l, n, o, r, s, t, w, r_, er_, ew, new, lo, <span style="color:red">low</span></li>
+      <li>_, d, e, i, l, n, o, r, s, t, w, r_, er_, ew, new, lo, low, <span style="color:red">newer_</span></li>
+      <li>_, d, e, i, l, n, o, r, s, t, w, r_, er_, ew, new, lo, low, newer_, <span style="color:red">low_</span></li>
+    </ul>
+
+    <p>……</p>
+  </li>
+</ul>
+
+<p><strong>总结：</strong></p>
+<ul>
+  <li>在实践中，BPE 算法运行中会进行成千上万次合并，并创建一个巨大的词汇表。</li>
+  <li>大部分情况下，那些最常见的单词将被表示为完整单词。</li>
+  <li>而少数情况下，一些罕见的词会被拆分成 subwords。</li>
+  <li>最坏情况下，测试集中的未知词汇将被拆解为一个个单独的字母，所以永远不会有未知词汇。</li>
+</ul>
+
+<h2 id="4-词规范化">4. 词规范化</h2>
+<p>到这里，我们已经完成了分词，接下来我们将进行词规范化，目的是将已经分词的单词转换成正规形式。</p>
+
+<h3 id="41-词规范化">4.1 词规范化</h3>
+<p><strong>词规范化（Word Normalisation）</strong> 通常有以下几种方法：</p>
+
+<ul>
+  <li>小写字母（例如：$Australia\to australia$）</li>
+  <li>移除形态（例如：$folks\to folk$）</li>
+  <li>拼写纠错（例如：$camputer\to computer$）</li>
+  <li>缩写展开（例如：$U.S.A\to USA$）</li>
+</ul>
+
+<p>目的有两个：</p>
+<ul>
+  <li>缩小词汇表</li>
+  <li>将具有相同意义的单词映射为相同的 type</li>
+</ul>
+
+<h3 id="42-屈折形态">4.2 屈折形态</h3>
+<ul>
+  <li><strong>屈折形态（Inflectional Morphology）</strong> 创造了语法上的变体：它们是同一个词的不同形态。</li>
+  <li>英语中，名词（nouns）、动词（verbs）和形容词（adjectives）会发生形变
+    <ul>
+      <li>名词：名词的 <em>数量</em>（$\text{-}s$）</li>
+      <li>动词：主语的 <em>数量</em>（$\text{-}s$）、动作的 <em>方面</em>（$\text{-}ing$）和 <em>时态</em>（$\text{-}ed$）</li>
+      <li>形容词：<em>比较级</em>（$\text{-}er$）和 <em>最高级</em>（$\text{-}est$）</li>
+    </ul>
+  </li>
+  <li>很多其他语言中有着比英语更加丰富的屈折形态
+    <ul>
+      <li>例如法语中，名词和冠词也会受到性别的影响：<br />
+$\textit{un chat}$：一只（公）猫<br />
+$\textit{une chatte}$：一只（母）猫</li>
+    </ul>
+  </li>
+</ul>
+
+<h3 id="43-词形还原">4.3 词形还原</h3>
+<ul>
+  <li><strong>词形还原（Lemmatisation）</strong> 意思是移除一个词的任何屈折形态，将其还原为无屈折变化的形态（uninflected form，也称为 <em>lemma</em>）。
+    <ul>
+      <li>例如：$speaking\to speak$</li>
+    </ul>
+  </li>
+  <li>在英语中，我们可以写下一些规则来实现词形还原，这不算太困难。但是，还存在有很多不合常规的词会让我们的解决方案变得比较繁琐，例如：
+    <ul>
+      <li>$poked\to poke$（不是 $pok$）</li>
+      <li>$stopping\to stop$（不是 $stopp$）</li>
+      <li>$watches\to watch$（不是 $watche$）</li>
+      <li>$was\to be$（不是 $wa$）</li>
+    </ul>
+
+    <p>因为这些不规则变化的存在，词形还原有时并不如我们想象的那么简单。</p>
+  </li>
+  <li>为了进行准确的词形还原，我们需要构建一个由所有的合法 lemmas 组成的词典，然后在此基础上进行词形还原。</li>
+</ul>
+
+<h3 id="44-派生形态">4.4 派生形态</h3>
+<ul>
+  <li>不同于屈折形态，<strong>派生形态（Derivational Morphology）</strong> 通常会创造出新的词和词性。</li>
+  <li>英语中的派生 <em>后缀（suffixes）</em> 通常会改变词的类别，例如：
+    <ul>
+      <li>$\text{-}ly$（$personal\to personally$）</li>
+      <li>$\text{-}ise$（$final\to finalise$）</li>
+      <li>$\text{-}er$（$write\to writer$）</li>
+    </ul>
+  </li>
+  <li>英语中的派生 <em>前缀（prefixes）</em> 通常会改变词的意思，而不会改变词的类别，例如：
+    <ul>
+      <li>$re\text{-}$（$write\to rewrite$）</li>
+      <li>$un\text{-}$（$healthy\to unhealthy$）</li>
+    </ul>
+  </li>
+</ul>
+
+<h3 id="45-词干提取">4.5 词干提取</h3>
+<ul>
+  <li><strong>词干提取（Stemming）</strong> 会去除所有的后缀，只保留 <em>stem（主干）</em>。</li>
+  <li>stem 和 lemma 很相似，但二者并不相同。<strong>stem 通常不是一个词汇项（lexical item）</strong>，事实上，通常你不会在词典中找到它。
+    <ul>
+      <li>例如：$automate,\;automatic,\;automation\to automat$<br />
+可以看见，上面左边的 3 个词都属于派生形态，词形还原（Lemmatisation）并不会对它们进行处理，但是词干提取（Stemming）会将它们都转换成同一个 stem（$automat$，虽然这并不是一个合法的英文单词）。</li>
+      <li>通常并不是实际的词汇项</li>
+    </ul>
+  </li>
+  <li><strong>词汇稀疏性（lexical sparsity）比 lemmatisation 还要低</strong><br />
+即经过 stemming 处理后，词汇表（Vocabullary）会进一步缩小。</li>
+  <li><strong>常用于信息检索（Information Retrieval）</strong><br />
+因为在信息检索中，你永远不需要将这些 stem 呈现给用户，搜索引擎只需要返回相关性最高的文档（document）给用户即可。</li>
+  <li><strong>Stem 并不总是可翻译的</strong><br />
+在一些像机器翻译之类的应用中，输出是对用户可见的。因此，我们希望它们是有意义的，但是并不是所有的 stem 都是合法的单词。</li>
+</ul>
+
+<h3 id="46-the-porter-stemmer">4.6 The Porter Stemmer</h3>
+<ul>
+  <li><strong>波特词干器（Porter Stemmer）</strong> 是目前最流行的英文词干提取算法。</li>
+  <li>只适用于英文，实际上，词干提取任务是和语言种类密切相关的。</li>
+  <li>分阶段应用 <em>重写规则（rewrite rules）</em>
+    <ul>
+      <li>首先，去除 <em>屈折后缀（inflectional suffixes）</em><br />
+例如：$\text{-}ies \to \text{-}i$</li>
+      <li>然后，去除 <em>派生后缀（derivational suffixes）</em><br />
+例如：$\text{-}isation\to \text{-}ies \to \text{-}i$</li>
+    </ul>
+  </li>
+</ul>
+
+<p>在展开讨论 Porter Stemmer 的那些规则之前，我们将先介绍一些 <strong>定义</strong>：</p>
+<ul>
+  <li>C = 一个辅音字母（consonants）序列
+    <ul>
+      <li>例如：s, ss, tr, bl</li>
+    </ul>
+  </li>
+  <li>V = 一个元音字母（vowels）序列
+    <ul>
+      <li>例如：o, oo, ee, io</li>
+    </ul>
+  </li>
+  <li>一个单词具有下面四种形式之一：
+    <ul>
+      <li>CVCV … C</li>
+      <li>CVCV … V</li>
+      <li>VCVC … C</li>
+      <li>VCVC … V</li>
+    </ul>
+  </li>
+  <li>以上几种情况都可以被表示为下面的形式，其中方括号 [ ] 表示可选项，m 我们称为 measure（度量）：
+    <ul>
+      <li>[C]VCVC … [V]</li>
+      <li>[C] (VC)<sup>m</sup> [V]</li>
+      <li>m = <span style="color:red">measure</span></li>
+    </ul>
+
+    <p>通常，越长的词具有越大的 measure，例如：</p>
+    <ul>
+      <li>m = 0: TR, EE, TREE, Y, BY</li>
+      <li>m = 1: TROUBLE, OATS, TREES, IVY</li>
+      <li>m = 2: TROUBLES, PRIVATE, OATEN, ORRERY</li>
+    </ul>
+  </li>
+</ul>
+
+<p>现在，我们来看一下具体的 <strong>规则</strong>，了解 Porter Stemmer 算法是如何工作的：</p>
+<ul>
+  <li><strong>规则格式：（条件）S1 $\to$ S2</strong><br />
+规则很简单，我们有一个前置条件，然后将规则 S1 改写为 S2。<br />
+注意：这里判断前置条件时只考虑原单词中 S1 之前的部分（即不包括 S1 部分）。</li>
+  <li>例如，我们可以将规则设定为：（m &gt; 1）EMENT $\to$ null
+    <ul>
+      <li>以单词 REPLACEMENT 为例，在此规则下我们计算 RELPAC 部分的 m 值：<br />
+<span style="color:green">R</span><span style="color:red">E</span><span style="color:green">PL</span><span style="color:red">A</span><span style="color:green">C</span> = <span style="color:green">C</span><span style="color:red">V</span><span style="color:green">C</span><span style="color:red">V</span><span style="color:green">C</span> = <span style="color:green">C</span> (<span style="color:red">V</span><span style="color:green">C</span>)<sup>2</sup> $\to$ m = 2 &gt; 1</li>
+      <li>满足规则重写的条件，我们最终得到的 stem 为：<br />
+REPLAC<span style="color:steelblue">EMENT</span> $\to$ REPLAC</li>
+    </ul>
+  </li>
+  <li>总是使用能够匹配到的最长的 S1
+    <ul>
+      <li>例如，制定如下规则：<br />
+SSES $\to$ SS<br />
+IES $\to$ I<br />
+SS $\to$ SS<br />
+S $\to$ null</li>
+      <li>在此规则下的一些例子：<br />
+CARE<span style="color:steelblue">SSES</span> $\to$ CARE<span style="color:steelblue">SS</span><br />
+CARE<span style="color:steelblue">SS</span> $\to$ CARE<span style="color:steelblue">SS</span><br />
+CARE<span style="color:steelblue">S</span> $\to$ CARE</li>
+    </ul>
+  </li>
+</ul>
+
+<p><strong>Porter Stemmer 一共分为下面 5 个步骤：</strong><br />
+表格中的正例（Positive Example）代表规则中的条件满足的情况；负例（Negative Example）代表规则中的条件不满足的情况。</p>
+<ul>
+  <li>
+    <p><strong>步骤 1:</strong> 处理屈折形态变体（Inflectional Morphology Variants）<br />
+例如：复数（plurals）和过去分词（past participles）</p>
+
+    <p><img src="http://andy-blog.oss-cn-beijing.aliyuncs.com/blog/2020-03-11-WX20200311-125850%402x.png" width="80%" /></p>
+  </li>
+  <li>
+    <p><strong>步骤 2, 3, 4:</strong> 处理派生形态后缀（Derivational Morphology Suffixes）</p>
+
+    <p><img src="http://andy-blog.oss-cn-beijing.aliyuncs.com/blog/2020-03-11-WX20200311-125913%402x.png" width="80%" /></p>
+  </li>
+  <li>
+    <p><strong>步骤 5:</strong> 整理（注意：*o 中的小写字母 c 和 v 仅代表单个辅音和元音字母）</p>
+
+    <p><img src="http://andy-blog.oss-cn-beijing.aliyuncs.com/blog/2020-03-11-WX20200311-125934%402x.png" width="80%" /></p>
+  </li>
+</ul>
+
+<p>更多例子：</p>
+<ul>
+  <li>computational $\to$ comput
+    <ul>
+      <li>步骤 2: ATIONAL $\to$ ATE: computate</li>
+      <li>步骤 4: ATE $\to$ null: comput</li>
+    </ul>
+  </li>
+  <li>computer $\to$ comput
+    <ul>
+      <li>步骤 4: ER $\to$ null: comput</li>
+    </ul>
+  </li>
+</ul>
+
+<h3 id="47-拼写纠错">4.7 拼写纠错</h3>
+<ul>
+  <li>为什么需要拼写纠错？
+    <ul>
+      <li>拼写错误会创造新的、罕见的 types<br />
+如果有很多拼写错误，将导致词汇表变得很大，并且里面很多罕见词汇，这种情况是我们不希望看到的。</li>
+      <li>拼写错误会破坏各种语言分析<br />
+如今，纠正拼写错误正变得越来越重要，因为越来越多的人们将他们的内容或者数据上传到网络上（例如：维基百科），这些由人们书写的内容很可能会产生拼写错误，而一些编辑器并不会处理它们。</li>
+      <li>在互联网语料库中非常常见</li>
+      <li>在网络搜索中，对于查询语句（queries）的拼写纠错尤其重要</li>
+    </ul>
+  </li>
+  <li>如何实现拼写纠错？
+    <ul>
+      <li><strong>字符串距离</strong>（例如：Levenshtein 距离等等）<br />
+我们可以构建一个字典，计算错误单词与字典中单词的字符串距离，并将其替换为字典中距离最近的单词。</li>
+      <li><strong>对错误的 types 进行建模</strong>（例如：phonetic、typing 等等）<br />
+如果你是一名语言学家，你可以做更多的事情。你可以对一些人们容易犯的拼写错误 types 进行建模从而实现纠错。</li>
+      <li><strong>采用 n-gram 语言模型</strong><br />
+或者，如果你倾向于数据驱动的解决方案，可以尝试语言模型。通常，语言模型可以用于文本生成任务。此外，如果一个语言模型是在字符级别（character level）上训练的，那么它也可以用于拼写纠错。</li>
+    </ul>
+  </li>
+</ul>
+
+<h3 id="48-其他的词规范化方法">4.8 其他的词规范化方法</h3>
+<ul>
+  <li><strong>拼写变体规范化（Normalising spelling variations）</strong>
+    <ul>
+      <li>$\textit{Normalize } \to \textit{ Normalise}$（反之亦然）</li>
+      <li>$\textit{U r so coool! } \to \textit{ you are so cool!}$</li>
+    </ul>
+  </li>
+  <li><strong>缩写展开（Expanding abbreviations）</strong>
+    <ul>
+      <li>$\textit{US, U.S. } \to \textit{ United States}$</li>
+      <li>$\textit{imho } \to \textit{ in my humble opinion}$</li>
+    </ul>
+  </li>
+</ul>
+
+<h2 id="5-去停用词">5. 去停用词</h2>
+<p><strong>去停用词（Stopword Removal）</strong> 是我们的预处理管道（Preprocessing Pipeline）中的最后一步。</p>
+<h3 id="51-停用词">5.1 停用词</h3>
+<ul>
+  <li>定义：需要被从文档中移除的词组成的一个列表
+    <ul>
+      <li>在词袋（bag-of-words, BOW）表示的任务中很典型<br />
+例如：搜索引擎</li>
+      <li>不适用于单词序列很重要的情况<br />
+例如：语言模型</li>
+    </ul>
+  </li>
+  <li>如何选择停用词？
+    <ul>
+      <li>所有 <em>封闭类型的</em> 或 <em>功能性的</em> 词<br />
+例如：$the,\; a,\; of,\; for,\; he,\;…$</li>
+      <li>任何高频词</li>
+      <li>NLTK, spaCy NLP toolkits</li>
+    </ul>
+  </li>
+</ul>
+
+<h2 id="6-总结">6. 总结</h2>
+<ul>
+  <li>在文本分析中不可避免地会涉及预处理</li>
+  <li>预处理会对下游应用产生重大影响</li>
+  <li>确切的步骤可能会因为语料库和任务的不同而存在一些差异</li>
+  <li>简单的基于规则的系统运行良好，但很少能完美运行</li>
+  <li>文本预处理的方法与具体的语言种类相关</li>
+</ul>
+
+<h2 id="7-思考">7. 思考</h2>
+<p><strong><span style="color:steelblue">思考1：</span></strong> 当我们进行词规范化（word normalization）时，词形还原（Lemmatisation）和词干提取（Stemming）之间是否存在顺序？还是说我们只是根据不同情况选择其中某一种进行预处理？</p>
+
+<p>我们会根据不同的任务选择其中的一种。Stemming 常用于信息检索（Information Retrieval，IR），但是对于大多数 NLP 任务，我们通常选择 lemmatisation。原因是在进行 stemming 后，我们会丢失大量和 tokens 相关的信息（lemmatisation 也会丢失一些信息，但是总体来说要少得多）。而对于大部分 NLP 任务，以丢失更多的单词含义为代价来换取更低的词汇稀疏性是不值得的，因为这将破坏句子原本的意思。</p>
+
+<p><br /></p>
+
+<p><strong><span style="color:steelblue">思考2：</span></strong> 在 Byte-Pair Encoding（BPE）算法中，我们通过合并字符得到一个个新的 “词”：1. 我们什么时候应该停止合并？2. 在我们停止合并之后，我们应该将哪些词作为最终的 tokens，是词汇表中所有的词还是其中一部分？</p>
+
+<p>对于第 1 个问题，迭代次数 $k$ 是算法的一个参数，我们需要根据下游任务的表现来对其进行调整；对于第 2 个问题，我们会保留 token list 里面的所有 tokens，包括那些频率为 $0$ 但可能会出现在你的测试数据中的 tokens。</p>
+
+<p><br /></p>
+
+<p><strong><span style="color:steelblue">思考3：</span></strong> 词干提取（Stemming）通常用于解决派生后缀（derivational suffixes）的问题，那么对于派生前缀（derivational prefixes）应该如何处理？</p>
+
+<p>Stemming 是将变形后的单词缩减到其对应的词干 stem 的过程，它不一定要移除后缀。但是通常，我们在谈到 stemming 时确实是指移除后缀，这可能是由于大多数词干提取器（stemmer）只会对后缀进行处理。当然，如果你想对前缀进行 stemming，你也可以自己写一个移除前缀的 function，更多细节可以参考 <a href="https://stackoverflow.com/questions/52140526/python-nltk-stemmers-never-remove-prefixes">这里</a>。</p>
+
+<h2 id="8-扩展阅读">8. 扩展阅读</h2>
+<ul>
+  <li><em><a href="https://web.stanford.edu/~jurafsky/slp3/">Speech and Language Processing</a></em>, by Jurafsky and Martin
+    <ul>
+      <li>Chapter 2: Normalisation</li>
+      <li>(包括关于正则表达式和 Levenshtien 编辑距离的回顾内容)</li>
+    </ul>
+  </li>
+  <li>关于 Porter Stemmer 算法的具体细节请参考下面的链接：<br />
+<a href="http://snowball.tartarus.org/algorithms/porter/stemmer.html">http://snowball.tartarus.org/algorithms/porter/stemmer.html</a></li>
+</ul>
+
+<p>下节内容：N-gram 语言模型</p>
+
+:ET

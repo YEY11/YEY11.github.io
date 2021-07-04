@@ -1,0 +1,394 @@
+I"�y<h1 id="lecture-06-序列标注隐马尔可夫模型">Lecture 06 序列标注：隐马尔可夫模型</h1>
+
+<p>本节课我们将学习一种自动词性标注模型：<strong>隐马尔可夫模型（Hidden Markov Models, HMM）</strong>。尽管在本节内容中我们将学习如何将 HMM 应用于词性标注，但实际上它是一种通用的机器学习模型，可以应用于任何序列标签问题。</p>
+
+<h2 id="1-从局部分类器到隐马尔可夫模型">1. 从局部分类器到隐马尔可夫模型</h2>
+<h3 id="11-词性标注pos-tagging重新回顾">1.1 词性标注（POS Tagging）重新回顾</h3>
+<ul>
+  <li>$\textit{Janet will back the bill}$</li>
+  <li>$\textit{Janet}$<span style="color:red">/NNP</span> $\textit{will}$<span style="color:red">/MB</span> $\textit{back}$<span style="color:red">/VP</span> $\textit{the}$<span style="color:red">/DT</span> $\textit{bill}$<span style="color:red">/NN</span></li>
+  <li><strong>局部分类器</strong>：我们可以将每个单词的词性预测作为一个分类问题。
+    <ul>
+      <li>例如：现在，我们希望预测 “$\textit{bill}$” 这个单词的词性，我们可以将其当成一个分类问题。输入为 “$\textit{bill}$”，以及一些其他特征，例如前面的单词 “$\textit{the, back}$” 以及它们已经预测出的词性 “DT, VP”。然后进行预测，从所有的候选词性标签中对单词 “$\textit{bill}$” 进行词性分类。</li>
+      <li>容易发生 <strong>错误传播（error propagation）</strong>。<br />
+因为在预测过程中，我们将前面单词词性的预测结果作为当前预测单词的输入特征之一，所以，如果前面单词的词性预测错误，会影响后续单词词性的预测。</li>
+    </ul>
+  </li>
+  <li>如果将 <strong>整个序列当成一个 “类别（class）”</strong> 会怎么样?
+    <ul>
+      <li>输出：“NNP_MB_VP_DT_NN”</li>
+      <li>在之前的局部（单词）层面处理词性分类会碰到错误传播的问题，我们可以尝试在句子层面进行词性标注以避免这个问题。这里，我们将整个单词序列的词性预测作为一个分类问题。例如，输入是一个单词序列 “$\textit{Janet will back the bill}$”，输出是整个单词序列的标签类别 “NNP_MB_VP_DT_NN”。</li>
+    </ul>
+  </li>
+  <li>但是，这种方法实现起来非常困难，因为存在以下问题：
+    <ul>
+      <li>可能的组合数量会呈指数增长：<br />
+候选词性数量为 $|Tags|$，序列长度为 $M$，可能的标签序列类别数量为 $|Tags|^M$。<br />
+例如：有 $80$ 个可选词性，序列中包含 $20$ 个单词，可能的类别数量为 $80^{20}$。<br />
+所以，无论我们的训练集有多大，都不可能覆盖所有可能的类别。</li>
+      <li>另一个问题是如何处理不同长度的句子：<br />
+即便我们的训练集可以覆盖 $80^{20}$ 种序列类别，但是，当新的预测序列包含其他数量的单词时（例如：$5$ 个 或者 $40$ 个单词），该方法会再次失效。</li>
+    </ul>
+  </li>
+</ul>
+
+<h3 id="12-一种更好的方法">1.2 一种更好的方法</h3>
+<ul>
+  <li>标注（Tagging）是一个句子层面的任务，因为我们并不是单独对每个单词进行词性标注，而是需要考虑全局上下文，结合整个句子的语境来判断单词的词性。但是作为人类，我们可以将其 <strong>分解（decompose）</strong> 为若干个小的单词层面的任务：对于一个句子，我们倾向于先大致理解其含义，例如哪些是主语，哪些是主要的动词等，然后再深入每个单词，看一下其最有可能的词性是什么。</li>
+  <li>解决方案：
+    <ul>
+      <li>定义一个模型，可以将整个过程分解为单个单词层面的步骤。</li>
+      <li>但是在学习和预测的时候考虑整个序列（没有错误传播），即预测的标签序列对于整个句子的概率是最优的。</li>
+    </ul>
+
+    <p>因此，我们仍然是从句子层面考虑这个问题，但是我们的模型能够将其分解为一些更小的单词层面的子任务。</p>
+  </li>
+  <li>这就是 <strong>序列标注（sequence labelling）</strong> 的思想，或者更一般地说，<strong>结构预测（structured prediction）</strong>。</li>
+</ul>
+
+<h3 id="13-一种概率模型">1.3 一种概率模型</h3>
+<p>现在，我们介绍一种概率模型，并在此基础上推导出隐马尔可夫模型。</p>
+<ul>
+  <li>目标：从句子 $\boldsymbol w$ 中获得最佳标签序列 $\boldsymbol t$。
+    <ul>
+      <li>
+        <p>$\hat{\boldsymbol t}=\mathop{\operatorname{arg\,max}}\limits_{\boldsymbol t}P(\boldsymbol t\mid \boldsymbol w)$
+<br /></p>
+      </li>
+      <li>
+        <p>$\hat{\boldsymbol t}=\mathop{\operatorname{arg\,max}}\limits_{\boldsymbol t}\dfrac{P(\boldsymbol w\mid \boldsymbol t)P(\boldsymbol t)}{P(\boldsymbol w)}=\mathop{\operatorname{arg\,max}}\limits_{\boldsymbol t}P(\boldsymbol w\mid \boldsymbol t)P(\boldsymbol t)$ $\qquad$ （贝叶斯定理）</p>
+      </li>
+    </ul>
+  </li>
+  <li>让我们将其分解：
+    <ul>
+      <li>
+        <p>$P(\boldsymbol w\mid \boldsymbol t)=\prod_{i=1}^{n}P(w_i\mid t_i)$ $\qquad$ （一个单词仅依赖于其词性标签的概率）
+<br /></p>
+      </li>
+      <li>
+        <p>$P(\boldsymbol t)=\prod_{i=1}^{n}P(t_i\mid t_{i-1})$ $\qquad$ （一个词性标签仅依赖于其前一个词性标签的概率）</p>
+      </li>
+    </ul>
+  </li>
+  <li>这里，我们采用了两个类似于 bi-gram 语言模型中的非常强的 <strong>独立假设</strong>：
+    <ul>
+      <li>假设单词 $w_i$ 出现的概率仅取决于其词性 $t_i$</li>
+      <li>假设词性 $t_i$ 出现的概率仅取决于其前一个词性 $t_{i-1}$</li>
+    </ul>
+  </li>
+  <li>这就是 <strong>隐马尔可夫模型（Hidden Markov Model, HMM）</strong></li>
+</ul>
+
+<h2 id="2-隐马尔可夫模型">2. 隐马尔可夫模型</h2>
+
+\[\hat{\boldsymbol t}=\mathop{\operatorname{arg\,max}}\limits_{\boldsymbol t}P(\boldsymbol w\mid \boldsymbol t)P(\boldsymbol t)\]
+
+\[P(\boldsymbol w\mid \boldsymbol t)=\prod_{i=1}^{n}P(w_i\mid t_i)\]
+
+\[P(\boldsymbol t)=\prod_{i=1}^{n}P(t_i\mid t_{i-1})\]
+
+<ul>
+  <li>为什么是 “马尔可夫（Markov）”?<br />
+因为该模型假设序列服从一个 <strong>马尔可夫链（Markov chain）</strong>：一个事件（词性标签 tag）的概率仅取决于前一个事件（词性标签 tag）。</li>
+  <li>为什么是 “隐（Hidden）”?<br />
+因为这些事件（词性标签 tags）是不可见的：我们仅仅能看到单词序列，而需要预测的词性标签 tags 是未观测到的，我们的目标是寻找最佳的词性标签序列。</li>
+</ul>
+
+<h3 id="21-hmm-的训练过程">2.1 HMM 的训练过程</h3>
+<ul>
+  <li>参数是单独的概率 $P(w_i\mid t_i)$ 和 $P(t_i\mid t_{i-1})$<br />
+分别对应 <strong>发射（emission）</strong>$(O)$ 和 <strong>转移（transition）</strong>$(A)$ 概率</li>
+  <li>训练过程利用 <strong>最大似然估计（MLE）</strong><br />
+在朴素贝叶斯和 n-gram 语言模型中，这一步可以通过简单地计算不同类别的词频完成。</li>
+  <li>
+    <p>在 HMM 中，我们采用 <strong>完全相同的做法</strong>，例如：</p>
+
+    <ul>
+      <li>
+        <p>$P(\textit{like}\mid \text{VB})=\dfrac{count(\text{VB},\textit{like})}{count(\text{VB})}$</p>
+      </li>
+      <li>
+        <p>$P(\text{NN}\mid \text{DT})=\dfrac{count(\text{DT},\text{NN})}{count(\text{DT})}$</p>
+      </li>
+    </ul>
+
+    <p>对于发射概率 $P(\textit{like}\mid \text{VB})$，我们计算语料库中所有词性被标注为 $\text{VB}$ 的单词 “$\textit{like}$” 的数量，然后除以所有的 $\text{VB}$ 词性的数量。对于转移概率 $P(\text{NN}\mid \text{DT})$，我们计算语料库中词性 $\text{DT, NN}$ 的共现次数，除以 $\text{DT}$ 出现的总次数。这里和之前的语言模型相比，唯一的差别就是语言模型的语料库仅包含文本，而这里的语料库包含文本以及相应的词性标注。</p>
+  </li>
+  <li>序列中的第一个 tag 应该如何处理呢？<br />
+和之前 n-gram 模型的处理方式一样，我们引入一个起始符号 “\(\texttt{&lt;s&gt;}\)” 代表一个序列的开始。<br />
+例如：\(P(\text{NN}\mid \texttt{&lt;s&gt;})=\dfrac{count(\texttt{&lt;s&gt;},\text{NN})}{count(\texttt{&lt;s&gt;})}\)</li>
+  <li>序列中的最后一个 tag 应该如何处理呢？<br />
+同样地，我们引入一个结束符号 “\(\texttt{&lt;/s&gt;}\)” 代表一个序列的结束。</li>
+  <li>如何处理没有见过的 (word, tag) 和 (tag, previous tag) 组合？<br />
+和之前朴素贝叶斯和 n-gram 模型的处理方式一样，引入 <strong>平滑（smoothing）</strong>技术。</li>
+</ul>
+
+<h3 id="23-转移矩阵">2.3 转移矩阵</h3>
+<p>这里是一个 <strong>转移矩阵（transition matrix）</strong>的例子：</p>
+
+<p><img src="http://andy-blog.oss-cn-beijing.aliyuncs.com/blog/2020-04-02-WX20200402-184145%402x.png" width="80%" /></p>
+
+<p>该矩阵描述了 <strong>转移概率（transition probabilities）</strong>。这里的转移概率来自 WSJ（华尔街日报）语料库，其中的文本都已经过词性标注，所以我们可以在此基础上计算这些转移概率。其中，第一列表示条件。所以，如果我们想知道最有可能出现在句子开头的词性，我们可以读取表中第一行，可以看到其中最大值为 \(P(\text{NNP}\mid \texttt{&lt;s&gt;})=0.2767\)，所以句子中第一个单词词性最有可能是 NNP。同理，$\text{VB}$ 出现在 $\text{MD}$ 之后的概率 $P(\text{VB}\mid \text{MD})=0.7968$。</p>
+
+<h3 id="24-发射矩阵">2.4 发射矩阵</h3>
+<p>这里是一个 <strong>发射矩阵（emission/observation matrix）</strong>的例子：</p>
+
+<p><img src="http://andy-blog.oss-cn-beijing.aliyuncs.com/blog/2020-04-02-WX20200402-191836%402x.png" width="80%" /></p>
+
+<p>该矩阵描述了 <strong>发射概率（emission probabilities）</strong>，即基于一个特定的词性标注生成相应单词的概率。同样，第一列代表条件，即给定的词性。所以，在没有采取任何平滑方法的前提下，可以看到对于词性 $\text{NNP}$，仅有两个单词 “$\textit{Janet}$” 和 “$\textit{the}$” 具有非零概率。我们还可以从另一个角度来看，有哪些词性可以生成单词 “$\textit{Janet}$”？可以看到，“$\textit{Janet}$” 对应的那一列只有 $\text{NNP}$ 不为 $0$，所以，这里单词 “$\textit{Janet}$” 只可能来自词性 $\text{NNP}$。</p>
+
+<h3 id="25-hmm-的预测过程decoding">2.5 HMM 的预测过程（Decoding）</h3>
+
+\[\begin{align}
+\hat{\boldsymbol t}&amp;=\mathop{\operatorname{arg\,max}}\limits_{\boldsymbol t}P(\boldsymbol w\mid \boldsymbol t)P(\boldsymbol t)\\
+&amp;= \mathop{\operatorname{arg\,max}}\limits_{\boldsymbol t}\prod_{i=1}^{n}P(w_i\mid t_i)P(t_i\mid t_{i-1})
+\end{align}\]
+
+<ul>
+  <li>简单思路：对于每个单词，选择使得 $P(w_i\mid t_i)P(t_i\mid t_{i-1})$ 最大化的 tag。从左至右，以 <strong>贪婪</strong> 形式进行。</li>
+  <li>这种做法是错误的，因为我们要寻找的是使得整个词性序列概率最大的 tags，即 $\mathop{\operatorname{arg\,max}}\limits_{\boldsymbol t}$，而不是使得单个单词词性概率最大的 tag，即 $\mathop{\operatorname{arg\,max}}\limits_{t_i}$。<br />
+上面的思路实际上等价于局部分类器，存在 <strong>错误传播</strong> 的问题。</li>
+  <li>正确的方法：考虑 <strong>所有</strong> 可能的 tag 组合，并对它们进行评估，然后选择概率最大的 tags 序列（类似朴素贝叶斯）。<br />
+但是有一个问题：序列数量会呈指数增长。</li>
+</ul>
+
+<h3 id="26-维特比算法">2.6 维特比算法</h3>
+<p>实际上，我们还有一种更好的选择：<strong>维特比算法（The Viterbi Algorithm）</strong></p>
+
+<ul>
+  <li>
+    <p>维特比算法实际上是一种 <strong>动态规划（Dynamic Programming）</strong>方法。<br />
+我们可以计算一个单词序列的最优 tags 组合，但不必穷尽计算所有的可能组合。</p>
+  </li>
+  <li>我们将通过一个很简单的例子来说明，假设现在有一个只包含两个单词的句子：<br />
+“$\textit{can play}$” $\to \textit{can}$<span style="color:red">/MD</span> $\textit{play}$<span style="color:red">/VB</span><br />
+我们希望给出的结果是 MD 和 VB。</li>
+  <li>对于单词 $\textit{can}$ 而言，找出其最优 tag 很简单：\(\mathop{\operatorname{arg\,max}}\limits_{t}P(\textit{can}\mid t)P(t\mid \texttt{&lt;s&gt;})\)<br />
+我们之所以可以这样做是因为第一个 “tag” 总是 “\(\texttt{&lt;s&gt;}\)”。我们只需要尝试所有可能的 tags，然后选择使得概率乘积最大的 tag 作为单词 “$\textit{can}$” 的 tag。</li>
+  <li>假设单词 “$\textit{can}$” 的最佳 tag 是 NN。为了得到单词 “$\textit{play}$” 的 tag，我们可以像之前一样，选择 \(\mathop{\operatorname{arg\,max}}\limits_{t}P(\textit{play}\mid t)P(t\mid \text{NN})\) 作为单词 “$\textit{play}$” 的 tag，但是这种做法是错误的，因为这又回到了局部分类器上面。</li>
+  <li>正确的做法是，我们保持追踪单词 “$\textit{can}$” 的 <strong>每个 tag 的得分</strong>，并且检查当 “$\textit{can}$” 具有一个不同的 tag 时 <strong>将会发生什么</strong>。所以我们可以直接利用之前的计算得分的结果而不必重复计算。</li>
+</ul>
+
+<h3 id="27-维特比算法的例子">2.7 维特比算法的例子</h3>
+<p>我们将通过一个例子来看维特比算法是如何计算单词序列的 tags 的，回顾之前的 WSJ 语料库的例子，我们现在有如下的转移矩阵和发射矩阵：</p>
+
+<p><img src="http://andy-blog.oss-cn-beijing.aliyuncs.com/blog/2020-04-02-WX20200402-215251%402x.png" width="80%" /></p>
+
+<p>假如我们现在要预测句子 “$\textit{Janet will back the bill}$” 的 tags 序列。</p>
+
+<p>我们先构建一个表，第一列代表所有可能的 tags 的集合，第一行代表句子中的每一个单词：</p>
+
+<p><img src="http://andy-blog.oss-cn-beijing.aliyuncs.com/blog/2020-04-02-WX20200402-215146%402x.png" /></p>
+
+<p>首先，我们对句子中的第一个单词 “$Janet$” 的 tag 进行预测：</p>
+
+<p><img src="http://andy-blog.oss-cn-beijing.aliyuncs.com/blog/2020-04-02-WX20200402-215216%402x.png" /></p>
+
+<p>通过查看转移矩阵和发射矩阵的表格，进行计算，得到结果：</p>
+
+<p><img src="http://andy-blog.oss-cn-beijing.aliyuncs.com/blog/2020-04-02-WX20200402-220414%402x.png" /></p>
+
+<p>接下来，我们计算单词 “$\textit{will}$” 的 tag，注意，这里我们还乘以了一个得分项 $s(t_{\textit{Janet}}\mid \textit{Janet})$，它表示前一个单词 “$\textit{Janet}$” 对应的 tag 得分，也就是 “$\textit{Janet}$” 那一列中对应的 tag 行的结果，所以如果这里 $t_{\textit{Janet}}$ 为 NNP，那么该项等于 $8.8544\times 10^{-6}$，如果 $t_{\textit{Janet}}$ 为其他的 tag，该项为 $0$：</p>
+
+<p><img src="http://andy-blog.oss-cn-beijing.aliyuncs.com/blog/2020-04-02-WX20200402-220444%402x.png" /></p>
+
+<p>但是，$t_{\textit{Janet}}$ 在这里究竟是什么呢？我们不能简单地直接取得分最大的 tag，而是需要计算所有可能的 $t_{\textit{Janet}}$ 对应的 $P(\textit{will}\mid \text{NNP})\times P(\text{NNP}\mid t_{\textit{Janet}})\times s(t_{\textit{Janet}}\mid \textit{Janet})$ 的结果，并取其最大值作为单词 “$\textit{will}$” 在 NNP 上的得分 $s(\text{NNP}\mid \textit{will})$：</p>
+
+<p><img src="http://andy-blog.oss-cn-beijing.aliyuncs.com/blog/2020-04-02-WX20200402-220514%402x.png" /></p>
+
+<p>对于其余 tag 项按照相同方式进行计算，然后将单词 $\textit{will}$ 所有结果中的非零得分项连接到前一个单词 “$Janet$” 对应 tag 的得分项，得到下面的 3 条轨迹：</p>
+
+<p><img src="http://andy-blog.oss-cn-beijing.aliyuncs.com/blog/2020-04-02-WX20200402-220711%402x.png" /></p>
+
+<p>同理，对于第 3 个单词 “$\textit{back}$”，我们按照同样方式进行计算，注意，这里我们在实际计算时只需要考虑非零项即可。例如，对于 NNP 和 MD 我们无需计算，因为在发射矩阵中，单词 “$\textit{back}$” 对应的这两项为 $0$，而对于 VB，我们在计算时也只需考虑前一个单词 “$\textit{will}$” 为 MD、VB 和 NN 的 3 种情况，因为 “$\textit{will}$” 只有这 3 个 tag 的得分项是非零的，所以只需选择三者中最大值即可：</p>
+
+<p><img src="http://andy-blog.oss-cn-beijing.aliyuncs.com/blog/2020-04-02-WX20200402-220838%402x.png" /></p>
+
+<p>其余 tag 项也按照同样的方法进行计算，然后将结果轨迹进行连接：</p>
+
+<p><img src="http://andy-blog.oss-cn-beijing.aliyuncs.com/blog/2020-04-02-WX20200402-220912%402x.png" /></p>
+
+<p>同理，对于第 4 个单词 “$\textit{the}$”，我们有：</p>
+
+<p><img src="http://andy-blog.oss-cn-beijing.aliyuncs.com/blog/2020-04-02-WX20200402-220931%402x.png" /></p>
+
+<p>对于最后一个单词 “$\textit{bill}$”，我们有：</p>
+
+<p><img src="http://andy-blog.oss-cn-beijing.aliyuncs.com/blog/2020-04-02-WX20200402-220947%402x.png" /></p>
+
+<p>现在，我们计算出了整个矩阵，接下来只需要 <strong>按照轨迹回溯</strong>，为各单词选择相应的 tag 即可。我们 <strong>从最后一个单词</strong> “$\textit{bill}$” 开始，选择其中 <strong>得分最高的 tag</strong>，即 NN，然后按照箭头轨迹回溯到前一个单词 “$\textit{the}$”，得到其对应的 tag，即 DT，以此类推，直到得到第一个单词的 tag：</p>
+
+<p><img src="http://andy-blog.oss-cn-beijing.aliyuncs.com/blog/2020-04-02-WX20200402-221113%402x.png" /></p>
+
+<p>最终，我们得到的轨迹就是整个句子对应的概率最大的 tag 序列，即最优标签序列：</p>
+<center>$\textit{Janet}$<span style="color:red">/NNP</span> $\textit{will}$<span style="color:red">/MB</span> $\textit{back}$<span style="color:red">/VP</span> $\textit{the}$<span style="color:red">/DT</span> $\textit{bill}$<span style="color:red">/NN</span></center>
+
+<h3 id="28-维特比算法的评估">2.8 维特比算法的评估</h3>
+<ul>
+  <li>
+    <p>维特比算法的时间复杂度是多少？<br />
+$O(T^2N)$，其中 $T$ 是 tagset 的大小（即所有可能 tag 类别的数量），$N$ 是单词序列的长度。<br />
+因为我们计算的是一个 $T\times N$ 的矩阵，而矩阵中的每个元素我们都进行 $T$ 次操作（因为我们要考虑前一个单词的所有可能的 tags）。</p>
+  </li>
+  <li>
+    <p>为什么维特比算法是可行的？<br />
+因为我们采用了 <strong>独立性假设</strong>：1. 每个单词的概率仅取决于其词性；2. 每个词性的概率仅取决于前一个词的词性。这使得我们可以对整个序列标注问题进行分解（具体来说，就是所谓的 <strong>马尔可夫性质</strong>）。如果没有这些假设，我们就无法应用动态规划求解最优序列标签。</p>
+  </li>
+</ul>
+
+<h3 id="29-维特比算法的伪代码">2.9 维特比算法的伪代码</h3>
+
+<p>下面是维特比算法的伪代码：</p>
+
+<div class="language-python highlighter-rouge"><div class="highlight"><pre class="highlight"><code><table class="rouge-table"><tbody><tr><td class="rouge-gutter gl"><pre class="lineno">1
+2
+3
+4
+5
+6
+7
+8
+9
+10
+11
+12
+13
+14
+15
+</pre></td><td class="rouge-code"><pre><span class="n">alpha</span> <span class="o">=</span> <span class="n">np</span><span class="p">.</span><span class="n">zeros</span><span class="p">(</span><span class="n">M</span><span class="p">,</span> <span class="n">T</span><span class="p">)</span>
+<span class="k">for</span> <span class="n">t</span> <span class="ow">in</span> <span class="nb">range</span><span class="p">(</span><span class="n">T</span><span class="p">):</span>
+    <span class="n">alpha</span><span class="p">[</span><span class="mi">1</span><span class="p">,</span> <span class="n">t</span><span class="p">]</span> <span class="o">=</span> <span class="n">pi</span><span class="p">[</span><span class="n">t</span><span class="p">]</span> <span class="o">*</span> <span class="n">O</span><span class="p">[</span><span class="n">w</span><span class="p">[</span><span class="mi">1</span><span class="p">],</span> <span class="n">t</span><span class="p">]</span>
+
+<span class="k">for</span> <span class="n">i</span> <span class="ow">in</span> <span class="nb">range</span><span class="p">(</span><span class="mi">2</span><span class="p">,</span> <span class="n">M</span><span class="p">):</span>
+    <span class="k">for</span> <span class="n">t_i</span> <span class="ow">in</span> <span class="nb">range</span><span class="p">(</span><span class="n">T</span><span class="p">):</span>
+        <span class="k">for</span> <span class="n">t_last</span> <span class="ow">in</span> <span class="nb">range</span><span class="p">(</span><span class="n">T</span><span class="p">):</span>      <span class="c1"># t_last means t_{i-1}
+</span>
+            <span class="n">s</span> <span class="o">=</span> <span class="n">alpha</span><span class="p">[</span><span class="n">i</span><span class="o">-</span><span class="mi">1</span><span class="p">,</span> <span class="n">t_last</span><span class="p">]</span> <span class="o">*</span> <span class="n">A</span><span class="p">[</span><span class="n">t_last</span><span class="p">,</span> <span class="n">t_i</span><span class="p">]</span> <span class="o">*</span> <span class="n">O</span><span class="p">[</span><span class="n">w</span><span class="p">[</span><span class="n">i</span><span class="p">],</span> <span class="n">t_i</span><span class="p">]</span>
+            <span class="k">if</span> <span class="n">s</span> <span class="o">&gt;</span> <span class="n">alpha</span><span class="p">[</span><span class="n">i</span><span class="p">,</span> <span class="n">t_i</span><span class="p">]:</span>
+                <span class="n">alpha</span><span class="p">[</span><span class="n">i</span><span class="p">,</span> <span class="n">t_i</span><span class="p">]</span> <span class="o">=</span> <span class="n">s</span>
+                <span class="n">back</span><span class="p">[</span><span class="n">i</span><span class="p">,</span> <span class="n">t_i</span><span class="p">]</span> <span class="o">=</span> <span class="n">t_last</span>
+
+<span class="n">best</span> <span class="o">=</span> <span class="n">np</span><span class="p">.</span><span class="nb">max</span><span class="p">(</span><span class="n">alpha</span><span class="p">[</span><span class="n">M</span><span class="o">-</span><span class="mi">1</span><span class="p">,:])</span>
+<span class="k">return</span> <span class="n">backtrace</span><span class="p">(</span><span class="n">best</span><span class="p">,</span> <span class="n">back</span><span class="p">)</span>
+</pre></td></tr></tbody></table></code></pre></div></div>
+
+<ul>
+  <li>在实践中，我们通常计算的是 <strong>log</strong> 概率以避免数值下溢（将乘积转换成累加），因为直接计算概率乘积可能会导致最后结果非常接近于 $0$。</li>
+  <li>另外，计算时我们可以采用 <strong>向量化（Vectorisation）</strong>，即用 <strong>矩阵-向量</strong> 操作替代循环操作，这样可以在一定程度上实现行列级别的并行计算，从而使计算过程加速。</li>
+</ul>
+
+<h3 id="210-实践中的-hmm">2.10 实践中的 HMM</h3>
+<ul>
+  <li>
+    <p>我们已经介绍了基于 <strong>bigrams</strong> 的 HMM taggers，而目前实际应用最广的是基于 <strong>trigrams</strong> 的 HMM taggers。</p>
+
+\[P(\boldsymbol t)=\prod_{i=1}^{n}P(t_i\mid t_{i-1},t_{i-2})\]
+
+    <p>这种情况下，维特比算法的时间复杂度变为 $O(T^3N)$。</p>
+  </li>
+  <li>
+    <p>需要处理 <strong>稀疏性（sparsity）</strong>问题：某些 tag trigram 序列可能没有在训练数据中出现过。<br />
+同之前 n-grams 模型的处理方法一样，我们可以结合 Backoff 和 Interpolation 方法进行处理：</p>
+
+\[P(t_i\mid t_{i-1},t_{i-2})=\lambda_3 \hat P(t_i\mid t_{i-1},t_{i-2})+\lambda_2 \hat P(t_i\mid t_{i-1})+\lambda_1 \hat P(t_i)\]
+
+    <p>其中，$\lambda_1 + \lambda_2 + \lambda_3=1$。</p>
+  </li>
+  <li>
+    <p>结合其他特征，HMM 在 Penn Treebank 上可以达到 $96.5\%$ 的准确率。（Brants, 2000）<br />
+在上节课中，我们提到过 unigram tagger 可以达到大约 $90\%$ 的准确率，这里我们可以看到，通过构建更加复杂的模型，我们将准确率提升了近 $7\%$。</p>
+  </li>
+</ul>
+
+<h3 id="211-hmm-的其他变体-taggers">2.11 HMM 的其他变体 Taggers</h3>
+<ul>
+  <li>
+    <p>HMM 是 <strong>生成式（generative）</strong>模型。</p>
+
+\[\begin{align}
+\hat T&amp;=\mathop{\operatorname{arg\,max}}\limits_{T}P(T\mid W)\\
+&amp;=\mathop{\operatorname{arg\,max}}\limits_{T}P(W\mid T)P(T)\\
+&amp;=\mathop{\operatorname{arg\,max}}\limits_{T}\prod_{i}P(word_i\mid tag_i)\prod_{i}P(tag_i\mid tag_{i-1})
+\end{align}\]
+
+    <p>为什么是生成式？<br />
+回到 HMM 最初的公式，我们希望根据给定的单词序列 $W$ 找到最优的标签序列 $T$。然后，我们利用贝叶斯定理逆转条件，对原问题进行分解，使得模型学习一些发射概率和转移概率。HMM 是生成式的意味着一旦我们完成了 HMM 的训练，我们可以让模型生成一些单词序列和相应的标签序列。具体来说，我们可以让模型先生成一个标签序列（因为我们已经有了转移矩阵，所以可以逐一生成 tag，从而生成一个 tag 序列），然后对于序列中的每一个 tag，我们可以随机抽样一个对应的单词。所以，HMM 模型是生成式的，因为只要我们愿意，我们可以在训练完成后以这种方式生成更多的输入。假设现在有一个语料库，我们可以利用训练好的 HMM 对语料库进行扩充（尽管这些新的生成数据可能不完美或者存在一些噪音）。</p>
+  </li>
+  <li>
+    <p>我们还可以训练无监督的 HMM：即模型在学习过程中不需要任何标注过的数据。<br />
+这种情况下，我们的训练数据中没有标注词性，我们只是让模型试图发现可能的标签序列。我们不会在这里展开讨论，大致来说，我们可以假设一些贝叶斯先验，然后随机分配 tag，然后缓慢地进行迭代以找到最佳 tag 序列。</p>
+
+    <p><br /></p>
+  </li>
+  <li>
+    <p>另外一种是 <strong>判别式（Discriminative）</strong> 模型</p>
+
+\[\begin{align}
+\hat T&amp;=\mathop{\operatorname{arg\,max}}\limits_{T}P(T\mid W)\\
+&amp;=\mathop{\operatorname{arg\,max}}\limits_{T}\prod_{i}P(t_i\mid w_i,t_{i-1})
+\end{align}\]
+
+    <p>相比之前生成式 HMM 中利用贝叶斯定理逆转条件概率，这里我们只是利用给定的单词序列寻找最有可能的标签序列。因此，我们可以增加更多的特征，我们现在不止关注单词 $w_i$，我们还关注前一个单词的词性 $t_{i-1}$，实际上，我们还可以在条件项中增加更多的特征，这样我们会得到一个判别式模型，因为这类模型直接描述了在给定观测事件的条件下，未观测事件的概率。此外，判别式模型无法生成新的输入，因为它们能做的仅仅是在给定单词序列的情况下，给出相应的标签序列。判别式模型并不能自己生成序列，所以它们只能用于判别任务，而无法用于生成任务。但是，判别式模型的准确率通常要高于生成式模型，部分原因是判别式模型很容易增加特征：例如我们现在的特征为 $w_i$ 和 $t_{i-1}$，假设我们希望增加更多的特征，只需要将其加入条件项中即可。但是对于生成式模型，我们不能通过这种简单的方式完成，因为生成式模型中我们的条件项包含未观测事件，所以不能简单地将观测特征直接加入其中。</p>
+  </li>
+  <li>
+    <p>判别式模型直接描述条件概率 $P(t\mid w)$</p>
+    <ul>
+      <li>支持更丰富的特征集，通常在大型有监督数据集上训练得到的准确率要高于生成式模型。</li>
+      <li>判别式 HMM 变体的例子：<br />
+最大熵马尔可夫模型（Maximum Entropy Markov Model，MEMM）<br />
+条件随机场（Conditional random field，CRF）<br />
+联结主义时间分类（Connectionist Temporal Classification，CTC）</li>
+      <li>大部分 <strong>深度学习</strong> 的序列模型都属于判别式模型（例如：用于翻译任务的编码-解码器），类似于 MEMM。</li>
+      <li>如今我们使用的大部分模型都属于判别式模型，因为其表现更好，但是生成式模型也有其特定的应用场景，例如文本生成任务。</li>
+    </ul>
+  </li>
+</ul>
+
+<h3 id="212-hmm-在-nlp-任务中的表现">2.12 HMM 在 NLP 任务中的表现</h3>
+<p>我们可以看一下 HMM 的不同变体在 NLP 任务中的表现。</p>
+<ul>
+  <li>HMM 在词性标注（part-of-speech tagging）任务中非常高效。
+    <ul>
+      <li>Trigram HMM 可以达到 $96.5\%$ 的准确率（TnT）</li>
+      <li>相关的模型也都有着目前几乎最佳的表现：
+        <ul>
+          <li>MEMMs：$97\%$</li>
+          <li>CRFs：$97.6\%$</li>
+          <li>Deep CRF：$97.9\%$</li>
+        </ul>
+      </li>
+      <li>更多最新的 Englisn Penn Treebank tagging accuracy 相关信息可以参考：<br />
+<a href="https://aclweb.org/aclwiki/index.php?title=POS_Tagging_(State_of_the_art)">https://aclweb.org/aclwiki/index.php?title=POS_Tagging_(State_of_the_art)</a></li>
+    </ul>
+  </li>
+  <li>此外，除了词性标注，HMM 还可以应用于其他序列标注任务。
+    <ul>
+      <li>命名实体识别（named entity recognition）、浅层解析（shallow parsing）、对齐（alignment）等等。</li>
+      <li>其他领域：DNA、蛋白质序列、晶格图像等等。</li>
+    </ul>
+  </li>
+</ul>
+
+<h2 id="3-总结">3. 总结</h2>
+<ul>
+  <li>对于序列标注任务，HMM 是一种简单高效的方法。</li>
+  <li>非常有竞争力，并且训练过程很快（利用维特比译码算法），可以作为其他序列标注任务的 natural baseline。</li>
+  <li>主要缺点：与 MEMMs 和 CRFs 这类判别式模型相比，HMM 在特征表示方面不是非常灵活。</li>
+</ul>
+
+<h2 id="4-扩展阅读">4. 扩展阅读</h2>
+<ul>
+  <li>JM3 Appendix A A.1-A.2, A.4</li>
+  <li>See also E18 Chapter 7.3</li>
+  <li>参考资料：
+    <ul>
+      <li>Rabiner’s HMM tutorial: <a href="http://tinyurl.com/2hqaf8">http://tinyurl.com/2hqaf8</a></li>
+      <li>Lafferty et al, Conditional random fields: Probabilistic models for segmenting and labeling sequence data (2001)</li>
+    </ul>
+  </li>
+</ul>
+
+<p>下节内容：NLP 深度学习：前馈网络</p>
+
+:ET

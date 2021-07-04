@@ -1,0 +1,451 @@
+I"|b<h1 id="lecture-01-导论">Lecture 01 导论</h1>
+<h2 id="1-课程简介">1. 课程简介</h2>
+<h3 id="11-教学人员">1.1 教学人员</h3>
+<ul>
+  <li><strong>讲师</strong>
+    <ul>
+      <li><strong>Chris Ewin</strong><br />
+2018 年 PhD 毕业于墨尔本大学。主要研究兴趣为自动规划领域：
+        <ul>
+          <li>知识表示（Knowledge representation）</li>
+          <li>富域规划（Planning in rich domains）</li>
+          <li>情景演算（Situation Calculus）</li>
+        </ul>
+
+        <p>爱好：网球 🎾<br />
+办公室：DMD building, ofﬁce 9.23<br />
+邮箱：cewin@unimelb.edu.au</p>
+      </li>
+      <li><strong>Tim Miller</strong><br />
+2005 年 PhD 毕业于昆士兰大学。主要研究兴趣为人工智能领域：
+        <ul>
+          <li>多智能体环境下的决策（Decision making in multi-agent environments）</li>
+          <li>行动与知识推理（Reasoning about action and knowledge）</li>
+          <li>自动规划（Automated planning）</li>
+          <li>人机交互与协作（Human-agent interaction and collaboration）</li>
+        </ul>
+
+        <p>爱好：咖啡 ☕️ 以及与之相关的一切
+办公室：DMD building, ofﬁce 6.09<br />
+邮箱：tmiller@unimelb.edu.au</p>
+      </li>
+    </ul>
+  </li>
+  <li><strong>助教团队</strong><br />
+来自一些以前在这门课程中拿到高分的学生，以及一些 PhD 和 Research 的学生：
+    <ul>
+      <li><strong>主管助教：Guang Hu</strong><br />
+办公室：DMD building, ofﬁce 6.13<br />
+邮箱：ghu1@student.unimelb.edu.au</li>
+      <li><strong>助教</strong><br />
+Prashan Mathugama, Anam Ahmad Khan, Anubhav Singh, Ruihan Zhang</li>
+    </ul>
+  </li>
+</ul>
+
+<h3 id="12-研讨会">1.2 研讨会</h3>
+<ul>
+  <li>Workshops 将从第 2 个教学周开始</li>
+  <li>由于 COVID-19 疫情影响，以下时间段的 workshops 将改为线上模式：
+    <ul>
+      <li>Mon, 16:15-17:15. Location: PAR-207-221 Bouverie St-B132</li>
+      <li>Mon, 17:15-18 :15. Location: PAR-Elec. Engineering-122</li>
+      <li>Tue, 18:15-19 :15. Location: PAR-Elec. Engineering-121</li>
+      <li>Fri, 12:00-13:00, Location: PAR-Engineering B-313</li>
+    </ul>
+  </li>
+  <li>注意：请仅在受到 COVID-19 疫情影响的情况下注册线上模式。</li>
+  <li>Zoom 链接将在 LMS 上提供。</li>
+</ul>
+
+<h3 id="13-课程大纲">1.3 课程大纲</h3>
+<ol>
+  <li>AI 与自动规划导论</li>
+  <li>经典规划：有很多强假设（strong assumptions），我们基于这些假设求解规划问题。
+    <ul>
+      <li>启发式搜索（Heuristic Search）</li>
+      <li>基于宽度搜索（Width-Based Search）</li>
+    </ul>
+  </li>
+  <li>超越经典规划：
+    <ul>
+      <li>无因子模型（Factored-Model-Free）</li>
+      <li>非决定论（Non Determinism）</li>
+      <li>不确定性（Uncertainty）</li>
+      <li>软目标（Soft goals）</li>
+      <li>规划识别（Plan Recognition）</li>
+      <li>认知（社会）规划（Epistemic (social) Planning）</li>
+      <li>路径计划（Path-Planning）</li>
+      <li>控制（Control）</li>
+    </ul>
+  </li>
+  <li>强化学习（Reinforcement Learning）：从经验中学习</li>
+  <li>多智能体规划（Multi agent Planning）</li>
+  <li>关于人工智能伦理（AI Ethics）的热门 / 最新讨论</li>
+</ol>
+
+<p><strong>作业</strong>：2 次个人作业；1 次比赛形式的作业。</p>
+
+<h3 id="14-预备知识">1.4 预备知识</h3>
+<ol>
+  <li>算法相关知识，例如：动态规划</li>
+  <li>基本集合论与命题逻辑</li>
+  <li>概率论，例如：条件概率</li>
+  <li>Python</li>
+</ol>
+
+<p>重要的是，你需要及时复习和理解讲义，因为大多数讲座都是建立在以前的知识基础上的。</p>
+
+<p>一个在线演示规划算法的网站：<a href="https://qiao.github.io/PathFinding.js/visual/">https://qiao.github.io/PathFinding.js/visual/</a></p>
+
+<h2 id="2-关于人工智能的定义">2. 关于人工智能的定义</h2>
+<p>我们将就以下话题展开一些简短的讨论：</p>
+<ul>
+  <li><strong>AI 的概念</strong>：当我们谈论 AI 时，我们究竟在谈论什么？<br />
+弄清（现代）人工智能的研究领域正在做、不会做和将要尝试做的事情。</li>
+  <li><strong>AI 的历史</strong>：这一切是如何发生的？<br />
+一个简短的背景介绍：我们是如何从 “经典 AI” 转变为 “现代 AI” 的。</li>
+  <li><strong>AI 的现状</strong>：技术和应用前景如何？<br />
+一段粗略的概述和一些例子。</li>
+</ul>
+
+<h3 id="21-什么是人工智能">2.1 什么是人工智能？</h3>
+<p>关于人工智能的定义，一种工程学的观点是：</p>
+<blockquote>
+  <p>“The science of making machines do things that would require intelligence if done by humans.”</p>
+
+  <p><br /></p>
+  <p align="right"> —— Marvin Minsky</p>
+</blockquote>
+
+<p>在70年的人工智能浪潮中，马文 $\cdot$ 明斯基（Marvin Minsky）是一个如雷贯耳的名字，与机器学习、神经网络、虚拟现实、框架理论等热门名词紧紧联系在一起。他是定义和发展 “人工智能” 的先驱者之一，也是人工智能领域的首位图灵奖获得者，被尊称为 “人工智能之父”。</p>
+
+<p>关于人工智能，Minsky 给出的定义是：人工智能这门学科研究的是如何制造出能完成某些事情的机器，而这些事情如果由人类来完成的话，则需要涉及到智能。</p>
+
+<p>但是，这种定义是否具有可操作性可能需要打个问号：</p>
+
+<ul>
+  <li>我们如何能够知道哪些 <span style="color:blue">人类</span> 活动涉及到智能？</li>
+  <li>另外，如何定义人类的智能？</li>
+</ul>
+
+<h3 id="22-图灵测试">2.2 图灵测试</h3>
+<p><img src="http://andy-blog.oss-cn-beijing.aliyuncs.com/blog/2020-03-08-WX20200308-232200%402x.png" width="50%" /></p>
+
+<p>图灵测试（The Turing test）由艾伦·麦席森·图灵发明，指测试者与被测试者（一个人和一台机器）隔开的情况下，通过一些装置（如键盘）向被测试者随意提问。进行多次测试后，如果有超过30%的测试者不能确定出被测试者是人还是机器，那么这台机器就通过了测试，并被认为具有人类智能。图灵测试一词来源于计算机科学和密码学的先驱阿兰·麦席森·图灵写于 1950 年的一篇论文《计算机器与智能》，其中 30% 是图灵对 2000 年时的机器思考能力的一个预测，目前我们已远远落后于这个预测。</p>
+
+<p>但是，它目前还只能从理论上证明，无法被复现出来。</p>
+
+<h3 id="23-另一种关于人工智能的定义">2.3 另一种关于人工智能的定义</h3>
+<p>这里是另一种关于人工智能的视角：</p>
+<blockquote>
+  <p>“The exciting new effort to make computers think. Machines with minds, in the full and literal sense.”</p>
+
+  <p><br /></p>
+  <p align="right"> —— John Haugeland</p>
+</blockquote>
+
+<p>和 Minsky 给出的定义存在同样的问题：</p>
+<ul>
+  <li>什么是 <span style="color:blue">thinking（思考）</span>？</li>
+  <li>什么是 <span style="color:blue">mind（心灵）</span>？</li>
+</ul>
+
+<h3 id="24-一种理性的视角">2.4 一种理性的视角</h3>
+<p>关于人工智能，这里给出了一种理性的视角：</p>
+<blockquote>
+  <p>“The branch of computer science that is concerned with the automation of intelligent behavior.”</p>
+
+  <p><br /></p>
+  <p align="right"> —— Luger and Stubbleﬁeld</p>
+</blockquote>
+
+<ul>
+  <li><strong>智能行为（Intelligent behavior）</strong>：做出 “好的”（理性的）选择</li>
+  <li><span style="color:red">人类真的是 “理性（rational）” 的 Agents 吗？</span><br />
+我们经常 <span style="color:blue">犯错</span>；我们并不全是国际象棋大师，<span style="color:blue">即便我们可能已经知道关于国际象棋的所有规则</span>。更多关于人类系统性的错误可以参考 Daniel Kahneman 的著作 <em><a href="https://en.wikipedia.org/wiki/Thinking,_Fast_and_Slow">Thinking, fast and slow</a></em>。</li>
+</ul>
+
+<h3 id="25-理性-agent">2.5 理性 Agent</h3>
+<ul>
+  <li><strong>Agents</strong>：
+    <ul>
+      <li>通过 <span style="color:blue">传感器（sensors）</span> 感知环境（$\to$ <span style="color:blue">认知（percepts）</span>）</li>
+      <li>通过 <span style="color:blue">执行器（actuators）</span> 对环境采取行动（$\to$ <span style="color:blue">行动（actions）</span>）</li>
+    </ul>
+
+    <p>$\color{blue}{\to}$ <span style="color:red">例如</span>：人类、动物、机器人、软件智能体（软件机器人）等等。</p>
+  </li>
+  <li>
+    <p><strong>理性 Agent（Rational Agents）</strong> 会选择做 <strong>“正确的事（the right thing）”</strong>。<br />
+$\color{blue}{\to}$ 什么是 “<span style="color:red">做正确的事</span>”？<br />
+$\quad$理性 Agent 选择它们的行动（actions）以最大化 <span style="color:blue">性能度量（performance measure）</span><br />
+$\color{blue}{\to}$ <span style="color:red">问题</span>：一台自动吸尘器的性能度量是什么？<br />
+$\quad$每小时清洁面积 $\mathrm{m^2/h}$ 、清洁程度、能耗等等。<br />
+$\color{blue}{\to}$ 如果这台自动吸尘器的传感器不够好会发生什么？</p>
+
+    <p><img src="http://andy-blog.oss-cn-beijing.aliyuncs.com/blog/2020-03-09-WX20200309-124941%402x.png" width="80%" /></p>
+  </li>
+  <li>
+    <p><strong>尝试做 “正确的事”！</strong><br />
+<span style="color:blue">$\to$ 假设的最佳情况（“正确的事”）通常无法达到。</span><br />
+$\color{blue}{\to}$ Agent 可能无法感知所有的相关信息。（例如：床底下是否有污垢？）</p>
+  </li>
+  <li><strong>理性（Rationality） vs. 全知（Omniscience）</strong>：
+    <ul>
+      <li>一个 <span style="color:blue">全知 Agent（omniscient agent）</span>知道关于环境的一切信息，并且知道它的行动将带来的实际效应。</li>
+      <li>一个 <span style="color:blue">理性 Agent（rational agent）</span>只是充分利用了它所拥有的资源，在其感知 (percepts）和知识（knowledge）的基础上最大化了预期的性能。</li>
+    </ul>
+
+    <p>$\color{blue}{\to}$ <span style="color:red">例如</span>：过马路之前，我检查过交通状况。在穿越时，我被一颗陨石击中了。我缺乏理性吗？</p>
+  </li>
+  <li><strong>将输入映射到可能的最佳输出</strong>：<br />
+<br />
+    <center><span style="color:red">性能度量 $\times$ 感知 $\times$ 知识 $\to$ 行动</span></center>
+    <p><br />
+$\color{blue}{\to}$ 人工智能作为一种思想大致可以从 <strong>思维 vs. 行动</strong> 和 <strong>人性 vs. 理性</strong> 的维度进行分类：</p>
+
+    <table>
+      <thead>
+        <tr>
+          <th style="text-align: center"> </th>
+          <th style="text-align: center"><strong>人性</strong></th>
+          <th style="text-align: center"><strong>理性</strong></th>
+        </tr>
+      </thead>
+      <tbody>
+        <tr>
+          <td style="text-align: center">思维</td>
+          <td style="text-align: center">像人类一样思考的系统（认知科学）</td>
+          <td style="text-align: center">理性思考的系统（逻辑：知识与演绎）</td>
+        </tr>
+        <tr>
+          <td style="text-align: center">行动</td>
+          <td style="text-align: center">具有类似人类行为的系统（图灵测试）</td>
+          <td style="text-align: center"><span style="color:red">理性行动的系统</span>（如何做出好的行动选择）</td>
+        </tr>
+      </tbody>
+    </table>
+
+    <p><span style="color:blue">$\to$</span> 智能的一个核心方面（以及一种可能的定义方式）就是在世界上 <span style="color:blue">成功行动的能力</span>。</p>
+  </li>
+</ul>
+
+<h2 id="3-人工智能简史">3. 人工智能简史</h2>
+<ul>
+  <li>
+    <p><strong>AI 的起源：Darmouth 1956</strong></p>
+
+    <p><img src="http://andy-blog.oss-cn-beijing.aliyuncs.com/blog/2020-03-09-WX20200309-135841%402x.png" width="80%" /></p>
+
+    <p>1956 年 8 月，在美国汉诺斯小镇宁静的达特茅斯学院中，约翰$\cdot$麦卡锡（John McCarthy，人工智能之父、LISP 语言发明者）、马文$\cdot$明斯基（Marvin Minsky，人工智能与认知学专家）、克劳德$\cdot$香农（Claude Shannon，信息论的创始人）、艾伦$\cdot$纽厄尔（Allen Newell，计算机科学家）、赫伯特$\cdot$西蒙（Herbert Simon，诺贝尔经济学奖得主）等科学家正聚在一起，讨论着一个完全不食人间烟火的主题：用机器来模仿人类学习以及其他方面的智能。会议的提案是基于这样一种设想：<strong>原则上，智能的每一个方面都可以被精确地描述，以至于可以制造一台机器来模拟它。</strong> 会议足足开了两个月的时间，虽然大家没有达成普遍的共识，但是却为会议讨论的内容起了一个名字：人工智能。因此，1956 年也就成为了人工智能元年。</p>
+
+    <p><br /></p>
+  </li>
+  <li>
+    <p><strong>Computers and Thought 1963</strong></p>
+
+    <p><img src="http://andy-blog.oss-cn-beijing.aliyuncs.com/blog/2020-03-09-WX20200309-150554%402x.png" width="80%" /></p>
+
+    <p>1963 年出版的 <em><a href="https://www.amazon.com/Computers-Thought-Edward-Feigenbaum/dp/0262560925">Computers and Thought</a></em> 杂志收录了一些早期的有关 AI 下国际象棋和跳棋的论文和程序，证明了一些关于逻辑、几何和规划的定理。</p>
+
+    <p><br /></p>
+  </li>
+  <li><strong>AI：60 年代、70 年代和 80 年代</strong>
+在 60 年代、70 年代和 80 年代早期，人工智能的许多重要贡献都与 <span style="color:blue">程序设计</span> 和程序中的 <span style="color:blue">知识表示</span> 有关：
+    <ul>
+      <li>Lisp（函数式编程）</li>
+      <li>Prolog（逻辑编程）</li>
+      <li>基于规则的程序设计</li>
+      <li>“专家系统” 的 Shells 和架构</li>
+    </ul>
+
+    <p><br /></p>
+  </li>
+  <li><strong>AI 方法论：理论即程序</strong><br />
+在 60 年代、70 年代和 80 年代，一篇 AI 相关的学位论文通常是：
+    <ul>
+      <li>选择一项任务和一个域 X</li>
+      <li>分析 / 反思 / 找到如何解决任务</li>
+      <li>在程序中刻画这种推理</li>
+    </ul>
+
+    <p>然后，这篇论文就是：</p>
+    <ul>
+      <li>一个关于 X （科学发现、电路分析、计算幽默、故事理解等）的<span style="color:blue">理论</span>，以及</li>
+      <li>一个实现该理论的 <span style="color:blue">程序</span>，并通过一些示例进行了 <span style="color:blue">测试</span>。</li>
+    </ul>
+
+    <p>这种工作模式产生了许多很好的想法……但有一个问题……</p>
+
+    <p><br /></p>
+  </li>
+  <li>
+    <p><strong>方法论存在的问题</strong><br />
+<span style="color:blue">$\to$ 用程序来表达的理论无法被证伪：当程序失败时，总是可以归咎于 “知识缺失”。</span></p>
+
+    <p>解决问题的三种方法：</p>
+    <ul>
+      <li>缩小域（专家系统）
+        <ul>
+          <li><span style="color:red">问题：缺少泛化性</span></li>
+        </ul>
+      </li>
+      <li>接受程序只是一种说明或者一种演示
+        <ul>
+          <li><span style="color:red">问题：科学价值有限</span></li>
+        </ul>
+      </li>
+      <li>填补缺失的知识（直觉、常识）
+        <ul>
+          <li><span style="color:red">问题：到目前为止还没有成功</span></li>
+        </ul>
+      </li>
+    </ul>
+
+    <p><br /></p>
+  </li>
+  <li><strong>AI 寒冬：80 年代</strong><br />
+$\color{blue}{\to}$ 基于知识的方法在 80 年代陷入 <strong>僵局</strong>，这也是一个充满争议和争论的时代：
+    <ul>
+      <li><strong>好的老式 AI</strong> 只是一种 “规则应用”，但智能不是（Haugeland）</li>
+    </ul>
+
+    <p>对主流 AI 的许多批评对于当时有一部分是适用的；对于现在则不太适用。</p>
+
+    <p><br /></p>
+  </li>
+  <li><strong>AI：从 90 年代到 2018</strong><br />
+AI 技术的形式化和更多数学知识的应用。一些顶级期刊如 AIJ、JAIR、AAAI 和 IJCAI 上的最新论文的研究领域有：
+    <ol>
+      <li>SAT和约束</li>
+      <li><span style="color:blue">搜索和规划</span></li>
+      <li>概率推理</li>
+      <li><span style="color:blue">概率规划</span></li>
+      <li>一阶逻辑推理</li>
+      <li><span style="color:blue">机器学习</span></li>
+      <li>自然语言</li>
+      <li>视觉和机器人</li>
+      <li><span style="color:blue">多智能体系统</span></li>
+    </ol>
+
+    <p>$\color{blue}{\to}$ 领域 1 到 4 通常被认为是关于技术的，但更准确的看法是将它们视为 <span style="color:blue">模型和求解器</span>。</p>
+  </li>
+</ul>
+
+<h2 id="4-目前的方向">4. 目前的方向</h2>
+<p>这些领域背后的共同点是：相比于解决某些特定域下的某些特定问题，我们真正试图尝试的是构建一些智能系统，以解决一些更加通用的问题。</p>
+<h3 id="41-求解器">4.1 求解器</h3>
+
+\[\mathrm{Problem} \; \Longrightarrow \; \fbox{$\mathrm{Solver_{\,}}$} \; \Longrightarrow \; \mathrm{Solution}\]
+
+<p>例子：</p>
+<ul>
+  <li><strong>问题</strong>：John 的年龄是 Peter 的 3 倍。在 10 年以内，它将变为只有 2 倍。请问 John 和 Peter 现在的年龄是多少？</li>
+  <li><strong>表示为</strong>：$\mathrm{J}=3\mathrm{P}\; ;\;\mathrm{J}+10=2(\mathrm{P}+10)$</li>
+  <li><strong>求解器</strong>：Gauss-Jordan（变量消除）</li>
+  <li><strong>解为</strong>：$\mathrm{P}=10\; ;\;\mathrm{J}=30$</li>
+</ul>
+
+<p>这就是我们如今尝试在做的事情：构建一个可以解决一些通用的问题的求解器。</p>
+
+<p>求解器的 <strong>通用性</strong> 体现在其能够处理任何可以表示为一个 <strong>模型</strong>  实例的问题。<br />
+然而，线性方程模型是 <strong>易处理的（tractable）</strong>，我们可以在一个合理的时间内对其进行计算求解；但对于 AI 模型，情况并非如此。</p>
+
+<h3 id="42-ai-求解器">4.2 AI 求解器</h3>
+
+\[\mathrm{Problem} \; \Longrightarrow \; \fbox{$\mathrm{Solver_{\,}}$} \; \Longrightarrow \; \mathrm{Solution}\]
+
+<ul>
+  <li>基本模型与任务包括：
+    <ul>
+      <li><strong>约束满足 / SAT</strong>：寻找满足约束的状态</li>
+      <li><strong>规划问题</strong>：寻找能够产生所需状态的行动序列</li>
+      <li><strong>带反馈规划</strong>：寻找能够产生所需状态的策略</li>
+    </ul>
+  </li>
+  <li>这些模型的求解器是 <strong>通用的</strong>；并非专门针对某些特定实例。</li>
+  <li>所有这些模型都是 <strong>难处理的（intractable）</strong>，而且有些模型非常强大。例如：POMDPs（部分可观马尔可夫决策过程）</li>
+  <li>挑战主要是计算方面的：<strong>如何进行大规模扩展</strong>。</li>
+  <li>为此，求解器必须能够 <strong>识别和利用（recognize and exploit）</strong> 问题的 <strong>结构（structure）</strong>。</li>
+  <li>我们采用的方法论是 <strong>经验主义的（empirical）</strong>：我们不去比较哪种模型更复杂，我们会采用一些现实世界的基准，让不同的模型进行竞争。</li>
+</ul>
+
+<h3 id="43-sat-和-csps">4.3 SAT 和 CSPs</h3>
+<p><strong>SAT（布尔可满足性问题）</strong>：确定一组子句（clauses）的组合是否存在可能满足的情况。（即结果为 TRUE）例如：</p>
+
+\[x\lor \lnot y \lor z\lor \lnot w \lor \dots\]
+
+<p>对于上面的例子求解非常简单，可以发现，只要 $x$ 为 TRUE，那么这整个陈述（statement）为 TRUE。如果只有一个子句，这会很简单；但是，很多情况下，我们会遇到包含成千上万的子句的情况，这会导致问题变得非常困难。</p>
+
+<ul>
+  <li>事实上，这已经被证明是一个 NP 完全问题。，在实践中这意味着 SAT 算法在最坏情况下，时间复杂度与变量数量之间呈 <strong>指数的（exponential）</strong> 关系。（例如：$100$ 个变量的时间复杂度为 $2^{100}=10^{30}$）</li>
+  <li>然而，目前的 SAT 求解器设法解决了 <strong>成千上万个变量</strong> 和子句的问题，并得到了广泛的应用。（例如：电路的设计、验证、规划等）</li>
+  <li><strong>约束满足问题（CSPs）</strong> 是对 SAT 问题的的泛化，它可以容纳非布尔变量，以及非子句约束。</li>
+  <li>关键是在搜索树的每个结点中进行 <strong>高效（多项式时间）推理</strong>：<strong>单位解析（unit resolution）</strong>、<strong>基于冲突的学习（conﬂict-based learning）</strong> 等等。</li>
+  <li>还有很多其他想法从 <strong>逻辑上可行</strong>，但是 <strong>无法实现</strong>（无法大规模扩展）：纯搜索、纯推理等。</li>
+</ul>
+
+<h3 id="44-经典规划模型">4.4 经典规划模型</h3>
+<ul>
+  <li>规划（Planning）是实现自主行为（autonomous behavior）的一种 <strong>基于模型的方法</strong>。</li>
+  <li>一个系统可以处于很多种 <strong>状态（states）</strong> 之一。</li>
+  <li>状态会对一个 <strong>变量</strong> 的集合进行 <strong>赋值</strong>。</li>
+  <li><strong>行动（Actions）</strong> 会改变某些特定变量的值。</li>
+  <li><strong>基本任务</strong>：寻找能够驱动 <strong>初始</strong> 状态转变为 <strong>目标</strong> 状态的 <strong>行动序列(action sequence)</strong>。</li>
+</ul>
+
+\[\mathrm{Model} \; \Longrightarrow \; \fbox{$\mathrm{Planner_{\,}}$} \; \Longrightarrow \; \textrm{Action Sequence}\]
+
+<ul>
+  <li><strong>复杂度</strong>：NP 困难；即 <strong>最坏情况下</strong>，与变量的数量呈指数关系。</li>
+  <li><strong>规划器（Planner）</strong>：是通用的；无论变量是什么，它都应该能在任何域上工作。</li>
+</ul>
+
+<h2 id="5-ai-对于我们的意义">5. AI 对于我们的意义</h2>
+<h3 id="51-为什么我们需要这种-ai">5.1 为什么我们需要这种 AI</h3>
+<ul>
+  <li><strong>国家象棋</strong>：2 名玩家的零和游戏（zero-sum game）</li>
+  <li><strong>音乐 / 语音识别</strong></li>
+  <li><strong>推荐系统</strong></li>
+  <li><strong>医疗诊断</strong>：决策支持系统</li>
+  <li><strong>自动驾驶汽车</strong></li>
+  <li><strong>玩 Atari 游戏</strong>：<span style="color:blue">深度学习</span></li>
+  <li><strong>……</strong></li>
+</ul>
+
+<p><img src="http://andy-blog.oss-cn-beijing.aliyuncs.com/blog/2020-03-09-ailandscape.jpg" /></p>
+
+<h3 id="52-为什么我们需要这种-ai-规划">5.2 为什么我们需要这种 AI 规划</h3>
+<p>需要更强自主性（autonomy）设定的一些场景：</p>
+<ul>
+  <li><strong>太空探索</strong>：（RAX）第一个人工智能控制系统，无需人为监督即可控制航天器。（1998）</li>
+  <li><strong>业务流程管理</strong></li>
+  <li><strong>第一人称视角射击和游戏</strong>：<span style="color:blue">经典规划器玩 Atari 游戏</span></li>
+  <li><strong>互动故事（Interactive Storytelling）</strong></li>
+  <li><strong>网络安全</strong></li>
+  <li><strong>物流 / 运输 / 制造业</strong>：多模式运输、森林灭火、PARC 打印机</li>
+  <li><strong>……</strong></li>
+</ul>
+
+<p>更多内容请参考：<a href="http://users.cecs.anu.edu.au/~patrik/sigaps/index.php">Special Interest Group for Applications of AI Planning and Scheduling</a></p>
+
+<h2 id="6-总结ai-和自动问题求解">6. 总结：AI 和自动问题求解</h2>
+<ul>
+  <li>过去 20 年出现的 <strong>研究议程</strong>：一系列 <strong>难处理模型（intractable models）</strong> 的 <strong>求解器</strong>。</li>
+  <li>与其他程序不同，<strong>求解器</strong> 具有 <strong>通用性</strong>，因为它们不针对单个问题，而是针对一个问题系列（<strong>模型</strong>）。</li>
+  <li>挑战在于 <strong>计算</strong>：如何大规模扩展。</li>
+  <li><strong>问题的绝对规模</strong> 不应妨碍有意义的解决方案。</li>
+  <li>对于给定问题的 <strong>结构</strong>，必须能够识别和 <strong>利用（exploit）</strong>。</li>
+  <li>有很多 <strong>想法</strong> 的余地，但方法论是 <strong>经验性的</strong>。</li>
+  <li>持续 <strong>进步</strong>
+    <ul>
+      <li>有效的推论方法：h 推导、冲突学习……</li>
+      <li>可处理岛（islands of tractability）：树宽度方法（treewidth methods）、松弛（relaxations）</li>
+      <li>转换：收集不完整的信息、扩展目标……</li>
+    </ul>
+  </li>
+</ul>
+
+<p>下节内容：搜索算法</p>
+:ET

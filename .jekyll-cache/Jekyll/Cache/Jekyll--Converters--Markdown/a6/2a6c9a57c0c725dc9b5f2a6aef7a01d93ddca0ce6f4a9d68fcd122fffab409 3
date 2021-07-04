@@ -1,0 +1,275 @@
+I"�J<h1 id="lecture-08-transforms-数据增强裁剪翻转旋转">Lecture 08 transforms 数据增强：裁剪、翻转、旋转</h1>
+
+<p>在之前课程中，我们已经熟悉了 PyTorch 中 <code class="language-plaintext highlighter-rouge">transforms</code> 的运行机制，它提供了大量的图像增强方法，例如裁剪、旋转、翻转等等，以及可以自定义实现增强方法。本节课中，我们将进一步学习 <code class="language-plaintext highlighter-rouge">transforms</code> 中的图像增强方法。</p>
+
+<h2 id="1-数据增强">1. 数据增强</h2>
+
+<p><strong>数据增强 (Data Augmentation)</strong> 又称为数据增广、数据扩增，它是对 <strong>训练集</strong> 进行变换，使训练集更丰富，从而让模型更具 <strong>泛化能力</strong>。</p>
+
+<p><strong>例子</strong>：</p>
+
+<p><img src="http://andy-blog.oss-cn-beijing.aliyuncs.com/blog/2020-12-12-WX20201212-121419%402x.png" width="50%" /></p>
+
+<p><strong>例子</strong>：</p>
+
+<p><img src="http://andy-blog.oss-cn-beijing.aliyuncs.com/blog/2020-12-12-WX20201212-121725%402x.png" width="90%" /></p>
+
+<h2 id="2-transforms-裁剪">2. transforms 裁剪</h2>
+
+<h4 id="transformscentercrop"><code class="language-plaintext highlighter-rouge">transforms.CenterCrop</code></h4>
+
+<p><strong>功能</strong>：从图像中心裁剪图片。</p>
+
+<div class="language-python highlighter-rouge"><div class="highlight"><pre class="highlight"><code><table class="rouge-table"><tbody><tr><td class="rouge-gutter gl"><pre class="lineno">1
+</pre></td><td class="rouge-code"><pre><span class="n">transforms</span><span class="p">.</span><span class="n">CenterCrop</span><span class="p">(</span><span class="n">size</span><span class="p">)</span>
+</pre></td></tr></tbody></table></code></pre></div></div>
+
+<p><strong>主要参数</strong>：</p>
+
+<ul>
+  <li><code class="language-plaintext highlighter-rouge">size</code>：所需裁剪图片尺寸。</li>
+</ul>
+
+<p><strong>代码示例</strong>：</p>
+
+<p>我们有一个 224 $\times$ 224 的图片，我们将其从中心裁剪为 196 $\times$ 196 的图片。</p>
+
+<p><img src="http://andy-blog.oss-cn-beijing.aliyuncs.com/blog/2020-12-12-WX20201212-123354%402x.png" width="90%" /></p>
+
+<div class="language-python highlighter-rouge"><div class="highlight"><pre class="highlight"><code><table class="rouge-table"><tbody><tr><td class="rouge-gutter gl"><pre class="lineno">1
+2
+3
+4
+5
+6
+</pre></td><td class="rouge-code"><pre><span class="n">train_transform</span> <span class="o">=</span> <span class="n">transforms</span><span class="p">.</span><span class="n">Compose</span><span class="p">([</span>
+    <span class="n">transforms</span><span class="p">.</span><span class="n">Resize</span><span class="p">((</span><span class="mi">224</span><span class="p">,</span> <span class="mi">224</span><span class="p">)),</span>
+
+    <span class="c1"># CenterCrop，如果 size 大于原始尺寸，多余部分将用黑色 (即像素值为 0) 填充
+</span>    <span class="n">transforms</span><span class="p">.</span><span class="n">CenterCrop</span><span class="p">(</span><span class="mi">196</span><span class="p">)</span>
+<span class="p">])</span>
+</pre></td></tr></tbody></table></code></pre></div></div>
+
+<h4 id="transformsrandomcrop"><code class="language-plaintext highlighter-rouge">transforms.RandomCrop</code></h4>
+
+<p><strong>功能</strong>：从图片中随机裁剪出尺寸为 <code class="language-plaintext highlighter-rouge">size</code> 的图片。</p>
+
+<div class="language-python highlighter-rouge"><div class="highlight"><pre class="highlight"><code><table class="rouge-table"><tbody><tr><td class="rouge-gutter gl"><pre class="lineno">1
+2
+3
+4
+5
+6
+7
+</pre></td><td class="rouge-code"><pre><span class="n">transforms</span><span class="p">.</span><span class="n">RandomCrop</span><span class="p">(</span>
+    <span class="n">size</span><span class="p">,</span>
+    <span class="n">padding</span><span class="o">=</span><span class="bp">None</span><span class="p">,</span>
+    <span class="n">pad_if_needed</span><span class="o">=</span><span class="bp">False</span><span class="p">,</span>
+    <span class="n">fill</span><span class="o">=</span><span class="mi">0</span><span class="p">,</span>
+    <span class="n">padding_mode</span><span class="o">=</span><span class="s">'constant'</span>
+<span class="p">)</span>
+</pre></td></tr></tbody></table></code></pre></div></div>
+
+<p><strong>主要参数</strong>：</p>
+
+<ul>
+  <li><code class="language-plaintext highlighter-rouge">size</code>：所需裁剪图片尺寸。</li>
+  <li><code class="language-plaintext highlighter-rouge">padding</code>：设置填充大小。
+    <ul>
+      <li>当为 <code class="language-plaintext highlighter-rouge">a</code> 时，上下左右均填充 <code class="language-plaintext highlighter-rouge">a</code> 个像素。</li>
+      <li>当为 <code class="language-plaintext highlighter-rouge">(a, b)</code> 时， 上下填充 <code class="language-plaintext highlighter-rouge">b</code> 个像素， 左右填充 <code class="language-plaintext highlighter-rouge">a</code> 个像素。</li>
+      <li>当为 <code class="language-plaintext highlighter-rouge">(a, b, c, d)</code> 时，左、上、右、下分别填充 <code class="language-plaintext highlighter-rouge">a</code>、<code class="language-plaintext highlighter-rouge">b</code>、<code class="language-plaintext highlighter-rouge">c</code>、<code class="language-plaintext highlighter-rouge">d</code> 个像素。</li>
+    </ul>
+  </li>
+  <li><code class="language-plaintext highlighter-rouge">pad_if_need</code>：若图像小于设定 <code class="language-plaintext highlighter-rouge">size</code>，则填充，此时该项需要设置为 <code class="language-plaintext highlighter-rouge">True</code>。</li>
+  <li><code class="language-plaintext highlighter-rouge">padding_mode</code>：填充模式，有 4 种模式：
+    <ul>
+      <li><code class="language-plaintext highlighter-rouge">constant</code>：像素值由 <code class="language-plaintext highlighter-rouge">fill</code> 设定。</li>
+      <li><code class="language-plaintext highlighter-rouge">edge</code>：像素值由图像边缘像素决定。</li>
+      <li><code class="language-plaintext highlighter-rouge">reflect</code>：镜像填充，最后一个像素不镜像，例如 <code class="language-plaintext highlighter-rouge">[1, 2, 3, 4]</code> $\to$ <code class="language-plaintext highlighter-rouge">[3, 2, 1, 2, 3, 4, 3, 2]</code>。</li>
+      <li><code class="language-plaintext highlighter-rouge">symmetric</code>：镜像填充，最后一个像素镜像，例如 <code class="language-plaintext highlighter-rouge">[1, 2, 3, 4]</code> $\to$ <code class="language-plaintext highlighter-rouge">[2, 1, 1, 2, 3, 4, 4, 3]</code>。</li>
+    </ul>
+  </li>
+  <li><code class="language-plaintext highlighter-rouge">fill</code>：<code class="language-plaintext highlighter-rouge">padding_mode = 'constant'</code> 时，设置填充的像素值。</li>
+</ul>
+
+<h4 id="transformsrandomresizedcrop"><code class="language-plaintext highlighter-rouge">transforms.RandomResizedCrop</code></h4>
+
+<p><strong>功能</strong>：随机大小、长宽比裁剪图片。</p>
+
+<div class="language-python highlighter-rouge"><div class="highlight"><pre class="highlight"><code><table class="rouge-table"><tbody><tr><td class="rouge-gutter gl"><pre class="lineno">1
+2
+3
+4
+5
+6
+</pre></td><td class="rouge-code"><pre><span class="n">RandomResizedCrop</span><span class="p">(</span>
+    <span class="n">size</span><span class="p">,</span>
+    <span class="n">scale</span><span class="o">=</span><span class="p">(</span><span class="mf">0.08</span><span class="p">,</span> <span class="mf">1.0</span><span class="p">),</span>
+    <span class="n">ratio</span><span class="o">=</span><span class="p">(</span><span class="mi">3</span><span class="o">/</span><span class="mi">4</span><span class="p">,</span> <span class="mi">4</span><span class="o">/</span><span class="mi">3</span><span class="p">),</span>
+    <span class="n">interpolation</span>
+<span class="p">)</span>
+</pre></td></tr></tbody></table></code></pre></div></div>
+
+<p><strong>主要参数</strong>：</p>
+
+<ul>
+  <li><code class="language-plaintext highlighter-rouge">size</code>：所需裁剪图片尺寸。</li>
+  <li><code class="language-plaintext highlighter-rouge">scale</code>：随机裁剪面积比例，默认 <code class="language-plaintext highlighter-rouge">(0.08, 1)</code>。</li>
+  <li><code class="language-plaintext highlighter-rouge">ratio</code>：随机长宽比，默认 <code class="language-plaintext highlighter-rouge">(3/4, 4/3)</code>。</li>
+  <li><code class="language-plaintext highlighter-rouge">interpolation</code>：插值方法。
+    <ul>
+      <li><code class="language-plaintext highlighter-rouge">PIL.Image.NEAREST</code></li>
+      <li><code class="language-plaintext highlighter-rouge">PIL.Image.BILINEAR</code></li>
+      <li><code class="language-plaintext highlighter-rouge">PIL.Image.BICUBIC</code></li>
+    </ul>
+  </li>
+</ul>
+
+<h4 id="transformsfivecrop"><code class="language-plaintext highlighter-rouge">transforms.FiveCrop</code></h4>
+
+<p><strong>功能</strong>：在图像的上下左右以及中心裁剪出尺寸为 <code class="language-plaintext highlighter-rouge">size</code> 的 5 张图片。</p>
+
+<div class="language-python highlighter-rouge"><div class="highlight"><pre class="highlight"><code><table class="rouge-table"><tbody><tr><td class="rouge-gutter gl"><pre class="lineno">1
+</pre></td><td class="rouge-code"><pre><span class="n">transforms</span><span class="p">.</span><span class="n">FiveCrop</span><span class="p">(</span><span class="n">size</span><span class="p">)</span>
+</pre></td></tr></tbody></table></code></pre></div></div>
+
+<p><strong>主要参数</strong>：</p>
+
+<ul>
+  <li><code class="language-plaintext highlighter-rouge">size</code>：所需裁剪图片尺寸。</li>
+</ul>
+
+<p><strong>代码示例</strong>：</p>
+
+<div class="language-python highlighter-rouge"><div class="highlight"><pre class="highlight"><code><table class="rouge-table"><tbody><tr><td class="rouge-gutter gl"><pre class="lineno">1
+2
+3
+4
+5
+6
+</pre></td><td class="rouge-code"><pre><span class="n">train_transform</span> <span class="o">=</span> <span class="n">transforms</span><span class="p">.</span><span class="n">Compose</span><span class="p">([</span>
+    <span class="n">transforms</span><span class="p">.</span><span class="n">Resize</span><span class="p">((</span><span class="mi">224</span><span class="p">,</span> <span class="mi">224</span><span class="p">)),</span>
+    <span class="c1"># 注意：由于生成了 5 张图片，返回的是一个元组，我们需要将其转换为 PIL Image 或者 ndarray 的形式。
+</span>    <span class="n">transforms</span><span class="p">.</span><span class="n">FiveCrop</span><span class="p">(</span><span class="mi">112</span><span class="p">),</span>
+    <span class="n">transforms</span><span class="p">.</span><span class="n">Lambda</span><span class="p">(</span><span class="k">lambda</span> <span class="n">crops</span><span class="p">:</span> <span class="n">torch</span><span class="p">.</span><span class="n">stack</span><span class="p">([(</span><span class="n">transforms</span><span class="p">.</span><span class="n">ToTensor</span><span class="p">()(</span><span class="n">crop</span><span class="p">))</span> <span class="k">for</span> <span class="n">crop</span> <span class="ow">in</span> <span class="n">crops</span><span class="p">]))</span>
+<span class="p">])</span>
+</pre></td></tr></tbody></table></code></pre></div></div>
+
+<h4 id="transformstencrop"><code class="language-plaintext highlighter-rouge">transforms.TenCrop</code></h4>
+
+<p><strong>功能</strong>：在图像的上下左右以及中心裁剪出尺寸为 <code class="language-plaintext highlighter-rouge">size</code> 的 5 张图片，并对这 5 张图片进行水平或者垂直镜像获得 10 张图片。</p>
+
+<div class="language-python highlighter-rouge"><div class="highlight"><pre class="highlight"><code><table class="rouge-table"><tbody><tr><td class="rouge-gutter gl"><pre class="lineno">1
+2
+3
+4
+</pre></td><td class="rouge-code"><pre><span class="n">transforms</span><span class="p">.</span><span class="n">TenCrop</span><span class="p">(</span>
+    <span class="n">size</span><span class="p">,</span>
+    <span class="n">vertical_flip</span><span class="o">=</span><span class="bp">False</span>
+<span class="p">)</span>
+</pre></td></tr></tbody></table></code></pre></div></div>
+
+<p><strong>主要参数</strong>：</p>
+
+<ul>
+  <li><code class="language-plaintext highlighter-rouge">size</code>：所需裁剪图片尺寸。</li>
+  <li><code class="language-plaintext highlighter-rouge">vertical_flip</code>：是否垂直翻转。</li>
+</ul>
+
+<p><strong>代码示例</strong>：</p>
+
+<div class="language-python highlighter-rouge"><div class="highlight"><pre class="highlight"><code><table class="rouge-table"><tbody><tr><td class="rouge-gutter gl"><pre class="lineno">1
+2
+3
+4
+5
+6
+</pre></td><td class="rouge-code"><pre><span class="n">train_transform</span> <span class="o">=</span> <span class="n">transforms</span><span class="p">.</span><span class="n">Compose</span><span class="p">([</span>
+    <span class="n">transforms</span><span class="p">.</span><span class="n">Resize</span><span class="p">((</span><span class="mi">224</span><span class="p">,</span> <span class="mi">224</span><span class="p">)),</span>
+    <span class="c1"># 注意：由于生成了 10 张图片，返回的是一个元组，我们需要将其转换为 PIL Image 或者 ndarray 的形式。
+</span>    <span class="n">transforms</span><span class="p">.</span><span class="n">TenCrop</span><span class="p">(</span><span class="mi">112</span><span class="p">,</span> <span class="n">vertical_flip</span><span class="o">=</span><span class="bp">False</span><span class="p">),</span>
+    <span class="n">transforms</span><span class="p">.</span><span class="n">Lambda</span><span class="p">(</span><span class="k">lambda</span> <span class="n">crops</span><span class="p">:</span> <span class="n">torch</span><span class="p">.</span><span class="n">stack</span><span class="p">([(</span><span class="n">transforms</span><span class="p">.</span><span class="n">ToTensor</span><span class="p">()(</span><span class="n">crop</span><span class="p">))</span> <span class="k">for</span> <span class="n">crop</span> <span class="ow">in</span> <span class="n">crops</span><span class="p">])),</span>
+<span class="p">])</span>
+</pre></td></tr></tbody></table></code></pre></div></div>
+
+<h2 id="3-transforms-翻转旋转">3. transforms 翻转、旋转</h2>
+
+<h3 id="31-transforms-翻转">3.1 transforms 翻转</h3>
+
+<h4 id="transformsrandomhorizontalflip"><code class="language-plaintext highlighter-rouge">transforms.RandomHorizontalFlip</code></h4>
+
+<p><strong>功能</strong>：依概率水平（左右）翻转图片。</p>
+
+<div class="language-python highlighter-rouge"><div class="highlight"><pre class="highlight"><code><table class="rouge-table"><tbody><tr><td class="rouge-gutter gl"><pre class="lineno">1
+</pre></td><td class="rouge-code"><pre><span class="n">transforms</span><span class="p">.</span><span class="n">RandomHorizontalFlip</span><span class="p">(</span><span class="n">p</span><span class="o">=</span><span class="mf">0.5</span><span class="p">)</span>
+</pre></td></tr></tbody></table></code></pre></div></div>
+
+<p><strong>主要参数</strong>：</p>
+
+<ul>
+  <li><code class="language-plaintext highlighter-rouge">p</code>：翻转概率。</li>
+</ul>
+
+<p><img src="http://andy-blog.oss-cn-beijing.aliyuncs.com/blog/2020-12-12-WX20201212-134827%402x.png" width="90%" /></p>
+
+<h4 id="transformsrandomverticalflip"><code class="language-plaintext highlighter-rouge">transforms.RandomVerticalFlip</code></h4>
+
+<p><strong>功能</strong>：依概率垂直（上下）翻转图片。</p>
+
+<div class="language-python highlighter-rouge"><div class="highlight"><pre class="highlight"><code><table class="rouge-table"><tbody><tr><td class="rouge-gutter gl"><pre class="lineno">1
+</pre></td><td class="rouge-code"><pre><span class="n">transforms</span><span class="p">.</span><span class="n">RandomVerticalFlip</span><span class="p">(</span><span class="n">p</span><span class="o">=</span><span class="mf">0.5</span><span class="p">)</span>
+</pre></td></tr></tbody></table></code></pre></div></div>
+
+<p><strong>主要参数</strong>：</p>
+
+<ul>
+  <li><code class="language-plaintext highlighter-rouge">p</code>：翻转概率。</li>
+</ul>
+
+<p><img src="http://andy-blog.oss-cn-beijing.aliyuncs.com/blog/2020-12-12-WX20201212-135023%402x.png" width="90%" /></p>
+
+<h3 id="32-transforms-旋转">3.2 transforms 旋转</h3>
+
+<h4 id="transformsrandomrotation"><code class="language-plaintext highlighter-rouge">transforms.RandomRotation</code></h4>
+
+<p><strong>功能</strong>：随机旋转图片。</p>
+
+<div class="language-python highlighter-rouge"><div class="highlight"><pre class="highlight"><code><table class="rouge-table"><tbody><tr><td class="rouge-gutter gl"><pre class="lineno">1
+2
+3
+4
+5
+6
+</pre></td><td class="rouge-code"><pre><span class="n">RandomRotation</span><span class="p">(</span>
+    <span class="n">degrees</span><span class="p">,</span>
+    <span class="n">resample</span><span class="o">=</span><span class="bp">False</span><span class="p">,</span>
+    <span class="n">expand</span><span class="o">=</span><span class="bp">False</span><span class="p">,</span>
+    <span class="n">center</span><span class="o">=</span><span class="bp">None</span>
+<span class="p">)</span>
+</pre></td></tr></tbody></table></code></pre></div></div>
+
+<p><strong>主要参数</strong>：</p>
+
+<ul>
+  <li><code class="language-plaintext highlighter-rouge">degrees</code>：旋转角度。
+    <ul>
+      <li>当为 <code class="language-plaintext highlighter-rouge">a</code> 时，在 <code class="language-plaintext highlighter-rouge">(-a, a)</code> 之间随机选择旋转角度。</li>
+      <li>当为 <code class="language-plaintext highlighter-rouge">(a, b)</code> 时，在 <code class="language-plaintext highlighter-rouge">(a, b)</code> 之间随机选择旋转角度。</li>
+    </ul>
+  </li>
+  <li><code class="language-plaintext highlighter-rouge">resample</code>：重采样方法。</li>
+  <li><code class="language-plaintext highlighter-rouge">expand</code>：是否扩大图片，以保持原图信息。</li>
+  <li><code class="language-plaintext highlighter-rouge">center</code>：旋转点设置，默认中心旋转。</li>
+</ul>
+
+<p><strong>例子</strong>：</p>
+
+<p><img src="http://andy-blog.oss-cn-beijing.aliyuncs.com/blog/2020-12-12-WX20201212-141058%402x.png" width="90%" /></p>
+
+<h2 id="4-总结">4. 总结</h2>
+
+<p>本节课中，我们学习了数据预处理模块 transforms 中的数据增强方法：裁剪、翻转和旋转。在下次课程中 ，我们将会学习 transforms 中的其他数据增强方法。</p>
+
+<p>下节内容：transforms 图像变换、方法操作及自定义方法</p>
+:ET

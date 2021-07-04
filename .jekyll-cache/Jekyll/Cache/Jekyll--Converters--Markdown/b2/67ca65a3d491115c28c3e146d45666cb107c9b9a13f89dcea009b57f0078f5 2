@@ -1,0 +1,227 @@
+I"I<h1 id="lecture-10-bagging-和随机森林">Lecture 10 Bagging 和随机森林</h1>
+
+<p><strong>参考教材</strong>：</p>
+
+<ul>
+  <li><em>Hardle, W. and Simar, L (2015). Applied multivariate statistical analysis, 4th edition.</em></li>
+  <li><em>Hastie, T. Tibshirani, R. and Friedman, J. (2009). The elements of statistical learning, 2nd edition</em></li>
+</ul>
+
+<h2 id="1-bagging-分类树">1. Bagging 分类树</h2>
+
+<p>树模型具有 <strong>高方差</strong>。相似的样本可能会生成截然不同的树，尤其是在各个分量 ($X_j$) 相关性很高的情况下。这会导致预测结果不稳定。</p>
+
+<p>从更高的层面来看，这是由于在顶部划分过程中产生的错误会向下传播到其下方的所有划分中。</p>
+
+<p><strong>Bagging</strong> 是一种降低方差的方法：与仅生成一棵树相比，我们将基于数据生成许多 (例如：$B$ 棵) 深树。然后，我们以某种方式聚合 (或 “装袋”) 这 $B$ 棵树。</p>
+
+<p>深树的偏差很低，但方差很高。对它们进行聚合可以解决方差的问题。(直觉上：随机变量的平均值通常具有较小的方差，而聚合可以达到类似的效果)。</p>
+
+<p><strong>Bootstrapping</strong>：根据原始训练数据 $(\mathcal X_1,G_1),\dots,(\mathcal X_n,G_n)$ 创建 $B$ 个人工 <strong>bootstrap</strong> 样本。每个 bootstrap 样本都是通过有放回随机抽样得到的 $n$ 个数据对 $(\mathcal X_i, G_i)$ 生成的。</p>
+
+<p>(注意：我们是对整个数据对 $(\mathcal X_i, G_i)$，而不是分别对 $\mathcal X_i$ 和 $G_i$，进行重抽样。有放回意味着我们可以在多次抽样中得到相同的数据对：这 $n$ 个 bootstrap 数据对中的每一个都是从训练样本中的 $n$ 个原始数据对中选取的)。</p>
+
+<p>对于 $b=1,\dots,B$，我们将第 $b$ 个 bootstrap 样本记为</p>
+
+\[(\mathcal X_{b,1}^*, G_{b,1}^*),\dots,(\mathcal X_{b,n}^*, G_{b,n}^*)\]
+
+<p>对于每个 bootstrap 样本，按照以下方法计算一棵分类树：对于 $b=1,\dots,B$，第 $b$ 个 bootstrap 样本的树的结果为</p>
+
+\[\hat G_b = \hat G_b(x) = \sum_{\ell=1}^{L}\hat c_{b,\ell}^{*} I\{x\in R_{b,\ell}^{*}\}=\begin{cases}\hat c_{b,1}^* &amp; \text{if }x\in R_{b,1}^* \\ \vdots \\ \hat c_{b,L}^* &amp; \text{if }x\in R_{b,L}^*\end{cases}\]
+
+<p>其中，$\hat c_{b,\ell}^{*}$ 是区域 $R_{b,\ell}^{*}$ 的预测类。</p>
+
+<p>然后，以下列方式之一聚合这 $B$ 棵树并生成一个新的单一结果 $\hat G_{bag}$：</p>
+
+<ol>
+  <li>
+    <p><strong>共识/多数投票 (Consensus/Majority voting)</strong>：对特征空间中的所有 $x$，令 $p_1(x),\dots,p_K(x)$ 分别为这 $B$ 棵树中将 $x$ 分类到组 $1,\dots,$ 组 $K$ 的树所占比例。然后，我们有</p>
+
+\[\hat G_{bag}(x)=\mathop{\operatorname{arg\,max}}\limits_k p_k(x)\]
+
+    <p>(我们取占比最高的类作为聚合后的结果类)</p>
+  </li>
+  <li>
+    <p><strong>平均类别占比 (Average the class proportions)</strong>：对于这 $B$ 棵树中的每一棵树的分类占比进行平均。这里，对于第 $b$ 棵树，如果 $x\in R_{b,\ell}^{*}$，对于 $k=1,\dots,K$，计算</p>
+
+\[\hat p_{b,k}^*(x)=\dfrac{1}{N_{b,\ell}^*}\sum_{i \text{ s.t. }\mathcal X_{b,i}^* \in R_{b,\ell}^*} I\{G_{b,i}^* = k\}\]
+
+    <p>其中，$N_{b,\ell}^{*}$ 是区域 $R_{b,\ell}^{*}$ 中的 bootstrap 样本 $\mathcal X_{b,i}^{*}$ 的数量。</p>
+
+    <p>然后，我们取</p>
+
+\[\hat p_{k}^*(x)=\dfrac{1}{B} \sum_{b=1}^{B}\hat p_{b,k}^*(x)\]
+
+    <p>并且将 $x$ 分类到能够最大化 $\hat p_k^{*}$ 的类。</p>
+  </li>
+</ol>
+
+<p>通常来说，上面第二种方法的效果更好 (方差更低)，特别是对于 $B$ 很小的情况；另外，它还可以为类的概率提供一个良好的估计。</p>
+
+<p>使用 “bagging” 方法的代价是什么？我们牺牲了 <strong>可解释性 (interpretability)</strong>：从 $B$ 棵树中获得的决策规则本身并不是一棵树。(一棵树被认为是 “可解释的” 对象；可以通过视觉表示)</p>
+
+<h3 id="例子具有模拟数据的树">例子：具有模拟数据的树</h3>
+
+<p>假设原始数据具有两个类 ($1$ 和 $2$)，以及 $p=5$ 个特征 $X_1,\dots,X_5$，每个特征都服从标准正态分布，并且每对特征之间的相关系数都是 $0.95$。响应 $Y$ 完全由 $X_1$ 确定：</p>
+
+\[P(Y=1\mid x_1\le 0.5)=0.2 \quad \text{and} \quad P(Y=1\mid x_1 &gt; 0.5)=0.8\]
+
+<p>我们的训练样本大小为 $N=30$，并且我们创建了 $B=200$ 个 bootstrap 样本。</p>
+
+<p>另外，大小为 $2000$ 的测试样本也从相同的总体中产生。</p>
+
+<p>我们为训练样本和 $200$ 个 bootstrap 样本中的每一个拟合分类树，并且没有使用剪枝。图 1 显示了原始树和 11 个 bootstrap 树。注意，这些树是各不相同的，它们都有各自的分裂特征和分裂点。</p>
+
+<p><img src="http://andy-blog.oss-cn-beijing.aliyuncs.com/blog/2020-10-25-WX20201026-001655%402x.png" width="80%" /></p>
+
+<p><span style="font-size:10pt"> <span style="color:steelblue;font-weight:bold">图 1</span>：模拟数据集上的 bagging 树。左上角是原始树，其余 11 棵树基于 bootstrap 样本生成的。每棵树的顶部都有关于分裂特征和分裂点的注释。</span></p>
+
+<p>可以看到，这些树看上去都各不相同。原始树的变化很大，因为 5 个 $X_j$ 变量是高度相关的 (因此，样本中的一个微小变化可能会生成非常不同的树)。另外，这里没有使用剪枝。</p>
+
+<p>图 2 显示了原始树和 bagging 树的测试误差。在这个例子中，由于预测变量之间的相关性，这些树具有较高的方差， 而 bagging 方法成功平滑了这种方差，并因此降低了测试误差。</p>
+
+<p><img src="http://andy-blog.oss-cn-beijing.aliyuncs.com/blog/2020-10-25-WX20201026-002955%402x.png" width="70%" /></p>
+
+<p><span style="font-size:10pt"> <span style="color:steelblue;font-weight:bold">图 2</span>：图 1 中 bagging 例子的误差曲线。这里显示的是原始树与 bagging 树的测试误差，它是关于 bootstrap 样本数的一个函数。橙色点对应共识投票方法，而绿色点对应概率平均方法。</span></p>
+
+<h2 id="2-随机森林分类">2. 随机森林分类</h2>
+
+<p>Bagging 的缺点：生成的 $B$ 棵树之间不是相互独立的。这会削弱聚合的方差减小效应。</p>
+
+<p>直觉上：如果 $B$ 个变量来自相同分布，其方差为 $\sigma^2$ 且每对变量之间相关系数为 $\rho$，那么，这 $B$ 个变量的平均值的方差为</p>
+
+\[\rho \sigma^2 + (1-\rho)\sigma^2/B\]
+
+<p>其中，第一项 $\rho \sigma^2$ 不会随着 $B$ 的增长而缩小。</p>
+
+<p><strong>随机森林 (Random forests, RF)</strong>：通过特定方式生成 bootstrap 树来减少 $B$ 棵树之间的相关性。</p>
+
+<p>当生成 boostrap 树时，在每次分裂之前，随机选择 $m (\le p)$ 个 $X_j$ 作为分裂的候选对象 (而不是将全部 $p$ 个 $X_j$ 都视为候选对象)。</p>
+
+<p>通常，$m =\sqrt p$ (R 中的函数 <code class="language-plaintext highlighter-rouge">randomForest()</code> 的默认设置)，但由于它是一个调整参数，因此我们可能希望能够自适应地选择其值。</p>
+
+<p>对于 <code class="language-plaintext highlighter-rouge">randomForest()</code>，每个终端结点的默认大小为 $1$ (尽可能生成最大的树)。</p>
+
+<p>$B$ 不是调整参数。随着 $B$ 的增加，RF 变得更加稳定，但是当 $B$ 增加到一定程度后，继续增加带来的收益将非常小。只需将 $B$ 取一个较大的值 (例如，计算上可行的值) 即可。另外，我们后面还将提到可能出现的 <strong>袋外 (out-of-bag, OOB) 误差</strong>。</p>
+
+<p><strong>随机森林算法</strong>：</p>
+
+<p><img src="http://andy-blog.oss-cn-beijing.aliyuncs.com/blog/2020-10-26-WX20201026-131751%402x.png" width="80%" /></p>
+
+<p>回顾上节课中的垃圾邮件分类的例子。这里，我们采用随机森林进行分类。可以看到，相比 bagging 方法，随机森林在分类效果上有显著提升。在随机森林中，我们需要生成足够数量的树，但也并非越多越好。</p>
+
+<p><img src="http://andy-blog.oss-cn-beijing.aliyuncs.com/blog/2020-10-26-WX20201026-134212%402x.png" width="70%" /></p>
+
+<p><span style="font-size:10pt"> <span style="color:steelblue;font-weight:bold">图 3</span>：Bagging、随机森林、梯度 boosting 方法分别应用于垃圾邮件数据。对于 boosting，使用了 5-结点树，并通过 10-折交叉验证选择树的数量 (2500 棵树)。图中的每 “步” 都对应于 (在一个大小为 1536 的测试集上) 的一个错误分类导致的变化。</span></p>
+
+<h3 id="21-袋外数据-out-of-bagoob-data">2.1 袋外数据 (Out-of-bag/OOB Data)</h3>
+
+<p>对于 RF，我们不需要使用交叉验证来选择 $m$。相反，我们可以使用 <strong>袋外 (OOB)</strong> 采样。</p>
+
+<p><strong>OOB</strong>：对于训练数据中的每个 $(\mathcal X_i,G_i)$，仅使用那些在生成过程中没有涉及 $(\mathcal X_i,G_i)$ 的 bootstrap 树来构造其 RF 分类器。并将分类结果记为 $\hat G_i$。</p>
+
+<p>我们可以使用 OOB 误分类误差：</p>
+
+\[\dfrac{1}{n}\sum_{i=1}^{n}I\{\hat G_i \ne G_i\}\]
+
+<p>它可以动态地实现一些 CV，而且计算速度更快。</p>
+
+<p>还是回到前面的垃圾邮件的例子。可以看到，OOB 误差与测试误差很接近。我们可以在 OOB 误差曲线中较为平稳的地方选取 $B$ 值。</p>
+
+<p><img src="http://andy-blog.oss-cn-beijing.aliyuncs.com/blog/2020-10-26-WX20201026-140435%402x.png" width="80%" /></p>
+
+<p><span style="margin:auto; display:table; font-size:10pt;"> <span style="color:steelblue;font-weight:bold">图 4</span>：在 <code class="language-plaintext highlighter-rouge">spam</code> 训练数据上计算 OOB 误差，并与在测试集上计算的测试误差进行比较。</span></p>
+
+<h3 id="22-变量重要性">2.2 变量重要性</h3>
+
+<p>对于分类问题，并非所有的 $X$ 变量都具有相同的重要性。我们可以计算出每个变量 $X_j$ 的重要性的度量。</p>
+
+<p>回想一下，在构造树的每个阶段，分裂变量有助于在某种程度上降低总的 “风险” 量 $\sum N_{l}Q_{l}$，即不纯度的加权和。</p>
+
+<p>特别是当我们有 $L$ 个区域，当前风险为 $\sum_{l=1}^{L}N_{l}’Q_{l}’$，并且需要将其中某个区域一分为二，从而创建 $L+1$ 个区域 $R_1,\dots,R_{L+1}$ 时，我们选择一个分裂变量和分裂点以最小化新的风险</p>
+
+\[\sum_{\ell=1}^{L+1}N_{\ell}Q_{\ell}\]
+
+<p>它要比之前的风险 $\sum_{l=1}^{L}N_{l}’Q_{l}’$ 更小。(当引入一个划分时，风险会减小；这与我们上节课中展示的基尼系数和交叉熵曲线的凹度有关)</p>
+
+<p>假设在最终创建的树的第 $t$ 个内部结点上，我们使用分裂变量 $X_{v(t)}$ 分割了一个区域。例如，如果第 $t$ 个内部结点是按照 $\{X_2 &lt; 5.1 \}$ 和 $\{X_2 \ge 5.1\}$ 划分的，那么 $v(t) = 2$。</p>
+
+<p>令 $\widehat{\text{impr}}_t$ 表示通过引入这种分割获得的风险 $\sum N_lQ_l$ 的减少量，<strong>一种用于衡量 $X_j$ 的重要性的标准是</strong>：</p>
+
+\[\mathcal I_j(T) = \sum_t \widehat{\text{impr}}_t \cdot I\{v(t)=j\}\]
+
+<p>其中，求和式是在最终树中的所有内部结点上。其值越大，说明变量 $j$ 越重要。</p>
+
+<p>在 RF 中我们有 $B$ 棵树，记为 $T_1,\dots,T_B$。对于第 $j$ 个变量 $X_j$，计算其重要性的一种方式是对于 $b=1,\dots,B$，分别计算 $\mathcal I_j(T_b)$。然后取平均值：</p>
+
+\[\dfrac{1}{B}\sum_{b=1}^{B} \mathcal I_j(T_b)\]
+
+<p>当 $Q_l$ 是基尼系数度量时，这种重要性度量被称为 <strong>基尼重要性 (Gini importance)</strong>。</p>
+
+<p><strong>另一种衡量某个变量重要性的方法是：使用 OOB</strong>。当第 $b$ 棵树生成后，我们将得到的分类器应用于 OOB 数据 (即生成第 $b$ 棵树时没有用到的数据) 上。我们计算通过该方法得到的预测准确率 (被正确分类的 OOB 数据的数量)。</p>
+
+<p>然后，为了计算第 $j$ 个变量 $X_j$ 的重要性，我们来看一下如果改变 OOB 数据中第 $j$ 个变量的值会发生什么。如何改变这些值？我们在 OOB 样本中对 $X_j$ 的值进行随机重新排列。如果 $X_j$ 很重要，那么改变 $X_j$ 的值会对分类效果产生不利影响。</p>
+
+<p>$\Longrightarrow$ 对由于重新排列 OOB 数据中 $X_j$ 值而导致的预测准确率的减少量进行计算。然后对这 $B$ 棵树上的准确率的减少量取平均值。这就是我们衡量 $X_j$ 的重要性的方法。</p>
+
+<p>另外，可能还采取了一些归一化操作，具体取决于不同的软件包实现 (如果感兴趣，请参阅文献)。在任何情况下，我们都会得到一些可以相互比较的值 (标度不是重点，关键在于相对重要性)。通常，最大的数值对应最重要的变量。</p>
+
+<p>关于上面提到的两种衡量变量重要性的方法，并没有清楚证据表明哪一种更好，两者都值得一试。</p>
+
+<p>图 5 通过基尼系数和 OOB 随机排列两种方式衡量了之前的垃圾邮件数据集中各个变量的重要性。其中，所有的变量重要性度量值都已经除以了其最大值 (最重要的变量的值)，以保证重要性的值落在 $0$ 到 $100\%$ 之间。但并非总是如此，具体取决于我们的使用惯例。可以看到，<code class="language-plaintext highlighter-rouge">!</code>、<code class="language-plaintext highlighter-rouge">$</code> 和 <code class="language-plaintext highlighter-rouge">remove</code> 这三个特征对于区分垃圾邮件和正常邮件最重要。</p>
+
+<p><img src="http://andy-blog.oss-cn-beijing.aliyuncs.com/blog/2020-10-26-WX20201026-211249%402x.png" width="60%" /></p>
+
+<p><span style="font-size:10pt"> <span style="color:steelblue;font-weight:bold">图 5</span>：在 <code class="language-plaintext highlighter-rouge">spam</code> 数据上生成的随机森林分类器的变量重要性。左图是基于基尼分裂系数计算出的变量重要性。右图是使用 OOB 随机化计算出的变量重要性，可以看到这种方式下，这些不同变量的重要性倾向于更均匀地分布。</span></p>
+
+<h3 id="23-关于-rf-性能的一些结论">2.3 关于 RF 性能的一些结论</h3>
+
+<p>对于分类问题，并非所有的 $X_j$ 都是重要的，其中有些变量并不能帮助区分不同类别的个体。</p>
+
+<p>一棵树会根据某些 $X_j$ (希望是重要的) 来划分区域。</p>
+
+<p>当变量数量 $p$ 很大，并且其中只有一小部分与分类相关时，如果 $m$ 太小，那么 RF 的性能会很差，因为我们只有很小的几率能够选择到那些重要变量进行分裂。</p>
+
+<p>这种情况下，我们需要选择足够大的 $m$。根据数据来选择 $m$ (例如：使用 OOB 版本的 CV) 可能会有所帮助。</p>
+
+<p>相比之下，通常可以选择生成最大的树 (而不是通过 OOB 选择结点大小，这将耗费更多时间)。</p>
+
+<h2 id="3-一般分类问题常用的-r-命令和注释">3. 一般分类问题常用的 R 命令和注释</h2>
+
+<h3 id="31-随机森林">3.1 随机森林</h3>
+
+<p>要在 R 中计算一个随机森林，可以使用软件包 <code class="language-plaintext highlighter-rouge">randomForest</code>。</p>
+
+<p>其中，函数 <code class="language-plaintext highlighter-rouge">randomForest()</code> 要求指定模型方程参数 <code class="language-plaintext highlighter-rouge">formula</code> (例如：<code class="language-plaintext highlighter-rouge">G ~ ···</code>)，以及使用的数据集 <code class="language-plaintext highlighter-rouge">data</code>。这表示变量 $G$ 包含了数据的分类，而数据集中的所有其他变量都是 $X_j$。如果我们只想使用其中的某些变量，则需要在 <code class="language-plaintext highlighter-rouge">data</code> 参数中指定清楚。</p>
+
+<p><strong>注意</strong>：需要对变量 $G$ 进行因子化，以确保我们计算出的是一个分类树，而非回归树。</p>
+
+<ul>
+  <li>对于分类树中的 $m$ 参数 (<code class="language-plaintext highlighter-rouge">mtry</code>)，该软件包将默认使用 $m=\sqrt{p}$。</li>
+  <li>通常，不需要改变终端结点的默认数量。</li>
+  <li>可以通过参数 <code class="language-plaintext highlighter-rouge">ntree</code> 选择树的数量。</li>
+  <li>可以要求对变量重要性的度量进行计算，并且还可以使用该包的内置函数来绘制这些度量。</li>
+  <li>使用 <code class="language-plaintext highlighter-rouge">predict</code> 来为新个体预测分类。</li>
+  <li><code class="language-plaintext highlighter-rouge">predict(yourtree)</code> (<code class="language-plaintext highlighter-rouge">yourtree</code> 是已构建的树) 将计算 $i=1,\dots,n$ 的 OOB 预测类 $\hat G_i$。</li>
+</ul>
+
+<h3 id="32-pls">3.2 PLS</h3>
+
+<p>我们还可以使用 R 软件包 <code class="language-plaintext highlighter-rouge">PLS</code> 中的 <code class="language-plaintext highlighter-rouge">plsr()</code> 函数计算 PLS 成分。</p>
+
+<p>回忆一下之前 PLS 的内容，为了计算一个变量 $X\in \mathbb R^p$ 的 PLS 成分 $T\in \mathbb R^p$，我们取</p>
+
+\[T=\Phi^{\mathrm T}X\]
+
+<p>对于某个特定矩阵 $\Phi^{\mathrm T}$。该矩阵是 <code class="language-plaintext highlighter-rouge">plsr()</code> 的输出之一 (投影矩阵)。</p>
+
+<p>$T$ 是 <code class="language-plaintext highlighter-rouge">scores()</code> 函数输出的。但请注意，这些得分是在经过中心化的 $X$ 上计算得到的，因此，如果我们想将它们和新数据结合在一起，那么需要先对新数据进行中心化，否则会出问题。为了确保对新数据进行正确处理，可以将 <code class="language-plaintext highlighter-rouge">plsr()</code> 计算出的训练数据的得分和我们直接手动计算的训练数据的得分进行对比，二者应该是相同的。</p>
+
+<h3 id="33-使用-pca-或-pls-交叉验证">3.3 使用 PCA 或 PLS 交叉验证</h3>
+
+<p><strong>问题</strong>：当我们基于 PLS 或 PCA 变量，对回归或分类进行 CV 时，是否需要重新计算 PLS 或 PCA 的投影矩阵 ($\Gamma$ 或 $\Phi$)？</p>
+
+<p><strong>答案</strong>：通常可以避免在完整样本上计算 $\Gamma$ 和 $\Phi$，而只对我们拟合的回归/分类模型的参数进行 CV。</p>
+
+<p>下节内容：聚类分析</p>
+:ET

@@ -1,0 +1,366 @@
+I"�<<h1 id="lecture-3-线性回归与优化">Lecture 3 线性回归与优化</h1>
+<h2 id="主要内容">主要内容</h2>
+<ul>
+  <li><strong>线性回归</strong>
+    <ul>
+      <li>简单模型（方便的数学运算，以牺牲灵活性为代价）</li>
+      <li>通常需要较少的数据，“可解释性”，可以扩展到非线性</li>
+      <li>所有统计学派都可以推得
+        <ul>
+          <li>在本节中，我们将通过 “频率学派 + 决策理论” 推得</li>
+          <li>在后面的学习中，我们将介绍贝叶斯方法</li>
+        </ul>
+      </li>
+    </ul>
+  </li>
+  <li><strong>机器学习优化</strong>
+    <ul>
+      <li>解析求解方案</li>
+      <li>梯度下降</li>
+      <li>凸性</li>
+    </ul>
+
+    <p>在后面的学习中，我们将讨论拉格朗日对偶。</p>
+  </li>
+</ul>
+
+<h2 id="1-基于决策理论的线性回归">1. 基于决策理论的线性回归</h2>
+<h3 id="例子根据温度预测湿度">例子：根据温度预测湿度</h3>
+<p>在回归中，我们的任务是根据特征（即预测变量或自变量）预测数值响应（即因变量）。
+假设现在有这样一个线性关系：$H=a+bT$
+其中，$H$ 表示湿度，$T$ 表示温度，$a$ 和 $b$ 是参数。</p>
+
+<p><img src="https://tva1.sinaimg.cn/large/006y8mN6ly1g8czmrv58wj31g40patee.jpg" width="80%" /></p>
+
+<h4 id="问题陈述">问题陈述</h4>
+<ul>
+  <li>模型： $H=a+bT$</li>
+  <li>拟合模型 = 基于当前数据寻找 $a$ 和 $b$ 的最佳值</li>
+  <li>常见标准：最小化平方和误差（又称残差平方和 $SSR$）</li>
+</ul>
+
+<h4 id="最小化平方和误差">最小化平方和误差</h4>
+<p>寻找 $a$ 和 $b$，使得平方损失函数 $L=\sum_{i=1}^{10}(H_i-(a+bT_i))^2$ 最小化。
+令偏导数为零：</p>
+
+<p>$\dfrac{\partial L}{\partial a}=-2\sum_{i=1}^{10}(H_i-a-bT_i)=0$</p>
+
+<p>如果我们知道 $b$，那么 $\hat a=\dfrac{1}{10}\sum_{i=1}^{10}(H_i-bT_i)$</p>
+
+<p>$\dfrac{\partial L}{\partial b}=-2\sum_{i=1}^{10}T_i(H_i-a-bT_i)=0$</p>
+
+<p>如果我们知道 $a$，那么 $\hat b=\dfrac{1}{\sum_{i=1}^{10}T_i^2}\sum_{i=1}^{10}T_i(H_i-a)$</p>
+
+<p>常规步骤：</p>
+<ul>
+  <li>写出偏导数</li>
+  <li>令偏导数等于零</li>
+  <li>求解得到模型</li>
+  <li>检查二阶导</li>
+</ul>
+
+<h4 id="解析求解方案">解析求解方案</h4>
+<ul>
+  <li>我们有两个等式和两个未知参数 $a,b$</li>
+  <li>重写为线性方程组的形式：<br />
+$\begin{pmatrix}10 &amp; \sum_{i=1}^{10}T_i \\ \sum_{i=1}^{10}T_i &amp;\sum_{i=1}^{10}T_i^2\end{pmatrix}\begin{pmatrix}a\\b\end{pmatrix}=\begin{pmatrix}\sum_{i=1}^{10}H_i \\ \sum_{i=1}^{10}T_i H_i\end{pmatrix}$<br />
+<br /></li>
+  <li>解析求解方案：$a=25.3,b=0.77$</li>
+  <li>利用 <code class="language-plaintext highlighter-rouge">numpy.linalg.solve</code> 或者 <code class="language-plaintext highlighter-rouge">SymPy</code> 求解。</li>
+</ul>
+
+<h4 id="更通用的决策规则">更通用的决策规则</h4>
+<ul>
+  <li>在响应 $y\in\Bbb R$ 和具有特征 $x_1,…,x_m\in\Bbb R$ 的实例之间建立一个线性关系：<br />
+$\hat y=w_0+\sum_{i=1}^{m}x_i w_i$ <br />
+这里，$w_0,…,w_m$ 表示权重（即模型参数）。
+<br /></li>
+  <li>技巧：增加一个虚拟特征 $x_0=1$，采用向量表示<br />
+$\hat y=\sum_{i=0}^{m}x_i w_i=\boldsymbol{x’w}$</li>
+</ul>
+
+<h2 id="2-基于频率概率模型的线性回归">2. 基于频率概率模型的线性回归</h2>
+<p><strong>最大似然估计</strong></p>
+<h4 id="数据是带有噪声的">数据是带有噪声的</h4>
+<p>例子：根据 <em>知识技术（KT）</em> 的分数预测 <em>统计机器学习（SML）</em> 的分数。</p>
+
+<p><img src="https://tva1.sinaimg.cn/large/006y8mN6ly1g8d1ks8gbfj31920n078e.jpg" width="60%" /></p>
+
+<h4 id="回归的概率模型">回归的概率模型</h4>
+<ul>
+  <li>假设一个概率模型：$Y=\boldsymbol{X’w}+\varepsilon$
+    <ul>
+      <li>这里，$\boldsymbol{X},Y$ 和 $\varepsilon$ 都是随机变量</li>
+      <li>变量 $\varepsilon$ 编码了噪声</li>
+    </ul>
+  </li>
+  <li>接下来，假设高斯噪声（独立于 $\boldsymbol{X}$）：$\varepsilon \sim N(0,\sigma^2)$</li>
+  <li>回忆：$N(x;\mu,\sigma^2)\equiv \dfrac{1}{\sqrt{2\pi\sigma^2}}\exp\left(-\dfrac{(x-\mu)^2}{2\sigma^2}\right)$</li>
+  <li>因此，
+$p_{\boldsymbol{w},\sigma^2}(y|\boldsymbol{x})=\dfrac{1}{\sqrt{2\pi\sigma^2}}\exp\left(-\dfrac{(y-\boldsymbol{x’w})^2}{2\sigma^2}\right)$</li>
+</ul>
+
+<h4 id="参数概率模型">参数概率模型</h4>
+<ul>
+  <li>采用简化表示，判别式模型为：
+$p(y|\boldsymbol{x})=\dfrac{1}{\sqrt{2\pi\sigma^2}}\exp\left(-\dfrac{(y-\boldsymbol{x’w})^2}{2\sigma^2}\right)$</li>
+  <li>未知参数：$\boldsymbol{w}$</li>
+  <li>给定观测数据 ${(\boldsymbol X_1,Y_1),…,(\boldsymbol X_n,Y_n)}$，我们希望找到能够 “最好地” 解释这些数据的参数值。</li>
+  <li>最大似然估计：选择使得观测数据的概率最大化的参数值。</li>
+</ul>
+
+<h4 id="最大似然估计">最大似然估计</h4>
+<ul>
+  <li>假设数据点之间互相独立，观测数据的概率为：
+$p(y_1,…,y_n|\boldsymbol x_1,…,\boldsymbol x_n)=\prod_{i=1}^{n}p(y_i|\boldsymbol x_i)$
+<br /></li>
+  <li>其中，$p(y_i|\boldsymbol x_i)=\dfrac{1}{\sqrt{2\pi\sigma^2}}\exp\left(-\dfrac{(y_i-\boldsymbol x_i’ \boldsymbol w)^2}{2\sigma^2}\right)$
+<br /></li>
+  <li>“Log 技巧”：相比直接求上式的最大值，我们选择求上式的对数的最大值：<br />
+$\sum_{i=1}^{n}\log p(y_i|\boldsymbol x_i)=-\dfrac{1}{2\sigma^2}\sum_{i=1}^{n}(y_i-\boldsymbol x_i’ \boldsymbol w)^2+C$  <br />
+这里，$C$ 是一个常量，与 $\boldsymbol w$ 无关。
+<br /></li>
+  <li>在该模型下，最大化以 $\boldsymbol w$ 为变量的对数似然函数，等价于最小化平方和误差。</li>
+</ul>
+
+<h2 id="3-非线性连续优化">3. 非线性连续优化</h2>
+<p><strong>对机器学习至关重要的一些基本优化方法的简要概述</strong></p>
+<h3 id="31-机器学习中的优化公式">3.1 机器学习中的优化公式</h3>
+<ul>
+  <li>训练 = 拟合 = 参数估计</li>
+  <li>典型公式
+$\hat{\boldsymbol\theta}\in\mathop{\operatorname{arg\,min}}\limits_{\boldsymbol\theta\in\boldsymbol\Theta} L(data,\boldsymbol\theta)$
+    <ul>
+      <li>$\mathop{\operatorname{arg\,min}}$ 是因为我们希望最小化而非最小值
+        <ul>
+          <li>注意：$\mathop{\operatorname{arg\,min}}$ 可能返回一个集合（最小化并非总是唯一的）</li>
+        </ul>
+      </li>
+      <li>$\boldsymbol\Theta$ 表示一个模型簇（包含约束）</li>
+      <li>$L$ 表示某个需要优化的目标函数
+        <ul>
+          <li>例如：MLE 中的（条件）似然函数</li>
+          <li>例如：决策理论中的（正则化）经验风险</li>
+        </ul>
+      </li>
+    </ul>
+  </li>
+</ul>
+
+<h3 id="32-两种求解方案">3.2 两种求解方案</h3>
+<ul>
+  <li>解析解（又称闭合解）
+    <ul>
+      <li>仅在少数情况下可以得到</li>
+      <li>
+        <p>假设无约束、$L$ 可微的情况下，令参数的一阶偏导为零：
+$\dfrac{\partial L}{\partial \theta_1}=…=\dfrac{\partial L}{\partial \theta_p}=0$</p>
+
+        <p>注意：为了检查是否为局部最小值，需要二阶偏导大于 $0$（或者 Hessian 矩阵是正定的），这是在假定不受约束的前提下（通常还需要检查边界），另外请参考后面的拉格朗日方法。</p>
+      </li>
+    </ul>
+  </li>
+  <li>通过迭代求近似解
+    <ol>
+      <li>初始化：选择参数的初始值 $\boldsymbol\theta^{(1)}$，设置 $i=1$</li>
+      <li>更新：$\boldsymbol\theta^{(i+1)}\leftarrow SomeRule[\boldsymbol\theta^{(i)}]$，设置 $i\leftarrow i+1$</li>
+      <li>终止：决定是否停止</li>
+      <li>回到第 2 步</li>
+      <li>停止：返回 $\hat{\boldsymbol\theta}\approx\boldsymbol\theta^{(i)}$</li>
+    </ol>
+  </li>
+</ul>
+
+<h3 id="33-寻找最深的点">3.3 寻找最深的点</h3>
+<p><img src="https://tva1.sinaimg.cn/large/006y8mN6ly1g8d4zj1mc5j31f60catc1.jpg" width="80%" /></p>
+
+<ul>
+  <li>在这个例子中，模型具有 2 个参数。</li>
+  <li>每个位置对应于参数值的特定组合。</li>
+  <li>深度表示该候选模型在数据上的目标值（例如：损失函数）。</li>
+</ul>
+
+<h3 id="34-坐标下降">3.4 坐标下降</h3>
+<p><img src="https://tva1.sinaimg.cn/large/006y8mN6ly1g8d53yp0wzj30ny0ng0wd.jpg" width="40%" align="right" /></p>
+
+<ul>
+  <li>假设 $\boldsymbol\theta=[\theta_1,…,\theta_K]’$
+    <ol>
+      <li>选择 $\boldsymbol\theta^{(1)}$ 和某个 $T$</li>
+      <li>对 $i$ 从 $1$ 到 $T$（也可以采用其他终止条件）：</li>
+    </ol>
+    <ol>
+      <li>$\boldsymbol\theta^{(i+1)}\leftarrow\boldsymbol\theta^{(i)}$</li>
+      <li>对 $j$ 从 $1$ 到 $K$：
+        <ol>
+          <li>固定 $\boldsymbol\theta^{(i+1)}$ 部分，除了第 $j$ 项</li>
+          <li>找到使 $L\left(\theta_j^{(i+1)}\right)$ 最小化的 $\hat\theta_j^{(i+1)}$</li>
+          <li>更新 $\boldsymbol\theta^{(i+1)}$ 的第 $j$ 项</li>
+          <li>返回 $\hat{\boldsymbol\theta}\approx\boldsymbol\theta^{(i)}$</li>
+        </ol>
+      </li>
+    </ol>
+  </li>
+</ul>
+
+<h3 id="35-回忆梯度">3.5 回忆：梯度</h3>
+<p><img src="https://tva1.sinaimg.cn/large/006y8mN6ly1g8d6yhgcz6j30aw0cugnx.jpg" width="25%" align="right" /></p>
+
+<ul>
+  <li>$\boldsymbol\theta$ 处的梯度定义为 $\left[\dfrac{\partial L}{\partial\theta_1},…,\dfrac{\partial L}{\partial\theta_p}\right]’$ 在 $\boldsymbol\theta$ 处的值。</li>
+  <li>梯度指向从 $\boldsymbol\theta$ 点出发，$L(\boldsymbol\theta)$ 变化最大的方向。</li>
+  <li>速记表示：
+    <ul>
+      <li>计算在 $\boldsymbol\theta$ 点处的 $\nabla L\overset{\text{def}}{=}\left[\dfrac{\partial L}{\partial\theta_1},…,\dfrac{\partial L}{\partial\theta_p}\right]’$</li>
+      <li>这里，$\nabla$ 是 “竖琴” 符号</li>
+    </ul>
+  </li>
+</ul>
+
+<h3 id="36-梯度下降">3.6 梯度下降</h3>
+<p><img src="https://tva1.sinaimg.cn/large/006y8mN6ly1g8d70xpghnj30i60j8n0s.jpg" width="30%" align="right" /></p>
+
+<ul>
+  <li>假设 $L$ 是可微的
+    <ol>
+      <li>选择 $\boldsymbol\theta^{(1)}$ 和某个 $T$</li>
+      <li>对 $i$ 从 $1$ 到 $T$（也可以采用其他终止条件）：
+$\boldsymbol\theta^{(i+1)}\leftarrow\boldsymbol\theta^{(i)}-\eta\nabla L(\boldsymbol\theta^{(i)})$</li>
+      <li>返回 $\hat{\boldsymbol\theta}\approx\boldsymbol\theta^{(i)}$</li>
+    </ol>
+  </li>
+  <li>注意：$\eta$ 在每一步中是动态更新的</li>
+  <li>变体：随机梯度下降 (SGD)、小批量梯度下降 (Mini-batch SGD)、动量法 (Momentum)、AdaGrad算法等</li>
+</ul>
+
+<h3 id="37-凸目标函数">3.7 凸目标函数</h3>
+<p><img src="https://tva1.sinaimg.cn/large/006y8mN6ly1g8d7cxg8abj30fa0gewh6.jpg" width="30%" align="right" /></p>
+
+<ul>
+  <li>“碗形” 函数</li>
+  <li>直观上，函数图像任意两点之间的线段位于函数图像上方。</li>
+  <li>
+    <p>定义：</p>
+
+    <p>$f:D\rightarrow\Bbb R$ 是凸函数，</p>
+
+    <p>如果 $\forall \boldsymbol{a,b}\in D,t\in [0,1]$，都有：</p>
+
+    <p>$f(t\boldsymbol a+(1-t)\boldsymbol b)\le tf(\boldsymbol a)+(1-t)f(\boldsymbol b)$</p>
+
+    <p>当不等号为严格 ( $&lt;$ ) 时，$f$ 为严格凸函数。</p>
+
+    <p>此外，等效地，我们可以看一下二阶导：</p>
+
+    <p>对于按标量定义的 $f$，二阶导应为非负；</p>
+
+    <p>对于多元 $f$，Hessian 矩阵应为正半定。</p>
+  </li>
+  <li>在（严格）凸函数上使用梯度下降，可以确保找到（唯一）全局最小值。</li>
+</ul>
+
+<h3 id="38-l_1-与-l_2-范数">3.8 $L_1$ 与 $L_2$ 范数</h3>
+<ul>
+  <li>在整个课程中，我们经常会遇到范数，它们是一类具有特定形式的函数：$\Bbb R^n\rightarrow\Bbb R$
+    <ul>
+      <li>直观上，范数在某种意义上衡量了向量的长度</li>
+      <li>通常作为机器学习优化中的目标函数或者停止条件的一部分</li>
+    </ul>
+  </li>
+  <li>
+    <p>具体来说，我们将经常使用 $L_2$ 范数（又称欧几里德距离）:</p>
+
+    <p>$\|\boldsymbol a\|=\|\boldsymbol a\|_2\equiv\sqrt{a_1^2+…+a_n^2}$</p>
+  </li>
+  <li>
+    <p>以及 $L_1$ 范数（也称为绝对范数或曼哈顿距离）:</p>
+
+    <p>$\|\boldsymbol a\|_1\equiv |a_1|+…+|a_n|$</p>
+  </li>
+  <li>
+    <p>例如，平方和误差就是一个平方范数：</p>
+
+    <p>$L=\sum_{i=1}^{n}\left(y_i-\sum_{j=0}^{m}X_{ij}w_j\right)^2=\|\boldsymbol y-\boldsymbol{Xw}\|^2$</p>
+  </li>
+</ul>
+
+<h3 id="以及更多">以及更多</h3>
+<ul>
+  <li>如果存在约束怎么办？</li>
+  <li>收敛速度如何？</li>
+  <li>有没有比梯度下降更快的方法（有，但是可能会很昂贵）</li>
+  <li>目标函数是否真的需要可微？（并不是）</li>
+  <li>还有更多的技巧吗？（是的）</li>
+</ul>
+
+<p>稍后我们将看到拉格朗日对偶。</p>
+
+<h3 id="我们已经见过的一个技巧log-技巧">我们已经见过的一个技巧：Log 技巧</h3>
+<ul>
+  <li>尝试用更方便的 $\log L(\theta)$ 代替优化 $L(\theta)$</li>
+  <li>为什么我们可以这样做？</li>
+  <li>严格单调（递增）函数：$a&gt;b \Rightarrow f(a)&gt;f(b)$
+    <ul>
+      <li>例子：log 函数</li>
+    </ul>
+  </li>
+  <li><strong>引理</strong>：考虑任意目标函数 $L(\theta)$ 和任意严格单调函数 $f$，$\theta^*$ 是 $L(\theta)$ 的一个最优解，当且仅当它是 $f(L(\theta))$ 的一个最优解。</li>
+</ul>
+
+<h2 id="4-线性回归优化">4. 线性回归优化</h2>
+<p><strong>对于 MLE / 决策理论的推导</strong></p>
+<h3 id="41-最小二乘法">4.1 最小二乘法</h3>
+<ul>
+  <li>训练数据：${(\boldsymbol x_1,y_1),…,(\boldsymbol x_n,y_n)}$ （注意：这里 $\boldsymbol x_i$ 是粗体，表示向量）</li>
+  <li>为了方便，行代表实例（所以，列代表属性），用一个 $n\times(m+1)$ 的矩阵 $\boldsymbol X$ 和一个 $n$ 维向量 $\boldsymbol y$ 代表训练数据</li>
+  <li>概率模型 / 决策规则假设：$\boldsymbol y\approx\boldsymbol{Xw}$</li>
+  <li>
+    <p>为了找到 $\boldsymbol w$，最小化平方和误差：</p>
+
+    <p>$L=\sum_{i=1}^{n}\left(y_i-\sum_{j=0}^{m}X_{ij}w_j\right)^2$</p>
+  </li>
+  <li>
+    <p>令偏导数为零，对 $\boldsymbol w$ 求解：</p>
+
+    <p>$\hat{\boldsymbol w}=(\boldsymbol{X’X})^{-1}\boldsymbol{X’y}$</p>
+    <ul>
+      <li>该方程组称为正规方程</li>
+      <li>只有当矩阵的逆存在时，该方程组才是良定义的</li>
+    </ul>
+  </li>
+</ul>
+
+<p>（本教程中，粗体大写字母表示矩阵，$\boldsymbol{X’}$ 表示转置，$\boldsymbol{X}^{-1}$ 表示逆）</p>
+
+<h3 id="42-贝叶斯推导">4.2 贝叶斯推导</h3>
+<ul>
+  <li>在后面的学习中，我们还会回头讨论线性回归</li>
+  <li>完全贝叶斯，后验：
+    <ul>
+      <li>贝叶斯线性回归</li>
+    </ul>
+  </li>
+  <li>权重向量的贝叶斯（MAP）点估计：
+    <ul>
+      <li>对平方和损失函数增加一个惩罚项</li>
+      <li>相当于我们即将学习的 $L_2$ “正则化”</li>
+      <li>称为：岭回归</li>
+    </ul>
+  </li>
+</ul>
+
+<h3 id="总结">总结</h3>
+<ul>
+  <li>线性回归
+    <ul>
+      <li>基于频率的概率推导</li>
+      <li>基于频率的决策理论推导</li>
+    </ul>
+
+    <p>后期学习中，我们还会涉及贝叶斯方法</p>
+  </li>
+  <li>机器学习优化</li>
+</ul>
+
+<p>下节内容：Logistic 回归-用于分类的线性概率模型；非线性基扩展</p>
+:ET

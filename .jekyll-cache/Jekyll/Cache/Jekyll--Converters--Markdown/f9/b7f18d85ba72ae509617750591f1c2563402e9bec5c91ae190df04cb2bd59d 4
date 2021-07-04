@@ -1,0 +1,10 @@
+I"�<h1 id="lecture-14-贝叶斯回归">Lecture 14 贝叶斯回归</h1>
+<h2 id="主要内容">主要内容</h2>
+<ul>
+  <li><strong>点估计没有捕捉到的不确定性</strong></li>
+  <li><strong>贝叶斯方法保留了不确定性</strong></li>
+  <li><strong>顺序贝叶斯更新</strong></li>
+  <li><strong>共轭先验（Normal-Normal）</strong></li>
+  <li><strong>利用后验在测试集上进行贝叶斯预测</strong></li>
+</ul>
+:ET
