@@ -1,0 +1,576 @@
+I"��<h2 id="1-案例背景">1. 案例背景</h2>
+
+<p>某线下培训机构计划开设数据分析方向的课程，但是对于数据分析行业还没有太全面的了解，因此需要通过在招聘网站上采集数据分析行业的相关招聘信息，对数据分析岗位的市场需求、就业情况和岗位技能做深入调研。目前，爬虫组已采集了与数据分析相关的招聘信息，需要由数据分析组完成分析报告，为企业战略规划提供有力依据。</p>
+
+<p>通常，大公司内部的数据采集、处理和分析流程如下：</p>
+
+<p><img src="http://andy-blog.oss-cn-beijing.aliyuncs.com/blog/2021-07-04-WX20210704-222553%402x.png" width="90%" /></p>
+
+<p>目前，公司内已开设的课程方向有：</p>
+
+<ul>
+  <li>游戏</li>
+  <li>运维</li>
+</ul>
+
+<p>这里，我们不仅需要对数据分析岗位进行分析，还应当将得到的各项结果指标与已有课程方向进行对比分析。例如：对比数据分析、游戏、运维三个方向的招聘需求量、薪资分布等。</p>
+
+<p>本案例中，我们仅以数据分析岗位为例进行分析，其余两个岗位方向的分析过程是类似的。</p>
+
+<p><strong>限定就业地区：</strong>由于此培训机构学员入口和出口绝大多数来自一线城市，本次也仅针对北京、上海、广州、深圳这 四个一线城市的数据进行分析。</p>
+
+<p><strong>数据来源：</strong>此次招聘数据来源于来自 51job，采集日期：2020-09-15。</p>
+
+<h2 id="2-问题确认与目标拆解">2. 问题确认与目标拆解</h2>
+
+<p><img src="http://andy-blog.oss-cn-beijing.aliyuncs.com/blog/2021-07-04-WX20210704-231327%402x.png" width="90%" /></p>
+
+<h2 id="3-问题解决思路">3. 问题解决思路</h2>
+
+<p><strong>清洗数据：</strong></p>
+
+<ol>
+  <li>
+    <p>缺失数据处理（例如：某行数据没有工作名称）</p>
+  </li>
+  <li>
+    <p>重复数据处理（例如：同一个公司发布多个相同岗位）</p>
+  </li>
+  <li>
+    <p>限定招聘地区（一线城市：北京、上海、广州、深圳）</p>
+  </li>
+  <li>
+    <p>过滤周边岗位（例如：某些不相关岗位可能也要求具有数据分析能力）</p>
+  </li>
+</ol>
+
+<p><strong>市场需求量：</strong></p>
+
+<ol>
+  <li>
+    <p>按城市与岗位进行分组</p>
+  </li>
+  <li>
+    <p>统计岗位招聘量</p>
+  </li>
+</ol>
+
+<p><strong>就业企业类型分布：</strong></p>
+
+<ol>
+  <li>
+    <p>对企业类型进行分组</p>
+  </li>
+  <li>
+    <p>统计每个企业类型的招聘数量与在总招聘量中的占比</p>
+  </li>
+</ol>
+
+<p><strong>岗位薪资：</strong></p>
+
+<ol>
+  <li>
+    <p>薪资字段规范化（例如：1-2 万/月 $\Longrightarrow$ 最小值：10000 ，最大值：20000，平均值：15000）</p>
+  </li>
+  <li>
+    <p>按工作年限进行分组，计算每组的薪资平均值</p>
+  </li>
+  <li>
+    <p>按企业类型进行分组，计算每组的薪资平均值</p>
+  </li>
+</ol>
+
+<p><strong>岗位核心技能：</strong></p>
+
+<ol>
+  <li>建立待评估的岗位技能表</li>
+  <li>统计各个待评估技能在招聘需求中出现的次数</li>
+  <li>获取出现次数最高的前 30 个技能，标记为岗位的核心技能</li>
+</ol>
+
+<h2 id="4-案例实操">4. 案例实操</h2>
+
+<h3 id="41-数据导入">4.1 数据导入</h3>
+
+<h4 id="411-创建数据库">4.1.1 创建数据库</h4>
+
+<p>之前案例中我们使用 Navicat 客户端导入数据，这里我们尝试另一种方式：通过终端导入数据。</p>
+
+<p>首先，打开终端，输入如下命令连接到 MySQL 本地服务器：</p>
+
+<div class="language-bash highlighter-rouge"><div class="highlight"><pre class="highlight"><code><table class="rouge-table"><tbody><tr><td class="rouge-gutter gl"><pre class="lineno">1
+</pre></td><td class="rouge-code"><pre>mysql <span class="nt">-u</span> root <span class="nt">-p</span>
+</pre></td></tr></tbody></table></code></pre></div></div>
+
+<p>根据提示信息输入密码后，连接成功，会返回如下信息：</p>
+
+<div class="language-plaintext highlighter-rouge"><div class="highlight"><pre class="highlight"><code><table class="rouge-table"><tbody><tr><td class="rouge-gutter gl"><pre class="lineno">1
+2
+3
+4
+5
+6
+7
+8
+9
+10
+11
+12
+13
+</pre></td><td class="rouge-code"><pre>Welcome to the MySQL monitor.  Commands end with ; or \g.
+Your MySQL connection id is 61
+Server version: 8.0.14 MySQL Community Server - GPL
+
+Copyright (c) 2000, 2019, Oracle and/or its affiliates. All rights reserved.
+
+Oracle is a registered trademark of Oracle Corporation and/or its
+affiliates. Other names may be trademarks of their respective
+owners.
+
+Type 'help;' or '\h' for help. Type '\c' to clear the current input statement.
+
+mysql&gt;
+</pre></td></tr></tbody></table></code></pre></div></div>
+
+<p>然后，我们创建数据库 <code class="language-plaintext highlighter-rouge">recruitment</code>，并指定 UTF-8 编码：</p>
+
+<div class="language-sql highlighter-rouge"><div class="highlight"><pre class="highlight"><code><table class="rouge-table"><tbody><tr><td class="rouge-gutter gl"><pre class="lineno">1
+</pre></td><td class="rouge-code"><pre><span class="k">CREATE</span> <span class="k">DATABASE</span> <span class="n">recruitment</span> <span class="n">CHARSET</span> <span class="n">utf8</span><span class="p">;</span>
+</pre></td></tr></tbody></table></code></pre></div></div>
+
+<p>创建成功，返回如下信息：</p>
+
+<div class="language-plaintext highlighter-rouge"><div class="highlight"><pre class="highlight"><code><table class="rouge-table"><tbody><tr><td class="rouge-gutter gl"><pre class="lineno">1
+</pre></td><td class="rouge-code"><pre>Query OK, 1 row affected, 1 warning (0.08 sec)
+</pre></td></tr></tbody></table></code></pre></div></div>
+
+<p>然后，我们退出 MySQL 环境：</p>
+
+<div class="language-sql highlighter-rouge"><div class="highlight"><pre class="highlight"><code><table class="rouge-table"><tbody><tr><td class="rouge-gutter gl"><pre class="lineno">1
+</pre></td><td class="rouge-code"><pre><span class="n">EXIT</span><span class="p">;</span>
+</pre></td></tr></tbody></table></code></pre></div></div>
+
+<p>退出成功，返回如下信息：</p>
+
+<div class="language-plaintext highlighter-rouge"><div class="highlight"><pre class="highlight"><code><table class="rouge-table"><tbody><tr><td class="rouge-gutter gl"><pre class="lineno">1
+</pre></td><td class="rouge-code"><pre>Bye
+</pre></td></tr></tbody></table></code></pre></div></div>
+
+<h4 id="412-导入数据库">4.1.2 导入数据库</h4>
+
+<p>在终端中，切换路径到存放我们提前准备好的 <code class="language-plaintext highlighter-rouge">recruitment.sql</code> 文件所在的路径下（这里以桌面文件夹为例）：</p>
+
+<div class="language-bash highlighter-rouge"><div class="highlight"><pre class="highlight"><code><table class="rouge-table"><tbody><tr><td class="rouge-gutter gl"><pre class="lineno">1
+</pre></td><td class="rouge-code"><pre><span class="nb">cd </span>Desktop
+</pre></td></tr></tbody></table></code></pre></div></div>
+
+<p>执行以下命令，通过 <code class="language-plaintext highlighter-rouge">recruitment.sql</code> 脚本将数据导入到之前创建的 <code class="language-plaintext highlighter-rouge">recruitment</code> 数据库中：</p>
+
+<div class="language-bash highlighter-rouge"><div class="highlight"><pre class="highlight"><code><table class="rouge-table"><tbody><tr><td class="rouge-gutter gl"><pre class="lineno">1
+</pre></td><td class="rouge-code"><pre>mysql <span class="nt">-u</span> root <span class="nt">-p</span> recruitment &lt; recruitment.sql
+</pre></td></tr></tbody></table></code></pre></div></div>
+
+<p>按照提示输入密码后，等待导入完成。</p>
+
+<p>注意：</p>
+
+<ul>
+  <li>
+    <p><code class="language-plaintext highlighter-rouge">&lt;</code> 后面的 <code class="language-plaintext highlighter-rouge">recruitment.sql</code> 是 SQL 文件的相对路径；</p>
+  </li>
+  <li>
+    <p>如果提示找不到指定文件，可以在终端中重新尝试将路径切换到 <code class="language-plaintext highlighter-rouge">recruitment.sql</code> 所在的文件夹，再次执行导入命令；</p>
+  </li>
+  <li>
+    <p>或者，使用 <code class="language-plaintext highlighter-rouge">recruitment.sql</code> 的绝对路径，例如：</p>
+
+    <p><code class="language-plaintext highlighter-rouge">mysql -u root -p recruitment &lt; /Users/andy/Desktop/recruitment.sql</code></p>
+  </li>
+  <li>
+    <p>导入操作是在终端中进行的，而不是在 MySQL 环境下；</p>
+  </li>
+  <li>
+    <p>另外，我们也可以将现有数据库导出为 SQL 脚本文件，例如：</p>
+
+    <p><code class="language-plaintext highlighter-rouge">mysqldump -u root -p recruitment &gt; /Users/andy/Desktop/recruitment.sql</code></p>
+  </li>
+</ul>
+
+<p>现在，我们打开 Navicat 客户端，可以看到 <code class="language-plaintext highlighter-rouge">recruitment</code> 数据库已经成功创建，并且数据已经成功导入到各表中：</p>
+
+<p><img src="http://andy-blog.oss-cn-beijing.aliyuncs.com/blog/2021-07-04-iShot2021-07-05%2000.16.10.png" width="90%" /></p>
+
+<p>可以看到，<code class="language-plaintext highlighter-rouge">recruitment</code> 数据库中现在有以下 4 张表：</p>
+
+<ul>
+  <li><code class="language-plaintext highlighter-rouge">data</code>：数据分析岗位的招聘数据</li>
+  <li><code class="language-plaintext highlighter-rouge">game</code>：游戏行业的招聘数据</li>
+  <li><code class="language-plaintext highlighter-rouge">operator</code>：运维方向的招聘数据</li>
+  <li><code class="language-plaintext highlighter-rouge">skill_table</code>：各种技能名称的数据</li>
+</ul>
+
+<p>本案例中，我们主要分析的是数据分析岗位的招聘数据，即  <code class="language-plaintext highlighter-rouge">data</code> 表，它包含以下字段，其中除了 <code class="language-plaintext highlighter-rouge">id</code> 为 <code class="language-plaintext highlighter-rouge">BIGINT</code> 类型之外，其余字段均为 <code class="language-plaintext highlighter-rouge">TEXT</code> 类型：</p>
+
+<ul>
+  <li><code class="language-plaintext highlighter-rouge">id</code>：职位对应记录的编号</li>
+  <li><code class="language-plaintext highlighter-rouge">job_href</code>：职位链接的 URL（即 51job 上该职位信息页面）</li>
+  <li><code class="language-plaintext highlighter-rouge">job_name</code>：职位名称</li>
+  <li><code class="language-plaintext highlighter-rouge">company_href</code>：招聘该职位的公司链接的 URL（即 51job 上该公司详情页面）</li>
+  <li><code class="language-plaintext highlighter-rouge">company_name</code>：公司名称</li>
+  <li><code class="language-plaintext highlighter-rouge">providesalary_text</code>：薪资</li>
+  <li><code class="language-plaintext highlighter-rouge">workarea</code>：职位所在地区的编码（即 51job 服务器中该地区对应的编码）</li>
+  <li><code class="language-plaintext highlighter-rouge">workarea_text</code>：职位所在地区</li>
+  <li><code class="language-plaintext highlighter-rouge">updatedate</code>：职位信息的更新日期（例如：<code class="language-plaintext highlighter-rouge">09-15</code>）</li>
+  <li><code class="language-plaintext highlighter-rouge">companytype_text</code>：公司类型</li>
+  <li><code class="language-plaintext highlighter-rouge">degreefrom</code>：招聘人数</li>
+  <li><code class="language-plaintext highlighter-rouge">workyear</code>：要求的工作年限</li>
+  <li><code class="language-plaintext highlighter-rouge">issuedate</code>：职位信息的更新时间（例如：<code class="language-plaintext highlighter-rouge">2020-09-15 11:12:00</code>）</li>
+  <li><code class="language-plaintext highlighter-rouge">parse2_job_detail</code>：职位的详细信息（包含岗位职责、岗位要求、职能类别、关键字等）</li>
+</ul>
+
+<h3 id="42-数据清洗">4.2 数据清洗</h3>
+
+<p>以 “数据分析” 招聘岗位数据为例：</p>
+
+<h4 id="421-缺失数据处理">4.2.1 缺失数据处理</h4>
+
+<p>首先，我们需要对数据集中的缺失数据进行处理：</p>
+
+<p><img src="http://andy-blog.oss-cn-beijing.aliyuncs.com/blog/2021-07-05-WX20210705-223136%402x.png" width="90%" /></p>
+
+<p>可以看到，有些数据存在部分字段信息缺失，例如上面 <code class="language-plaintext highlighter-rouge">id = 5</code> 的记录缺少 <code class="language-plaintext highlighter-rouge">degreefrom</code>（招聘人数）相关信息，<code class="language-plaintext highlighter-rouge">id = 15</code> 的记录缺少 <code class="language-plaintext highlighter-rouge">providesalary_text</code>（薪资）和 <code class="language-plaintext highlighter-rouge">workyear</code>（工作年限）相关信息。那么，对于这类记录我们应该保留吗？</p>
+
+<p>一般来说，我们的处理原则是：<strong>关键数据不能缺失，但是某些字段的数据是允许缺失的。</strong></p>
+
+<p>例如：</p>
+
+<ul>
+  <li><code class="language-plaintext highlighter-rouge">company_href</code>（公司简介链接的 URL）可能在这里并不是特别重要，所以对于该字段的缺失是允许的；</li>
+  <li>或者，某记录缺少 <code class="language-plaintext highlighter-rouge">workarea</code>（工作地区编码）的信息，但是 <code class="language-plaintext highlighter-rouge">workarea_text</code>（工作地区名称）的信息是存在的，这种情况也是允许的；</li>
+  <li>又或者，某记录的 <code class="language-plaintext highlighter-rouge">updatedate</code> （职位信息更新日期）缺失，但是更详细的 <code class="language-plaintext highlighter-rouge">issuedate</code>（职位更新时间）的信息是存在的，这种情况也是允许的；</li>
+  <li>但是，对于一些关键信息字段，比如 <code class="language-plaintext highlighter-rouge">job_name</code>（职位名称）、<code class="language-plaintext highlighter-rouge">company_name</code>（公司名称）、<code class="language-plaintext highlighter-rouge">parse2_job_detail</code>（职位详细信息）等，这些字段的信息是不允许缺失的。</li>
+</ul>
+
+<p>通常情况下，我们需要制定一些规则，以确定哪些字段允许为空，哪些字段不允许为空。</p>
+
+<p>这里，我们采取一种比较简单粗暴的做法：只要有任何字段信息缺失的情况（<code class="language-plaintext highlighter-rouge">NULL</code> 或者 <code class="language-plaintext highlighter-rouge">""</code>），就过滤掉该记录。</p>
+
+<div class="language-sql highlighter-rouge"><div class="highlight"><pre class="highlight"><code><table class="rouge-table"><tbody><tr><td class="rouge-gutter gl"><pre class="lineno">1
+2
+3
+4
+5
+6
+7
+8
+9
+10
+11
+12
+13
+14
+15
+16
+17
+18
+19
+20
+21
+22
+</pre></td><td class="rouge-code"><pre><span class="c1">-- 缺失数据处理：过滤掉任何包含 NULL 或者空字符串字段的记录</span>
+<span class="k">CREATE</span> <span class="k">VIEW</span> <span class="n">v_data_clean_null</span> <span class="k">AS</span> 
+<span class="k">SELECT</span> <span class="o">*</span> 
+<span class="k">FROM</span> <span class="k">data</span>
+<span class="k">WHERE</span>
+  <span class="n">job_href</span> <span class="k">IS</span> <span class="k">NOT</span> <span class="k">NULL</span> <span class="k">AND</span> <span class="n">job_href</span> <span class="o">!=</span> <span class="s1">''</span> <span class="k">AND</span> 
+  <span class="n">job_name</span> <span class="k">IS</span> <span class="k">NOT</span> <span class="k">NULL</span> <span class="k">AND</span> <span class="n">job_name</span> <span class="o">!=</span> <span class="s1">''</span> <span class="k">AND</span> 
+  <span class="n">company_href</span> <span class="k">IS</span> <span class="k">NOT</span> <span class="k">NULL</span> <span class="k">AND</span> <span class="n">company_href</span> <span class="o">!=</span> <span class="s1">''</span> <span class="k">AND</span> 
+  <span class="n">company_name</span> <span class="k">IS</span> <span class="k">NOT</span> <span class="k">NULL</span> <span class="k">AND</span> <span class="n">company_name</span> <span class="o">!=</span> <span class="s1">''</span> <span class="k">AND</span> 
+  <span class="n">providesalary_text</span> <span class="k">IS</span> <span class="k">NOT</span> <span class="k">NULL</span> <span class="k">AND</span> <span class="n">providesalary_text</span> <span class="o">!=</span> <span class="s1">''</span> <span class="k">AND</span> 
+  <span class="n">workarea</span> <span class="k">IS</span> <span class="k">NOT</span> <span class="k">NULL</span> <span class="k">AND</span> <span class="n">workarea</span> <span class="o">!=</span> <span class="s1">''</span> <span class="k">AND</span> 
+  <span class="n">workarea_text</span> <span class="k">IS</span> <span class="k">NOT</span> <span class="k">NULL</span> <span class="k">AND</span> <span class="n">workarea_text</span> <span class="o">!=</span> <span class="s1">''</span> <span class="k">AND</span> 
+  <span class="n">companytype_text</span> <span class="k">IS</span> <span class="k">NOT</span> <span class="k">NULL</span> <span class="k">AND</span> <span class="n">companytype_text</span> <span class="o">!=</span> <span class="s1">''</span> <span class="k">AND</span> 
+  <span class="n">degreefrom</span> <span class="k">IS</span> <span class="k">NOT</span> <span class="k">NULL</span> <span class="k">AND</span> <span class="n">degreefrom</span> <span class="o">!=</span> <span class="s1">''</span> <span class="k">AND</span> 
+  <span class="n">workyear</span> <span class="k">IS</span> <span class="k">NOT</span> <span class="k">NULL</span> <span class="k">AND</span> <span class="n">workyear</span> <span class="o">!=</span> <span class="s1">''</span> <span class="k">AND</span> 
+  <span class="n">updatedate</span> <span class="k">IS</span> <span class="k">NOT</span> <span class="k">NULL</span> <span class="k">AND</span> <span class="n">updatedate</span> <span class="o">!=</span> <span class="s1">''</span> <span class="k">AND</span> 
+  <span class="n">issuedate</span> <span class="k">IS</span> <span class="k">NOT</span> <span class="k">NULL</span> <span class="k">AND</span> <span class="n">issuedate</span> <span class="o">!=</span> <span class="s1">''</span> <span class="k">AND</span> 
+  <span class="n">parse2_job_detail</span> <span class="k">IS</span> <span class="k">NOT</span> <span class="k">NULL</span> <span class="k">AND</span> <span class="n">parse2_job_detail</span> <span class="o">!=</span> <span class="s1">''</span><span class="p">;</span>
+
+<span class="k">SELECT</span>
+  <span class="p">(</span><span class="k">SELECT</span> <span class="k">COUNT</span><span class="p">(</span><span class="o">*</span><span class="p">)</span> <span class="k">FROM</span> <span class="k">data</span><span class="p">)</span> <span class="k">AS</span> <span class="n">count_before</span><span class="p">,</span>
+  <span class="p">(</span><span class="k">SELECT</span> <span class="k">COUNT</span><span class="p">(</span><span class="o">*</span><span class="p">)</span> <span class="k">FROM</span> <span class="n">v_data_clean_null</span><span class="p">)</span> <span class="k">AS</span> <span class="n">count_after</span><span class="p">;</span>
+</pre></td></tr></tbody></table></code></pre></div></div>
+
+<p><img src="http://andy-blog.oss-cn-beijing.aliyuncs.com/blog/2021-07-05-WX20210705-235349%402x.png" width="25%" /></p>
+
+<p>可以看到，原始数据集包含 98069 条记录。过滤掉包含缺失字段的记录后，数据量为 88534 条。</p>
+
+<h4 id="422-重复数据处理">4.2.2 重复数据处理</h4>
+
+<p>在完成对缺失数据的处理后，我们还需要处理数据集中包含的重复记录。例如，某公司将同一个职位信息发布了多次，我们应该对这种情况进行去重。</p>
+
+<p>但是，注意这里我们不能仅仅依靠 <code class="language-plaintext highlighter-rouge">DISTINCT</code> 完成去重操作，即：</p>
+
+<div class="language-sql highlighter-rouge"><div class="highlight"><pre class="highlight"><code><table class="rouge-table"><tbody><tr><td class="rouge-gutter gl"><pre class="lineno">1
+</pre></td><td class="rouge-code"><pre><span class="k">SELECT</span> <span class="k">DISTINCT</span> <span class="o">*</span> <span class="k">FROM</span> <span class="n">v_data_clean_null</span><span class="p">;</span>
+</pre></td></tr></tbody></table></code></pre></div></div>
+
+<p><img src="http://andy-blog.oss-cn-beijing.aliyuncs.com/blog/2021-07-05-WX20210706-002134%402x.png" width="90%" /></p>
+
+<p>可以看到，图中两条记录的职位名称、公司名称、任职要求等信息都相同，仅仅只有工作地点不同。这种情况下，我们其实应该将其视为同一条招聘信息。</p>
+
+<p>因此，正确的做法是选取一些合适的字段进行去重。这里，我们选择 <code class="language-plaintext highlighter-rouge">company_name</code> （公司名称）和 <code class="language-plaintext highlighter-rouge">job_name</code>（职位名称）进行去重，即保留该公司发布的关于该职位的最新招聘数据。</p>
+
+<p><img src="http://andy-blog.oss-cn-beijing.aliyuncs.com/blog/2021-07-05-WX20210706-003649%402x.png" width="90%" /></p>
+
+<p>例如，上图中 ezbuy 公司在 9 月 14 日和 9 月 15 日连续发布了两条 “跨境电商运营” 的招聘信息。按照前面我们指定的规则，这种情况属于同一公司发布的同一职位信息，因此我们仅保留最新的那一条记录（即 9 月 15 日发布的那条记录）。</p>
+
+<p>思路：利用窗口函数，按照公司和职位进行分组，按照发布时间进行倒排序，选取排名第一的记录。这种处理方式的好处是即使两条记录的发布时间完全相同，也可以按照排名只选取其中一条记录。</p>
+
+<div class="language-sql highlighter-rouge"><div class="highlight"><pre class="highlight"><code><table class="rouge-table"><tbody><tr><td class="rouge-gutter gl"><pre class="lineno">1
+2
+3
+4
+5
+6
+7
+8
+9
+10
+11
+12
+13
+14
+15
+16
+17
+18
+19
+20
+21
+22
+23
+24
+25
+26
+27
+28
+</pre></td><td class="rouge-code"><pre><span class="c1">-- 重复数据处理：利用窗口函数，按照公司和职位进行分组，按照发布时间进行倒排序，选取排名第一的记录</span>
+<span class="k">CREATE</span> <span class="k">VIEW</span> <span class="n">v_data_clean_distinct</span> <span class="k">AS</span> 
+<span class="k">WITH</span> <span class="n">p</span> <span class="k">AS</span>
+<span class="p">(</span><span class="k">SELECT</span>
+  <span class="o">*</span><span class="p">,</span>
+  <span class="n">ROW_NUMBER</span><span class="p">()</span> <span class="n">OVER</span> <span class="p">(</span><span class="n">PARTITION</span> <span class="k">BY</span> <span class="n">company_name</span><span class="p">,</span> <span class="n">job_name</span> <span class="k">ORDER</span> <span class="k">BY</span> <span class="n">issuedate</span> <span class="k">DESC</span><span class="p">)</span> <span class="k">AS</span> <span class="n">row1</span>
+<span class="k">FROM</span> <span class="n">v_data_clean_null</span><span class="p">)</span>
+<span class="k">SELECT</span>
+  <span class="n">id</span><span class="p">,</span> 
+  <span class="n">job_href</span><span class="p">,</span> 
+  <span class="n">job_name</span><span class="p">,</span> 
+  <span class="n">company_href</span><span class="p">,</span> 
+  <span class="n">company_name</span><span class="p">,</span> 
+  <span class="n">providesalary_text</span><span class="p">,</span> 
+  <span class="n">workarea</span><span class="p">,</span> 
+  <span class="n">workarea_text</span><span class="p">,</span> 
+  <span class="n">updatedate</span><span class="p">,</span> 
+  <span class="n">companytype_text</span><span class="p">,</span> 
+  <span class="n">degreefrom</span><span class="p">,</span> 
+  <span class="n">workyear</span><span class="p">,</span> 
+  <span class="n">issuedate</span><span class="p">,</span> 
+  <span class="n">parse2_job_detail</span>
+<span class="k">FROM</span> <span class="n">p</span>
+<span class="k">WHERE</span> <span class="n">row1</span> <span class="o">=</span> <span class="mi">1</span><span class="p">;</span>
+
+<span class="k">SELECT</span>
+  <span class="p">(</span><span class="k">SELECT</span> <span class="k">COUNT</span><span class="p">(</span><span class="o">*</span><span class="p">)</span> <span class="k">FROM</span> <span class="n">v_data_clean_null</span><span class="p">)</span> <span class="k">AS</span> <span class="n">count_before</span><span class="p">,</span>
+  <span class="p">(</span><span class="k">SELECT</span> <span class="k">COUNT</span><span class="p">(</span><span class="o">*</span><span class="p">)</span> <span class="k">FROM</span> <span class="n">v_data_clean_distinct</span><span class="p">)</span> <span class="k">AS</span> <span class="n">count_after</span><span class="p">;</span>
+</pre></td></tr></tbody></table></code></pre></div></div>
+
+<p><img src="http://andy-blog.oss-cn-beijing.aliyuncs.com/blog/2021-07-06-WX20210706-150728%402x.png" width="25%" /></p>
+
+<p>可以看到，去除重复招聘信息之前有 88534 条记录，去重后还剩下 80859 条记录。</p>
+
+<h4 id="423-限定招聘地区">4.2.3 限定招聘地区</h4>
+
+<p>接下来，我们对招聘地区进行过滤，仅保留来自北京、上海、广州和深圳的记录：</p>
+
+<div class="language-sql highlighter-rouge"><div class="highlight"><pre class="highlight"><code><table class="rouge-table"><tbody><tr><td class="rouge-gutter gl"><pre class="lineno">1
+2
+3
+4
+5
+6
+7
+8
+9
+10
+11
+12
+13
+14
+15
+16
+17
+18
+19
+</pre></td><td class="rouge-code"><pre><span class="k">CREATE</span> <span class="k">VIEW</span> <span class="n">v_data_clean_workplace</span> <span class="k">AS</span> 
+<span class="k">WITH</span> <span class="n">p</span> <span class="k">AS</span>
+<span class="p">(</span><span class="k">SELECT</span>
+  <span class="o">*</span><span class="p">,</span>
+  <span class="k">CASE</span>
+    <span class="k">WHEN</span> <span class="n">workarea_text</span> <span class="k">LIKE</span> <span class="s1">'%北京%'</span> <span class="k">THEN</span> <span class="s1">'北京'</span>
+    <span class="k">WHEN</span> <span class="n">workarea_text</span> <span class="k">LIKE</span> <span class="s1">'%上海%'</span> <span class="k">THEN</span> <span class="s1">'上海'</span>
+    <span class="k">WHEN</span> <span class="n">workarea_text</span> <span class="k">LIKE</span> <span class="s1">'%广州%'</span> <span class="k">THEN</span> <span class="s1">'广州'</span>
+    <span class="k">WHEN</span> <span class="n">workarea_text</span> <span class="k">LIKE</span> <span class="s1">'%深圳%'</span> <span class="k">THEN</span> <span class="s1">'深圳'</span>
+    <span class="c1">-- 这里省略了 ELSE NULL</span>
+  <span class="k">END</span> <span class="k">AS</span> <span class="n">workplace</span>
+<span class="k">FROM</span> <span class="n">v_data_clean_distinct</span><span class="p">)</span>
+<span class="k">SELECT</span> <span class="o">*</span> 
+<span class="k">FROM</span> <span class="n">p</span> 
+<span class="k">WHERE</span> <span class="n">p</span><span class="p">.</span><span class="n">workplace</span> <span class="k">IS</span> <span class="k">NOT</span> <span class="k">NULL</span><span class="p">;</span>
+
+<span class="k">SELECT</span>
+  <span class="p">(</span><span class="k">SELECT</span> <span class="k">COUNT</span><span class="p">(</span><span class="o">*</span><span class="p">)</span> <span class="k">FROM</span> <span class="n">v_data_clean_distinct</span><span class="p">)</span> <span class="k">AS</span> <span class="n">count_before</span><span class="p">,</span>
+  <span class="p">(</span><span class="k">SELECT</span> <span class="k">COUNT</span><span class="p">(</span><span class="o">*</span><span class="p">)</span> <span class="k">FROM</span> <span class="n">v_data_clean_workplace</span><span class="p">)</span> <span class="k">AS</span> <span class="n">count_after</span><span class="p">;</span>
+</pre></td></tr></tbody></table></code></pre></div></div>
+
+<p><img src="http://andy-blog.oss-cn-beijing.aliyuncs.com/blog/2021-07-06-WX20210706-151006%402x.png" width="25%" /></p>
+
+<p>可以看到，对城市进行筛选之前有 80859 条记录，筛选之后还剩下 78701 条记录。</p>
+
+<h4 id="424-过滤周边岗位">4.2.4 过滤周边岗位</h4>
+
+<p>通过在招聘网站上搜索关键词 “数据分析”，搜索引擎会把在招聘信息中出现 “数据分析” 关键词的岗位按照一定的顺序列举出来，故得到了很多并非数据分析主方向、但任职要求中提到了数据分析技能的周边岗位。</p>
+
+<p>那么，如何过滤掉这些周边岗位呢？</p>
+
+<ul>
+  <li>工作名称中必须出现指定的关键词，本次筛选的条件是：工作名称中要出现 “数据” 一词，否则标记为周边岗位，并过滤掉；</li>
+  <li>对搜索结果的再一次过滤，称为二次检索，大部分的实现方式都是通过包含关键词来判断。但是，通常很难在一开始就选择到合适的关键词，所以需要在已有数据中不断尝试：过滤掉太多记录说明关键词太少、过滤掉太少记录则说明关键词太多或者不准确。找到一个中间值即可。</li>
+</ul>
+
+<p>例如，我们可以通过在工作名称中指定关键词 “数据” 或者 “分析” 来进行二次检索过滤。这里我们考虑两种方式：</p>
+
+<ol>
+  <li>工作名称中包含关键词 “数据” 或者 “分析”；</li>
+  <li>工作名称中包含关键词 “数据”；</li>
+</ol>
+
+<p>下面我们来看一下这两种过滤方式的差异：</p>
+
+<div class="language-sql highlighter-rouge"><div class="highlight"><pre class="highlight"><code><table class="rouge-table"><tbody><tr><td class="rouge-gutter gl"><pre class="lineno">1
+2
+3
+4
+5
+6
+7
+8
+9
+10
+11
+12
+13
+14
+15
+16
+</pre></td><td class="rouge-code"><pre><span class="c1">-- 二次检索：工作名称中包含关键词 “数据” 或者 “分析”</span>
+<span class="k">CREATE</span> <span class="k">VIEW</span> <span class="n">v1</span> <span class="k">AS</span> 
+<span class="k">SELECT</span> <span class="o">*</span> 
+<span class="k">FROM</span> <span class="n">v_data_clean_workplace</span> 
+<span class="k">WHERE</span> <span class="n">job_name</span> <span class="k">LIKE</span> <span class="s1">'%数据%'</span> <span class="k">OR</span> <span class="n">job_name</span> <span class="k">LIKE</span> <span class="s1">'%分析%'</span><span class="p">;</span>
+
+<span class="c1">-- 二次检索：工作名称中包含关键词 “数据”</span>
+<span class="k">CREATE</span> <span class="k">VIEW</span> <span class="n">v2</span> <span class="k">AS</span> 
+<span class="k">SELECT</span> <span class="o">*</span> 
+<span class="k">FROM</span> <span class="n">v_data_clean_workplace</span> 
+<span class="k">WHERE</span> <span class="n">job_name</span> <span class="k">LIKE</span> <span class="s1">'%数据%'</span><span class="p">;</span>
+
+<span class="c1">-- 对比上面两种方式的差异，即仅包含关键词 “分析” 而不包含 “数据” 的记录</span>
+<span class="k">SELECT</span> <span class="o">*</span> 
+<span class="k">FROM</span> <span class="n">v1</span>
+<span class="k">WHERE</span> <span class="n">v1</span><span class="p">.</span><span class="n">id</span> <span class="k">NOT</span> <span class="k">IN</span> <span class="p">(</span><span class="k">SELECT</span> <span class="n">id</span> <span class="k">FROM</span> <span class="n">v2</span><span class="p">);</span>
+</pre></td></tr></tbody></table></code></pre></div></div>
+
+<p><img src="http://andy-blog.oss-cn-beijing.aliyuncs.com/blog/2021-07-06-WX20210706-161428%402x.png" width="90%" /></p>
+
+<p>可以看到，仅包含关键词 “分析” 而不包含 “数据” 的记录中，有一些并非我们所期望的结果，例如：化学部门实习生（检测分析）、（CPS-ANA-SH）有机化学分析师等。对于这种情况，我们可以通过对关键词 “分析” 加以一定的约束条件来改善结果，例如：</p>
+
+<div class="language-sql highlighter-rouge"><div class="highlight"><pre class="highlight"><code><table class="rouge-table"><tbody><tr><td class="rouge-gutter gl"><pre class="lineno">1
+2
+3
+</pre></td><td class="rouge-code"><pre><span class="k">SELECT</span> <span class="o">*</span> 
+<span class="k">FROM</span> <span class="n">v_data_clean_workplace</span> 
+<span class="k">WHERE</span> <span class="n">job_name</span> <span class="k">LIKE</span> <span class="s1">'%数据%'</span> <span class="k">OR</span> <span class="p">(</span><span class="n">job_name</span> <span class="k">LIKE</span> <span class="s1">'%分析%'</span> <span class="k">AND</span> <span class="n">job_name</span> <span class="k">LIKE</span> <span class="s1">'%市场%'</span><span class="p">);</span>
+</pre></td></tr></tbody></table></code></pre></div></div>
+
+<p><img src="http://andy-blog.oss-cn-beijing.aliyuncs.com/blog/2021-07-06-WX20210706-162405%402x.png" width="90%" /></p>
+
+<p>本案例中，我们采取较为简单的方式，即只选取工作名称中包含关键词 “数据” 的记录：</p>
+
+<div class="language-sql highlighter-rouge"><div class="highlight"><pre class="highlight"><code><table class="rouge-table"><tbody><tr><td class="rouge-gutter gl"><pre class="lineno">1
+2
+3
+4
+5
+6
+7
+8
+9
+</pre></td><td class="rouge-code"><pre><span class="c1">-- 过滤周边岗位：通过关键词 “数据” 进行二次检索</span>
+<span class="k">CREATE</span> <span class="k">VIEW</span> <span class="n">v_data_clean_jobname</span> <span class="k">AS</span> 
+<span class="k">SELECT</span> <span class="o">*</span> 
+<span class="k">FROM</span> <span class="n">v_data_clean_workplace</span> 
+<span class="k">WHERE</span> <span class="n">job_name</span> <span class="k">LIKE</span> <span class="s1">'%数据%'</span><span class="p">;</span>
+
+<span class="k">SELECT</span>
+  <span class="p">(</span><span class="k">SELECT</span> <span class="k">COUNT</span><span class="p">(</span><span class="o">*</span><span class="p">)</span> <span class="k">FROM</span> <span class="n">v_data_clean_workplace</span><span class="p">)</span> <span class="k">AS</span> <span class="n">count_before</span><span class="p">,</span>
+  <span class="p">(</span><span class="k">SELECT</span> <span class="k">COUNT</span><span class="p">(</span><span class="o">*</span><span class="p">)</span> <span class="k">FROM</span> <span class="n">v_data_clean_jobname</span><span class="p">)</span> <span class="k">AS</span> <span class="n">count_after</span><span class="p">;</span>
+</pre></td></tr></tbody></table></code></pre></div></div>
+
+<p><img src="http://andy-blog.oss-cn-beijing.aliyuncs.com/blog/2021-07-06-WX20210706-164220%402x.png" width="25%" /></p>
+
+<p>可以看到，对周边岗位进行过滤之前有 78701 条记录，过滤之后还剩 5417 条记录。</p>
+
+<p>到这里，我们就完成了整个数据清洗的工作流程：</p>
+
+<p>缺失数据处理 $\longrightarrow$ 重复数据处理 $\longrightarrow$ 限定招聘地区 $\longrightarrow$ 过滤周边岗位</p>
+
+<p>由于接下来的分析都是基于上面得到的最终清洗结果，我们重新建立一个名为 <code class="language-plaintext highlighter-rouge">v_data_clean</code> 的视图，用于接下来的分析：</p>
+
+<div class="language-sql highlighter-rouge"><div class="highlight"><pre class="highlight"><code><table class="rouge-table"><tbody><tr><td class="rouge-gutter gl"><pre class="lineno">1
+2
+</pre></td><td class="rouge-code"><pre><span class="c1">-- 将最终清洗结果保存到视图 v_data_clean</span>
+<span class="k">CREATE</span> <span class="k">VIEW</span> <span class="n">v_data_clean</span> <span class="k">AS</span> <span class="p">(</span><span class="k">SELECT</span> <span class="o">*</span> <span class="k">FROM</span> <span class="n">v_data_clean_jobname</span><span class="p">);</span>
+</pre></td></tr></tbody></table></code></pre></div></div>
+
+<h3 id="43-市场需求量">4.3 市场需求量</h3>
+
+<p>我们将清洗结果按照城市进行分组，然后统计各城市的总的招聘人数和职位数量：</p>
+
+<div class="language-sql highlighter-rouge"><div class="highlight"><pre class="highlight"><code><table class="rouge-table"><tbody><tr><td class="rouge-gutter gl"><pre class="lineno">1
+2
+3
+4
+5
+6
+7
+8
+9
+10
+</pre></td><td class="rouge-code"><pre><span class="c1">-- 各城市的市场需求量分析</span>
+<span class="k">CREATE</span> <span class="k">VIEW</span> <span class="n">v_data_market_demand</span> <span class="k">AS</span> 
+<span class="k">SELECT</span>
+  <span class="n">workplace</span> <span class="k">AS</span> <span class="s1">'城市'</span><span class="p">,</span>
+  <span class="k">SUM</span><span class="p">(</span> <span class="n">degreefrom</span> <span class="p">)</span> <span class="k">AS</span> <span class="s1">'招聘总量'</span><span class="p">,</span>
+  <span class="k">COUNT</span><span class="p">(</span><span class="o">*</span><span class="p">)</span> <span class="k">AS</span> <span class="s1">'职位数目'</span> 
+<span class="k">FROM</span> <span class="n">v_data_clean</span> 
+<span class="k">GROUP</span> <span class="k">BY</span> <span class="n">workplace</span><span class="p">;</span>
+
+<span class="k">SELECT</span> <span class="o">*</span> <span class="k">FROM</span> <span class="n">v_data_market_demand</span><span class="p">;</span>
+</pre></td></tr></tbody></table></code></pre></div></div>
+
+<p><img src="http://andy-blog.oss-cn-beijing.aliyuncs.com/blog/2021-07-06-WX20210706-165607%402x.png" width="30%" /></p>
+
+<h3 id="44-招聘企业类型分布">4.4 招聘企业类型分布</h3>
+
+:ET

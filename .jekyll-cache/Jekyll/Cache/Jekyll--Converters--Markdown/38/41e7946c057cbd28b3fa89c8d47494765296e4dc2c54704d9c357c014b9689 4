@@ -1,0 +1,395 @@
+I"�}<h1 id="lecture-05-重抽样方法">Lecture 05 重抽样方法</h1>
+
+<p><strong>参考教材</strong>：</p>
+
+<ul>
+  <li><em>Gareth, J., Daniela, W., Trevor, H., &amp; Robert, T. (2013). An intruduction to statistical learning: with applications in R. Spinger.</em></li>
+  <li><em>Hastie, T., Tibshirani, R., &amp; Friedman, J. (2009). The elements of statistical learning: data mining, inference, and prediction. Spinger Science &amp; Business Media.</em></li>
+</ul>
+
+<p>现代统计学中，<strong>重抽样方法 (resampling method)</strong> 是一种不可或缺的工具。这种方法通过反复从训练集中抽取样本，然后对每一个样本重新拟合一个感兴趣的模型，来获取关于拟合模型的附加信息 (例如，它可以提供测试集上预测误差的估计值，以及我们参数估计值的标准差和偏差)。</p>
+
+<p>在本节课中，我们主要讨论两种 <strong>重抽样方法 (resampling)</strong>：<strong>交叉验证法</strong> 和 <strong>bootstrap</strong>。</p>
+
+<h2 id="1-交叉验证法">1. 交叉验证法</h2>
+
+<h3 id="11-训练误差-vs-测试误差">1.1 训练误差 vs. 测试误差</h3>
+
+<p>回忆一下 <strong>测试误差 (test error)</strong> 和 <strong>训练误差 (training error)</strong> 之间的区别：</p>
+
+<ul>
+  <li>
+    <p><strong>测试误差</strong> 是使用某种统计学习方法预测在一个新的观测 (即在训练模型时没有用到的一个观测) 上的响应值所产生的平均误差。</p>
+  </li>
+  <li>
+    <p>相反，通过将统计学习方法用于训练观测上，可以轻松计算出 <strong>训练误差</strong>。</p>
+  </li>
+</ul>
+
+<p>但是，训练错误率通常跟测试错误率有很大差别，尤其是表现为前者可能会 <strong>严重低估</strong> 后者。</p>
+
+<p><img src="http://andy-blog.oss-cn-beijing.aliyuncs.com/blog/2020-11-08-WX20201108-135808%402x.png" width="70%" /></p>
+
+<p><span style="margin:auto; display:table; font-size:10pt"> <span style="color:steelblue;font-weight:bold">图 1</span>：模型复杂度 vs. 预测误差。红色曲线代表测试误差，蓝色曲线代表训练误差。随着模型复杂度增加：模型将具有低偏差，高方差；训练误差逐渐下降；而测试误差将先下降再上升，呈现出 U 型。</span></p>
+
+<h4 id="估计预测误差">估计预测误差</h4>
+
+<p><strong>最佳解决方案</strong>：准备一个非常大的指定测试数据集。然而，通常很难获得这样的数据集。</p>
+
+<p>一些方法通过对训练错误率进行数学修正来估计测试错误率。其中包括 <strong>$C_p$ 统计量</strong>、<strong>$\textit{AIC}$</strong> 和 <strong>$\textit{BIC}$</strong>，我们将在后面课程中讨论这些方法。</p>
+
+<p>在这里，我们考虑一类方法：在拟合过程中，<strong>保留 (holding out)</strong> 训练观测的一个子集，然后对保留的观测运用统计学习方法，从而来估计其测试错误率。</p>
+
+<h3 id="12-验证集方法">1.2 验证集方法</h3>
+
+<p>如果我们想要估计在一个观测数据集上拟合一种指定的统计学习方法所产生的测试误差，图 2 所示的 <strong>验证集方法 (validation-set approach)</strong> 就是一种非常简单的方法。</p>
+
+<p><img src="http://andy-blog.oss-cn-beijing.aliyuncs.com/blog/2020-11-08-WX20201108-141439%402x.png" width="60%" /></p>
+
+<p><span style="margin:auto; display:table; font-size:10pt"> <span style="color:steelblue;font-weight:bold">图 2</span>：验证集方法的原理图。一个包含 $n$ 个观测的数据集被随机地分为一个训练集 (左下部分，包含观测 7、22、13 及其他观测) 和一个验证集 (右下部分，包含观测 91 及其他观测)。验证集方法是一种先在训练集上拟合统计学习方法，然后在验证集上评价其表现的方法。</span></p>
+
+<p>在这里，我们将可用的样本集随机分为两部分：<strong>训练集 (training set)</strong> 和 <strong>验证集 (validation set)</strong>，又称 <strong>保留集 (hold-out set)</strong>。</p>
+
+<p>我们在训练集上拟合模型，然后用拟合的模型来预测验证集中观测的响应值。</p>
+
+<p>最后得到的验证集误差提供了一个对于测试误差的估计。对于定量响应，通常使用 MSE 进行评估；对于定性 (离散) 响应，则使用误分类率进行评估。</p>
+
+<h4 id="例子汽车数据集">例子：汽车数据集</h4>
+
+<p>我们将在 <code class="language-plaintext highlighter-rouge">Auto</code> 数据集上说明验证集方法的原理。回忆之前我们提到，<code class="language-plaintext highlighter-rouge">mpg</code> 和 <code class="language-plaintext highlighter-rouge">horsepower</code> 之间似乎存在非线性关系，而加入 <code class="language-plaintext highlighter-rouge">horsepower</code> 和 <code class="language-plaintext highlighter-rouge">horsepower</code>$^2$ 后的模型要比仅使用线性项拟合的模型的预测效果更好。那么很自然就会产生这样一个疑问：用三次或更高次项来拟合模型的效果是不是更好呢？</p>
+
+<p>之前，我们通过考察用三次及更高次多项式进行线性回归所得到的 p 值回答了这个问题。这里，我们也可以用验证集方法来解决这个问题。</p>
+
+<p>现在，我们想要比较仅包含线性项与包含高阶多项式项的线性回归模型的拟合效果。</p>
+
+<p>我们将 $392$ 个观测值随机分为两组：一个包含 $196$ 个数据点的训练集，一个包含剩余 $196$ 个观测点的验证集。</p>
+
+<p><img src="http://andy-blog.oss-cn-beijing.aliyuncs.com/blog/2020-11-08-WX20201108-144702%402x.png" width="80%" /></p>
+
+<p><span style="margin:auto; display:table; font-size:10pt"> <span style="color:steelblue;font-weight:bold">图 3</span>：在 <code class="language-plaintext highlighter-rouge">Auto</code> 数据集上，用验证集方法来估计用 <code class="language-plaintext highlighter-rouge">horsepower</code> 的多项式函数来预测 <code class="language-plaintext highlighter-rouge">mpg</code>所产生的测试误差。<strong>左图</strong>：用一种随机划分将数据集分为训练集和验证集，所产生的验证误差估计。<strong>右图</strong>：重复运用验证集方法十次，每次使用一种不同的随机划分将数据集分为训练集和验证集，图中反映了用验证集方法所产生的测试均方误差估计的波动性。</span></p>
+
+<h4 id="验证集方法的缺点">验证集方法的缺点</h4>
+
+<p>验证集方法的原理很简单，且易于执行。但它有 <strong>两个潜在缺陷</strong>：</p>
+
+<ol>
+  <li>
+    <p>测试误差的验证集法估计的 <strong>波动很大</strong> (如图 3 右图所示)，这取决于具体哪些观测被包括在训练集中，哪些观测被包括在验证集中。</p>
+  </li>
+  <li>
+    <p>在验证集方法中，只有一部分观测 (即那些被包含在训练集而非验证集中的观测) 被用于拟合模型。由于训练样本越少，统计学习方法的表现越差，这意味着，验证集误差可能会 <strong>高估</strong> 在整个数据集上拟合模型所得到的测试误差。</p>
+  </li>
+</ol>
+
+<h3 id="13-k-折交叉验证">1.3 $K$-折交叉验证</h3>
+
+<p><strong>$K$-折交叉验证</strong> 是一种广泛用于估计测试误差的方法。</p>
+
+<p>估计值可用于选择最佳模型，并给出最终选择模型的测试误差的相关信息。</p>
+
+<p><strong>核心思想</strong>：将数据随机分为 $K$ 个相等大小的部分。将其中第 $k$ 个部分留出，然后用其余 $K-1$ 个部分的数据来拟合模型，然后对之前留出的第 $k$ 个部分进行预测，并计算其均方误差 $\mathrm{MSE}_k$。依次针对每个部分 $k=1,2,\dots,K$ 重复该过程，然后将结果合并。</p>
+
+<p><img src="http://andy-blog.oss-cn-beijing.aliyuncs.com/blog/2020-11-08-WX20201108-151526%402x.png" width="70%" /></p>
+
+<p><span style="margin:auto; display:table; font-size:10pt"> <span style="color:steelblue;font-weight:bold">图 4</span>：$5$ 折 CV 方法的原理图。一个包含 $n$ 个观测的数据集被随机地分为 $5$ 个不重叠的组。每一组轮流作为验证集 (图中米黄色部分)，其余组作为训练集 (图中蓝色部分)。通过对最终得到的 $5$ 个均方误差估计求平均来估计测试误差。</span></p>
+
+<p>将包含全部 $n$ 个观测的数据集划分为 $K$ 个部分 $C_1,C_2,\dots,C_K$，其中 $C_k$ 表示第 $k$ 个部分中观测的索引。$n_k$ 表示第 $k$ 个数据集中的观测数量：如果 $n$ 是 $K$ 的整数倍，那么 $n_k=n/K$。</p>
+
+<p>计算 $K$-折 CV 估计：</p>
+
+\[\mathrm{CV}_{(K)}=\sum_{k=1}^{K}\dfrac{n_k}{n} \mathrm{MSE}_k\]
+
+<p>其中，$\mathrm{MSE}_k = \sum_{i\in C_k} (y_i - \hat y_i)^2 / n_k$，而 $\hat y_i$ 是第 $i$ 个观测的拟合值，它是通过移除第 $k$ 个部分后拟合出的模型得到的。</p>
+
+<h4 id="留一交叉验证">留一交叉验证</h4>
+
+<p>令 $K=n$，将得到 $n$-折 CV，也叫 <strong>留一交叉验证 (leave-one out cross-validation, LOOCV)</strong>。</p>
+
+<p>LOOCV 方法的计算量可能很大，因为模型需要被拟合 $n$ 次。但是，使用最小二乘法来拟合线性或多项式回归时，可以将 LOOCV 的计算成本缩减到与单个模型拟合成本相同。计算公式如下：</p>
+
+\[\mathrm{CV}_{(n)}=\dfrac{1}{n}\sum_{i=1}^{n}\left(\dfrac{y_i - \hat y_i}{1- h_i}\right)^2\]
+
+<p>其中，$\hat y_i$ 是原始最小二乘拟合的第 $i$ 个拟合值，$h_i$ 是杠杆值 (帽子矩阵的对角线上的第 $i$ 个元素；有关详细信息，请参见教材)。类似于普通的 $\mathrm{MSE}$，区别仅在于第 $i$ 个残差除了一个系数 $1-h_i$。</p>
+
+<p>LOOCV 有时很有用，但通常会使 <strong>数据重组不够充分</strong> (即每次只留出一个观测作为验证集，可能导致每次训练集之间的差异过小)。由于每折观测的估计值高度相关，因此它们的平均值可能具有很高的方差。</p>
+
+<p>通常，更好的选择是 $K=5$ 或 $10$。</p>
+
+<h4 id="k-折-cv-vs-loocv">$K$-折 CV vs. LOOCV</h4>
+
+<p>在 <code class="language-plaintext highlighter-rouge">Auto</code> 数据集上分别用 LOOCV 和 $10$-折 CV 方法，得到用 <code class="language-plaintext highlighter-rouge">horsepower</code> 的多项式函数拟合线性回归模型，来预测 <code class="language-plaintext highlighter-rouge">mpg</code> 所产生的测试集均方误差的一个估计，如图 5 所示。</p>
+
+<p><img src="http://andy-blog.oss-cn-beijing.aliyuncs.com/blog/2020-11-08-WX20201108-155646%402x.png" width="80%" /></p>
+
+<p><span style="margin:auto; display:table; font-size:10pt"> <span style="color:steelblue;font-weight:bold">图 5</span>：在 <code class="language-plaintext highlighter-rouge">Auto</code> 数据袋上，用交叉验证法来估计用 <code class="language-plaintext highlighter-rouge">horsepower</code> 的多项式函数来预测 <code class="language-plaintext highlighter-rouge">mpg</code> 所产生的测试误差。<strong>左图</strong>：LOOCV 误差曲线。<strong>右图</strong>：分别应用 $10$-折 CV 方法 $9$ 次，每次用一种不同的随机划分将数据分为 $10$ 个部分。图中展示了 $9$ 条略微不同的 CV 误差曲线。</span></p>
+
+<p>从图 5 中的右图可以看到， CV 估计存在一定的波动性，这是由于将观测分为 $10$ 折的划分差异所造成的。但这种波动通常比之前的验证集方法所得的测试误差的波动要小得多 (对比图 3 中的右图)。</p>
+
+<p>当检验真实数据时，测试均方误差的真实值是未知的，因此很难衡量交叉验证估计的精度。所以这里我们采用模拟数据来衡量交叉验证结果的精度。图 6 描述了不同模拟数据集上采用光滑样条法所得到的测试误差的交叉验证估计值和真实值。</p>
+
+<p><img src="http://andy-blog.oss-cn-beijing.aliyuncs.com/blog/2020-11-08-WX20201108-160643%402x.png" width="90%" /></p>
+
+<p><span style="margin:auto; display:table; font-size:10pt"> <span style="color:steelblue;font-weight:bold">图 6</span>：不同模拟数据集上的测试均方误差的真实值和估计值。蓝色实线为测试均方误差的真实值，黑色虚线为 LOOCV 估计值，橙色实线为 $10$-折 CV 估计值。用 “$\times$” 标注的点表示每条均方误差曲线的最小值点。</span></p>
+
+<p>可以看到，在三个模拟数据集上，这两种交叉验证估计都非常接近。在图 6 的右图中，测试均方误差的真实值和 CV 估计曲线几乎重合。在图 6 的中图中，当模型灵活度较低时，真实值曲线和 CV 估计曲线比较接近，而当模型灵活度较高时，CV 曲线高估了测试集均方误差。在图 6 的左图中，CV 曲线的形状大致正确，但都低估了测试均方误差的真实值。</p>
+
+<h3 id="14-交叉验证法的其他问题">1.4 交叉验证法的其他问题</h3>
+
+<p>由于每个训练集大小仅为原始训练集的 $(K-1)/K$，因此预测误差的估计值通常会向上偏移 (即高估)。因为当使用全部数据进行训练时，模型拟合会更好，所以实际预测误差会低一些。</p>
+
+<p>如前所述，当 $K = n$ 时，LOOCV 将使得上述偏移最小化，但这种情况下，估计值将具有较高的方差。因为在使用 LOOCV 方法时，实际上是在平均 $n$ 个拟合模型的结果，而其中每个模型都是在几乎相同的观测集上训练的；因此，这些结果相互之间是高度 (正) 相关的。</p>
+
+<p>$K = 5$ 或 $10$ 为这种偏差-方差权衡提供了一个很好的折衷方案。</p>
+
+<h3 id="15-交叉验证法用于分类问题">1.5 交叉验证法用于分类问题</h3>
+
+<p>将包含全部 $n$ 个观测的数据集划分为 $K$ 个大小大致相等的部分 $C_1,C_2,\dots,C_K$。其中，$C_k$ 表示第 $k$ 个部分中观测的索引。$n_k$ 表示第 $k$ 个数据集中的观测数量：如果 $n$ 是 $K$ 的整数倍，那么 $n_k=n/K$。</p>
+
+<p>计算交叉验证估计 $\mathrm{CV}_{(K)}$：</p>
+
+\[\mathrm{CV}_{(K)} = \sum_{k=1}^{K}\dfrac{n_k}{n}\text{Err}_k\]
+
+<p>其中，$\text{Err}_k = \sum_{i\in C_k} I(y_i \ne \hat y_i)/n_k$。</p>
+
+<p>$\mathrm{CV}_{(K)}$ 的标准差的估计为：</p>
+
+\[\widehat{\mathrm{SE}}(\mathrm{CV}_{(K)}) = \sqrt{\sum_{k=1}^{K}(\text{Err}_k-\overline{\text{Err}_k})^2 / (K-1)}\]
+
+<p>这是一个有用的估计，但严格来说，还不是很有效。</p>
+
+<h3 id="16-交叉验证法正确与错误做法">1.6 交叉验证法：正确与错误做法</h3>
+
+<p>考虑一个简单分类器用于一些二分类数据，这将包含以下两个步骤：</p>
+
+<ol>
+  <li>从 $5000$ 个预测变量和 $50$ 个样本开始，找到与类别标签相关性最大的 $100$ 个预测变量。</li>
+  <li>然后，我们应用一个分类器 (例如，逻辑回归)，并且仅使用前一步得到的 $100$ 个预测变量。</li>
+</ol>
+
+<p>我们应当如何估计该分类器的测试集性能？我们可以忽略第 1 步，而仅在第 2 步应用交叉验证吗？</p>
+
+<p>答案是不能。</p>
+
+<p>因为这种做法将忽略以下事实：在步骤 1 中，程序已经见过了训练数据的标签，并且已经使用过了它们。这实际上相当于某种形式的训练过程，而这些信息实际上应当被包含在验证过程中。这被称为 <strong>知识泄漏 (knowledge leaking)</strong>。</p>
+
+<p>也就是说，当我们应用特征选择时，我们同时使用了来自训练集和后面的 CV 验证集的信息，结果就是，我们的逻辑回归模型提前知道了验证集中应该隐藏的信息。</p>
+
+<p>我们已经在许多高级基因组学的相关论文中看到了这类错误做法。</p>
+
+<p>为了避免这种情况，我们应当在每轮交叉验证批处理期间计算特征相关性。这和之前做法的不同之处在于，现在特征关联将仅使用训练集中的信息，而非整个数据集。</p>
+
+<ul>
+  <li>
+    <p><strong>错误做法</strong>：交叉验证仅应用于步骤 2。</p>
+
+    <p><img src="http://andy-blog.oss-cn-beijing.aliyuncs.com/blog/2020-11-08-WX20201108-170429%402x.png" width="90%" /></p>
+
+    <p><span style="margin:auto; display:table; font-size:10pt"> <span style="color:steelblue;font-weight:bold">图 7</span>：交叉验证法的错误使用方式。</span></p>
+  </li>
+  <li>
+    <p><strong>正确做法</strong>：交叉验证同时应用于步骤 1 和步骤 2。</p>
+
+    <p><img src="http://andy-blog.oss-cn-beijing.aliyuncs.com/blog/2020-11-08-WX20201108-170633%402x.png" width="90%" /></p>
+
+    <p><span style="margin:auto; display:table; font-size:10pt"> <span style="color:steelblue;font-weight:bold">图 8</span>：交叉验证法的正确使用方式。</span></p>
+  </li>
+</ul>
+
+<h2 id="2-bootstrap-方法">2. Bootstrap 方法</h2>
+
+<p><strong>Bootstrap</strong> 是一种灵活而强大的统计工具，可以用它来衡量一个指定的估计器或统计学习方法中的不确定因素。</p>
+
+<p>例如，它可以提供某个回归系数的标准误的一个估计，或者该系数的置信区间。</p>
+
+<h3 id="21-bootstrap-名称的由来">2.1 Bootstrap 名称的由来</h3>
+
+<p>Bootstrap 一词的使用源于用自己的 <strong>靴子 (bootstraps)</strong> 来帮助自己站起来，这被广泛认为是基于 18 世纪 Rudolph Erich Raspe 的小说《蒙克豪森男爵的惊人历险记》中的某个场景：</p>
+
+<blockquote>
+  <p>男爵跌落进了一个深湖的底部。就好像一切都消失了一样，他想着通过自己的靴子 (bootstraps) 站起来。</p>
+</blockquote>
+
+<p>它与计算机科学中使用的 <strong>“引导程序 (bootstrap)”</strong> 一词并不相同，意思是从一组核心指令中 <strong>“引导 (boot)”</strong> 计算机，尽管两者的过程存在相似之处。</p>
+
+<h3 id="22-一个简单的例子">2.2 一个简单的例子</h3>
+
+<p>假设我们希望将一笔固定数额的资金投入到两个收益分别为 $X$ 和 $Y$ 的金融资产中，其中 $X$ 和 $Y$ 是随机变量。我们选择将占比为 $\alpha$ 的资金投到 $X$，将剩余的占比为 $1-\alpha$ 的资金投到 $Y$。</p>
+
+<p>由于这两笔投资的收益存在波动性，因此我们希望选择一个 $\alpha$ 使得投资的总风险或者方差最小。换句话说，我们希望使 $\mathrm{Var}(\alpha X + (1-\alpha)Y)$ 最小。</p>
+
+<p>可以证明，能够使风险最小化的 $\alpha$ 的值为：</p>
+
+\[\alpha = \dfrac{\sigma_Y^2 - \sigma_{XY}}{\sigma_X^2 + \sigma_Y^2 -2\sigma_{XY}}\]
+
+<p>其中，$\sigma_X^2= \mathrm{Var}(X),\;\sigma_Y^2= \mathrm{Var}(Y),\;\sigma_{XY}= \mathrm{Cov}(X,Y)$。</p>
+
+<p>但在实践中，我们并不知道 $\sigma_X^2$、$\sigma_Y^2$ 和 $\sigma_{XY}$ 的值，我们可以使用一个包含 $X$ 和 $Y$ 的测量的数据集来计算这些量的估计，$\hat \sigma_X^2$、$\hat \sigma_Y^2$ 和 $\hat \sigma_{XY}$。</p>
+
+<p>然后，我们就可以估计出使得投资方差最小化的 $\alpha$ 值：</p>
+
+\[\hat \alpha = \dfrac{\hat \sigma_Y^2 - \hat \sigma_{XY}}{\hat \sigma_X^2 + \hat \sigma_Y^2 -2\hat \sigma_{XY}}\]
+
+<p>图 9 展示了在一个模拟数据集上用此方法估计 $\alpha$ 的结果。</p>
+
+<p><img src="http://andy-blog.oss-cn-beijing.aliyuncs.com/blog/2020-11-08-WX20201108-175451%402x.png" width="80%" /></p>
+
+<p><span style="margin:auto; display:table; font-size:10pt"> <span style="color:steelblue;font-weight:bold">图 9</span>：每一部分展示了 $100$ 个模拟生成的投资收益 $X$ 和 $Y$。从左到右，从上到下，所得的的 $\alpha$ 的估计值分别为 $0.576$、$0.532$、$0.657$ 和 $0.651$。</span></p>
+
+<p>我们还希望评估一下 $\alpha$ 估计的精度。为了估计 $\hat \alpha$ 的标准差，我们重复了模拟生成了 $100$ 对 $X$ 和 $Y$ 的观测，并对 $\alpha$ 进行 $1000$ 次估计。因此得到了 $1000$ 个 $\alpha$ 的估计，即 $\hat \alpha_1, \hat \alpha_2, \dots, \hat \alpha_{1000}$。</p>
+
+<p>图 10 的左图显示了所得估计的直方图。在模拟生成这些数据时，参数设定为 $\sigma_X^2=1,\; \sigma_Y^2=1.25,\; \sigma_{XY}=0.5$，因此我们知道 $\alpha$ 的真实值为 $0.6$ (图中红线表示)。</p>
+
+<p>$\alpha$ 全部 $1000$ 个估计的均值为：</p>
+
+\[\overline \alpha = \dfrac{1}{1000}\sum_{r=1}^{1000}\hat \alpha_r = 0.5996\]
+
+<p>这与 $\alpha=0.6$ 非常接近，而该估计量的标准差为：</p>
+
+\[\sqrt{\dfrac{1}{1000-1}\sum_{r=1}^{1000}(\hat \alpha_r - \overline \alpha)^2} =0.083\]
+
+<p>这为我们提供了一个关于 $\hat \alpha$ 精度的很好的认识：$\mathrm{SE}(\hat \alpha)\approx 0.083$。</p>
+
+<p>因此，大致来看，对于一个来自总体的随机样本，可以认为平均上，$\hat \alpha$ 和 $\alpha$ 的差别大约为 $0.08$。</p>
+
+<p><img src="http://andy-blog.oss-cn-beijing.aliyuncs.com/blog/2020-11-08-WX20201108-181412%402x.png" width="90%" /></p>
+
+<p><span style="margin:auto; display:table; font-size:10pt"> <span style="color:steelblue;font-weight:bold">图 10</span>：<strong>左图</strong>：由真实的总体生成的 $1000$ 个模拟数据集所计算得到的 $\alpha$ 估计的直方图。<strong>中图</strong>：由一个数据集生成的 $1000$ 个 bootstrap 样本所得到的 $\alpha$ 估计的直方图。<strong>右图</strong>：左图和中图展示的 $\alpha$ 估计的箱型图。每个图中的粉色直线代表 $\alpha$ 的真实值。</span></p>
+
+<h3 id="23-回到现实世界">2.3 回到现实世界</h3>
+
+<p>通常在实践中，我们无法通过以上方法来大致估计 $\mathrm{SE}(\hat \alpha)$，因为对于真实数据，我们无法从原始总体中生成新的样本。但是，bootstrap 方法让我们可以使用计算机来模拟获取新的数据集的过程，从而可以估计 $\hat \alpha$ 的波动性而不用生成额外的样本。</p>
+
+<p>相比从总体中重复获得独立的数据集，bootstrap 方法通过重复地对来自原始数据集的观测进行 <strong>有放回抽样</strong> 来获得不同的数据集。每个 “bootstrap 数据集” 都是通过 <strong>有放回抽样</strong> 创建的，并且与原始数据集 <strong>大小相同</strong>。这就导致对于一个给定的 bootstrap 数据集，某些观测可能会出现多次，而某些观测可能根本不会出现。</p>
+
+<h3 id="24-bootstrap-方法的例子">2.4 Bootstrap 方法的例子</h3>
+
+<p>图 11 在一个仅包含 $n=3$ 个观测的简单数据集 $Z$ 上展示了 bootstrap 方法的原理。</p>
+
+<p><img src="http://andy-blog.oss-cn-beijing.aliyuncs.com/blog/2020-11-08-WX20201108-191639%402x.png" width="70%" /></p>
+
+<p><span style="margin:auto; display:table; font-size:10pt"> <span style="color:steelblue;font-weight:bold">图 11</span>：在一个仅包含 $n=3$ 个观测的原始数据集上对 bootstrap 方法原理进行图解说明。每个 bootstrap 数据集包含 $n$ 个观测，它们是通过从原始数据集中进行有放回抽样得到的。然后，在每个 bootstrap 数据集上得到一个 $\alpha$ 的估计。</span></p>
+
+<p>我们将第一个 bootstrap 数据集记为 $Z^{*1}$，然后我们通过 $Z^{*1}$ 生成 $\alpha$ 的一个新的 bootstrap 估计，记为 $\hat \alpha^{*1}$。</p>
+
+<p>重复上述过程 $B$ 次，通常 $B$ 是一个很大的值 (例如：$100$ 或者 $1000$)。然后，我们得到 $B$ 个不同的 bootstrap 数据集 $Z^{*1},Z^{*2},\dots,Z^{*B}$，以及 $B$ 个对应的 $\alpha$ 估计 $\hat \alpha^{*1},\hat \alpha^{*2},\dots,\hat \alpha^{*B}$。</p>
+
+<p>然后，我们可以利用下面的公式计算这些 bootstrap 估计的标准误：</p>
+
+\[\mathrm{SE}_B(\hat \alpha)=\sqrt{\dfrac{1}{B-1}\sum_{r=1}^{B}(\hat \alpha^{*r} - \overline{\hat \alpha^*})^2}\]
+
+<p>其中，$\overline{\hat \alpha^*}=\frac{1}{B}\sum_{r’=1}^{B}\hat \alpha^{* r’}$。</p>
+
+<p>我们将上式作为从原始数据集估计的 $\hat \alpha$ 的标准误的一个估计。如之前图 10 的中图所示，在该例中，$\mathrm{SE}_B(\hat \alpha)=0.087$。</p>
+
+<h3 id="25-一般的-bootstrap-方法">2.5 一般的 bootstrap 方法</h3>
+
+<p><img src="http://andy-blog.oss-cn-beijing.aliyuncs.com/blog/2020-11-08-WX20201108-195116%402x.png" width="80%" /></p>
+
+<p><span style="margin:auto; display:table; font-size:10pt"> <span style="color:steelblue;font-weight:bold">图 12</span>：Bootstrap 方法的大致流程。</span></p>
+
+<p>在更复杂的数据情况下，找出适当的方法来生成 bootstrap 样本可能需要一些思考。</p>
+
+<p>例如，当原始观测数据是一个时间序列时，我们将无法简单地对这些观测进行有放回抽样。为什么呢？因为时间序列存在某种时间趋势，不能直接通过原序列进行构造。</p>
+
+<p>这种情况下，我们可以先创建一些由连续观测组成的数据块，然后对这些数据块进行有放回抽样。然后，我们将抽样得到的块组合在一起得到一个 bootstrap 数据集。</p>
+
+<h3 id="26-bootstrap-的一些其他用法">2.6 Bootstrap 的一些其他用法</h3>
+
+<p>Bootstrap 方法主要用于获得某个估计的 <strong>标准误 (standard errors)</strong>。</p>
+
+<p>Bootstrap 方法还为我们提供了总体参数的一个 <strong>近似置信区间</strong>。例如，在图 10 的中图所示的直方图中，可以看到，$1000$ 个 $\alpha$ 估计值的 $5\%$ 和 $95\%$ 分位数分别为 $0.43$ 和 $0.72$。因此，该方法为我们提供了真实 $\alpha$ 的一个近似 $90\%$ 置信区间 $[0.43, 0.72]$，我们称之为 <strong>Bootstrap 百分比置信区间</strong>，这也是通过 bootstrap 获得置信区间的众多方法中最简单的一种。</p>
+
+<p>那么，我们可以通过 bootstrap 方法来估计预测误差吗？</p>
+
+<ul>
+  <li>
+    <p>在交叉验证中，$K$ 个验证折里的每一个都与其他 $K-1$ 个用于训练的折不同：<strong>不存在重叠</strong>。而这也是交叉验证法成功的关键。</p>
+  </li>
+  <li>
+    <p>为了使用 bootstrap 估计预测误差，我们可以考虑将每个 bootstrap 数据集用作训练样本，并将原始样本用作验证样本。</p>
+  </li>
+  <li>
+    <p>但是，每个 bootstrap 样本都与原始数据有很大的 <strong>重叠</strong> 部分。事实上，大约有三分之二的原始数据点会出现在每个 bootstrap 样本中。简单证明如下：</p>
+
+\[\Pr\{i\text{-th observation} \in Z^{*b}\} = 1-\left(1- \dfrac{1}{n}\right)^n \approx 1- e^{-1} =0.632\]
+  </li>
+  <li>
+    <p>这将导致 bootstrap <strong>严重低估</strong> 真实的预测误差。因为大量数据重叠导致过拟合使得 bootstrap 的估计误差仅为真实误差的大约三分之一。</p>
+  </li>
+  <li>
+    <p>而另一方面，将原始样本作为训练样本，将 bootstrap 数据集作为验证样本，结果更糟糕。</p>
+  </li>
+</ul>
+
+<h4 id="消除重叠">消除重叠</h4>
+
+<ul>
+  <li>通过仅对那些没有 (偶然) 出现在当前 bootstrap 样本中的观测进行预测，可以部分解决此问题。</li>
+  <li>但是，这种方法非常复杂。因此，交叉验证为估计预测误差提供了一种更简单、更具吸引力的方法。</li>
+</ul>
+
+<h3 id="27-预验证">2.7 预验证</h3>
+
+<p>在微阵列和其他基因组研究中，一个重要的问题是将源自大量 “生物标志物” 的疾病结果的预测变量与标准临床预测变量进行比较。</p>
+
+<p>在用于导出生物标记预测变量的同一数据集上，对上述两组预测变量进行比较，可能会导致结果偏向于生物标记预测变量。</p>
+
+<p><strong>预验证 (Pre-validation)</strong> 可用于在两组预测变量之间进行更公平的比较。</p>
+
+<h4 id="预验证的例子">预验证的例子</h4>
+
+<p>Van’t Veer 等人的论文 <em>(Nature, 2002)</em> 中提供了关于这个问题的一个例子：他们的微阵列数据具有 $78$ 个病例上测量的 $4918$ 个基因，这些基因来自乳腺癌研究。其中，预后良好组包含 $44$ 例，预后不良组包含 $34$ 例。“微阵列” 预测变量的构成如下：</p>
+
+<ol>
+  <li>选择 $70$ 个基因，它们与上面 $78$ 个类标签具有最大的绝对相关性的。</li>
+  <li>利用这 $70$ 个基因，构建了一个最近质心分类器 $C(x)$。</li>
+  <li>将分类器应用于 $78$ 个微阵列，得到每个病例 $i$ 的二分预测变量 $z_i=C(x_i)$。</li>
+</ol>
+
+<p>使用预后情况的逻辑回归预测结果，对微阵列预测变量和一些临床预测变量进行比较：</p>
+
+<p><span style="margin:auto; display:table; font-size:10pt"> <span style="color:steelblue;font-weight:bold">表 1</span>：Van’t Veer 等人的论文中，使用逻辑回归得到的预后情况的结果。包含一个微阵列预测变量 <code class="language-plaintext highlighter-rouge">microarray</code>，以及 6 个临床预测变量：<code class="language-plaintext highlighter-rouge">angio</code>、<code class="language-plaintext highlighter-rouge">er</code>、<code class="language-plaintext highlighter-rouge">grade</code>、<code class="language-plaintext highlighter-rouge">pr</code>、<code class="language-plaintext highlighter-rouge">age</code> 和 <code class="language-plaintext highlighter-rouge">size</code>。</span></p>
+
+<p><img src="http://andy-blog.oss-cn-beijing.aliyuncs.com/blog/2020-11-08-WX20201108-210147%402x.png" width="60%" /></p>
+
+<h4 id="预验证背后的思想">预验证背后的思想</h4>
+
+<p>设计一种用于将自适应派生的预测变量与某些固定的预定义预测变量进行比较的方法。</p>
+
+<p>该想法旨在形成自适应预测变量的 “预验证” 版本：特别是没有 “见过” 响应 $y$ 的 “更公平” 版本。</p>
+
+<h4 id="预验证流程">预验证流程</h4>
+
+<p><img src="http://andy-blog.oss-cn-beijing.aliyuncs.com/blog/2020-11-08-WX20201108-211220%402x.png" width="80%" /></p>
+
+<p><span style="margin:auto; display:table; font-size:10pt"> <span style="color:steelblue;font-weight:bold">图 13</span>： 预验证的流程。</span></p>
+
+<p>前面例子中的详细预验证流程：</p>
+
+<ol>
+  <li>将全部 $78$ 个病例分为 $K = 13$ 个相等大小的部分，每部分包含 $6$ 个病例。</li>
+  <li>留出其中一个部分。仅使用其余 $12$ 个部分的数据，选择与类别标签具有至少 $0.3$ 的绝对相关性的特征，并构建最近质心分类规则。</li>
+  <li>使用构建好的分类规则预测之前留出部分的类别标签。</li>
+  <li>对 $13$ 个部分中的每个部分都执行上述步骤 2 和 3，从而为 $78$ 个病例中的每一个都生成一个 “预验证” 微阵列预测变量 $\tilde z_i$。</li>
+  <li>对生成的预验证微阵列预测变量和其他 6 个临床预测变量拟合一个逻辑回归模型。</li>
+</ol>
+
+<h3 id="28-bootstrap-vs-置换检验-permutation-tests">2.8 Bootstrap vs. 置换检验 (Permutation tests)</h3>
+
+<ul>
+  <li>
+    <p>Bootstrap 从 <strong>估计总体 (estimated population)</strong> 中抽样，并使用其结果来估计 <strong>标准误</strong> 和 <strong>置信区间</strong>。</p>
+  </li>
+  <li>
+    <p>置换方法从数据的 <strong>估计零分布 (estimated null distribution)</strong> 中抽样，并用它来估计 <strong>p 值</strong> 和假设检验的 <strong>错误发现率(False Discovery Rates, FDR)</strong>。</p>
+  </li>
+  <li>
+    <p>Bootstrap 可用于在简单情况下 <strong>检验零假设</strong>。例如，如果 $H_0: \theta=0$，则我们可以检查 $\theta$ 的置信区间中是否包含 $0$。</p>
+  </li>
+  <li>
+    <p>我们也可以将 bootstrap 抽样用于零分布 (请参阅 Efron 和 Tibshirani 的书 <em>《An Introduction to the Bootstrap》(1993, 第 16 章)</em>)，但这种做法与置换方法相比并不存在真正的优势。</p>
+  </li>
+</ul>
+
+<p>下节内容：线性模型选择与正则化</p>
+:ET
