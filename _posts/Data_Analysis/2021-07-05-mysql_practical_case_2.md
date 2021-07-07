@@ -2,7 +2,7 @@
 layout:     post   				    # 使用的布局（不需要改）
 title:      MySQL 实战案例：招聘网站岗位数据分析   	# 标题 
 subtitle:    #副标题
-date:       2021-07-04 				# 时间
+date:       2021-07-05 				# 时间
 author:     YEY 						# 作者
 header-img: img/post-sample-image04.jpg 	#这篇文章标题背景图片
 catalog: true 						# 是否归档
