@@ -968,7 +968,7 @@ ORDER BY user_count DESC;
 
 #### 8.6.1 留存分析
 
-<img src="http://andy-blog.oss-cn-beijing.aliyuncs.com/blog/2021-07-07-WX20210707-165146%402x.png" width="90%">
+<img src="http://andy-blog.oss-cn-beijing.aliyuncs.com/blog/2021-07-07-WX20210707-170138%402x.png" width="90%">
 
 * 上图是每日活跃用户的 1日、3日、7日、15日和 30日留存率，可以看到除去峰值外，一般稳定在 60% 到 70% 之间；
 * 注意：图中各曲线最终下降到 0% 并不是真的指留存率降到 0%了，而是指那个日期节点之后的数据是缺失的（即我们的数据只统计到了 2019 年 12 月 18 日）；
