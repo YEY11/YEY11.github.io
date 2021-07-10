@@ -1,0 +1,865 @@
+I"��<h2 id="1-条件相连-join">1. 条件相连 <code class="language-plaintext highlighter-rouge">JOIN</code></h2>
+
+<p><strong>计算留存率</strong></p>
+
+<div class="language-sql highlighter-rouge"><div class="highlight"><pre class="highlight"><code><table class="rouge-table"><tbody><tr><td class="rouge-gutter gl"><pre class="lineno">1
+2
+3
+4
+5
+6
+</pre></td><td class="rouge-code"><pre><span class="k">SHOW</span> <span class="n">DATABASES</span><span class="p">;</span>
+<span class="n">USE</span> <span class="n">s2m2_hw</span><span class="p">;</span>
+<span class="k">SELECT</span> <span class="k">DATABASE</span><span class="p">();</span>
+<span class="k">SHOW</span> <span class="n">TABLES</span><span class="p">;</span>
+
+<span class="k">SELECT</span> <span class="o">*</span> <span class="k">FROM</span> <span class="n">temp_user_act</span><span class="p">;</span>
+</pre></td></tr></tbody></table></code></pre></div></div>
+
+<p><img src="http://andy-blog.oss-cn-beijing.aliyuncs.com/blog/2021-07-08-WX20210708-120712%402x.png" width="30%" /></p>
+
+<div class="language-sql highlighter-rouge"><div class="highlight"><pre class="highlight"><code><table class="rouge-table"><tbody><tr><td class="rouge-gutter gl"><pre class="lineno">1
+2
+3
+4
+5
+6
+7
+8
+9
+10
+11
+12
+13
+14
+15
+16
+17
+18
+19
+20
+21
+22
+23
+24
+25
+26
+27
+28
+29
+30
+31
+</pre></td><td class="rouge-code"><pre><span class="k">WITH</span> <span class="n">p2</span> <span class="k">AS</span>
+  <span class="p">(</span><span class="k">WITH</span> <span class="n">p</span> <span class="k">AS</span>
+    <span class="p">(</span><span class="k">SELECT</span>
+       <span class="n">t0</span><span class="p">.</span><span class="n">user_id</span> <span class="k">AS</span> <span class="n">user_id</span><span class="p">,</span>
+       <span class="n">t0</span><span class="p">.</span><span class="n">dates</span> <span class="k">AS</span> <span class="n">dates0</span><span class="p">,</span>
+       <span class="n">t1</span><span class="p">.</span><span class="n">dates</span> <span class="k">AS</span> <span class="n">dates1</span><span class="p">,</span>
+       <span class="n">t2</span><span class="p">.</span><span class="n">dates</span> <span class="k">AS</span> <span class="n">dates2</span><span class="p">,</span>
+       <span class="n">t3</span><span class="p">.</span><span class="n">dates</span> <span class="k">AS</span> <span class="n">dates3</span><span class="p">,</span>
+       <span class="n">t7</span><span class="p">.</span><span class="n">dates</span> <span class="k">AS</span> <span class="n">dates7</span>
+     <span class="k">FROM</span> <span class="n">temp_user_act</span> <span class="k">AS</span> <span class="n">t0</span>
+     <span class="k">LEFT</span> <span class="k">JOIN</span> <span class="n">temp_user_act</span> <span class="k">AS</span> <span class="n">t1</span> <span class="k">ON</span> <span class="n">t0</span><span class="p">.</span><span class="n">user_id</span> <span class="o">=</span> <span class="n">t1</span><span class="p">.</span><span class="n">user_id</span> <span class="k">AND</span> <span class="n">DATEDIFF</span><span class="p">(</span><span class="n">t1</span><span class="p">.</span><span class="n">dates</span><span class="p">,</span> <span class="n">t0</span><span class="p">.</span><span class="n">dates</span><span class="p">)</span> <span class="o">=</span> <span class="mi">1</span>
+     <span class="k">LEFT</span> <span class="k">JOIN</span> <span class="n">temp_user_act</span> <span class="k">AS</span> <span class="n">t2</span> <span class="k">ON</span> <span class="n">t0</span><span class="p">.</span><span class="n">user_id</span> <span class="o">=</span> <span class="n">t2</span><span class="p">.</span><span class="n">user_id</span> <span class="k">AND</span> <span class="n">DATEDIFF</span><span class="p">(</span><span class="n">t2</span><span class="p">.</span><span class="n">dates</span><span class="p">,</span> <span class="n">t0</span><span class="p">.</span><span class="n">dates</span><span class="p">)</span> <span class="o">=</span> <span class="mi">2</span>
+     <span class="k">LEFT</span> <span class="k">JOIN</span> <span class="n">temp_user_act</span> <span class="k">AS</span> <span class="n">t3</span> <span class="k">ON</span> <span class="n">t0</span><span class="p">.</span><span class="n">user_id</span> <span class="o">=</span> <span class="n">t3</span><span class="p">.</span><span class="n">user_id</span> <span class="k">AND</span> <span class="n">DATEDIFF</span><span class="p">(</span><span class="n">t3</span><span class="p">.</span><span class="n">dates</span><span class="p">,</span> <span class="n">t0</span><span class="p">.</span><span class="n">dates</span><span class="p">)</span> <span class="o">=</span> <span class="mi">3</span>
+     <span class="k">LEFT</span> <span class="k">JOIN</span> <span class="n">temp_user_act</span> <span class="k">AS</span> <span class="n">t7</span> <span class="k">ON</span> <span class="n">t0</span><span class="p">.</span><span class="n">user_id</span> <span class="o">=</span> <span class="n">t7</span><span class="p">.</span><span class="n">user_id</span> <span class="k">AND</span> <span class="n">DATEDIFF</span><span class="p">(</span><span class="n">t7</span><span class="p">.</span><span class="n">dates</span><span class="p">,</span> <span class="n">t0</span><span class="p">.</span><span class="n">dates</span><span class="p">)</span> <span class="o">=</span> <span class="mi">7</span><span class="p">)</span>
+  <span class="k">SELECT</span>
+    <span class="n">dates0</span><span class="p">,</span>
+    <span class="k">COUNT</span><span class="p">(</span><span class="k">DISTINCT</span> <span class="n">user_id</span><span class="p">)</span> <span class="k">AS</span> <span class="n">uv</span><span class="p">,</span>
+    <span class="k">COUNT</span><span class="p">(</span><span class="k">DISTINCT</span> <span class="n">IF</span><span class="p">(</span><span class="n">dates1</span> <span class="k">IS</span> <span class="k">NOT</span> <span class="k">NULL</span><span class="p">,</span> <span class="n">user_id</span><span class="p">,</span> <span class="k">NULL</span><span class="p">))</span> <span class="k">AS</span> <span class="n">remain_1</span><span class="p">,</span>
+    <span class="k">COUNT</span><span class="p">(</span><span class="k">DISTINCT</span> <span class="n">IF</span><span class="p">(</span><span class="n">dates2</span> <span class="k">IS</span> <span class="k">NOT</span> <span class="k">NULL</span><span class="p">,</span> <span class="n">user_id</span><span class="p">,</span> <span class="k">NULL</span><span class="p">))</span> <span class="k">AS</span> <span class="n">remain_2</span><span class="p">,</span>
+    <span class="k">COUNT</span><span class="p">(</span><span class="k">DISTINCT</span> <span class="n">IF</span><span class="p">(</span><span class="n">dates3</span> <span class="k">IS</span> <span class="k">NOT</span> <span class="k">NULL</span><span class="p">,</span> <span class="n">user_id</span><span class="p">,</span> <span class="k">NULL</span><span class="p">))</span> <span class="k">AS</span> <span class="n">remain_3</span><span class="p">,</span>
+    <span class="k">COUNT</span><span class="p">(</span><span class="k">DISTINCT</span> <span class="n">IF</span><span class="p">(</span><span class="n">dates7</span> <span class="k">IS</span> <span class="k">NOT</span> <span class="k">NULL</span><span class="p">,</span> <span class="n">user_id</span><span class="p">,</span> <span class="k">NULL</span><span class="p">))</span> <span class="k">AS</span> <span class="n">remain_7</span>
+  <span class="k">FROM</span> <span class="n">p</span>
+  <span class="k">GROUP</span> <span class="k">BY</span> <span class="n">dates0</span><span class="p">)</span>
+<span class="k">SELECT</span>
+  <span class="n">dates0</span><span class="p">,</span>
+  <span class="n">uv</span><span class="p">,</span>
+  <span class="n">CONCAT</span><span class="p">(</span><span class="n">ROUND</span><span class="p">(</span><span class="n">remain_1</span> <span class="o">/</span> <span class="n">uv</span> <span class="o">*</span> <span class="mi">100</span><span class="p">,</span> <span class="mi">2</span><span class="p">),</span> <span class="s1">'%'</span><span class="p">)</span> <span class="k">AS</span> <span class="n">remain_rate_1</span><span class="p">,</span>
+  <span class="n">CONCAT</span><span class="p">(</span><span class="n">ROUND</span><span class="p">(</span><span class="n">remain_2</span> <span class="o">/</span> <span class="n">uv</span> <span class="o">*</span> <span class="mi">100</span><span class="p">,</span> <span class="mi">2</span><span class="p">),</span> <span class="s1">'%'</span><span class="p">)</span> <span class="k">AS</span> <span class="n">remain_rate_2</span><span class="p">,</span>
+  <span class="n">CONCAT</span><span class="p">(</span><span class="n">ROUND</span><span class="p">(</span><span class="n">remain_3</span> <span class="o">/</span> <span class="n">uv</span> <span class="o">*</span> <span class="mi">100</span><span class="p">,</span> <span class="mi">2</span><span class="p">),</span> <span class="s1">'%'</span><span class="p">)</span> <span class="k">AS</span> <span class="n">remain_rate_3</span><span class="p">,</span>
+  <span class="n">CONCAT</span><span class="p">(</span><span class="n">ROUND</span><span class="p">(</span><span class="n">remain_7</span> <span class="o">/</span> <span class="n">uv</span> <span class="o">*</span> <span class="mi">100</span><span class="p">,</span> <span class="mi">2</span><span class="p">),</span> <span class="s1">'%'</span><span class="p">)</span> <span class="k">AS</span> <span class="n">remain_rate_7</span>
+<span class="k">FROM</span> <span class="n">p2</span><span class="p">;</span>
+</pre></td></tr></tbody></table></code></pre></div></div>
+
+<p><img src="http://andy-blog.oss-cn-beijing.aliyuncs.com/blog/2021-07-08-WX20210708-121458%402x.png" width="90%" /></p>
+
+<h2 id="2-顺序相连-lag">2. 顺序相连 <code class="language-plaintext highlighter-rouge">LAG</code></h2>
+
+<p><strong>计算各作者的连续更新天数：第 1 步</strong></p>
+
+<div class="language-sql highlighter-rouge"><div class="highlight"><pre class="highlight"><code><table class="rouge-table"><tbody><tr><td class="rouge-gutter gl"><pre class="lineno">1
+</pre></td><td class="rouge-code"><pre><span class="k">SELECT</span> <span class="o">*</span> <span class="k">FROM</span> <span class="n">temp_author_act</span><span class="p">;</span>
+</pre></td></tr></tbody></table></code></pre></div></div>
+
+<p><img src="http://andy-blog.oss-cn-beijing.aliyuncs.com/blog/2021-07-08-WX20210708-144625%402x.png" width="33%" /></p>
+
+<div class="language-sql highlighter-rouge"><div class="highlight"><pre class="highlight"><code><table class="rouge-table"><tbody><tr><td class="rouge-gutter gl"><pre class="lineno">1
+2
+3
+4
+5
+6
+</pre></td><td class="rouge-code"><pre><span class="c1">-- 利用 LAG() 偏移分析函数构造一个偏移日期列：</span>
+<span class="k">SELECT</span>
+  <span class="n">author_id</span><span class="p">,</span>
+  <span class="n">dates</span><span class="p">,</span>
+  <span class="n">LAG</span><span class="p">(</span><span class="n">dates</span><span class="p">)</span> <span class="n">OVER</span> <span class="p">(</span><span class="n">PARTITION</span> <span class="k">BY</span> <span class="n">author_id</span> <span class="k">ORDER</span> <span class="k">BY</span> <span class="n">dates</span><span class="p">)</span> <span class="k">AS</span> <span class="n">dates2</span>
+<span class="k">FROM</span> <span class="n">temp_author_act</span><span class="p">;</span>
+</pre></td></tr></tbody></table></code></pre></div></div>
+
+<p><img src="http://andy-blog.oss-cn-beijing.aliyuncs.com/blog/2021-07-08-WX20210708-145057%402x.png" width="48%" /></p>
+
+<h2 id="3-连续值统计-">3. 连续值统计 <code class="language-plaintext highlighter-rouge">@</code></h2>
+
+<p><strong>计算各作者的连续更新天数：第 2 步</strong></p>
+
+<p>注意：</p>
+
+<ul>
+  <li>MySQL 中通过 <code class="language-plaintext highlighter-rouge">@</code> 声明一个变量，通过 <code class="language-plaintext highlighter-rouge">:=</code> 给变量赋值，例如 <code class="language-plaintext highlighter-rouge">@r := 0</code>。</li>
+  <li>MySQL 中数据是逐行生成的，这里 <code class="language-plaintext highlighter-rouge">@r</code> 相当于一个寄存器，在数据行不断生成的过程中实时更新 <code class="language-plaintext highlighter-rouge">@r</code>，从而统计出连续值。</li>
+</ul>
+
+<div class="language-sql highlighter-rouge"><div class="highlight"><pre class="highlight"><code><table class="rouge-table"><tbody><tr><td class="rouge-gutter gl"><pre class="lineno">1
+2
+3
+4
+5
+6
+7
+8
+9
+10
+11
+12
+13
+14
+15
+</pre></td><td class="rouge-code"><pre><span class="c1">-- 定义一个变量 r，初始化为 0，结合 DATEDIFF 函数，计算作者连续更新天数：</span>
+<span class="c1">-- 如果 dates 和 dates2 相差一天，则 r = r + 1; 否则，r = 0</span>
+<span class="k">WITH</span> <span class="n">p</span> <span class="k">AS</span>
+  <span class="p">(</span><span class="k">SELECT</span> 
+     <span class="n">author_id</span><span class="p">,</span>
+     <span class="n">dates</span><span class="p">,</span>
+     <span class="n">LAG</span><span class="p">(</span><span class="n">dates</span><span class="p">)</span> <span class="n">OVER</span> <span class="p">(</span><span class="n">PARTITION</span> <span class="k">BY</span> <span class="n">author_id</span> <span class="k">ORDER</span> <span class="k">BY</span> <span class="n">dates</span><span class="p">)</span> <span class="k">AS</span> <span class="n">dates2</span><span class="p">,</span>
+     <span class="o">@</span><span class="n">r</span> <span class="p">:</span><span class="o">=</span> <span class="mi">0</span>
+   <span class="k">FROM</span> <span class="n">temp_author_act</span><span class="p">)</span>
+<span class="k">SELECT</span>
+  <span class="n">author_id</span><span class="p">,</span>
+  <span class="n">dates</span><span class="p">,</span>
+  <span class="n">dates2</span><span class="p">,</span>
+  <span class="n">IF</span><span class="p">(</span><span class="n">DATEDIFF</span><span class="p">(</span><span class="n">dates</span><span class="p">,</span> <span class="n">dates2</span><span class="p">)</span> <span class="o">=</span> <span class="mi">1</span><span class="p">,</span> <span class="o">@</span><span class="n">r</span> <span class="p">:</span><span class="o">=</span> <span class="o">@</span><span class="n">r</span> <span class="o">+</span> <span class="mi">1</span><span class="p">,</span> <span class="o">@</span><span class="n">r</span> <span class="p">:</span><span class="o">=</span> <span class="mi">0</span><span class="p">)</span> <span class="k">AS</span> <span class="n">r2</span>
+<span class="k">FROM</span> <span class="n">p</span><span class="p">;</span>
+</pre></td></tr></tbody></table></code></pre></div></div>
+
+<p><img src="http://andy-blog.oss-cn-beijing.aliyuncs.com/blog/2021-07-08-WX20210708-150846%402x.png" width="57%" /></p>
+
+<p>计算每个作者的最大连续更新天数：</p>
+
+<div class="language-sql highlighter-rouge"><div class="highlight"><pre class="highlight"><code><table class="rouge-table"><tbody><tr><td class="rouge-gutter gl"><pre class="lineno">1
+2
+3
+4
+5
+6
+7
+8
+9
+10
+11
+12
+13
+14
+15
+16
+17
+18
+19
+</pre></td><td class="rouge-code"><pre><span class="k">WITH</span> <span class="n">p2</span> <span class="k">AS</span>
+  <span class="p">(</span><span class="k">WITH</span> <span class="n">p</span> <span class="k">AS</span>
+    <span class="p">(</span><span class="k">SELECT</span> 
+       <span class="n">author_id</span><span class="p">,</span>
+       <span class="n">dates</span><span class="p">,</span>
+       <span class="n">LAG</span><span class="p">(</span><span class="n">dates</span><span class="p">)</span> <span class="n">OVER</span> <span class="p">(</span><span class="n">PARTITION</span> <span class="k">BY</span> <span class="n">author_id</span> <span class="k">ORDER</span> <span class="k">BY</span> <span class="n">dates</span><span class="p">)</span> <span class="k">AS</span> <span class="n">dates2</span><span class="p">,</span>
+       <span class="o">@</span><span class="n">r</span> <span class="p">:</span><span class="o">=</span> <span class="mi">0</span>
+     <span class="k">FROM</span> <span class="n">temp_author_act</span><span class="p">)</span>
+  <span class="k">SELECT</span>
+    <span class="n">author_id</span><span class="p">,</span>
+    <span class="n">dates</span><span class="p">,</span>
+    <span class="n">dates2</span><span class="p">,</span>
+    <span class="n">IF</span><span class="p">(</span><span class="n">DATEDIFF</span><span class="p">(</span><span class="n">dates</span><span class="p">,</span> <span class="n">dates2</span><span class="p">)</span> <span class="o">=</span> <span class="mi">1</span><span class="p">,</span> <span class="o">@</span><span class="n">r</span> <span class="p">:</span><span class="o">=</span> <span class="o">@</span><span class="n">r</span> <span class="o">+</span> <span class="mi">1</span><span class="p">,</span> <span class="o">@</span><span class="n">r</span> <span class="p">:</span><span class="o">=</span> <span class="mi">0</span><span class="p">)</span> <span class="k">AS</span> <span class="n">r2</span>
+  <span class="k">FROM</span> <span class="n">p</span><span class="p">)</span>
+<span class="k">SELECT</span>
+  <span class="n">author_id</span><span class="p">,</span>
+  <span class="k">MAX</span><span class="p">(</span><span class="n">r2</span><span class="p">)</span>
+<span class="k">FROM</span> <span class="n">p2</span>
+<span class="k">GROUP</span> <span class="k">BY</span> <span class="n">author_id</span><span class="p">;</span>
+</pre></td></tr></tbody></table></code></pre></div></div>
+
+<p><img src="http://andy-blog.oss-cn-beijing.aliyuncs.com/blog/2021-07-08-WX20210708-155410%402x.png" width="40%" /></p>
+
+<h2 id="4-窗口排序">4. 窗口排序</h2>
+
+<p>三种排序窗口函数：</p>
+
+<ul>
+  <li><code class="language-plaintext highlighter-rouge">ROW_NUMBER()</code>：不重复连续数字</li>
+  <li><code class="language-plaintext highlighter-rouge">RANK()</code>：考试排名</li>
+  <li><code class="language-plaintext highlighter-rouge">DENSE_RANK()</code>：等级排名</li>
+</ul>
+
+<div class="language-sql highlighter-rouge"><div class="highlight"><pre class="highlight"><code><table class="rouge-table"><tbody><tr><td class="rouge-gutter gl"><pre class="lineno">1
+2
+3
+4
+5
+6
+7
+8
+9
+10
+11
+12
+13
+14
+15
+16
+17
+</pre></td><td class="rouge-code"><pre> <span class="k">CREATE</span> <span class="k">TABLE</span> <span class="n">sort_func_test</span> <span class="p">(</span>
+   <span class="n">number</span> <span class="nb">INT</span>
+ <span class="p">);</span>
+ 
+ <span class="k">INSERT</span> <span class="k">INTO</span> <span class="n">sort_func_test</span> <span class="k">VALUES</span> <span class="p">(</span><span class="mi">1</span><span class="p">);</span>
+ <span class="k">INSERT</span> <span class="k">INTO</span> <span class="n">sort_func_test</span> <span class="k">VALUES</span> <span class="p">(</span><span class="mi">1</span><span class="p">);</span>
+ <span class="k">INSERT</span> <span class="k">INTO</span> <span class="n">sort_func_test</span> <span class="k">VALUES</span> <span class="p">(</span><span class="mi">2</span><span class="p">);</span>
+ <span class="k">INSERT</span> <span class="k">INTO</span> <span class="n">sort_func_test</span> <span class="k">VALUES</span> <span class="p">(</span><span class="mi">3</span><span class="p">);</span>
+ <span class="k">INSERT</span> <span class="k">INTO</span> <span class="n">sort_func_test</span> <span class="k">VALUES</span> <span class="p">(</span><span class="mi">3</span><span class="p">);</span>
+ <span class="k">INSERT</span> <span class="k">INTO</span> <span class="n">sort_func_test</span> <span class="k">VALUES</span> <span class="p">(</span><span class="mi">4</span><span class="p">);</span>
+ 
+ <span class="k">SELECT</span>
+   <span class="n">number</span><span class="p">,</span>
+   <span class="n">ROW_NUMBER</span><span class="p">()</span> <span class="n">OVER</span> <span class="p">(</span><span class="k">ORDER</span> <span class="k">BY</span> <span class="n">number</span><span class="p">)</span> <span class="k">AS</span> <span class="n">_row_number</span><span class="p">,</span>
+   <span class="n">RANK</span><span class="p">()</span> <span class="n">OVER</span> <span class="p">(</span><span class="k">ORDER</span> <span class="k">BY</span> <span class="n">number</span><span class="p">)</span> <span class="k">AS</span> <span class="n">_rank</span><span class="p">,</span>
+   <span class="n">DENSE_RANK</span><span class="p">()</span> <span class="n">OVER</span> <span class="p">(</span><span class="k">ORDER</span> <span class="k">BY</span> <span class="n">number</span><span class="p">)</span> <span class="k">AS</span> <span class="n">_dense_rank</span>
+ <span class="k">FROM</span> <span class="n">sort_func_test</span><span class="p">;</span>
+</pre></td></tr></tbody></table></code></pre></div></div>
+
+<p><img src="http://andy-blog.oss-cn-beijing.aliyuncs.com/blog/2021-07-08-WX20210708-161214%402x.png" width="65%" /></p>
+
+<h2 id="5-练习美团数据分析-sql-笔试题">5. 练习：美团数据分析 SQL 笔试题</h2>
+
+<p><strong>数据表：</strong></p>
+
+<ul>
+  <li><strong>商家表：</strong>有日期、商家 ID、城市、商家合作开始日期（时间戳格式）、营业时长（秒）；</li>
+  <li><strong>订单数据表：</strong>有订单 ID、商家 ID、订单金额、订单时间、商家所在城市、订单时段（早餐、午餐、晚餐）、运费原价金额、运费减免金额。</li>
+</ul>
+
+<p>由于没有原始的美团面试题数据，本例中使用的是我们自己生成的一些模拟数据：</p>
+
+<div class="language-sql highlighter-rouge"><div class="highlight"><pre class="highlight"><code><table class="rouge-table"><tbody><tr><td class="rouge-gutter gl"><pre class="lineno">1
+2
+3
+4
+5
+6
+7
+8
+9
+10
+11
+12
+13
+14
+15
+16
+17
+18
+19
+20
+21
+22
+23
+24
+</pre></td><td class="rouge-code"><pre><span class="k">CREATE</span> <span class="k">DATABASE</span> <span class="n">meituan</span> <span class="n">CHARSET</span> <span class="n">utf8</span><span class="p">;</span>
+<span class="n">USE</span> <span class="n">meituan</span><span class="p">;</span>
+
+<span class="c1">-- 创建商家表</span>
+<span class="k">CREATE</span> <span class="k">TABLE</span> <span class="n">stores</span> <span class="p">(</span>
+  <span class="nv">`date`</span> <span class="nb">DATE</span><span class="p">,</span>
+  <span class="n">storeID</span> <span class="nb">VARCHAR</span><span class="p">(</span><span class="mi">25</span><span class="p">),</span>
+  <span class="n">city</span> <span class="nb">VARCHAR</span><span class="p">(</span><span class="mi">25</span><span class="p">),</span>
+  <span class="n">beginTimestamp</span> <span class="n">LONG</span><span class="p">,</span>
+  <span class="n">businessHour</span> <span class="nb">INTEGER</span>
+<span class="p">);</span>
+
+<span class="c1">-- 创建订单表</span>
+<span class="k">CREATE</span> <span class="k">TABLE</span> <span class="n">orders</span> <span class="p">(</span>
+  <span class="nv">`index`</span> <span class="nb">INTEGER</span><span class="p">,</span>
+  <span class="n">orderID</span> <span class="nb">VARCHAR</span><span class="p">(</span><span class="mi">100</span><span class="p">),</span>
+  <span class="n">storeID</span> <span class="nb">VARCHAR</span><span class="p">(</span><span class="mi">25</span><span class="p">),</span>
+  <span class="n">money</span> <span class="nb">DOUBLE</span><span class="p">,</span>
+  <span class="nv">`date`</span> <span class="nb">DATE</span><span class="p">,</span>
+  <span class="n">city</span> <span class="nb">VARCHAR</span><span class="p">(</span><span class="mi">25</span><span class="p">),</span>
+  <span class="n">period</span> <span class="nb">VARCHAR</span><span class="p">(</span><span class="mi">25</span><span class="p">),</span>
+  <span class="n">freight_org</span> <span class="nb">INTEGER</span><span class="p">,</span>
+  <span class="n">freight_nus</span> <span class="nb">INTEGER</span>
+<span class="p">);</span>
+</pre></td></tr></tbody></table></code></pre></div></div>
+
+<div class="language-sql highlighter-rouge"><div class="highlight"><pre class="highlight"><code><table class="rouge-table"><tbody><tr><td class="rouge-gutter gl"><pre class="lineno">1
+2
+</pre></td><td class="rouge-code"><pre><span class="c1">-- 查看商家表中的数据</span>
+<span class="k">SELECT</span> <span class="o">*</span> <span class="k">FROM</span> <span class="n">stores</span><span class="p">;</span>
+</pre></td></tr></tbody></table></code></pre></div></div>
+
+<p><img src="http://andy-blog.oss-cn-beijing.aliyuncs.com/blog/2021-07-08-WX20210708-204236%402x.png" width="82%" /></p>
+
+<div class="language-sql highlighter-rouge"><div class="highlight"><pre class="highlight"><code><table class="rouge-table"><tbody><tr><td class="rouge-gutter gl"><pre class="lineno">1
+2
+</pre></td><td class="rouge-code"><pre><span class="c1">-- 查看订单表中的数据</span>
+<span class="k">SELECT</span> <span class="o">*</span> <span class="k">FROM</span> <span class="n">orders</span><span class="p">;</span>
+</pre></td></tr></tbody></table></code></pre></div></div>
+
+<p><img src="http://andy-blog.oss-cn-beijing.aliyuncs.com/blog/2021-07-08-WX20210708-204449%402x.png" width="100%" /></p>
+
+<h3 id="51-第一题">5.1 第一题</h3>
+
+<h4 id="511-题目要求">5.1.1 题目要求</h4>
+
+<p><strong>商家表：</strong>有日期、商家 ID、城市、商家合作开始日期（时间戳格式）、营业时长（小时）。</p>
+
+<p><strong>要求：</strong></p>
+
+<ol>
+  <li>取每个城市本月日均营业时长（需刨除当天不营业商家，营业时长单位：小时）；</li>
+  <li>取截止今日每个商家已合作天数。</li>
+</ol>
+
+<h4 id="512-解题思路">5.1.2 解题思路</h4>
+
+<p><strong>要求 1：取每个城市本月日均营业时长（需刨除当天不营业商家，营业时长单位：小时）。</strong></p>
+
+<p>首先，我们看一下 <code class="language-plaintext highlighter-rouge">stores</code> 表中都有哪些月份：</p>
+
+<div class="language-sql highlighter-rouge"><div class="highlight"><pre class="highlight"><code><table class="rouge-table"><tbody><tr><td class="rouge-gutter gl"><pre class="lineno">1
+</pre></td><td class="rouge-code"><pre><span class="k">SELECT</span> <span class="k">MONTH</span><span class="p">(</span><span class="nb">date</span><span class="p">)</span> <span class="k">FROM</span> <span class="n">stores</span> <span class="k">GROUP</span> <span class="k">BY</span> <span class="k">MONTH</span><span class="p">(</span><span class="nb">date</span><span class="p">);</span>
+</pre></td></tr></tbody></table></code></pre></div></div>
+
+<p><img src="http://andy-blog.oss-cn-beijing.aliyuncs.com/blog/2021-07-08-WX20210708-210558%402x.png" width="25%" /></p>
+
+<p>可以看到，<code class="language-plaintext highlighter-rouge">stores</code> 数据表中所有数据都来自 5 月份，所以我们假设这里要求的本月是指 5 月份：</p>
+
+<div class="language-sql highlighter-rouge"><div class="highlight"><pre class="highlight"><code><table class="rouge-table"><tbody><tr><td class="rouge-gutter gl"><pre class="lineno">1
+2
+3
+4
+5
+6
+</pre></td><td class="rouge-code"><pre><span class="k">SELECT</span>
+  <span class="n">city</span><span class="p">,</span>
+  <span class="k">AVG</span><span class="p">(</span><span class="n">businessHour</span><span class="p">)</span> <span class="k">AS</span> <span class="n">avgBusinessHour</span>
+<span class="k">FROM</span> <span class="n">stores</span>
+<span class="k">WHERE</span> <span class="k">MONTH</span><span class="p">(</span><span class="nb">date</span><span class="p">)</span> <span class="o">=</span> <span class="mi">5</span> <span class="k">AND</span> <span class="n">businessHour</span> <span class="o">&gt;</span> <span class="mi">0</span>
+<span class="k">GROUP</span> <span class="k">BY</span> <span class="n">city</span><span class="p">;</span>
+</pre></td></tr></tbody></table></code></pre></div></div>
+
+<p><img src="http://andy-blog.oss-cn-beijing.aliyuncs.com/blog/2021-07-08-WX20210708-211508%402x.png" width="40%" /></p>
+
+<p><strong>要求 2：取截止今日每个商家已合作天数。</strong></p>
+
+<p>首先，使用 <code class="language-plaintext highlighter-rouge">FROM_UNIXTIME()</code> 函数将时间戳转换成 “日期 + 时间” 格式：</p>
+
+<div class="language-sql highlighter-rouge"><div class="highlight"><pre class="highlight"><code><table class="rouge-table"><tbody><tr><td class="rouge-gutter gl"><pre class="lineno">1
+</pre></td><td class="rouge-code"><pre><span class="k">SELECT</span> <span class="o">*</span><span class="p">,</span> <span class="n">FROM_UNIXTIME</span><span class="p">(</span><span class="n">beginTimestamp</span><span class="p">)</span> <span class="k">FROM</span> <span class="n">stores</span><span class="p">;</span>
+</pre></td></tr></tbody></table></code></pre></div></div>
+
+<p><img src="http://andy-blog.oss-cn-beijing.aliyuncs.com/blog/2021-07-08-WX20210708-212902%402x.png" width="100%" /></p>
+
+<p>使用 <code class="language-plaintext highlighter-rouge">DATEDIFF()</code> 和 <code class="language-plaintext highlighter-rouge">NOW()</code> 函数计算各商家加入美团至今的天数。由于我们使用了 <code class="language-plaintext highlighter-rouge">GROUP BY</code> 按照 <code class="language-plaintext highlighter-rouge">storeID</code> 进行分组，所以在转换时间戳时需要使用聚合函数（可以看到，同一 <code class="language-plaintext highlighter-rouge">storeID</code> 对应的 <code class="language-plaintext highlighter-rouge">beginTimeStamp</code> 都是一样的，所以这里我们使用  <code class="language-plaintext highlighter-rouge">MIN()</code>、 <code class="language-plaintext highlighter-rouge">MAX()</code> 或者 <code class="language-plaintext highlighter-rouge">AVG()</code> 都可以）：</p>
+
+<div class="language-sql highlighter-rouge"><div class="highlight"><pre class="highlight"><code><table class="rouge-table"><tbody><tr><td class="rouge-gutter gl"><pre class="lineno">1
+2
+3
+4
+5
+</pre></td><td class="rouge-code"><pre><span class="k">SELECT</span> 
+  <span class="n">storeID</span><span class="p">,</span> 
+  <span class="n">DATEDIFF</span><span class="p">(</span><span class="n">NOW</span><span class="p">(),</span> <span class="n">FROM_UNIXTIME</span><span class="p">(</span><span class="k">MIN</span><span class="p">(</span><span class="n">beginTimestamp</span><span class="p">)))</span> <span class="k">AS</span> <span class="nv">"加入美团的天数"</span> 
+<span class="k">FROM</span> <span class="n">stores</span> 
+<span class="k">GROUP</span> <span class="k">BY</span> <span class="n">storeID</span><span class="p">;</span>
+</pre></td></tr></tbody></table></code></pre></div></div>
+
+<p><img src="http://andy-blog.oss-cn-beijing.aliyuncs.com/blog/2021-07-08-WX20210708-213703%402x.png" width="40%" /></p>
+
+<h3 id="52-第二题">5.2 第二题</h3>
+
+<h4 id="521-题目要求">5.2.1 题目要求</h4>
+
+<p><strong>订单数据表：</strong>有订单 ID、商家 ID、订单金额、订单时间、商家所在城市、订单时段（早餐、午餐、晚餐）、运费原价金额、运费减免金额。</p>
+
+<p><strong>要求：</strong></p>
+
+<ol>
+  <li>取每个城市当月订单量排名前 10 名商家，需要商家 ID、订单量、订单量对比上月增速（月环比增长率）、对比大盘订单量（大盘：整体商家汇总）的增速差；</li>
+  <li>取每个城市当月订单量排名前 10% 商家的总数、早餐商家总数、晚餐商家总数、运费全免商家占比（运费全免商家：只要有一单全免就是运费全免商家）。</li>
+</ol>
+
+<h4 id="522-解题思路">5.2.2 解题思路</h4>
+
+<p><strong>要求 1：取每个城市当月订单量排名前 10 名商家，需要商家 ID、订单量、订单量对比上月增速（月环比增长率）、对比大盘订单量（大盘：整体商家汇总）的增速差。</strong></p>
+
+<p>首先，我们看一下 <code class="language-plaintext highlighter-rouge">orders</code> 表中都有哪些月份：</p>
+
+<div class="language-sql highlighter-rouge"><div class="highlight"><pre class="highlight"><code><table class="rouge-table"><tbody><tr><td class="rouge-gutter gl"><pre class="lineno">1
+</pre></td><td class="rouge-code"><pre><span class="k">SELECT</span> <span class="k">MONTH</span><span class="p">(</span><span class="nb">date</span><span class="p">)</span> <span class="k">FROM</span> <span class="n">orders</span> <span class="k">GROUP</span> <span class="k">BY</span> <span class="k">MONTH</span><span class="p">(</span><span class="nb">date</span><span class="p">);</span>
+</pre></td></tr></tbody></table></code></pre></div></div>
+
+<p><img src="http://andy-blog.oss-cn-beijing.aliyuncs.com/blog/2021-07-08-WX20210708-221232%402x.png" width="25%" /></p>
+
+<p>可以看到，<code class="language-plaintext highlighter-rouge">orders</code> 表中所有数据都来自 4、5 月份，所以我们假设这里的当前月份是指 5 月份：</p>
+
+<div class="language-sql highlighter-rouge"><div class="highlight"><pre class="highlight"><code><table class="rouge-table"><tbody><tr><td class="rouge-gutter gl"><pre class="lineno">1
+2
+3
+4
+5
+6
+7
+8
+9
+10
+11
+12
+13
+14
+15
+16
+17
+18
+19
+20
+21
+22
+23
+24
+</pre></td><td class="rouge-code"><pre><span class="c1">-- 获取当月（5月）数据，保存到视图 this_month 中</span>
+<span class="k">CREATE</span> <span class="k">VIEW</span> <span class="n">this_month</span> <span class="k">AS</span>
+<span class="k">SELECT</span> <span class="o">*</span> <span class="k">FROM</span> <span class="n">orders</span> <span class="k">WHERE</span> <span class="k">MONTH</span><span class="p">(</span><span class="nb">date</span><span class="p">)</span> <span class="o">=</span> <span class="mi">5</span><span class="p">;</span>
+
+<span class="c1">-- 获取上月（4月）数据，保存到视图 last_month 中</span>
+<span class="k">CREATE</span> <span class="k">VIEW</span> <span class="n">last_month</span> <span class="k">AS</span>
+<span class="k">SELECT</span> <span class="o">*</span> <span class="k">FROM</span> <span class="n">orders</span> <span class="k">WHERE</span> <span class="k">MONTH</span><span class="p">(</span><span class="nb">date</span><span class="p">)</span> <span class="o">=</span> <span class="mi">4</span><span class="p">;</span>
+
+<span class="c1">-- 获取每个城市当月订单量排名前 10 名商家的商家 ID、订单量和排名</span>
+<span class="k">SELECT</span> <span class="o">*</span> 
+<span class="k">FROM</span>
+  <span class="p">(</span><span class="k">SELECT</span>
+     <span class="o">*</span><span class="p">,</span>
+     <span class="n">RANK</span><span class="p">()</span> <span class="n">OVER</span> <span class="p">(</span><span class="n">PARTITION</span> <span class="k">BY</span> <span class="n">city</span> <span class="k">ORDER</span> <span class="k">BY</span> <span class="n">orderNum</span> <span class="k">DESC</span><span class="p">)</span> <span class="k">AS</span> <span class="n">r</span>
+   <span class="k">FROM</span>
+     <span class="p">(</span><span class="k">SELECT</span>
+        <span class="n">city</span><span class="p">,</span>
+        <span class="n">storeID</span><span class="p">,</span>
+        <span class="k">COUNT</span><span class="p">(</span><span class="k">DISTINCT</span> <span class="n">orderID</span><span class="p">)</span> <span class="k">AS</span> <span class="n">orderNum</span>
+      <span class="k">FROM</span> <span class="n">this_month</span>
+      <span class="k">GROUP</span> <span class="k">BY</span> <span class="n">city</span><span class="p">,</span> <span class="n">storeID</span>
+     <span class="p">)</span> <span class="k">AS</span> <span class="n">f1</span>
+  <span class="p">)</span> <span class="k">AS</span> <span class="n">f2</span>
+<span class="k">WHERE</span> <span class="n">r</span> <span class="o">&lt;=</span> <span class="mi">10</span><span class="p">;</span>
+</pre></td></tr></tbody></table></code></pre></div></div>
+
+<p><img src="http://andy-blog.oss-cn-beijing.aliyuncs.com/blog/2021-07-08-WX20210708-222659%402x.png" width="55%" /></p>
+
+<div class="language-sql highlighter-rouge"><div class="highlight"><pre class="highlight"><code><table class="rouge-table"><tbody><tr><td class="rouge-gutter gl"><pre class="lineno">1
+2
+3
+4
+5
+6
+7
+</pre></td><td class="rouge-code"><pre><span class="c1">-- 获取上月每个城市全部商家的订单量数据</span>
+<span class="k">SELECT</span>
+  <span class="n">city</span><span class="p">,</span>
+  <span class="n">storeID</span><span class="p">,</span>
+  <span class="k">COUNT</span><span class="p">(</span><span class="k">DISTINCT</span> <span class="n">orderID</span><span class="p">)</span> <span class="k">AS</span> <span class="n">orderNum</span>
+<span class="k">FROM</span> <span class="n">last_month</span>
+<span class="k">GROUP</span> <span class="k">BY</span> <span class="n">city</span><span class="p">,</span> <span class="n">storeID</span><span class="p">;</span>
+</pre></td></tr></tbody></table></code></pre></div></div>
+
+<p><img src="http://andy-blog.oss-cn-beijing.aliyuncs.com/blog/2021-07-08-WX20210708-223948%402x.png" width="50%" /></p>
+
+<div class="language-sql highlighter-rouge"><div class="highlight"><pre class="highlight"><code><table class="rouge-table"><tbody><tr><td class="rouge-gutter gl"><pre class="lineno">1
+2
+3
+4
+5
+6
+7
+8
+9
+10
+11
+12
+13
+14
+15
+16
+17
+18
+19
+20
+21
+22
+23
+24
+25
+26
+27
+28
+29
+30
+</pre></td><td class="rouge-code"><pre><span class="c1">-- 使用 LEFT JOIN 连接每个城市当月订单量排名前 10 名商家的订单量数据和每个城市各商家上月订单量数据</span>
+<span class="k">SELECT</span> <span class="o">*</span> 
+<span class="k">FROM</span>
+  <span class="c1">-- 每个城市当月订单量排名前 10 名商家的订单量数据</span>
+  <span class="p">(</span><span class="k">SELECT</span> <span class="o">*</span> 
+   <span class="k">FROM</span>
+     <span class="p">(</span><span class="k">SELECT</span>
+        <span class="o">*</span><span class="p">,</span>
+        <span class="n">RANK</span><span class="p">()</span> <span class="n">OVER</span> <span class="p">(</span><span class="n">PARTITION</span> <span class="k">BY</span> <span class="n">city</span> <span class="k">ORDER</span> <span class="k">BY</span> <span class="n">orderNum</span> <span class="k">DESC</span><span class="p">)</span> <span class="k">AS</span> <span class="n">r</span>
+      <span class="k">FROM</span>
+        <span class="p">(</span><span class="k">SELECT</span>
+           <span class="n">city</span><span class="p">,</span>
+           <span class="n">storeID</span><span class="p">,</span>
+           <span class="k">COUNT</span><span class="p">(</span><span class="k">DISTINCT</span> <span class="n">orderID</span><span class="p">)</span> <span class="k">AS</span> <span class="n">orderNum</span>
+         <span class="k">FROM</span> <span class="n">this_month</span>
+         <span class="k">GROUP</span> <span class="k">BY</span> <span class="n">city</span><span class="p">,</span> <span class="n">storeID</span>
+        <span class="p">)</span> <span class="k">AS</span> <span class="n">f1</span>
+     <span class="p">)</span> <span class="k">AS</span> <span class="n">f2</span>
+   <span class="k">WHERE</span> <span class="n">r</span> <span class="o">&lt;=</span> <span class="mi">10</span>
+  <span class="p">)</span> <span class="k">AS</span> <span class="n">f_this_10</span>
+  <span class="k">LEFT</span> <span class="k">JOIN</span>
+  <span class="c1">-- 每个城市各商家上月订单量数据</span>
+  <span class="p">(</span><span class="k">SELECT</span>
+     <span class="n">city</span><span class="p">,</span>
+     <span class="n">storeID</span><span class="p">,</span>
+     <span class="k">COUNT</span><span class="p">(</span><span class="k">DISTINCT</span> <span class="n">orderID</span><span class="p">)</span> <span class="k">AS</span> <span class="n">orderNum</span>
+   <span class="k">FROM</span> <span class="n">last_month</span>
+   <span class="k">GROUP</span> <span class="k">BY</span> <span class="n">city</span><span class="p">,</span> <span class="n">storeID</span>
+  <span class="p">)</span> <span class="k">AS</span> <span class="n">f_last</span> 
+  <span class="k">ON</span> <span class="n">f_this_10</span><span class="p">.</span><span class="n">storeID</span> <span class="o">=</span> <span class="n">f_last</span><span class="p">.</span><span class="n">storeID</span><span class="p">;</span>
+</pre></td></tr></tbody></table></code></pre></div></div>
+
+<p><img src="http://andy-blog.oss-cn-beijing.aliyuncs.com/blog/2021-07-08-WX20210708-224605%402x.png" width="100%" /></p>
+
+<div class="language-sql highlighter-rouge"><div class="highlight"><pre class="highlight"><code><table class="rouge-table"><tbody><tr><td class="rouge-gutter gl"><pre class="lineno">1
+2
+3
+4
+5
+6
+7
+8
+9
+10
+11
+12
+13
+14
+15
+16
+17
+18
+19
+20
+21
+22
+23
+24
+25
+26
+27
+28
+29
+30
+31
+32
+33
+34
+</pre></td><td class="rouge-code"><pre><span class="c1">-- 整理上面的结果，选取每个城市当月订单量排名前 10 名商家的商家 ID、订单量、订单量对比上月增速（月环比增长率）</span>
+<span class="k">SELECT</span>
+  <span class="n">f_this_10</span><span class="p">.</span><span class="n">city</span> <span class="k">AS</span> <span class="n">city</span><span class="p">,</span>
+  <span class="n">f_this_10</span><span class="p">.</span><span class="n">storeID</span> <span class="k">AS</span> <span class="n">storeID</span><span class="p">,</span>
+  <span class="n">f_this_10</span><span class="p">.</span><span class="n">orderNum</span> <span class="k">AS</span> <span class="n">orderNum</span><span class="p">,</span>
+  <span class="p">(</span><span class="n">f_this_10</span><span class="p">.</span><span class="n">orderNum</span> <span class="o">-</span> <span class="n">f_last</span><span class="p">.</span><span class="n">orderNum</span><span class="p">)</span> <span class="o">/</span> <span class="n">f_last</span><span class="p">.</span><span class="n">orderNum</span> <span class="k">AS</span> <span class="n">orderNumMonthRate</span>
+<span class="k">FROM</span>
+  <span class="c1">-- 每个城市当月订单量排名前 10 名商家的商家 ID、订单量</span>
+  <span class="p">(</span><span class="k">SELECT</span> <span class="o">*</span> 
+   <span class="k">FROM</span>
+     <span class="p">(</span><span class="k">SELECT</span>
+        <span class="o">*</span><span class="p">,</span>
+        <span class="n">RANK</span><span class="p">()</span> <span class="n">OVER</span> <span class="p">(</span><span class="n">PARTITION</span> <span class="k">BY</span> <span class="n">city</span> <span class="k">ORDER</span> <span class="k">BY</span> <span class="n">orderNum</span> <span class="k">DESC</span><span class="p">)</span> <span class="k">AS</span> <span class="n">r</span>
+      <span class="k">FROM</span>
+        <span class="p">(</span><span class="k">SELECT</span>
+           <span class="n">city</span><span class="p">,</span>
+           <span class="n">storeID</span><span class="p">,</span>
+           <span class="k">COUNT</span><span class="p">(</span><span class="k">DISTINCT</span> <span class="n">orderID</span><span class="p">)</span> <span class="k">AS</span> <span class="n">orderNum</span>
+         <span class="k">FROM</span> <span class="n">this_month</span>
+         <span class="k">GROUP</span> <span class="k">BY</span> <span class="n">city</span><span class="p">,</span> <span class="n">storeID</span>
+        <span class="p">)</span> <span class="k">AS</span> <span class="n">f1</span>
+     <span class="p">)</span> <span class="k">AS</span> <span class="n">f2</span>
+   <span class="k">WHERE</span> <span class="n">r</span> <span class="o">&lt;=</span> <span class="mi">10</span>
+  <span class="p">)</span> <span class="k">AS</span> <span class="n">f_this_10</span>
+  <span class="k">LEFT</span> <span class="k">JOIN</span>
+  <span class="c1">-- 每个城市各商家上月订单量</span>
+  <span class="p">(</span><span class="k">SELECT</span>
+     <span class="n">city</span><span class="p">,</span>
+     <span class="n">storeID</span><span class="p">,</span>
+     <span class="k">COUNT</span><span class="p">(</span><span class="k">DISTINCT</span> <span class="n">orderID</span><span class="p">)</span> <span class="k">AS</span> <span class="n">orderNum</span>
+   <span class="k">FROM</span> <span class="n">last_month</span>
+   <span class="k">GROUP</span> <span class="k">BY</span> <span class="n">city</span><span class="p">,</span> <span class="n">storeID</span>
+  <span class="p">)</span> <span class="k">AS</span> <span class="n">f_last</span> 
+  <span class="k">ON</span> <span class="n">f_this_10</span><span class="p">.</span><span class="n">storeID</span> <span class="o">=</span> <span class="n">f_last</span><span class="p">.</span><span class="n">storeID</span><span class="p">;</span>
+</pre></td></tr></tbody></table></code></pre></div></div>
+
+<p><img src="http://andy-blog.oss-cn-beijing.aliyuncs.com/blog/2021-07-08-WX20210708-230828%402x.png" width="70%" /></p>
+
+<div class="language-sql highlighter-rouge"><div class="highlight"><pre class="highlight"><code><table class="rouge-table"><tbody><tr><td class="rouge-gutter gl"><pre class="lineno">1
+2
+3
+4
+5
+</pre></td><td class="rouge-code"><pre><span class="c1">-- 查看当月大盘订单量（大盘：整体商家汇总）对比上月的增速</span>
+<span class="k">SELECT</span> <span class="p">(</span><span class="n">f1</span><span class="p">.</span><span class="n">orderNum</span> <span class="o">-</span> <span class="n">f2</span><span class="p">.</span><span class="n">orderNum</span><span class="p">)</span> <span class="o">/</span> <span class="n">f2</span><span class="p">.</span><span class="n">orderNum</span> <span class="k">AS</span> <span class="n">totalOrderNumMonthRate</span>
+<span class="k">FROM</span>
+  <span class="p">(</span><span class="k">SELECT</span> <span class="k">COUNT</span><span class="p">(</span><span class="k">DISTINCT</span> <span class="n">orderID</span><span class="p">)</span> <span class="k">AS</span> <span class="n">orderNum</span> <span class="k">FROM</span> <span class="n">this_month</span><span class="p">)</span> <span class="k">AS</span> <span class="n">f1</span><span class="p">,</span>
+  <span class="p">(</span><span class="k">SELECT</span> <span class="k">COUNT</span><span class="p">(</span><span class="k">DISTINCT</span> <span class="n">orderID</span><span class="p">)</span> <span class="k">AS</span> <span class="n">orderNum</span> <span class="k">FROM</span> <span class="n">last_month</span><span class="p">)</span> <span class="k">AS</span> <span class="n">f2</span><span class="p">;</span>
+</pre></td></tr></tbody></table></code></pre></div></div>
+
+<p><img src="http://andy-blog.oss-cn-beijing.aliyuncs.com/blog/2021-07-08-WX20210708-230643%402x.png" width="35%" /></p>
+
+<div class="language-sql highlighter-rouge"><div class="highlight"><pre class="highlight"><code><table class="rouge-table"><tbody><tr><td class="rouge-gutter gl"><pre class="lineno">1
+2
+3
+4
+5
+6
+7
+8
+9
+10
+11
+12
+13
+14
+15
+16
+17
+18
+19
+20
+21
+22
+23
+24
+25
+26
+27
+28
+29
+30
+31
+32
+33
+34
+35
+36
+37
+38
+39
+40
+41
+42
+43
+44
+45
+46
+47
+</pre></td><td class="rouge-code"><pre><span class="c1">-- 用笛卡尔积连接前两步的结果，并计算每个城市当月订单量排名前 10 名商家的订单量增速对比大盘订单量的增速差。</span>
+<span class="k">SELECT</span>
+  <span class="n">city</span><span class="p">,</span>
+  <span class="n">storeID</span><span class="p">,</span>
+  <span class="n">orderNum</span><span class="p">,</span>
+  <span class="n">CONCAT</span><span class="p">(</span><span class="n">ROUND</span><span class="p">(</span><span class="n">orderNumMonthRate</span> <span class="o">*</span> <span class="mi">100</span><span class="p">,</span> <span class="mi">2</span><span class="p">),</span> <span class="s1">'%'</span><span class="p">)</span> <span class="k">AS</span> <span class="n">orderNumMonthRate</span><span class="p">,</span>
+  <span class="n">CONCAT</span><span class="p">(</span><span class="n">ROUND</span><span class="p">((</span><span class="n">orderNumMonthRate</span> <span class="o">-</span> <span class="n">totalOrderNumMonthRate</span><span class="p">)</span> <span class="o">*</span> <span class="mi">100</span><span class="p">,</span> <span class="mi">2</span><span class="p">),</span> <span class="s1">'%'</span><span class="p">)</span> <span class="k">AS</span> <span class="n">deltaOrderNumMonthRate</span>
+<span class="k">FROM</span>
+  <span class="c1">-- 每个城市当月订单量排名前 10 名商家的订单量相关数据</span>
+  <span class="p">(</span><span class="k">SELECT</span>
+     <span class="n">f_this_10</span><span class="p">.</span><span class="n">city</span> <span class="k">AS</span> <span class="n">city</span><span class="p">,</span>
+     <span class="n">f_this_10</span><span class="p">.</span><span class="n">storeID</span> <span class="k">AS</span> <span class="n">storeID</span><span class="p">,</span>
+     <span class="n">f_this_10</span><span class="p">.</span><span class="n">orderNum</span> <span class="k">AS</span> <span class="n">orderNum</span><span class="p">,</span>
+     <span class="p">(</span><span class="n">f_this_10</span><span class="p">.</span><span class="n">orderNum</span> <span class="o">-</span> <span class="n">f_last</span><span class="p">.</span><span class="n">orderNum</span><span class="p">)</span> <span class="o">/</span> <span class="n">f_last</span><span class="p">.</span><span class="n">orderNum</span> <span class="k">AS</span> <span class="n">orderNumMonthRate</span>
+   <span class="k">FROM</span>
+     <span class="p">(</span><span class="k">SELECT</span> <span class="o">*</span> 
+      <span class="k">FROM</span>
+        <span class="p">(</span><span class="k">SELECT</span>
+           <span class="o">*</span><span class="p">,</span>
+           <span class="n">RANK</span><span class="p">()</span> <span class="n">OVER</span> <span class="p">(</span><span class="n">PARTITION</span> <span class="k">BY</span> <span class="n">city</span> <span class="k">ORDER</span> <span class="k">BY</span> <span class="n">orderNum</span> <span class="k">DESC</span><span class="p">)</span> <span class="k">AS</span> <span class="n">r</span>
+         <span class="k">FROM</span>
+           <span class="p">(</span><span class="k">SELECT</span>
+              <span class="n">city</span><span class="p">,</span>
+              <span class="n">storeID</span><span class="p">,</span>
+              <span class="k">COUNT</span><span class="p">(</span><span class="k">DISTINCT</span> <span class="n">orderID</span><span class="p">)</span> <span class="k">AS</span> <span class="n">orderNum</span>
+            <span class="k">FROM</span> <span class="n">this_month</span>
+            <span class="k">GROUP</span> <span class="k">BY</span> <span class="n">city</span><span class="p">,</span> <span class="n">storeID</span><span class="p">)</span> <span class="k">AS</span> <span class="n">f1</span>
+        <span class="p">)</span> <span class="k">AS</span> <span class="n">f2</span>
+      <span class="k">WHERE</span> <span class="n">r</span> <span class="o">&lt;=</span> <span class="mi">10</span>
+     <span class="p">)</span> <span class="k">AS</span> <span class="n">f_this_10</span>
+     <span class="k">LEFT</span> <span class="k">JOIN</span>
+     <span class="p">(</span><span class="k">SELECT</span>
+        <span class="n">city</span><span class="p">,</span>
+        <span class="n">storeID</span><span class="p">,</span>
+        <span class="k">COUNT</span><span class="p">(</span><span class="k">DISTINCT</span> <span class="n">orderID</span><span class="p">)</span> <span class="k">AS</span> <span class="n">orderNum</span>
+      <span class="k">FROM</span> <span class="n">last_month</span>
+      <span class="k">GROUP</span> <span class="k">BY</span> <span class="n">city</span><span class="p">,</span> <span class="n">storeID</span>
+     <span class="p">)</span> <span class="k">AS</span> <span class="n">f_last</span> 
+     <span class="k">ON</span> <span class="n">f_this_10</span><span class="p">.</span><span class="n">storeID</span> <span class="o">=</span> <span class="n">f_last</span><span class="p">.</span><span class="n">storeID</span>
+  <span class="p">)</span> <span class="k">AS</span> <span class="n">f_10</span><span class="p">,</span>
+  <span class="c1">-- 当月大盘订单量（大盘：所有城市全部商家汇总）对比上月的增速</span>
+  <span class="p">(</span><span class="k">SELECT</span>
+     <span class="p">(</span><span class="n">f1</span><span class="p">.</span><span class="n">orderNum</span> <span class="o">-</span> <span class="n">f2</span><span class="p">.</span><span class="n">orderNum</span><span class="p">)</span> <span class="o">/</span> <span class="n">f2</span><span class="p">.</span><span class="n">orderNum</span> <span class="k">AS</span> <span class="n">totalOrderNumMonthRate</span>
+   <span class="k">FROM</span>
+     <span class="p">(</span><span class="k">SELECT</span> <span class="k">COUNT</span><span class="p">(</span><span class="k">DISTINCT</span> <span class="n">orderID</span><span class="p">)</span> <span class="k">AS</span> <span class="n">orderNum</span> <span class="k">FROM</span> <span class="n">this_month</span><span class="p">)</span> <span class="k">AS</span> <span class="n">f1</span><span class="p">,</span>
+     <span class="p">(</span><span class="k">SELECT</span> <span class="k">COUNT</span><span class="p">(</span><span class="k">DISTINCT</span> <span class="n">orderID</span><span class="p">)</span> <span class="k">AS</span> <span class="n">orderNum</span> <span class="k">FROM</span> <span class="n">last_month</span><span class="p">)</span> <span class="k">AS</span> <span class="n">f2</span>
+  <span class="p">)</span> <span class="k">AS</span> <span class="n">f_total</span><span class="p">;</span>
+</pre></td></tr></tbody></table></code></pre></div></div>
+
+<p><img src="http://andy-blog.oss-cn-beijing.aliyuncs.com/blog/2021-07-08-WX20210708-233450%402x.png" width="100%" /></p>
+
+<p><strong>要求 2：取每个城市当月订单量排名前 10% 商家的总数、早餐商家总数、晚餐商家总数、运费全免商家占比（运费全免商家：只要有一单全免就是运费全免商家）。</strong></p>
+
+<div class="language-sql highlighter-rouge"><div class="highlight"><pre class="highlight"><code><table class="rouge-table"><tbody><tr><td class="rouge-gutter gl"><pre class="lineno">1
+2
+3
+4
+5
+6
+7
+</pre></td><td class="rouge-code"><pre><span class="c1">-- 查看每个城市当月的商家数量和前 10% 的商家数量（取少不取多）</span>
+<span class="k">SELECT</span>
+  <span class="n">city</span><span class="p">,</span>
+  <span class="k">COUNT</span><span class="p">(</span><span class="k">DISTINCT</span> <span class="n">storeID</span><span class="p">)</span> <span class="k">AS</span> <span class="n">storeNum</span><span class="p">,</span>
+  <span class="n">FLOOR</span><span class="p">(</span><span class="k">COUNT</span><span class="p">(</span><span class="k">DISTINCT</span> <span class="n">storeID</span><span class="p">)</span> <span class="o">/</span> <span class="mi">10</span><span class="p">)</span> <span class="k">AS</span> <span class="n">top10StoreNum</span>
+<span class="k">FROM</span> <span class="n">this_month</span>
+<span class="k">GROUP</span> <span class="k">BY</span> <span class="n">city</span> <span class="p">;</span>
+</pre></td></tr></tbody></table></code></pre></div></div>
+
+<p><img src="http://andy-blog.oss-cn-beijing.aliyuncs.com/blog/2021-07-09-WX20210709-094841%402x.png" width="30%" /></p>
+
+<div class="language-sql highlighter-rouge"><div class="highlight"><pre class="highlight"><code><table class="rouge-table"><tbody><tr><td class="rouge-gutter gl"><pre class="lineno">1
+2
+3
+4
+5
+6
+7
+</pre></td><td class="rouge-code"><pre><span class="c1">-- 查看每个城市当月各商家的订单量</span>
+<span class="k">SELECT</span>
+  <span class="n">city</span><span class="p">,</span>
+  <span class="n">storeID</span><span class="p">,</span>
+  <span class="k">COUNT</span><span class="p">(</span><span class="k">DISTINCT</span> <span class="n">orderID</span><span class="p">)</span> <span class="k">AS</span> <span class="n">orderNum</span>
+<span class="k">FROM</span> <span class="n">this_month</span>
+<span class="k">GROUP</span> <span class="k">BY</span> <span class="n">city</span><span class="p">,</span> <span class="n">storeID</span><span class="p">;</span>
+</pre></td></tr></tbody></table></code></pre></div></div>
+
+<p><img src="http://andy-blog.oss-cn-beijing.aliyuncs.com/blog/2021-07-09-WX20210709-095048%402x.png" width="50%" /></p>
+
+<div class="language-sql highlighter-rouge"><div class="highlight"><pre class="highlight"><code><table class="rouge-table"><tbody><tr><td class="rouge-gutter gl"><pre class="lineno">1
+2
+3
+4
+5
+6
+7
+8
+9
+10
+11
+12
+13
+14
+15
+16
+17
+18
+19
+20
+21
+22
+23
+24
+25
+26
+27
+28
+</pre></td><td class="rouge-code"><pre><span class="c1">-- 连接上面两个表结果，查看每个城市当月订单量排名前 10% 商家</span>
+<span class="k">SELECT</span> 
+  <span class="o">*</span><span class="p">,</span> 
+  <span class="n">r</span> <span class="o">/</span> <span class="n">storeNum</span> <span class="k">AS</span> <span class="n">rate</span>
+<span class="k">FROM</span> 
+  <span class="p">(</span><span class="k">SELECT</span> 
+     <span class="n">f1</span><span class="p">.</span><span class="n">city</span> <span class="k">AS</span> <span class="n">city</span><span class="p">,</span>
+     <span class="n">storeID</span><span class="p">,</span>
+     <span class="n">orderNum</span><span class="p">,</span>
+     <span class="n">storeNum</span><span class="p">,</span>
+     <span class="n">ROW_NUMBER</span><span class="p">()</span> <span class="n">OVER</span> <span class="p">(</span><span class="n">PARTITION</span> <span class="k">BY</span> <span class="n">f1</span><span class="p">.</span><span class="n">city</span> <span class="k">ORDER</span> <span class="k">BY</span> <span class="n">orderNum</span> <span class="k">DESC</span><span class="p">)</span> <span class="k">AS</span> <span class="n">r</span>
+   <span class="k">FROM</span>
+     <span class="c1">-- 每个城市当月各商家的订单量</span>
+     <span class="p">(</span><span class="k">SELECT</span>
+        <span class="n">city</span><span class="p">,</span>
+        <span class="n">storeID</span><span class="p">,</span>
+        <span class="k">COUNT</span><span class="p">(</span><span class="k">DISTINCT</span> <span class="n">orderID</span><span class="p">)</span> <span class="k">AS</span> <span class="n">orderNum</span>
+      <span class="k">FROM</span> <span class="n">this_month</span>
+      <span class="k">GROUP</span> <span class="k">BY</span> <span class="n">city</span><span class="p">,</span> <span class="n">storeID</span><span class="p">)</span> <span class="k">AS</span> <span class="n">f1</span>
+     <span class="k">LEFT</span> <span class="k">JOIN</span>
+     <span class="c1">-- 每个城市当月的商家数量</span>
+     <span class="p">(</span><span class="k">SELECT</span>
+        <span class="n">city</span><span class="p">,</span>
+        <span class="k">COUNT</span><span class="p">(</span><span class="k">DISTINCT</span> <span class="n">storeID</span><span class="p">)</span> <span class="k">AS</span> <span class="n">storeNum</span>
+      <span class="k">FROM</span> <span class="n">this_month</span>
+      <span class="k">GROUP</span> <span class="k">BY</span> <span class="n">city</span><span class="p">)</span> <span class="k">AS</span> <span class="n">f2</span>
+     <span class="k">ON</span> <span class="n">f1</span><span class="p">.</span><span class="n">city</span> <span class="o">=</span> <span class="n">f2</span><span class="p">.</span><span class="n">city</span><span class="p">)</span> <span class="k">AS</span> <span class="n">f</span>
+<span class="k">WHERE</span> <span class="n">r</span> <span class="o">/</span> <span class="n">storeNum</span> <span class="o">&lt;=</span> <span class="mi">0</span><span class="p">.</span><span class="mi">1</span><span class="p">;</span>
+</pre></td></tr></tbody></table></code></pre></div></div>
+
+<p><img src="http://andy-blog.oss-cn-beijing.aliyuncs.com/blog/2021-07-09-WX20210709-100725%402x.png" width="85%" /></p>
+
+<p>或者，我们可以使用分组排序窗口函数 <code class="language-plaintext highlighter-rouge">NTILE()</code> 获取每个城市当月订单量排名前 10% 商家。</p>
+
+<p>注意：</p>
+
+<ul>
+  <li>
+    <p><code class="language-plaintext highlighter-rouge">NTILE(n)</code>，用于将分组数据按照顺序切分成 n 片，返回当前切片值</p>
+  </li>
+  <li><code class="language-plaintext highlighter-rouge">NTILE()</code>不支持 <code class="language-plaintext highlighter-rouge">ROWS BETWEEN</code> 的用法</li>
+  <li>切片如果不均匀，默认增加第一个切片的分布</li>
+  <li><code class="language-plaintext highlighter-rouge">NTILE()</code> 函数的分组依据（约定）：
+    <ul>
+      <li>每组的记录数不能大于它上一组的记录数，即编号小的桶放的记录数不能小于编号大的桶。也就是说，第 1 组中的记录数只能大于等于第2组及以后各组中的记录数;</li>
+      <li>所有组中的记录数要么都相同，要么从某一个记录较少的组（命名为 X）开始后面所有组的记录数都与该组（X组）的记录数相同。也就是说，如果有个组，前三组的记录数都是 9，而第四组的记录数是 8，那么第五组和第六组的记录数也必须是 8。</li>
+    </ul>
+  </li>
+</ul>
+
+<p>由于这里我们要取的是前 10%，所以我们应该将每个城市的商家按照订单量分成 10 组切片，并且如果切片不均匀，则将多余记录放在订单量最少的组中（即取少不取多）。也就是说，我们在使用 <code class="language-plaintext highlighter-rouge">NTILE(10)</code> 时，<code class="language-plaintext highlighter-rouge">OVER()</code> 部分的 <code class="language-plaintext highlighter-rouge">ORDER BY</code> 可以选择按照订单量升序排列，然后取最后一组（第 10 组）切片。</p>
+
+<div class="language-sql highlighter-rouge"><div class="highlight"><pre class="highlight"><code><table class="rouge-table"><tbody><tr><td class="rouge-gutter gl"><pre class="lineno">1
+</pre></td><td class="rouge-code"><pre>
+</pre></td></tr></tbody></table></code></pre></div></div>
+
+<p><img src="http://andy-blog.oss-cn-beijing.aliyuncs.com/blog/2021-07-09-WX20210709-105236%402x.png" width="60%" /></p>
+
+:ET

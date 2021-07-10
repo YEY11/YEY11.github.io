@@ -1,6 +1,6 @@
 ---
 layout:     post   				    # 使用的布局（不需要改）
-title:      MySQL 实战案例：基于 MySQL 的电商⽤户、商品、平台价值分析   	# 标题 
+title:      MySQL 实战案例：电商⽤户、商品、平台价值分析   	# 标题 
 subtitle:    #副标题
 date:       2021-07-04 				# 时间
 author:     YEY 						# 作者

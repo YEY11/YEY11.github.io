@@ -1,0 +1,355 @@
+I"Sk<h2 id="1-条件相连-join">1. 条件相连 <code class="language-plaintext highlighter-rouge">JOIN</code></h2>
+
+<p><strong>计算留存率</strong></p>
+
+<div class="language-sql highlighter-rouge"><div class="highlight"><pre class="highlight"><code><table class="rouge-table"><tbody><tr><td class="rouge-gutter gl"><pre class="lineno">1
+2
+3
+4
+5
+6
+</pre></td><td class="rouge-code"><pre><span class="k">SHOW</span> <span class="n">DATABASES</span><span class="p">;</span>
+<span class="n">USE</span> <span class="n">s2m2_hw</span><span class="p">;</span>
+<span class="k">SELECT</span> <span class="k">DATABASE</span><span class="p">();</span>
+<span class="k">SHOW</span> <span class="n">TABLES</span><span class="p">;</span>
+
+<span class="k">SELECT</span> <span class="o">*</span> <span class="k">FROM</span> <span class="n">temp_user_act</span><span class="p">;</span>
+</pre></td></tr></tbody></table></code></pre></div></div>
+
+<p><img src="http://andy-blog.oss-cn-beijing.aliyuncs.com/blog/2021-07-08-WX20210708-120712%402x.png" width="30%" /></p>
+
+<div class="language-sql highlighter-rouge"><div class="highlight"><pre class="highlight"><code><table class="rouge-table"><tbody><tr><td class="rouge-gutter gl"><pre class="lineno">1
+2
+3
+4
+5
+6
+7
+8
+9
+10
+11
+12
+13
+14
+15
+16
+17
+18
+19
+20
+21
+22
+23
+24
+25
+26
+27
+28
+29
+30
+31
+</pre></td><td class="rouge-code"><pre><span class="k">WITH</span> <span class="n">p2</span> <span class="k">AS</span>
+<span class="p">(</span><span class="k">WITH</span> <span class="n">p</span> <span class="k">AS</span>
+<span class="p">(</span><span class="k">SELECT</span>
+  <span class="n">t0</span><span class="p">.</span><span class="n">user_id</span> <span class="k">AS</span> <span class="n">user_id</span><span class="p">,</span>
+  <span class="n">t0</span><span class="p">.</span><span class="n">dates</span> <span class="k">AS</span> <span class="n">dates0</span><span class="p">,</span>
+  <span class="n">t1</span><span class="p">.</span><span class="n">dates</span> <span class="k">AS</span> <span class="n">dates1</span><span class="p">,</span>
+  <span class="n">t2</span><span class="p">.</span><span class="n">dates</span> <span class="k">AS</span> <span class="n">dates2</span><span class="p">,</span>
+  <span class="n">t3</span><span class="p">.</span><span class="n">dates</span> <span class="k">AS</span> <span class="n">dates3</span><span class="p">,</span>
+  <span class="n">t7</span><span class="p">.</span><span class="n">dates</span> <span class="k">AS</span> <span class="n">dates7</span>
+<span class="k">FROM</span> <span class="n">temp_user_act</span> <span class="k">AS</span> <span class="n">t0</span>
+  <span class="k">LEFT</span> <span class="k">JOIN</span> <span class="n">temp_user_act</span> <span class="k">AS</span> <span class="n">t1</span> <span class="k">ON</span> <span class="n">t0</span><span class="p">.</span><span class="n">user_id</span> <span class="o">=</span> <span class="n">t1</span><span class="p">.</span><span class="n">user_id</span> <span class="k">AND</span> <span class="n">DATEDIFF</span><span class="p">(</span><span class="n">t1</span><span class="p">.</span><span class="n">dates</span><span class="p">,</span> <span class="n">t0</span><span class="p">.</span><span class="n">dates</span><span class="p">)</span> <span class="o">=</span> <span class="mi">1</span>
+  <span class="k">LEFT</span> <span class="k">JOIN</span> <span class="n">temp_user_act</span> <span class="k">AS</span> <span class="n">t2</span> <span class="k">ON</span> <span class="n">t0</span><span class="p">.</span><span class="n">user_id</span> <span class="o">=</span> <span class="n">t2</span><span class="p">.</span><span class="n">user_id</span> <span class="k">AND</span> <span class="n">DATEDIFF</span><span class="p">(</span><span class="n">t2</span><span class="p">.</span><span class="n">dates</span><span class="p">,</span> <span class="n">t0</span><span class="p">.</span><span class="n">dates</span><span class="p">)</span> <span class="o">=</span> <span class="mi">2</span>
+  <span class="k">LEFT</span> <span class="k">JOIN</span> <span class="n">temp_user_act</span> <span class="k">AS</span> <span class="n">t3</span> <span class="k">ON</span> <span class="n">t0</span><span class="p">.</span><span class="n">user_id</span> <span class="o">=</span> <span class="n">t3</span><span class="p">.</span><span class="n">user_id</span> <span class="k">AND</span> <span class="n">DATEDIFF</span><span class="p">(</span><span class="n">t3</span><span class="p">.</span><span class="n">dates</span><span class="p">,</span> <span class="n">t0</span><span class="p">.</span><span class="n">dates</span><span class="p">)</span> <span class="o">=</span> <span class="mi">3</span>
+  <span class="k">LEFT</span> <span class="k">JOIN</span> <span class="n">temp_user_act</span> <span class="k">AS</span> <span class="n">t7</span> <span class="k">ON</span> <span class="n">t0</span><span class="p">.</span><span class="n">user_id</span> <span class="o">=</span> <span class="n">t7</span><span class="p">.</span><span class="n">user_id</span> <span class="k">AND</span> <span class="n">DATEDIFF</span><span class="p">(</span><span class="n">t7</span><span class="p">.</span><span class="n">dates</span><span class="p">,</span> <span class="n">t0</span><span class="p">.</span><span class="n">dates</span><span class="p">)</span> <span class="o">=</span> <span class="mi">7</span><span class="p">)</span>
+<span class="k">SELECT</span>
+  <span class="n">dates0</span><span class="p">,</span>
+  <span class="k">COUNT</span><span class="p">(</span><span class="k">DISTINCT</span> <span class="n">user_id</span><span class="p">)</span> <span class="k">AS</span> <span class="n">uv</span><span class="p">,</span>
+  <span class="k">COUNT</span><span class="p">(</span><span class="k">DISTINCT</span> <span class="n">IF</span><span class="p">(</span><span class="n">dates1</span> <span class="k">IS</span> <span class="k">NOT</span> <span class="k">NULL</span><span class="p">,</span> <span class="n">user_id</span><span class="p">,</span> <span class="k">NULL</span><span class="p">))</span> <span class="k">AS</span> <span class="n">remain_1</span><span class="p">,</span>
+  <span class="k">COUNT</span><span class="p">(</span><span class="k">DISTINCT</span> <span class="n">IF</span><span class="p">(</span><span class="n">dates2</span> <span class="k">IS</span> <span class="k">NOT</span> <span class="k">NULL</span><span class="p">,</span> <span class="n">user_id</span><span class="p">,</span> <span class="k">NULL</span><span class="p">))</span> <span class="k">AS</span> <span class="n">remain_2</span><span class="p">,</span>
+  <span class="k">COUNT</span><span class="p">(</span><span class="k">DISTINCT</span> <span class="n">IF</span><span class="p">(</span><span class="n">dates3</span> <span class="k">IS</span> <span class="k">NOT</span> <span class="k">NULL</span><span class="p">,</span> <span class="n">user_id</span><span class="p">,</span> <span class="k">NULL</span><span class="p">))</span> <span class="k">AS</span> <span class="n">remain_3</span><span class="p">,</span>
+  <span class="k">COUNT</span><span class="p">(</span><span class="k">DISTINCT</span> <span class="n">IF</span><span class="p">(</span><span class="n">dates7</span> <span class="k">IS</span> <span class="k">NOT</span> <span class="k">NULL</span><span class="p">,</span> <span class="n">user_id</span><span class="p">,</span> <span class="k">NULL</span><span class="p">))</span> <span class="k">AS</span> <span class="n">remain_7</span>
+<span class="k">FROM</span> <span class="n">p</span>
+<span class="k">GROUP</span> <span class="k">BY</span> <span class="n">dates0</span><span class="p">)</span>
+<span class="k">SELECT</span>
+  <span class="n">dates0</span><span class="p">,</span>
+  <span class="n">uv</span><span class="p">,</span>
+  <span class="n">CONCAT</span><span class="p">(</span><span class="n">ROUND</span><span class="p">(</span><span class="n">remain_1</span> <span class="o">/</span> <span class="n">uv</span> <span class="o">*</span> <span class="mi">100</span><span class="p">,</span> <span class="mi">2</span><span class="p">),</span> <span class="s1">'%'</span><span class="p">)</span> <span class="k">AS</span> <span class="n">remain_rate_1</span><span class="p">,</span>
+  <span class="n">CONCAT</span><span class="p">(</span><span class="n">ROUND</span><span class="p">(</span><span class="n">remain_2</span> <span class="o">/</span> <span class="n">uv</span> <span class="o">*</span> <span class="mi">100</span><span class="p">,</span> <span class="mi">2</span><span class="p">),</span> <span class="s1">'%'</span><span class="p">)</span> <span class="k">AS</span> <span class="n">remain_rate_2</span><span class="p">,</span>
+  <span class="n">CONCAT</span><span class="p">(</span><span class="n">ROUND</span><span class="p">(</span><span class="n">remain_3</span> <span class="o">/</span> <span class="n">uv</span> <span class="o">*</span> <span class="mi">100</span><span class="p">,</span> <span class="mi">2</span><span class="p">),</span> <span class="s1">'%'</span><span class="p">)</span> <span class="k">AS</span> <span class="n">remain_rate_3</span><span class="p">,</span>
+  <span class="n">CONCAT</span><span class="p">(</span><span class="n">ROUND</span><span class="p">(</span><span class="n">remain_7</span> <span class="o">/</span> <span class="n">uv</span> <span class="o">*</span> <span class="mi">100</span><span class="p">,</span> <span class="mi">2</span><span class="p">),</span> <span class="s1">'%'</span><span class="p">)</span> <span class="k">AS</span> <span class="n">remain_rate_7</span>
+<span class="k">FROM</span> <span class="n">p2</span><span class="p">;</span>
+</pre></td></tr></tbody></table></code></pre></div></div>
+
+<p><img src="http://andy-blog.oss-cn-beijing.aliyuncs.com/blog/2021-07-08-WX20210708-121458%402x.png" width="90%" /></p>
+
+<h2 id="2-顺序相连-lag">2. 顺序相连 <code class="language-plaintext highlighter-rouge">LAG</code></h2>
+
+<p><strong>计算各作者的连续更新天数：第 1 步</strong></p>
+
+<div class="language-sql highlighter-rouge"><div class="highlight"><pre class="highlight"><code><table class="rouge-table"><tbody><tr><td class="rouge-gutter gl"><pre class="lineno">1
+</pre></td><td class="rouge-code"><pre><span class="k">SELECT</span> <span class="o">*</span> <span class="k">FROM</span> <span class="n">temp_author_act</span><span class="p">;</span>
+</pre></td></tr></tbody></table></code></pre></div></div>
+
+<p><img src="http://andy-blog.oss-cn-beijing.aliyuncs.com/blog/2021-07-08-WX20210708-144625%402x.png" width="33%" /></p>
+
+<div class="language-sql highlighter-rouge"><div class="highlight"><pre class="highlight"><code><table class="rouge-table"><tbody><tr><td class="rouge-gutter gl"><pre class="lineno">1
+2
+3
+4
+5
+6
+</pre></td><td class="rouge-code"><pre><span class="c1">-- 利用 LAG() 偏移分析函数构造一个偏移日期列：</span>
+<span class="k">SELECT</span>
+  <span class="n">author_id</span><span class="p">,</span>
+  <span class="n">dates</span><span class="p">,</span>
+  <span class="n">LAG</span><span class="p">(</span><span class="n">dates</span><span class="p">)</span> <span class="n">OVER</span> <span class="p">(</span><span class="n">PARTITION</span> <span class="k">BY</span> <span class="n">author_id</span> <span class="k">ORDER</span> <span class="k">BY</span> <span class="n">dates</span><span class="p">)</span> <span class="k">AS</span> <span class="n">dates2</span>
+<span class="k">FROM</span> <span class="n">temp_author_act</span><span class="p">;</span>
+</pre></td></tr></tbody></table></code></pre></div></div>
+
+<p><img src="http://andy-blog.oss-cn-beijing.aliyuncs.com/blog/2021-07-08-WX20210708-145057%402x.png" width="48%" /></p>
+
+<h2 id="3-连续值统计-">3. 连续值统计 <code class="language-plaintext highlighter-rouge">@</code></h2>
+
+<p><strong>计算各作者的连续更新天数：第 2 步</strong></p>
+
+<p>注意：</p>
+
+<ul>
+  <li>MySQL 中通过 <code class="language-plaintext highlighter-rouge">@</code> 声明一个变量，通过 <code class="language-plaintext highlighter-rouge">:=</code> 给变量赋值，例如 <code class="language-plaintext highlighter-rouge">@r := 0</code>。</li>
+  <li>MySQL 中数据是逐行生成的，这里 <code class="language-plaintext highlighter-rouge">@r</code> 相当于一个寄存器，在数据行不断生成的过程中实时更新 <code class="language-plaintext highlighter-rouge">@r</code>，从而统计出连续值。</li>
+</ul>
+
+<div class="language-sql highlighter-rouge"><div class="highlight"><pre class="highlight"><code><table class="rouge-table"><tbody><tr><td class="rouge-gutter gl"><pre class="lineno">1
+2
+3
+4
+5
+6
+7
+8
+9
+10
+11
+12
+13
+14
+15
+</pre></td><td class="rouge-code"><pre><span class="c1">-- 定义一个变量 r，初始化为 0，结合 DATEDIFF 函数，计算作者连续更新天数：</span>
+<span class="c1">-- 如果 dates 和 dates2 相差一天，则 r = r + 1; 否则，r = 0</span>
+<span class="k">WITH</span> <span class="n">p</span> <span class="k">AS</span>
+<span class="p">(</span><span class="k">SELECT</span> 
+  <span class="n">author_id</span><span class="p">,</span>
+  <span class="n">dates</span><span class="p">,</span>
+  <span class="n">LAG</span><span class="p">(</span><span class="n">dates</span><span class="p">)</span> <span class="n">OVER</span> <span class="p">(</span><span class="n">PARTITION</span> <span class="k">BY</span> <span class="n">author_id</span> <span class="k">ORDER</span> <span class="k">BY</span> <span class="n">dates</span><span class="p">)</span> <span class="k">AS</span> <span class="n">dates2</span><span class="p">,</span>
+  <span class="o">@</span><span class="n">r</span> <span class="p">:</span><span class="o">=</span> <span class="mi">0</span>
+<span class="k">FROM</span> <span class="n">temp_author_act</span><span class="p">)</span>
+<span class="k">SELECT</span>
+  <span class="n">author_id</span><span class="p">,</span>
+  <span class="n">dates</span><span class="p">,</span>
+  <span class="n">dates2</span><span class="p">,</span>
+  <span class="n">IF</span><span class="p">(</span><span class="n">DATEDIFF</span><span class="p">(</span><span class="n">dates</span><span class="p">,</span> <span class="n">dates2</span><span class="p">)</span> <span class="o">=</span> <span class="mi">1</span><span class="p">,</span> <span class="o">@</span><span class="n">r</span> <span class="p">:</span><span class="o">=</span> <span class="o">@</span><span class="n">r</span> <span class="o">+</span> <span class="mi">1</span><span class="p">,</span> <span class="o">@</span><span class="n">r</span> <span class="p">:</span><span class="o">=</span> <span class="mi">0</span><span class="p">)</span> <span class="k">AS</span> <span class="n">r2</span>
+<span class="k">FROM</span> <span class="n">p</span><span class="p">;</span>
+</pre></td></tr></tbody></table></code></pre></div></div>
+
+<p><img src="http://andy-blog.oss-cn-beijing.aliyuncs.com/blog/2021-07-08-WX20210708-150846%402x.png" width="57%" /></p>
+
+<p>计算每个作者的最大连续更新天数：</p>
+
+<div class="language-sql highlighter-rouge"><div class="highlight"><pre class="highlight"><code><table class="rouge-table"><tbody><tr><td class="rouge-gutter gl"><pre class="lineno">1
+2
+3
+4
+5
+6
+7
+8
+9
+10
+11
+12
+13
+14
+15
+16
+17
+18
+19
+</pre></td><td class="rouge-code"><pre><span class="k">WITH</span> <span class="n">p2</span> <span class="k">AS</span>
+<span class="p">(</span><span class="k">WITH</span> <span class="n">p</span> <span class="k">AS</span>
+<span class="p">(</span><span class="k">SELECT</span> 
+  <span class="n">author_id</span><span class="p">,</span>
+  <span class="n">dates</span><span class="p">,</span>
+  <span class="n">LAG</span><span class="p">(</span><span class="n">dates</span><span class="p">)</span> <span class="n">OVER</span> <span class="p">(</span><span class="n">PARTITION</span> <span class="k">BY</span> <span class="n">author_id</span> <span class="k">ORDER</span> <span class="k">BY</span> <span class="n">dates</span><span class="p">)</span> <span class="k">AS</span> <span class="n">dates2</span><span class="p">,</span>
+  <span class="o">@</span><span class="n">r</span> <span class="p">:</span><span class="o">=</span> <span class="mi">0</span>
+<span class="k">FROM</span> <span class="n">temp_author_act</span><span class="p">)</span>
+<span class="k">SELECT</span>
+  <span class="n">author_id</span><span class="p">,</span>
+  <span class="n">dates</span><span class="p">,</span>
+  <span class="n">dates2</span><span class="p">,</span>
+  <span class="n">IF</span><span class="p">(</span><span class="n">DATEDIFF</span><span class="p">(</span><span class="n">dates</span><span class="p">,</span> <span class="n">dates2</span><span class="p">)</span> <span class="o">=</span> <span class="mi">1</span><span class="p">,</span> <span class="o">@</span><span class="n">r</span> <span class="p">:</span><span class="o">=</span> <span class="o">@</span><span class="n">r</span> <span class="o">+</span> <span class="mi">1</span><span class="p">,</span> <span class="o">@</span><span class="n">r</span> <span class="p">:</span><span class="o">=</span> <span class="mi">0</span><span class="p">)</span> <span class="k">AS</span> <span class="n">r2</span>
+<span class="k">FROM</span> <span class="n">p</span><span class="p">)</span>
+<span class="k">SELECT</span>
+  <span class="n">author_id</span><span class="p">,</span>
+  <span class="k">MAX</span><span class="p">(</span><span class="n">r2</span><span class="p">)</span>
+<span class="k">FROM</span> <span class="n">p2</span>
+<span class="k">GROUP</span> <span class="k">BY</span> <span class="n">author_id</span><span class="p">;</span>
+</pre></td></tr></tbody></table></code></pre></div></div>
+
+<p><img src="http://andy-blog.oss-cn-beijing.aliyuncs.com/blog/2021-07-08-WX20210708-155410%402x.png" width="40%" /></p>
+
+<h2 id="4-窗口排序">4. 窗口排序</h2>
+
+<p>三种排序窗口函数：</p>
+
+<ul>
+  <li><code class="language-plaintext highlighter-rouge">ROW_NUMBER()</code>：不重复连续数字</li>
+  <li><code class="language-plaintext highlighter-rouge">RANK()</code>：考试排名</li>
+  <li><code class="language-plaintext highlighter-rouge">DENSE_RANK()</code>：等级排名</li>
+</ul>
+
+<div class="language-sql highlighter-rouge"><div class="highlight"><pre class="highlight"><code><table class="rouge-table"><tbody><tr><td class="rouge-gutter gl"><pre class="lineno">1
+2
+3
+4
+5
+6
+7
+8
+9
+10
+11
+12
+13
+14
+15
+16
+17
+</pre></td><td class="rouge-code"><pre> <span class="k">CREATE</span> <span class="k">TABLE</span> <span class="n">sort_func_test</span> <span class="p">(</span>
+   <span class="n">number</span> <span class="nb">INT</span>
+ <span class="p">);</span>
+ 
+ <span class="k">INSERT</span> <span class="k">INTO</span> <span class="n">sort_func_test</span> <span class="k">VALUES</span> <span class="p">(</span><span class="mi">1</span><span class="p">);</span>
+ <span class="k">INSERT</span> <span class="k">INTO</span> <span class="n">sort_func_test</span> <span class="k">VALUES</span> <span class="p">(</span><span class="mi">1</span><span class="p">);</span>
+ <span class="k">INSERT</span> <span class="k">INTO</span> <span class="n">sort_func_test</span> <span class="k">VALUES</span> <span class="p">(</span><span class="mi">2</span><span class="p">);</span>
+ <span class="k">INSERT</span> <span class="k">INTO</span> <span class="n">sort_func_test</span> <span class="k">VALUES</span> <span class="p">(</span><span class="mi">3</span><span class="p">);</span>
+ <span class="k">INSERT</span> <span class="k">INTO</span> <span class="n">sort_func_test</span> <span class="k">VALUES</span> <span class="p">(</span><span class="mi">3</span><span class="p">);</span>
+ <span class="k">INSERT</span> <span class="k">INTO</span> <span class="n">sort_func_test</span> <span class="k">VALUES</span> <span class="p">(</span><span class="mi">4</span><span class="p">);</span>
+ 
+ <span class="k">SELECT</span>
+   <span class="n">number</span><span class="p">,</span>
+   <span class="n">ROW_NUMBER</span><span class="p">()</span> <span class="n">OVER</span> <span class="p">(</span><span class="k">ORDER</span> <span class="k">BY</span> <span class="n">number</span><span class="p">)</span> <span class="k">AS</span> <span class="n">_row_number</span><span class="p">,</span>
+   <span class="n">RANK</span><span class="p">()</span> <span class="n">OVER</span> <span class="p">(</span><span class="k">ORDER</span> <span class="k">BY</span> <span class="n">number</span><span class="p">)</span> <span class="k">AS</span> <span class="n">_rank</span><span class="p">,</span>
+   <span class="n">DENSE_RANK</span><span class="p">()</span> <span class="n">OVER</span> <span class="p">(</span><span class="k">ORDER</span> <span class="k">BY</span> <span class="n">number</span><span class="p">)</span> <span class="k">AS</span> <span class="n">_dense_rank</span>
+ <span class="k">FROM</span> <span class="n">sort_func_test</span><span class="p">;</span>
+</pre></td></tr></tbody></table></code></pre></div></div>
+
+<p><img src="http://andy-blog.oss-cn-beijing.aliyuncs.com/blog/2021-07-08-WX20210708-161214%402x.png" width="65%" /></p>
+
+<h2 id="5-练习美团数据分析-sql-面试题">5. 练习：美团数据分析 SQL 面试题</h2>
+
+<p><strong>数据表：</strong></p>
+
+<ul>
+  <li><strong>商家表：</strong>有日期、商家 ID、城市、商家合作开始日期（时间戳格式）、营业时长（秒）；</li>
+  <li><strong>订单数据表：</strong>有订单 ID、商家 ID、订单金额、订单时间、商家所在城市、订单时段（早餐、午餐、晚餐）、运费原价金额、运费减免金额。</li>
+</ul>
+
+<p>由于没有原始的美团面试题数据，本例中使用的是我们自己生成的一些模拟数据：</p>
+
+<div class="language-sql highlighter-rouge"><div class="highlight"><pre class="highlight"><code><table class="rouge-table"><tbody><tr><td class="rouge-gutter gl"><pre class="lineno">1
+2
+3
+4
+5
+6
+7
+8
+9
+10
+11
+12
+13
+14
+15
+16
+17
+18
+19
+20
+21
+22
+23
+24
+</pre></td><td class="rouge-code"><pre><span class="k">CREATE</span> <span class="k">DATABASE</span> <span class="n">meituan</span> <span class="n">CHARSET</span> <span class="n">utf8</span><span class="p">;</span>
+<span class="n">USE</span> <span class="n">meituan</span><span class="p">;</span>
+
+<span class="c1">-- 创建商家表</span>
+<span class="k">CREATE</span> <span class="k">TABLE</span> <span class="n">stores</span> <span class="p">(</span>
+  <span class="nv">`date`</span> <span class="nb">DATE</span><span class="p">,</span>
+  <span class="n">storeID</span> <span class="nb">VARCHAR</span><span class="p">(</span><span class="mi">25</span><span class="p">),</span>
+  <span class="n">city</span> <span class="nb">VARCHAR</span><span class="p">(</span><span class="mi">25</span><span class="p">),</span>
+  <span class="n">beginTimestamp</span> <span class="n">LONG</span><span class="p">,</span>
+  <span class="n">businessHour</span> <span class="nb">INTEGER</span>
+<span class="p">);</span>
+
+<span class="c1">-- 创建订单表</span>
+<span class="k">CREATE</span> <span class="k">TABLE</span> <span class="n">orders</span> <span class="p">(</span>
+  <span class="nv">`index`</span> <span class="nb">INTEGER</span><span class="p">,</span>
+  <span class="n">orderID</span> <span class="nb">VARCHAR</span><span class="p">(</span><span class="mi">100</span><span class="p">),</span>
+  <span class="n">storeID</span> <span class="nb">VARCHAR</span><span class="p">(</span><span class="mi">25</span><span class="p">),</span>
+  <span class="n">money</span> <span class="nb">DOUBLE</span><span class="p">,</span>
+  <span class="nv">`date`</span> <span class="nb">DATE</span><span class="p">,</span>
+  <span class="n">city</span> <span class="nb">VARCHAR</span><span class="p">(</span><span class="mi">25</span><span class="p">),</span>
+  <span class="n">period</span> <span class="nb">VARCHAR</span><span class="p">(</span><span class="mi">25</span><span class="p">),</span>
+  <span class="n">freight_org</span> <span class="nb">INTEGER</span><span class="p">,</span>
+  <span class="n">freight_nus</span> <span class="nb">INTEGER</span>
+<span class="p">);</span>
+</pre></td></tr></tbody></table></code></pre></div></div>
+
+<div class="language-sql highlighter-rouge"><div class="highlight"><pre class="highlight"><code><table class="rouge-table"><tbody><tr><td class="rouge-gutter gl"><pre class="lineno">1
+</pre></td><td class="rouge-code"><pre><span class="k">SELECT</span> <span class="o">*</span> <span class="k">FROM</span> <span class="n">stores</span><span class="p">;</span>
+</pre></td></tr></tbody></table></code></pre></div></div>
+
+<p><img src="http://andy-blog.oss-cn-beijing.aliyuncs.com/blog/2021-07-08-WX20210708-204236%402x.png" width="82%" /></p>
+
+<div class="language-sql highlighter-rouge"><div class="highlight"><pre class="highlight"><code><table class="rouge-table"><tbody><tr><td class="rouge-gutter gl"><pre class="lineno">1
+</pre></td><td class="rouge-code"><pre><span class="k">SELECT</span> <span class="o">*</span> <span class="k">FROM</span> <span class="n">orders</span><span class="p">;</span>
+</pre></td></tr></tbody></table></code></pre></div></div>
+
+<p><img src="http://andy-blog.oss-cn-beijing.aliyuncs.com/blog/2021-07-08-WX20210708-204449%402x.png" width="100%" /></p>
+
+<h3 id="51-第一题">5.1 第一题</h3>
+
+<p><strong>商家表：</strong>有日期、商家 ID、城市、商家合作开始日期（时间戳格式）、营业时长（秒）。</p>
+
+<p><strong>要求：</strong></p>
+
+<ol>
+  <li>取每个城市本月日均营业时长（需刨除当天不营业商家，营业时长单位：小时）；</li>
+  <li>取截止今日每个商家已合作天数。</li>
+</ol>
+
+<p><strong>解题思路：</strong></p>
+
+<p>首先，我们看一下 <code class="language-plaintext highlighter-rouge">stores</code> 表中都有哪些月份：</p>
+
+<div class="language-sql highlighter-rouge"><div class="highlight"><pre class="highlight"><code><table class="rouge-table"><tbody><tr><td class="rouge-gutter gl"><pre class="lineno">1
+</pre></td><td class="rouge-code"><pre><span class="k">SELECT</span> <span class="k">MONTH</span><span class="p">(</span><span class="nb">date</span><span class="p">)</span> <span class="k">FROM</span> <span class="n">stores</span> <span class="k">GROUP</span> <span class="k">BY</span> <span class="k">MONTH</span><span class="p">(</span><span class="nb">date</span><span class="p">);</span>
+</pre></td></tr></tbody></table></code></pre></div></div>
+
+<p><img src="" /></p>
+
+<h3 id="52-第二题">5.2 第二题</h3>
+
+<p><strong>订单数据表：</strong>有订单 ID、商家 ID、订单金额、订单时间、商家所在城市、订单时段（早餐、午餐、晚餐）、运费原价金额、运费减免金额。</p>
+
+<p><strong>要求：</strong></p>
+
+<ol>
+  <li>取每个城市当月订单量排名前 10 名商家，需要商家 ID、订单量、订单量对比上月增速（月环比增长率）、对比大盘订单量（大盘：整体商家汇总）的增速差；</li>
+  <li>取每个城市当月订单量排名前 10% 商家的总数、早餐商家总数、晚餐商家总数、运费全免商家占比（运费全免商家：只要有一单全免就是运费全免商家）。</li>
+</ol>
+
+:ET

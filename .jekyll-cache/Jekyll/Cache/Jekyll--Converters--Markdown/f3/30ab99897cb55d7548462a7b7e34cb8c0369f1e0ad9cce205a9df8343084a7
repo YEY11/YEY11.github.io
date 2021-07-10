@@ -1,0 +1,511 @@
+I"�<h2 id="1-业务逻辑介绍">1. 业务逻辑介绍</h2>
+
+<p>公司中有一些销售人员，然后公司有一些线上客户，销售与客户之间存在一定的任务关系。例如：公司的销售人员每天都需要向客户电话推销某线上产品。</p>
+
+<p>对于客户而言，可能会有以下三种情况：</p>
+
+<ul>
+  <li>购买</li>
+  <li>不购买</li>
+  <li>表现出了一定的意向，但是还没有下单</li>
+</ul>
+
+<p>总体上，我们的业务逻辑是为了提升销售对于客户的订单转化能力：对于明确购买或者不购买的客户，情况比较简单；但是对于意向客户，我们这里还有一些问题需要处理。例如，可能存在这样的情况：某客户可能确实有一定的购买意向，但是可能和与其对接的销售不是很合得来。</p>
+
+<p>所以，我们可以采取一些措施，例如：规定一名销售人员与一名客户的对接时间周期最长为 2 天，如果两天之后，该客户仍然具有一定购买意向但是还没有付款的话，就移交给另外一名销售人员进行对接。</p>
+
+<p>为此，我们开发了以下业务逻辑：</p>
+
+<p><img src="http://andy-blog.oss-cn-beijing.aliyuncs.com/blog/2021-07-09-WX20210709-164137%402x.png" width="70%" /></p>
+
+<p>某公司有 6 个销售小组，每个小组中有 5 名销售人员。所有销售人员在每天开始上班时都需要接一些客户新量（所谓新量，就是之前还没有沟通过的客户的电话号码），然后销售人员会得到来自这些新量客户的结果：购买、不购买、有意向。如果 2 天之后，该客户还没有购买的话，就将其移交给其他销售。这意味着，销售人员不仅会对接新量客户，也会对接来自其他销售人员的老量客户，对于这些老量客户，也存在三种结果：购买、不购买、有意向。</p>
+
+<p>但是，这里还存在一个漏洞：可能存在某些客户一直停留在意向阶段，如果按照上面的方式一直更换与其对接的销售人员，将导致公司销售人员资源的极大浪费。因此，我们需要进行一些限制：与一位客户对接的销售人员的数量最多不超过 3 人。如果某客户与 3 名销售人员沟通后仍然没有下单，则放弃对该客户的继续跟进。</p>
+
+<p>以上就是本案例中销售系统的业务逻辑。</p>
+
+<h3 id="11-表与表的关系">1.1 表与表的关系</h3>
+
+<ul>
+  <li>
+    <p>每个销售人员（<code class="language-plaintext highlighter-rouge">salesstaff</code>）有且必须被分配到一个销售小组（<code class="language-plaintext highlighter-rouge">sgroup</code>）</p>
+  </li>
+  <li>每个客户（<code class="language-plaintext highlighter-rouge">customer</code>）必须所属于一个用户画像（<code class="language-plaintext highlighter-rouge">cateogry</code>）</li>
+  <li>销售人员（<code class="language-plaintext highlighter-rouge">salesstaff</code>）与客户（<code class="language-plaintext highlighter-rouge">customer</code>）沟通，形成历史任务表（<code class="language-plaintext highlighter-rouge">mission</code>），<code class="language-plaintext highlighter-rouge">mission</code> 中包含沟通的结果（<code class="language-plaintext highlighter-rouge">status</code>）</li>
+</ul>
+
+<h3 id="12-沟通规则">1.2 沟通规则</h3>
+
+<p>每天每个销售人员接收 25 个顾客新量并进行沟通，沟通的结果有以下 3 种情况：</p>
+
+<ol>
+  <li>
+    <p>【直接签单成功】</p>
+  </li>
+  <li>
+    <p>【非意向用户】，不再跟进</p>
+  </li>
+  <li>
+    <p>【继续跟单】，顾客有购买意向，但此销售未与客户签单成功，移交给其他销售再做跟进</p>
+  </li>
+</ol>
+
+<p>销售人员可以跟进意向用户的最大时长是 2 天，2 天后需给出的结果如下：</p>
+
+<ol>
+  <li>
+    <p>未成单，但仍有购买倾向，移交给其他销售，记为【继续跟单】</p>
+  </li>
+  <li>
+    <p>客户失去了购买商品的可能，记为【跟踪失败】，无需移交其他销售跟踪</p>
+  </li>
+  <li>
+    <p>【跟单成功】</p>
+  </li>
+  <li>
+    <p>【跟踪超时】</p>
+  </li>
+</ol>
+
+<p>每个意向客户最多只能被 3 个销售人员沟通，如果之后仍未成单，则记为【跟踪超时】，不再跟进该客户。</p>
+
+<h2 id="2-需要的数据结果">2. 需要的数据结果</h2>
+
+<ol>
+  <li>统计当月每位销售直接成单数、直接成单率、跟踪成单数、跟踪成单率</li>
+  <li>每位销售人员组内贡献度及其排名</li>
+  <li>生成销售人员的基本工资（直接成单：100 元，间接成单：80 元，底薪 2000 元）</li>
+  <li>销售小组业绩排名</li>
+  <li>统计当月流水与净收入（用户成本：250 元，商品单价：8000 元，商品成本：1000 元）</li>
+</ol>
+
+<h2 id="3-代码实现">3. 代码实现</h2>
+
+<h3 id="31-案例数据导入">3.1 案例数据导入</h3>
+
+<h4 id="311-创建数据库">3.1.1 创建数据库</h4>
+
+<div class="language-bash highlighter-rouge"><div class="highlight"><pre class="highlight"><code><table class="rouge-table"><tbody><tr><td class="rouge-gutter gl"><pre class="lineno">1
+</pre></td><td class="rouge-code"><pre>mysql <span class="nt">-u</span> root <span class="nt">-p</span>
+</pre></td></tr></tbody></table></code></pre></div></div>
+
+<p>输入密码后，进入 MySQL 环境，创建数据库 <code class="language-plaintext highlighter-rouge">recommend2</code>，然后退出 MySQL 环境：</p>
+
+<div class="language-sql highlighter-rouge"><div class="highlight"><pre class="highlight"><code><table class="rouge-table"><tbody><tr><td class="rouge-gutter gl"><pre class="lineno">1
+2
+</pre></td><td class="rouge-code"><pre><span class="k">CREATE</span> <span class="k">DATABASE</span> <span class="n">recommend2</span><span class="p">;</span>
+<span class="n">EXIT</span><span class="p">;</span>
+</pre></td></tr></tbody></table></code></pre></div></div>
+
+<p><img src="http://andy-blog.oss-cn-beijing.aliyuncs.com/blog/2021-07-09-iShot2021-07-09%2020.42.55.png" width="100%" /></p>
+
+<h4 id="312-导入-sql">3.1.2 导入 SQL</h4>
+
+<p>在终端环境下，将路径切换到 SQL 脚本 <code class="language-plaintext highlighter-rouge">recommend2.sql</code> 所在的文件夹，然后将数据导入到我们刚才创建的数据库 <code class="language-plaintext highlighter-rouge">recommend2</code> 中：</p>
+
+<div class="language-bash highlighter-rouge"><div class="highlight"><pre class="highlight"><code><table class="rouge-table"><tbody><tr><td class="rouge-gutter gl"><pre class="lineno">1
+</pre></td><td class="rouge-code"><pre>mysql <span class="nt">-u</span> root <span class="nt">-p</span> recommend2 &lt; recommend2.sql
+</pre></td></tr></tbody></table></code></pre></div></div>
+
+<p><img src="http://andy-blog.oss-cn-beijing.aliyuncs.com/blog/2021-07-09-iShot2021-07-09%2020.50.50.png" width="100%" /></p>
+
+<p>注：</p>
+
+<ul>
+  <li>
+    <p><code class="language-plaintext highlighter-rouge">&lt;</code> 后面的 <code class="language-plaintext highlighter-rouge">recommend2.sql</code> 是 SQL 文件的相对位置</p>
+  </li>
+  <li>
+    <p>如果提示找不到指定文件，可以在终端中重新 cd 到保存 <code class="language-plaintext highlighter-rouge">recommend2.sql</code> 的父级文件夹，然后再执行导入命令</p>
+  </li>
+  <li>
+    <p>或者使用 <code class="language-plaintext highlighter-rouge">recommend2.sql</code> 的绝对地址，例如：</p>
+
+    <p><code class="language-plaintext highlighter-rouge">mysql -u root -p recommend2 &lt; /Users/andy/Desktop/recommend2.sql</code></p>
+  </li>
+</ul>
+
+<h4 id="313-查看数据">3.1.3 查看数据</h4>
+
+<div class="language-sql highlighter-rouge"><div class="highlight"><pre class="highlight"><code><table class="rouge-table"><tbody><tr><td class="rouge-gutter gl"><pre class="lineno">1
+2
+3
+</pre></td><td class="rouge-code"><pre><span class="c1">-- 查看数据库 recommend2 中有哪些数据表</span>
+<span class="n">USE</span> <span class="n">recommend2</span><span class="p">;</span>
+<span class="k">SHOW</span> <span class="n">TABLES</span><span class="p">;</span>
+</pre></td></tr></tbody></table></code></pre></div></div>
+
+<p><img src="http://andy-blog.oss-cn-beijing.aliyuncs.com/blog/2021-07-09-WX20210709-212327%402x.png" width="30%" /></p>
+
+<div class="language-sql highlighter-rouge"><div class="highlight"><pre class="highlight"><code><table class="rouge-table"><tbody><tr><td class="rouge-gutter gl"><pre class="lineno">1
+2
+</pre></td><td class="rouge-code"><pre><span class="c1">-- 查看销售人员表 </span>
+<span class="k">SELECT</span> <span class="o">*</span> <span class="k">FROM</span> <span class="n">salesstaff</span><span class="p">;</span>
+</pre></td></tr></tbody></table></code></pre></div></div>
+
+<p><img src="http://andy-blog.oss-cn-beijing.aliyuncs.com/blog/2021-07-09-WX20210709-212830%402x.png" width="80%" /></p>
+
+<div class="language-sql highlighter-rouge"><div class="highlight"><pre class="highlight"><code><table class="rouge-table"><tbody><tr><td class="rouge-gutter gl"><pre class="lineno">1
+2
+</pre></td><td class="rouge-code"><pre><span class="c1">-- 查看销售小组表 sgroup</span>
+<span class="k">SELECT</span> <span class="o">*</span> <span class="k">FROM</span> <span class="n">sgroup</span><span class="p">;</span>
+</pre></td></tr></tbody></table></code></pre></div></div>
+
+<p><img src="http://andy-blog.oss-cn-beijing.aliyuncs.com/blog/2021-07-09-WX20210709-213033%402x.png" width="24%" /></p>
+
+<div class="language-sql highlighter-rouge"><div class="highlight"><pre class="highlight"><code><table class="rouge-table"><tbody><tr><td class="rouge-gutter gl"><pre class="lineno">1
+2
+</pre></td><td class="rouge-code"><pre><span class="c1">-- 查看客户表 customer，其中 tel 字段为加密后的客户电话号码</span>
+<span class="k">SELECT</span> <span class="o">*</span> <span class="k">FROM</span> <span class="n">customer</span><span class="p">;</span>
+</pre></td></tr></tbody></table></code></pre></div></div>
+
+<p><img src="http://andy-blog.oss-cn-beijing.aliyuncs.com/blog/2021-07-09-WX20210709-213126%402x.png" width="65%" /></p>
+
+<div class="language-sql highlighter-rouge"><div class="highlight"><pre class="highlight"><code><table class="rouge-table"><tbody><tr><td class="rouge-gutter gl"><pre class="lineno">1
+2
+</pre></td><td class="rouge-code"><pre><span class="c1">-- 查看用户画像表 category</span>
+<span class="k">SELECT</span> <span class="o">*</span> <span class="k">FROM</span> <span class="n">category</span><span class="p">;</span>
+</pre></td></tr></tbody></table></code></pre></div></div>
+
+<p><img src="http://andy-blog.oss-cn-beijing.aliyuncs.com/blog/2021-07-09-WX20210709-213253%402x.png" width="28%" /></p>
+
+<div class="language-sql highlighter-rouge"><div class="highlight"><pre class="highlight"><code><table class="rouge-table"><tbody><tr><td class="rouge-gutter gl"><pre class="lineno">1
+2
+</pre></td><td class="rouge-code"><pre><span class="c1">-- 查看历史任务表 mission</span>
+<span class="k">SELECT</span> <span class="o">*</span> <span class="k">FROM</span> <span class="n">mission</span><span class="p">;</span>
+</pre></td></tr></tbody></table></code></pre></div></div>
+
+<p><img src="http://andy-blog.oss-cn-beijing.aliyuncs.com/blog/2021-07-09-WX20210709-212120%402x.png" width="80%" /></p>
+
+<div class="language-sql highlighter-rouge"><div class="highlight"><pre class="highlight"><code><table class="rouge-table"><tbody><tr><td class="rouge-gutter gl"><pre class="lineno">1
+2
+</pre></td><td class="rouge-code"><pre><span class="c1">-- 查看沟通结果表 status</span>
+<span class="k">SELECT</span> <span class="o">*</span> <span class="k">FROM</span> <span class="nv">`status`</span><span class="p">;</span>
+</pre></td></tr></tbody></table></code></pre></div></div>
+
+<p><img src="http://andy-blog.oss-cn-beijing.aliyuncs.com/blog/2021-07-09-WX20210709-213525%402x.png" width="28%" /></p>
+
+<h3 id="32-统计当月每位销售直接成单数直接成单率跟踪成单数跟踪成单率">3.2 统计当月每位销售直接成单数、直接成单率、跟踪成单数、跟踪成单率</h3>
+
+<p><strong>1）多表连接，显示任务编号、销售小组、销售姓名、顾客编号、沟通结果与沟通日期</strong></p>
+
+<div class="language-sql highlighter-rouge"><div class="highlight"><pre class="highlight"><code><table class="rouge-table"><tbody><tr><td class="rouge-gutter gl"><pre class="lineno">1
+2
+3
+4
+5
+6
+7
+8
+9
+10
+11
+12
+13
+14
+15
+16
+17
+18
+</pre></td><td class="rouge-code"><pre><span class="k">CREATE</span> <span class="k">VIEW</span> <span class="n">v1</span> <span class="k">AS</span>
+<span class="k">SELECT</span>
+  <span class="n">m</span><span class="p">.</span><span class="n">id</span> <span class="k">AS</span> <span class="n">id</span><span class="p">,</span>
+  <span class="n">s3</span><span class="p">.</span><span class="nv">`name`</span> <span class="k">AS</span> <span class="n">group_name</span><span class="p">,</span>
+  <span class="n">s</span><span class="p">.</span><span class="nv">`name`</span> <span class="k">AS</span> <span class="n">salesstaff_name</span><span class="p">,</span>
+  <span class="n">m</span><span class="p">.</span><span class="n">customer_id</span><span class="p">,</span>
+  <span class="n">s2</span><span class="p">.</span><span class="n">content</span> <span class="k">AS</span> <span class="k">result</span><span class="p">,</span>
+  <span class="n">m</span><span class="p">.</span><span class="n">createDate</span> <span class="k">AS</span> <span class="n">createDate</span>
+<span class="k">FROM</span>
+  <span class="n">mission</span> <span class="k">AS</span> <span class="n">m</span>
+  <span class="k">INNER</span> <span class="k">JOIN</span> <span class="n">salesstaff</span> <span class="k">AS</span> <span class="n">s</span> <span class="k">ON</span> <span class="n">m</span><span class="p">.</span><span class="n">salesstaff_id</span> <span class="o">=</span> <span class="n">s</span><span class="p">.</span><span class="n">id</span>
+  <span class="k">INNER</span> <span class="k">JOIN</span> <span class="nv">`status`</span> <span class="k">AS</span> <span class="n">s2</span> <span class="k">ON</span> <span class="n">m</span><span class="p">.</span><span class="n">status_id</span> <span class="o">=</span> <span class="n">s2</span><span class="p">.</span><span class="n">id</span>
+  <span class="k">INNER</span> <span class="k">JOIN</span> <span class="n">sgroup</span> <span class="k">AS</span> <span class="n">s3</span> <span class="k">ON</span> <span class="n">s</span><span class="p">.</span><span class="n">group_id</span> <span class="o">=</span> <span class="n">s3</span><span class="p">.</span><span class="n">id</span>
+<span class="k">WHERE</span>
+  <span class="n">createDate</span> <span class="o">&gt;=</span> <span class="s1">'2020-06-01'</span>
+  <span class="k">AND</span> <span class="n">createDate</span> <span class="o">&lt;</span> <span class="s1">'2020-07-01'</span><span class="p">;</span>
+
+<span class="k">SELECT</span> <span class="o">*</span> <span class="k">FROM</span> <span class="n">v1</span><span class="p">;</span>
+</pre></td></tr></tbody></table></code></pre></div></div>
+
+<p><img src="http://andy-blog.oss-cn-beijing.aliyuncs.com/blog/2021-07-09-WX20210710-000057%402x.png" width="90%" /></p>
+
+<p><strong>2）统计每个销售的沟通客户总数、直接签单成功数、跟单成功数</strong></p>
+
+<div class="language-sql highlighter-rouge"><div class="highlight"><pre class="highlight"><code><table class="rouge-table"><tbody><tr><td class="rouge-gutter gl"><pre class="lineno">1
+2
+3
+4
+5
+6
+7
+8
+9
+10
+11
+</pre></td><td class="rouge-code"><pre><span class="k">CREATE</span> <span class="k">VIEW</span> <span class="n">v2</span> <span class="k">AS</span>
+<span class="k">SELECT</span>
+  <span class="n">group_name</span><span class="p">,</span>
+  <span class="n">salesstaff_name</span><span class="p">,</span>
+  <span class="k">COUNT</span><span class="p">(</span><span class="k">DISTINCT</span> <span class="n">customer_id</span><span class="p">)</span> <span class="k">AS</span> <span class="n">total_customer</span><span class="p">,</span>
+  <span class="k">COUNT</span><span class="p">(</span><span class="k">DISTINCT</span> <span class="n">IF</span><span class="p">(</span><span class="k">result</span> <span class="o">=</span> <span class="s1">'直接签单成功'</span><span class="p">,</span> <span class="n">customer_id</span><span class="p">,</span> <span class="k">NULL</span><span class="p">))</span> <span class="k">AS</span> <span class="n">suc_1</span><span class="p">,</span>
+  <span class="k">COUNT</span><span class="p">(</span><span class="k">DISTINCT</span> <span class="n">IF</span><span class="p">(</span><span class="k">result</span> <span class="o">=</span> <span class="s1">'跟单成功'</span><span class="p">,</span> <span class="n">customer_id</span><span class="p">,</span> <span class="k">NULL</span><span class="p">))</span> <span class="k">AS</span> <span class="n">suc_2</span>
+<span class="k">FROM</span> <span class="n">v1</span>
+<span class="k">GROUP</span> <span class="k">BY</span> <span class="n">group_name</span><span class="p">,</span> <span class="n">salesstaff_name</span><span class="p">;</span>
+
+<span class="k">SELECT</span> <span class="o">*</span> <span class="k">FROM</span> <span class="n">v2</span><span class="p">;</span>
+</pre></td></tr></tbody></table></code></pre></div></div>
+
+<p><img src="http://andy-blog.oss-cn-beijing.aliyuncs.com/blog/2021-07-09-WX20210710-003617%402x.png" width="75%" /></p>
+
+<p><strong>3）得到每个销售人员的直接成单率与跟单成单率</strong></p>
+
+<div class="language-sql highlighter-rouge"><div class="highlight"><pre class="highlight"><code><table class="rouge-table"><tbody><tr><td class="rouge-gutter gl"><pre class="lineno">1
+2
+3
+4
+5
+6
+7
+8
+</pre></td><td class="rouge-code"><pre><span class="k">CREATE</span> <span class="k">VIEW</span> <span class="n">v3</span> <span class="k">AS</span>
+<span class="k">SELECT</span>
+  <span class="o">*</span><span class="p">,</span>
+  <span class="n">suc_1</span> <span class="o">/</span> <span class="n">total_customer</span> <span class="k">AS</span> <span class="n">rate1</span><span class="p">,</span>
+  <span class="n">suc_2</span> <span class="o">/</span> <span class="n">total_customer</span> <span class="k">AS</span> <span class="n">rate2</span>
+<span class="k">FROM</span> <span class="n">v2</span><span class="p">;</span>
+
+<span class="k">SELECT</span> <span class="o">*</span> <span class="k">FROM</span> <span class="n">v3</span><span class="p">;</span>
+</pre></td></tr></tbody></table></code></pre></div></div>
+
+<p><img src="http://andy-blog.oss-cn-beijing.aliyuncs.com/blog/2021-07-09-WX20210710-004550%402x.png" width="95%" /></p>
+
+<p><strong>4）展示最终结果</strong></p>
+
+<div class="language-sql highlighter-rouge"><div class="highlight"><pre class="highlight"><code><table class="rouge-table"><tbody><tr><td class="rouge-gutter gl"><pre class="lineno">1
+2
+3
+4
+5
+6
+7
+8
+9
+10
+11
+12
+</pre></td><td class="rouge-code"><pre><span class="k">CREATE</span> <span class="k">VIEW</span> <span class="n">ret1</span> <span class="k">AS</span>
+<span class="k">SELECT</span>
+  <span class="n">group_name</span> <span class="k">AS</span> <span class="s1">'销售小组'</span><span class="p">,</span>
+  <span class="n">salesstaff_name</span> <span class="k">AS</span> <span class="s1">'销售人员'</span><span class="p">,</span>
+  <span class="n">total_customer</span> <span class="k">AS</span> <span class="s1">'本月沟通客户总数'</span><span class="p">,</span>
+  <span class="n">suc_1</span> <span class="k">AS</span> <span class="s1">'直接成单数'</span><span class="p">,</span>
+  <span class="n">suc_2</span> <span class="k">AS</span> <span class="s1">'跟单成功数'</span><span class="p">,</span>
+  <span class="n">rate1</span> <span class="k">AS</span> <span class="s1">'直接成单率'</span><span class="p">,</span>
+  <span class="n">rate2</span> <span class="k">AS</span> <span class="s1">'跟单成功率'</span>
+<span class="k">FROM</span> <span class="n">v3</span><span class="p">;</span>
+
+<span class="k">SELECT</span> <span class="o">*</span> <span class="k">FROM</span> <span class="n">ret1</span><span class="p">;</span>
+</pre></td></tr></tbody></table></code></pre></div></div>
+
+<p><img src="http://andy-blog.oss-cn-beijing.aliyuncs.com/blog/2021-07-09-WX20210710-005213%402x.png" width="95%" /></p>
+
+<h3 id="33-每位销售人员组内贡献度及其排名">3.3 每位销售人员组内贡献度及其排名</h3>
+
+<p><strong>1）通过窗口函数，统计每个销售人员的组内贡献度</strong></p>
+
+<p>组内贡献度 ＝ (个人直接签单成功数 ＋ 个人跟踪成功数) / (本组成单总数)</p>
+
+<div class="language-sql highlighter-rouge"><div class="highlight"><pre class="highlight"><code><table class="rouge-table"><tbody><tr><td class="rouge-gutter gl"><pre class="lineno">1
+2
+3
+4
+5
+6
+7
+8
+9
+</pre></td><td class="rouge-code"><pre><span class="k">CREATE</span> <span class="k">VIEW</span> <span class="n">v4</span> <span class="k">AS</span>
+<span class="k">SELECT</span>
+  <span class="o">*</span><span class="p">,</span>
+  <span class="p">(</span><span class="n">suc_1</span> <span class="o">+</span> <span class="n">suc_2</span><span class="p">)</span> <span class="o">/</span>
+  <span class="p">(</span><span class="k">SUM</span><span class="p">(</span><span class="n">suc_1</span><span class="p">)</span> <span class="n">OVER</span> <span class="p">(</span><span class="n">PARTITION</span> <span class="k">BY</span> <span class="n">group_name</span><span class="p">)</span> <span class="o">+</span> <span class="k">SUM</span><span class="p">(</span><span class="n">suc_2</span><span class="p">)</span> <span class="n">OVER</span> <span class="p">(</span><span class="n">PARTITION</span> <span class="k">BY</span> <span class="n">group_name</span><span class="p">))</span>
+  <span class="k">AS</span> <span class="n">group_contribute_rate</span>  
+<span class="k">FROM</span> <span class="n">v2</span><span class="p">;</span>
+
+<span class="k">SELECT</span> <span class="o">*</span> <span class="k">FROM</span> <span class="n">v4</span><span class="p">;</span>
+</pre></td></tr></tbody></table></code></pre></div></div>
+
+<p><img src="http://andy-blog.oss-cn-beijing.aliyuncs.com/blog/2021-07-09-WX20210710-010518%402x.png" width="100%" /></p>
+
+<p><strong>2）对每组的组内贡献度进行排名，并用中文输出结果</strong></p>
+
+<div class="language-sql highlighter-rouge"><div class="highlight"><pre class="highlight"><code><table class="rouge-table"><tbody><tr><td class="rouge-gutter gl"><pre class="lineno">1
+2
+3
+4
+5
+6
+7
+8
+9
+10
+11
+12
+</pre></td><td class="rouge-code"><pre><span class="k">CREATE</span> <span class="k">VIEW</span> <span class="n">ret2</span> <span class="k">AS</span>
+<span class="k">SELECT</span>
+  <span class="n">group_name</span> <span class="k">AS</span> <span class="s1">'销售小组'</span><span class="p">,</span>
+  <span class="n">salesstaff_name</span> <span class="k">AS</span> <span class="s1">'销售人员'</span><span class="p">,</span>
+  <span class="n">total_customer</span> <span class="k">AS</span> <span class="s1">'本月沟通客户总数'</span><span class="p">,</span>
+  <span class="n">suc_1</span> <span class="k">AS</span> <span class="s1">'直接成单数'</span><span class="p">,</span>
+  <span class="n">suc_2</span> <span class="k">AS</span> <span class="s1">'跟单成功数'</span><span class="p">,</span>
+  <span class="n">group_contribute_rate</span> <span class="k">AS</span> <span class="s1">'组内贡献度'</span><span class="p">,</span>
+  <span class="n">RANK</span><span class="p">()</span> <span class="n">OVER</span> <span class="p">(</span><span class="n">PARTITION</span> <span class="k">BY</span> <span class="n">group_name</span> <span class="k">ORDER</span> <span class="k">BY</span> <span class="n">group_contribute_rate</span> <span class="k">DESC</span><span class="p">)</span> <span class="k">AS</span> <span class="s1">'组内贡献排名'</span>
+<span class="k">FROM</span> <span class="n">v4</span><span class="p">;</span>
+
+<span class="k">SELECT</span> <span class="o">*</span> <span class="k">FROM</span> <span class="n">ret2</span><span class="p">;</span>
+</pre></td></tr></tbody></table></code></pre></div></div>
+
+<p><img src="http://andy-blog.oss-cn-beijing.aliyuncs.com/blog/2021-07-09-WX20210710-011001%402x.png" width="100%" /></p>
+
+<h3 id="34-生成销售人员的基本工资">3.4 生成销售人员的基本工资</h3>
+
+<p>工资规则：</p>
+
+<ul>
+  <li>直接成单提成：100 元</li>
+  <li>间接成单提成：80 元</li>
+  <li>底薪 2000 元</li>
+</ul>
+
+<div class="language-sql highlighter-rouge"><div class="highlight"><pre class="highlight"><code><table class="rouge-table"><tbody><tr><td class="rouge-gutter gl"><pre class="lineno">1
+2
+3
+4
+5
+6
+7
+8
+9
+10
+11
+</pre></td><td class="rouge-code"><pre><span class="k">CREATE</span> <span class="k">VIEW</span> <span class="n">salary_view</span> <span class="k">AS</span>
+<span class="k">SELECT</span>
+  <span class="n">group_name</span> <span class="k">AS</span> <span class="s1">'销售小组'</span><span class="p">,</span>
+  <span class="n">salesstaff_name</span> <span class="k">AS</span> <span class="s1">'销售人员'</span><span class="p">,</span>
+  <span class="n">total_customer</span> <span class="k">AS</span> <span class="s1">'本月沟通客户总数'</span><span class="p">,</span>
+  <span class="n">suc_1</span> <span class="k">AS</span> <span class="s1">'直接成单数'</span><span class="p">,</span>
+  <span class="n">suc_2</span> <span class="k">AS</span> <span class="s1">'跟单成功数'</span><span class="p">,</span>
+  <span class="n">suc_1</span> <span class="o">*</span> <span class="mi">100</span> <span class="o">+</span> <span class="n">suc_2</span> <span class="o">*</span> <span class="mi">80</span> <span class="o">+</span> <span class="mi">2000</span> <span class="k">AS</span> <span class="s1">'本月薪资'</span>
+<span class="k">FROM</span> <span class="n">v2</span><span class="p">;</span>
+
+<span class="k">SELECT</span> <span class="o">*</span> <span class="k">FROM</span> <span class="n">salary_view</span><span class="p">;</span>
+</pre></td></tr></tbody></table></code></pre></div></div>
+
+<p><img src="http://andy-blog.oss-cn-beijing.aliyuncs.com/blog/2021-07-09-WX20210710-011625%402x.png" width="85%" /></p>
+
+<h3 id="35-销售小组业绩排名">3.5 销售小组业绩排名</h3>
+
+<div class="language-sql highlighter-rouge"><div class="highlight"><pre class="highlight"><code><table class="rouge-table"><tbody><tr><td class="rouge-gutter gl"><pre class="lineno">1
+2
+3
+4
+5
+6
+7
+8
+9
+10
+11
+12
+13
+</pre></td><td class="rouge-code"><pre><span class="k">CREATE</span> <span class="k">VIEW</span> <span class="n">ret4</span> <span class="k">AS</span> 
+<span class="k">SELECT</span>
+  <span class="n">group_name</span> <span class="k">AS</span> <span class="s1">'组名'</span><span class="p">,</span>
+  <span class="n">total_suc</span> <span class="k">AS</span> <span class="s1">'当月成单总数'</span><span class="p">,</span>
+  <span class="n">RANK</span><span class="p">()</span> <span class="n">OVER</span> <span class="p">(</span><span class="k">ORDER</span> <span class="k">BY</span> <span class="n">total_suc</span> <span class="k">DESC</span><span class="p">)</span> <span class="k">AS</span> <span class="s1">'排名'</span> 
+<span class="k">FROM</span>
+  <span class="p">(</span><span class="k">SELECT</span>
+     <span class="n">group_name</span><span class="p">,</span>
+     <span class="k">SUM</span><span class="p">(</span><span class="n">suc_1</span><span class="p">)</span> <span class="o">+</span> <span class="k">SUM</span><span class="p">(</span><span class="n">suc_2</span><span class="p">)</span> <span class="k">AS</span> <span class="n">total_suc</span> 
+   <span class="k">FROM</span> <span class="n">v2</span> 
+   <span class="k">GROUP</span> <span class="k">BY</span> <span class="n">group_name</span><span class="p">)</span> <span class="n">f1</span><span class="p">;</span>
+
+<span class="k">SELECT</span> <span class="o">*</span> <span class="k">FROM</span> <span class="n">ret4</span><span class="p">;</span>
+</pre></td></tr></tbody></table></code></pre></div></div>
+
+<p><img src="http://andy-blog.oss-cn-beijing.aliyuncs.com/blog/2021-07-09-WX20210710-012841%402x.png" width="47%" /></p>
+
+<h3 id="36-统计当月流水与净收入">3.6 统计当月流水与净收入</h3>
+
+<p>初步的计算规则：</p>
+
+<ul>
+  <li>
+    <p>用户成本：250 元</p>
+  </li>
+  <li>
+    <p>商品单价：8000 元</p>
+  </li>
+  <li>
+    <p>商品成本：1000 元</p>
+  </li>
+  <li>
+    <p>流水 ＝ 月成交用户数 * 商品单价</p>
+  </li>
+  <li>
+    <p>净收入 ＝ 流水 － 薪资成本 － 流量成本 － 商品成本</p>
+  </li>
+  <li>
+    <p>薪资成本 ＝ 销售员工的工资累加</p>
+  </li>
+  <li>
+    <p>流量成本 ＝ 月沟通用户数 * 用户成本</p>
+
+    <p>注：用户成本就是流量的价格，即获取一个意向客户联系方式的花销</p>
+  </li>
+  <li>
+    <p>商品成本 ＝ 月成交用户数 * 单个商品成本</p>
+  </li>
+</ul>
+
+<p><strong>1）计算薪资成本与月流水</strong></p>
+
+<div class="language-sql highlighter-rouge"><div class="highlight"><pre class="highlight"><code><table class="rouge-table"><tbody><tr><td class="rouge-gutter gl"><pre class="lineno">1
+2
+3
+4
+5
+6
+7
+8
+</pre></td><td class="rouge-code"><pre><span class="k">CREATE</span> <span class="k">VIEW</span> <span class="n">b1</span> <span class="k">AS</span>
+<span class="k">SELECT</span>
+  <span class="k">SUM</span><span class="p">(</span><span class="err">本月薪资</span><span class="p">)</span> <span class="k">AS</span> <span class="s1">'薪资成本'</span><span class="p">,</span>
+  <span class="p">(</span><span class="k">SUM</span><span class="p">(</span><span class="err">直接成单数</span><span class="p">)</span> <span class="o">+</span> <span class="k">SUM</span><span class="p">(</span><span class="err">跟单成功数</span><span class="p">))</span> <span class="o">*</span> <span class="mi">8000</span> <span class="k">AS</span> <span class="s1">'月流水'</span><span class="p">,</span>
+  <span class="p">(</span><span class="k">SUM</span><span class="p">(</span><span class="err">直接成单数</span><span class="p">)</span> <span class="o">+</span> <span class="k">SUM</span><span class="p">(</span><span class="err">跟单成功数</span><span class="p">))</span> <span class="o">*</span> <span class="mi">1000</span> <span class="k">AS</span> <span class="s1">'商品成本'</span>
+<span class="k">FROM</span> <span class="n">salary_view</span><span class="p">;</span>
+
+<span class="k">SELECT</span> <span class="o">*</span> <span class="k">FROM</span> <span class="n">b1</span><span class="p">;</span>
+</pre></td></tr></tbody></table></code></pre></div></div>
+
+<p><img src="http://andy-blog.oss-cn-beijing.aliyuncs.com/blog/2021-07-09-WX20210710-013913%402x.png" width="50%" /></p>
+
+<p><strong>2）计算流量成本</strong></p>
+
+<div class="language-sql highlighter-rouge"><div class="highlight"><pre class="highlight"><code><table class="rouge-table"><tbody><tr><td class="rouge-gutter gl"><pre class="lineno">1
+2
+3
+4
+5
+6
+</pre></td><td class="rouge-code"><pre><span class="k">CREATE</span> <span class="k">VIEW</span> <span class="n">b2</span> <span class="k">AS</span>
+<span class="k">SELECT</span> <span class="k">COUNT</span><span class="p">(</span><span class="k">DISTINCT</span> <span class="n">customer_id</span><span class="p">)</span> <span class="o">*</span> <span class="mi">250</span> <span class="k">AS</span> <span class="s1">'当月流量成本'</span>
+<span class="k">FROM</span> <span class="n">mission</span>
+<span class="k">WHERE</span> <span class="n">createDate</span> <span class="o">&gt;=</span> <span class="s1">'2020-06-01'</span> <span class="k">AND</span> <span class="n">createDate</span> <span class="o">&lt;</span> <span class="s1">'2020-07-01'</span><span class="p">;</span>
+
+<span class="k">SELECT</span> <span class="o">*</span> <span class="k">FROM</span> <span class="n">b2</span><span class="p">;</span>
+</pre></td></tr></tbody></table></code></pre></div></div>
+
+<p><img src="http://andy-blog.oss-cn-beijing.aliyuncs.com/blog/2021-07-09-WX20210710-014156%402x.png" width="25%" /></p>
+
+:ET
