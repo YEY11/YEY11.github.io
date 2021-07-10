@@ -604,9 +604,9 @@ SELECT
   COUNT(DISTINCT storeID) AS storeNum,
   COUNT(DISTINCT IF(period = '早餐', storeID, NULL)) AS breakfastStoreNum,
   COUNT(DISTINCT IF(period = '晚餐', storeID, NULL)) AS dinnerStoreNum,
-  COUNT(DISTINCT IF(freight_org = freight_nus OR freight_org = 0, storeID, NULL)) AS freStoreNum
+  COUNT(DISTINCT IF(freight_org = freight_nus OR freight_org = 0, storeID, NULL)) AS freeStoreNum
 FROM p
 GROUP BY city;
 ```
 
-<img src="http://andy-blog.oss-cn-beijing.aliyuncs.com/blog/2021-07-10-WX20210710-180833%402x.png" width="90%">
+<img src="http://andy-blog.oss-cn-beijing.aliyuncs.com/blog/2021-07-10-WX20210710-182023%402x.png" width="90%">
