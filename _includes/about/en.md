@@ -1,17 +1,17 @@
-> Your time is limited, so don’t waste it living someone else’s life. 
+> Hope your road is a long one.
+>
+> May there be many summer mornings when,
+>
+> with what pleasure, what joy,
+>
+> you enter harbors you’re seeing for the first time.
 
-Hi, I’m YEY, a beginner of Data Science 👻. Please feel free to contact me: 
-* Email: <yangye0329@gmail.com> or <yangye0329@126.com>
-* WeChat: yangye0329
+Hi, I’m YEY, a beginner of Data Science 👻. Welcome to contact with me: <yangye0329@gmail.com>
 
 ##### Interests
 
 * Anime
 * Games
+* Reading
 * Data Science
-* Machine Learning
 
-##### Links
-
-* [LinkedIn](https://www.linkedin.com/in/ye-andy-yang-7a879988/)
-* [Github](https://github.com/YEY11)

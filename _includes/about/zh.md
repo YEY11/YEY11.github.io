@@ -1,17 +1,19 @@
-> 离开世界之前，一切都是过程。
+> 愿你的道路悠长
+>
+> 愿你欣逢许多夏日的清晨
+>
+> 愉悦地、欢喜地
+>
+> 航抵你前所未见的海港
 
-Hi，我是 YEY，数据科学小白一枚 👻，欢迎与我交流联系：
-* 邮箱：<yangye0329@gmail.com> 或 <yangye0329@126.com>
-* 微信：yangye0329
+Hi，我是 YEY，数据科学小白一枚 👻，欢迎与我交流联系：<yangye0329@gmail.com>
+
+
 
 ##### 兴趣
 
 * 动漫
 * 游戏
+* 阅读
 * 数据科学
-* 机器学习
 
-##### 链接
-
-* [LinkedIn](https://www.linkedin.com/in/ye-andy-yang-7a879988/)
-* [Github](https://github.com/YEY11)

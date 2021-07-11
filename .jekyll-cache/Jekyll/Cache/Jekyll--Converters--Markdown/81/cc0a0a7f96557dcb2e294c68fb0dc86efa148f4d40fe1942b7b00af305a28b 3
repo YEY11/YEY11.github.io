@@ -1,0 +1,17 @@
+I"�<h1 id="lecture-4-logistic-回归与基扩展">Lecture 4 Logistic 回归与基扩展</h1>
+<h2 id="主要内容">主要内容</h2>
+<ul>
+  <li><strong>Logistic 回归</strong>
+    <ul>
+      <li>一种主流的二分类算法</li>
+    </ul>
+  </li>
+  <li><strong>基扩展</strong>
+    <ul>
+      <li>通过数据转换扩展模型的表现能力</li>
+      <li>线性回归和 Logistic 回归的例子</li>
+      <li>理论注释</li>
+    </ul>
+  </li>
+</ul>
+:ET

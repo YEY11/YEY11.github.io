@@ -60,7 +60,7 @@
   {% endif %}
   {% if site.github_username %}
   <li>
-    <a target="_blank" href="https://github.com/{{ site.github_username }}">
+    <a target="_blank" href="https://github.com/{{ site.github_username }}" title="GitHub">
       <span class="fa-stack fa-lg">
         <i class="fa fa-circle fa-stack-2x"></i>
         <i class="fa fa-github fa-stack-1x fa-inverse"></i>
@@ -68,9 +68,10 @@
     </a>
   </li>
   {% endif %}
+  
   {% if site.linkedin_username %}
   <li>
-    <a target="_blank" href="https://www.linkedin.com/in/{{ site.linkedin_username }}">
+    <a target="_blank" href="https://www.linkedin.com/in/{{ site.linkedin_username }}" title="LinkedIn">
       <span class="fa-stack fa-lg">
         <i class="fa fa-circle fa-stack-2x"></i>
         <i class="fa fa-linkedin fa-stack-1x fa-inverse"></i>
@@ -78,4 +79,28 @@
     </a>
   </li>
   {% endif %}
+
+
+  {% if site.wechat_username %}
+  <li class="log-wechat-yey">
+    <a title="WeChat">
+      <span class="fa-stack fa-lg">
+        <i class="fa fa-circle fa-stack-2x"></i>
+        <i class="fa fa-wechat fa-stack-1x fa-inverse"></i>
+      </span>
+    </a>
+  </li>
+  {% endif %}
+  
+
+  <li>
+    <a href="mailto:yangye0329@gmail.com" title="Email me">
+      <span class="fa-stack fa-lg">
+        <i class="fa fa-circle fa-stack-2x"></i>
+        <i class="fa fa-envelope fa-stack-1x fa-inverse"></i>
+      </span>
+    </a>
+  </li>
+
 </ul>
+
