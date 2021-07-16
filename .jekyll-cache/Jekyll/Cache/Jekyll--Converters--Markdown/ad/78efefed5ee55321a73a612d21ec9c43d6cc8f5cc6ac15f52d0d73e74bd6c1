@@ -1,0 +1,1698 @@
+I"��<h2 id="1-案例背景">1. 案例背景</h2>
+
+<p>随着电商⾏业近⼏年的迅猛发展，电⼦商务从早些年的粗放式经营，逐步转化为精细化运营。随着平台数据量的不断积累，通过数据分析挖掘消费者的潜在需求，消费偏好成为平台运营过程中的重要环节。本项⽬基于某电商平台⽤户⾏为数据，在 MySQL 关系型数据库，探索⽤户⾏为规律，寻找⾼价值⽤户；分析商品特征，寻找⾼贡献商品；分析产品功能，优化产品路径。</p>
+
+<h2 id="2-分析流程">2. 分析流程</h2>
+
+<p><img src="http://andy-blog.oss-cn-beijing.aliyuncs.com/blog/2021-06-30-iShot2021-06-30%2023.27.07.png" width="100%" /></p>
+
+<p>首先，我们看一下最下面的 <strong>基础数据</strong> 模块。这些基础数据一般是由业务系统工程师提供，他们可能会采集一些日志文件，并对这些日志文件进行分析，然后放入数据库中。此案例中的基础数据可能会涉及到用户行为数据，例如：当用户收藏某件商品时，会生成一条记录；当用户将商品加入购物车时，会生成一条记录；当用户进行支付购买时，会生成一条记录……每当有此类特殊事件触发时，就会生成一条记录并将其加入数据库中（或者，写入日志文件中）。这些基础数据就是我们后期进行一些分析工作的前提。</p>
+
+<p>有了基础数据之后，在进行分析之前，我们还需要对其进行一些处理：</p>
+
+<ol>
+  <li>
+    <p><strong>数据清洗：</strong>为什么要进行数据清洗呢？因为原始的基础数据中可能存在一些脏数据，即那些不符合规范要求的数据。那么，为什么会存在脏数据呢？因为业务系统工程师在采集这些数据的过程中，可能本身就存在一些不规范的地方；另外，业务工程师在采集数据时可能并不能提前知道后续的业务分析中对于数据有哪些要求，例如采集过程中可能某些字段为空，而实际业务要求该字段不能为空等等。具体脏数据的定义还需要结合实际项目情况来决定，例如：出现空字段、重复记录等。因此，在进行正式分析之前，需要先对基础数据进行数据清洗。</p>
+  </li>
+  <li>
+    <p><strong>数据预处理：</strong>所谓预处理就是提前对数据进行一些处理，它是相对正式分析过程中的数据处理而言的。例如，后期的很多指标统计都依赖于某行为产生时的日期（YYYY/MM/DD），但是基础数据中的相关信息只有完整的时间戳形式（”日期 + 时间“），而考虑到后期很多地方都需要用到单独的日期信息，所以我们可以在原始时间戳的基础上，对其进行预处理，生成一个新的日期字段方便后期分析时使用。</p>
+  </li>
+</ol>
+
+<p>在完成数据清洗和预处理后，我们就来到了 <strong>指标体系</strong>，即我们需要统计分析哪些指标，它其实是在整个项目经营设计阶段（即正式经营之前）就应该提前构建的。本例中，指标体系的构建基于 ”人 + 货 + 场“ 理论：”人“ 指的是电商平台的用户，”货“ 指的是电商平台的产品，”场“ 指的是电商平台本身。也就是说，我们需要分别对用户、商品、平台进行数据分析。</p>
+
+<p>接下来，我们来看一下针对用户、商品、平台，都有哪些具体指标需要进行分析：</p>
+
+<ul>
+  <li>
+    <p>首先，针对用户，我们可以进行 <strong>PV</strong> 和 <strong>UV</strong> 的计算，这里 PV（Page View）指的是访问次数，即一定时间内某个页面的浏览次数；UV（Unique Visitor）指的是访问人数，即一定时间内访问某个页面的人数。 然后，我们还可以计算 <strong>留存</strong>，它指的是某一个统一时段内新增的用户数中，经过一段时间后仍在使用我们网站或者 APP 的用户占当初新增用户的比例。 再就是 <strong>购买行为</strong> 的计算，即用户购买了什么商品、属于什么品类、购买量是多少等等。然后，我们还可以使用 <strong>RFM 模型</strong> 进行统计，它是一种用于衡量当前用户价值和用户潜在价值的工具，即当前用户对平台产生了多少贡献，以及他们未来会对平台产生多少贡献，是否属于高价值用户等。通过 RFM 模型，我们可以对目标用户进行精准定位。</p>
+  </li>
+  <li>
+    <p>然后，针对商品，我们可以计算某商品的 <strong>点击量</strong>、<strong>收藏量</strong>、<strong>加入购物车的数量</strong>、<strong>购买量</strong>、<strong>购买转化率</strong> 等。</p>
+  </li>
+  <li>
+    <p>最后，针对平台，我们可以对商品被浏览、收藏、添加到购物车、最终购买 —— 这类在整个流程中比较重要的一些节点数据进行分析，计算 <strong>每个环节的转化率</strong> 是多少，看一下是否其中某个环节存在问题（系统功能、用户体验等），并针对该环节进行 <strong>功能优化</strong>。</p>
+  </li>
+</ul>
+
+<p>因此，上图反映出了本案例中的业务流程。一般经典的电商类数据分析流程基本都与之类似，即：</p>
+
+<p>基础数据 $\longrightarrow$ 数据清洗、预处理 $\longrightarrow$ “人货场” 指标体系 $\longrightarrow$ 统计各种指标 $\longrightarrow$ 根据这些指标来分析指导后期运营策略</p>
+
+<h2 id="3-使-货场-拆解式建指标体系">3. 使⽤ “⼈货场” 拆解⽅式建⽴指标体系</h2>
+
+<p><strong>最终结果：评价 “⽤户、商品、平台“ 三者的质量</strong></p>
+
+<p><strong>⼈货场：</strong></p>
+
+<ul>
+  <li>
+    <p><strong>“人”（⽤户）</strong>是整个运营的核⼼。所有举动都围绕着，如何让更多的⼈有购买⾏为，让他们买的更多，买的更贵。所以对⼈的洞察是⼀切⾏为的基础。⽬前平台上的主⼒消费⼈群（用户）有哪些特征，他们对货（商品）有哪些需求，他们活跃在哪些场（平台），还有哪些有消费⼒的⼈⽬前不在平台上，对这些问题的回答指向了接下来的⾏动。</p>
+
+    <p><img src="http://andy-blog.oss-cn-beijing.aliyuncs.com/blog/2021-06-30-%E4%BA%BA%EF%BC%88%E7%94%A8%E6%88%B7%EF%BC%89-1.png" width="100%" /></p>
+  </li>
+  <li>
+    <p><strong>“货” （商品）</strong>就对应供给，涉及到了货品分层，哪些是红海（销量高、利润少、竞争多），哪些是蓝海（销量少、利润高、竞争少），如何进⾏动态调整，是要做⾃营还是平台，以满⾜消费者的需求（最终目的还是追求平台利益最大化）。</p>
+  </li>
+  <li>
+    <p><strong>“场”（平台）</strong>就是消费者在什么场景下，以什么样的⽅式接触到了这个商品。平台可以理解为就是电商网站，但是现在这个 “场” 的概念已经前后有所延伸，往前延伸指的是推广引流等，往后延伸指的是物流、售后等。早期的导购（引流）做的⽐较简单，⽬前的场就⽐较丰富，但也暴露了淘宝和京东在导购⽅⾯的⼀些问题。⽐如内容营销，⽬前最好的可能是微信的 KOL（关键意见领袖，例如：网红、大 V 等） ⽣态和⼩红书，甚⾄微博，⽽不在电商⾃⼰的场。如何做⼀个全域的打通，和消费者进⾏多触点的接触，⽐如社交和电商联动，来完成销售转化，这就是腾讯和阿⾥⼀直都在讲的 “全域营销”。</p>
+  </li>
+</ul>
+
+<h2 id="4-确认问题">4. 确认问题</h2>
+
+<p>本次分析的⽬的是想通过对⽤户⾏为数据进⾏分析，为以下问题提供解释和改进建议：</p>
+
+<ol>
+  <li>
+    <p>基于漏⽃模型的⽤户购买流程各环节分析指标，确定各个环节的转换率，便于找到需要改进的环节；</p>
+  </li>
+  <li>
+    <p>商品分析：找出热销商品，研究热销商品特点；</p>
+  </li>
+  <li>
+    <p>基于 RFM 模型找出核⼼付费⽤户群，对这部分⽤户进⾏精准营销（进一步挖掘 / 挽留）。</p>
+  </li>
+</ol>
+
+<h2 id="5-准备作">5. 准备⼯作</h2>
+
+<h3 id="51-数据读取户为数据">5.1 数据读取（⽤户⾏为数据）</h3>
+
+<p><strong>表结构：</strong></p>
+
+<table>
+  <thead>
+    <tr>
+      <th>列名</th>
+      <th>说明</th>
+    </tr>
+  </thead>
+  <tbody>
+    <tr>
+      <td>user_id</td>
+      <td>⽤户 ID</td>
+    </tr>
+    <tr>
+      <td>item_id</td>
+      <td>商品 ID</td>
+    </tr>
+    <tr>
+      <td>behavior_type</td>
+      <td>⽤户⾏为类型（1-曝光；2-购买；3-加⼊购物⻋；4-加⼊收藏夹。）</td>
+    </tr>
+    <tr>
+      <td>user_geohash</td>
+      <td>地理位置</td>
+    </tr>
+    <tr>
+      <td>item_category</td>
+      <td>品类 ID</td>
+    </tr>
+    <tr>
+      <td>time</td>
+      <td>⽤户⾏为发⽣的时间</td>
+    </tr>
+  </tbody>
+</table>
+
+<p><strong>基础数据（部分）：</strong></p>
+
+<table>
+  <thead>
+    <tr>
+      <th>user_id</th>
+      <th>item_id</th>
+      <th>behavior_type</th>
+      <th>user_geohash</th>
+      <th>item_category</th>
+      <th>time</th>
+    </tr>
+  </thead>
+  <tbody>
+    <tr>
+      <td>98047837</td>
+      <td>232431562</td>
+      <td>1</td>
+      <td> </td>
+      <td>4245</td>
+      <td>2019-12-06 02</td>
+    </tr>
+    <tr>
+      <td>97726136</td>
+      <td>383583590</td>
+      <td>1</td>
+      <td> </td>
+      <td>5894</td>
+      <td>2019-12-09 20</td>
+    </tr>
+    <tr>
+      <td>98607707</td>
+      <td>64749712</td>
+      <td>1</td>
+      <td> </td>
+      <td>2883</td>
+      <td>2019-12-18 11</td>
+    </tr>
+    <tr>
+      <td>98662432</td>
+      <td>320593836</td>
+      <td>1</td>
+      <td>96nn52n</td>
+      <td>6562</td>
+      <td>2019-12-06 10</td>
+    </tr>
+    <tr>
+      <td>98145908</td>
+      <td>290208520</td>
+      <td>1</td>
+      <td> </td>
+      <td>13926</td>
+      <td>2019-12-16 21</td>
+    </tr>
+    <tr>
+      <td>93784494</td>
+      <td>337869048</td>
+      <td>1</td>
+      <td> </td>
+      <td>3979</td>
+      <td>2019-12-03 20</td>
+    </tr>
+    <tr>
+      <td>94832743</td>
+      <td>105749725</td>
+      <td>1</td>
+      <td> </td>
+      <td>9559</td>
+      <td>2019-12-13 20</td>
+    </tr>
+    <tr>
+      <td>95290487</td>
+      <td>76866650</td>
+      <td>1</td>
+      <td> </td>
+      <td>10875</td>
+      <td>2019-11-27 16</td>
+    </tr>
+    <tr>
+      <td>96610296</td>
+      <td>161166643</td>
+      <td>1</td>
+      <td> </td>
+      <td>3064</td>
+      <td>2019-12-11 23</td>
+    </tr>
+    <tr>
+      <td>100684618</td>
+      <td>21751142</td>
+      <td>3</td>
+      <td> </td>
+      <td>2158</td>
+      <td>2019-12-05 23</td>
+    </tr>
+    <tr>
+      <td>100509623</td>
+      <td>266020206</td>
+      <td>3</td>
+      <td>tfvomgk</td>
+      <td>4923</td>
+      <td>2019-12-08 17</td>
+    </tr>
+    <tr>
+      <td>…</td>
+      <td>…</td>
+      <td>…</td>
+      <td>…</td>
+      <td>…</td>
+      <td>…</td>
+    </tr>
+  </tbody>
+</table>
+
+<p>注意：基础数据中的时间格式为 <code class="language-plaintext highlighter-rouge">年-月-日 小时（24 小时制）</code>，例如：<code class="language-plaintext highlighter-rouge">2019-12-06 02</code>。</p>
+
+<p>创建数据表：</p>
+
+<div class="language-sql highlighter-rouge"><div class="highlight"><pre class="highlight"><code><table class="rouge-table"><tbody><tr><td class="rouge-gutter gl"><pre class="lineno">1
+2
+3
+4
+5
+6
+7
+8
+9
+</pre></td><td class="rouge-code"><pre><span class="c1">-- 创建数据表</span>
+<span class="k">CREATE</span> <span class="k">TABLE</span> <span class="n">o_retailers_trade_user</span> <span class="p">(</span>
+  <span class="n">user_id</span> <span class="nb">INT</span><span class="p">(</span><span class="mi">9</span><span class="p">),</span>
+  <span class="n">item_id</span> <span class="nb">INT</span><span class="p">(</span><span class="mi">9</span><span class="p">),</span>
+  <span class="n">behavior_type</span> <span class="nb">INT</span><span class="p">(</span><span class="mi">1</span><span class="p">),</span>
+  <span class="n">user_geohash</span> <span class="nb">VARCHAR</span><span class="p">(</span><span class="mi">14</span><span class="p">),</span>
+  <span class="n">item_category</span> <span class="nb">INT</span><span class="p">(</span><span class="mi">5</span><span class="p">),</span>
+  <span class="nb">time</span> <span class="nb">VARCHAR</span><span class="p">(</span><span class="mi">13</span><span class="p">)</span> 
+<span class="p">);</span>
+</pre></td></tr></tbody></table></code></pre></div></div>
+
+<p>导入数据：</p>
+
+<p><img src="http://andy-blog.oss-cn-beijing.aliyuncs.com/blog/2021-06-30-iShot2021-07-01%2000.08.29.png" width="60%" /></p>
+
+<div class="language-sql highlighter-rouge"><div class="highlight"><pre class="highlight"><code><table class="rouge-table"><tbody><tr><td class="rouge-gutter gl"><pre class="lineno">1
+2
+</pre></td><td class="rouge-code"><pre><span class="c1">-- 查看基础数据</span>
+<span class="k">SELECT</span> <span class="o">*</span> <span class="k">FROM</span> <span class="n">o_retailers_trade_user</span> <span class="k">LIMIT</span> <span class="mi">11</span><span class="p">;</span>
+</pre></td></tr></tbody></table></code></pre></div></div>
+
+<p><img src="http://andy-blog.oss-cn-beijing.aliyuncs.com/blog/2021-06-30-iShot2021-07-01%2000.13.13.png" width="68%" /></p>
+
+<h3 id="52-数据预处理">5.2 数据预处理</h3>
+
+<p>增加新列 <code class="language-plaintext highlighter-rouge">date_time (DATETIME)</code>、<code class="language-plaintext highlighter-rouge">dates (CHAR)</code>，便于后续时间维度分析：</p>
+
+<div class="language-sql highlighter-rouge"><div class="highlight"><pre class="highlight"><code><table class="rouge-table"><tbody><tr><td class="rouge-gutter gl"><pre class="lineno">1
+2
+3
+4
+5
+6
+7
+8
+</pre></td><td class="rouge-code"><pre><span class="c1">-- 增加新字段 date_time，字段数据来自基础数据中的 time 字段</span>
+<span class="c1">-- %H 可以表示 0-23；⽽ %h 表示 0-12</span>
+<span class="k">ALTER</span> <span class="k">TABLE</span> <span class="n">o_retailers_trade_user</span> <span class="k">ADD</span> <span class="k">COLUMN</span> <span class="n">date_time</span> <span class="nb">DATETIME</span> <span class="k">NULL</span><span class="p">;</span>
+<span class="k">UPDATE</span> <span class="n">o_retailers_trade_user</span> <span class="k">SET</span> <span class="n">date_time</span> <span class="o">=</span> <span class="n">STR_TO_DATE</span><span class="p">(</span><span class="nb">time</span><span class="p">,</span> <span class="s1">'%Y-%m-%d %H'</span><span class="p">);</span>
+
+<span class="c1">-- 增加新字段 dates，字段数据来自上面新增的 date_time 字段</span>
+<span class="k">ALTER</span> <span class="k">TABLE</span> <span class="n">o_retailers_trade_user</span> <span class="k">ADD</span> <span class="k">COLUMN</span> <span class="n">dates</span> <span class="nb">CHAR</span><span class="p">(</span><span class="mi">10</span><span class="p">)</span> <span class="k">NULL</span><span class="p">;</span>
+<span class="k">UPDATE</span> <span class="n">o_retailers_trade_user</span> <span class="k">SET</span> <span class="n">dates</span> <span class="o">=</span> <span class="nb">DATE</span><span class="p">(</span><span class="n">date_time</span><span class="p">);</span>
+</pre></td></tr></tbody></table></code></pre></div></div>
+
+<p>查看更新后的表结构和数据：</p>
+
+<div class="language-sql highlighter-rouge"><div class="highlight"><pre class="highlight"><code><table class="rouge-table"><tbody><tr><td class="rouge-gutter gl"><pre class="lineno">1
+2
+</pre></td><td class="rouge-code"><pre><span class="c1">-- 查看更新后的表结构</span>
+<span class="k">DESC</span> <span class="n">o_retailers_trade_user</span><span class="p">;</span>
+</pre></td></tr></tbody></table></code></pre></div></div>
+
+<p><img src="http://andy-blog.oss-cn-beijing.aliyuncs.com/blog/2021-07-01-iShot2021-07-01%2020.23.45.png" width="50%" /></p>
+
+<div class="language-sql highlighter-rouge"><div class="highlight"><pre class="highlight"><code><table class="rouge-table"><tbody><tr><td class="rouge-gutter gl"><pre class="lineno">1
+2
+</pre></td><td class="rouge-code"><pre><span class="c1">-- 查看更新后的数据</span>
+<span class="k">SELECT</span> <span class="o">*</span> <span class="k">FROM</span> <span class="n">o_retailers_trade_user</span> <span class="k">LIMIT</span> <span class="mi">11</span><span class="p">;</span>
+</pre></td></tr></tbody></table></code></pre></div></div>
+
+<p><img src="http://andy-blog.oss-cn-beijing.aliyuncs.com/blog/2021-07-01-iShot2021-07-01%2020.25.32.png" width="90%" /></p>
+
+<p>重复值处理：创建新表 <code class="language-plaintext highlighter-rouge">temp_trade</code>，并向其中插⼊去重后的数据</p>
+
+<div class="language-sql highlighter-rouge"><div class="highlight"><pre class="highlight"><code><table class="rouge-table"><tbody><tr><td class="rouge-gutter gl"><pre class="lineno">1
+2
+3
+</pre></td><td class="rouge-code"><pre><span class="c1">-- 创建新表 temp_trade，并向其中插⼊去重后的数据</span>
+<span class="k">CREATE</span> <span class="k">TABLE</span> <span class="n">temp_trade</span> <span class="k">LIKE</span> <span class="n">o_retailers_trade_user</span><span class="p">;</span>
+<span class="k">INSERT</span> <span class="k">INTO</span> <span class="n">temp_trade</span> <span class="k">SELECT</span> <span class="k">DISTINCT</span> <span class="o">*</span> <span class="k">FROM</span> <span class="n">o_retailers_trade_user</span><span class="p">;</span>
+</pre></td></tr></tbody></table></code></pre></div></div>
+
+<h2 id="6-指标体系建设">6. 指标体系建设</h2>
+
+<p><strong>“⼈ 货 场” 指标体系</strong></p>
+
+<h3 id="61-户指标体系">6.1 ⽤户指标体系</h3>
+
+<p><strong>基础指标体系（UV / PV / 留存率）+ RFM 模型分析</strong></p>
+
+<h4 id="611-基础指标">6.1.1 基础指标</h4>
+
+<p><strong>UV、PV、浏览深度统计</strong></p>
+
+<div class="language-sql highlighter-rouge"><div class="highlight"><pre class="highlight"><code><table class="rouge-table"><tbody><tr><td class="rouge-gutter gl"><pre class="lineno">1
+2
+3
+4
+5
+6
+7
+8
+9
+10
+11
+12
+13
+14
+</pre></td><td class="rouge-code"><pre><span class="cm">/*
+pv：统计 behavior_type = 1 的记录数量，需要按日统计（分组）
+uv：统计 DISTINCT user_id 的数量，需要按⽇统计（分组）
+浏览深度：pv/uv
+
+注意：pv 进⾏ COUNT 的时候，如果 behavior_type = 1 则进⾏计算；否则，不进⾏计算
+*/</span>
+
+<span class="k">SELECT</span> <span class="n">dates</span><span class="p">,</span> 
+  <span class="k">COUNT</span><span class="p">(</span><span class="k">DISTINCT</span> <span class="n">user_id</span><span class="p">)</span> <span class="k">AS</span> <span class="n">uv</span><span class="p">,</span>
+  <span class="k">COUNT</span><span class="p">(</span><span class="n">IF</span><span class="p">(</span><span class="n">behavior_type</span> <span class="o">=</span> <span class="mi">1</span><span class="p">,</span> <span class="n">user_id</span><span class="p">,</span> <span class="k">NULL</span><span class="p">))</span> <span class="k">AS</span> <span class="n">pv</span><span class="p">,</span>
+  <span class="k">COUNT</span><span class="p">(</span><span class="n">IF</span><span class="p">(</span><span class="n">behavior_type</span> <span class="o">=</span> <span class="mi">1</span><span class="p">,</span> <span class="n">user_id</span><span class="p">,</span> <span class="k">NULL</span><span class="p">))</span> <span class="o">/</span> <span class="k">COUNT</span><span class="p">(</span><span class="k">DISTINCT</span> <span class="n">user_id</span><span class="p">)</span> <span class="k">AS</span> <span class="s1">'pv/uv'</span>
+<span class="k">FROM</span> <span class="n">temp_trade</span> 
+<span class="k">GROUP</span> <span class="k">BY</span> <span class="n">dates</span><span class="p">;</span>
+</pre></td></tr></tbody></table></code></pre></div></div>
+
+<p><img src="http://andy-blog.oss-cn-beijing.aliyuncs.com/blog/2021-07-01-iShot2021-07-01%2021.18.42.png" width="33%" /></p>
+
+<p><strong>留存率（按日）统计</strong></p>
+
+<p>注意：留存率可以分为很多种，例如：新注册用户留存率、活跃用户留存率等。由于本案例中的数据并没有包含用户注册相关信息，因此这里我们统计的是活跃用户留存率。</p>
+
+<p>例如：</p>
+
+<table>
+  <thead>
+    <tr>
+      <th>基准日期</th>
+      <th>当日活跃用户</th>
+      <th>1 天以后活跃用户</th>
+      <th>2 天以后活跃用户</th>
+      <th>……</th>
+    </tr>
+  </thead>
+  <tbody>
+    <tr>
+      <td>2019-12-28</td>
+      <td>100 人</td>
+      <td>90 人（90%）</td>
+      <td>80 人（80%）</td>
+      <td>……</td>
+    </tr>
+    <tr>
+      <td>……</td>
+      <td>……</td>
+      <td>……</td>
+      <td>……</td>
+      <td>……</td>
+    </tr>
+  </tbody>
+</table>
+
+<p>我们需要：</p>
+
+<ol>
+  <li>
+    <p>获取到一个类似上面的结果集</p>
+  </li>
+  <li>
+    <p>基础数据中所有的日期都应该进行如上的计算</p>
+  </li>
+</ol>
+
+<p>例如，对于 ID 为 <code class="language-plaintext highlighter-rouge">98047837</code> 的用户，以 <code class="language-plaintext highlighter-rouge">2019-12-28</code> 为基准日期计算之后一段时间内的日活跃率，我们需要在数据集中找到该用户 <code class="language-plaintext highlighter-rouge">2019-12-28</code> 之后的数据，即：</p>
+
+<table>
+  <thead>
+    <tr>
+      <th>user_id</th>
+      <th>dates</th>
+      <th>dates_after</th>
+    </tr>
+  </thead>
+  <tbody>
+    <tr>
+      <td>98047837</td>
+      <td>2019-12-28</td>
+      <td>2019-12-29（如果该用户 29 日这天记录存在，那么该用户在 29 日这天就是活跃的）</td>
+    </tr>
+    <tr>
+      <td>98047837</td>
+      <td>2019-12-28</td>
+      <td>2019-12-30（同上）</td>
+    </tr>
+    <tr>
+      <td>……</td>
+      <td>……</td>
+      <td>……</td>
+    </tr>
+  </tbody>
+</table>
+
+<p>因此，对于该用户，我们通过计算 （<code class="language-plaintext highlighter-rouge">dates_after</code> － <code class="language-plaintext highlighter-rouge">dates</code>）得到某后续日期与基准日期相差的天数，如果结果等于：</p>
+
+<ul>
+  <li>1 天，我们就应该在计算 “1 天以后活跃用户” 的时候 ＋1，或者进行 <code class="language-plaintext highlighter-rouge">COUNT()</code> 计数；</li>
+  <li>2 天，我们就应该在计算 “2 天以后活跃用户” 的时候 ＋1，或者进行 <code class="language-plaintext highlighter-rouge">COUNT()</code> 计数；</li>
+  <li>……</li>
+</ul>
+
+<p>然后，我们该如何得到如前面展示的同时包含 “当日活跃用户”、“1 天以后活跃用户”、“2 天以后活跃用户” 等字段的表结构呢？</p>
+
+<p>我们可以使用 <strong>自关联</strong> 的方式来完成：</p>
+
+<p>首先，我们可以先从 <code class="language-plaintext highlighter-rouge">temp_trade</code> 表中筛选出 <code class="language-plaintext highlighter-rouge">user_id</code> 和 <code class="language-plaintext highlighter-rouge">dates</code> 字段，并按照这两个字段分组。这种情况下，某用户在某天即使存在多条记录也只返回一条，即表明该用户在这天是活跃的：</p>
+
+<div class="language-sql highlighter-rouge"><div class="highlight"><pre class="highlight"><code><table class="rouge-table"><tbody><tr><td class="rouge-gutter gl"><pre class="lineno">1
+</pre></td><td class="rouge-code"><pre><span class="k">SELECT</span> <span class="n">user_id</span><span class="p">,</span> <span class="n">dates</span> <span class="k">FROM</span> <span class="n">temp_trade</span> <span class="k">GROUP</span> <span class="k">BY</span> <span class="n">user_id</span><span class="p">,</span> <span class="n">dates</span><span class="p">;</span>
+</pre></td></tr></tbody></table></code></pre></div></div>
+
+<p><img src="http://andy-blog.oss-cn-beijing.aliyuncs.com/blog/2021-07-01-iShot2021-07-01%2023.08.14.png" width="19%" /></p>
+
+<p>可以看到，得到的结果与我们之前所期望的数据集还差一个 <code class="language-plaintext highlighter-rouge">dates_after</code> 字段，下面我们尝试通过自关联的方式来得到该日期：</p>
+
+<div class="language-sql highlighter-rouge"><div class="highlight"><pre class="highlight"><code><table class="rouge-table"><tbody><tr><td class="rouge-gutter gl"><pre class="lineno">1
+2
+3
+4
+5
+6
+</pre></td><td class="rouge-code"><pre><span class="k">SELECT</span> <span class="o">*</span> 
+<span class="k">FROM</span>
+  <span class="p">(</span><span class="k">SELECT</span> <span class="n">user_id</span><span class="p">,</span> <span class="n">dates</span> <span class="k">FROM</span> <span class="n">temp_trade</span> <span class="k">GROUP</span> <span class="k">BY</span> <span class="n">user_id</span><span class="p">,</span> <span class="n">dates</span><span class="p">)</span> <span class="k">AS</span> <span class="n">a</span>
+  <span class="k">LEFT</span> <span class="k">JOIN</span>
+  <span class="p">(</span><span class="k">SELECT</span> <span class="n">user_id</span><span class="p">,</span> <span class="n">dates</span> <span class="k">FROM</span> <span class="n">temp_trade</span> <span class="k">GROUP</span> <span class="k">BY</span> <span class="n">user_id</span><span class="p">,</span> <span class="n">dates</span><span class="p">)</span> <span class="k">AS</span> <span class="n">b</span>
+  <span class="k">ON</span> <span class="n">a</span><span class="p">.</span><span class="n">user_id</span> <span class="o">=</span> <span class="n">b</span><span class="p">.</span><span class="n">user_id</span><span class="p">;</span>
+</pre></td></tr></tbody></table></code></pre></div></div>
+
+<p><img src="http://andy-blog.oss-cn-beijing.aliyuncs.com/blog/2021-07-01-iShot2021-07-01%2023.14.44.png" width="38%" /></p>
+
+<p>现在，我们得到了两个日期字段，但是我们发现某些记录中，第二个日期字段比第一个日期字段小，例如第 2 行中，<code class="language-plaintext highlighter-rouge">dates</code> 为 <code class="language-plaintext highlighter-rouge">2019-12-06</code>，而 <code class="language-plaintext highlighter-rouge">dates(1)</code> 为 <code class="language-plaintext highlighter-rouge">2019-11-20</code>。由于我们希望计算的是基准日期当天的活跃用户数，以及之后一段时间内的活跃用户留存率，因此第二个日期字段应该要大于或者等于第一个日期字段（然后再计算两个日期之间相差的天数）。所以，我们还需要通过 <code class="language-plaintext highlighter-rouge">WHERE</code> 条件对上面的结果集进行过滤：</p>
+
+<div class="language-sql highlighter-rouge"><div class="highlight"><pre class="highlight"><code><table class="rouge-table"><tbody><tr><td class="rouge-gutter gl"><pre class="lineno">1
+2
+3
+4
+5
+6
+7
+8
+9
+10
+</pre></td><td class="rouge-code"><pre><span class="k">SELECT</span> 
+  <span class="n">a</span><span class="p">.</span><span class="n">user_id</span><span class="p">,</span> 
+  <span class="n">a</span><span class="p">.</span><span class="n">dates</span><span class="p">,</span> 
+  <span class="n">b</span><span class="p">.</span><span class="n">dates</span> <span class="k">AS</span> <span class="n">dates_after</span> 
+<span class="k">FROM</span> 
+  <span class="p">(</span><span class="k">SELECT</span> <span class="n">user_id</span><span class="p">,</span> <span class="n">dates</span> <span class="k">FROM</span> <span class="n">temp_trade</span> <span class="k">GROUP</span> <span class="k">BY</span> <span class="n">user_id</span><span class="p">,</span> <span class="n">dates</span><span class="p">)</span> <span class="k">AS</span> <span class="n">a</span>
+  <span class="k">LEFT</span> <span class="k">JOIN</span> 
+  <span class="p">(</span><span class="k">SELECT</span> <span class="n">user_id</span><span class="p">,</span> <span class="n">dates</span> <span class="k">FROM</span> <span class="n">temp_trade</span> <span class="k">GROUP</span> <span class="k">BY</span> <span class="n">user_id</span><span class="p">,</span> <span class="n">dates</span><span class="p">)</span> <span class="k">AS</span> <span class="n">b</span>
+  <span class="k">ON</span> <span class="n">a</span><span class="p">.</span><span class="n">user_id</span> <span class="o">=</span> <span class="n">b</span><span class="p">.</span><span class="n">user_id</span>
+<span class="k">WHERE</span> <span class="n">b</span><span class="p">.</span><span class="n">dates</span> <span class="o">&gt;=</span> <span class="n">a</span><span class="p">.</span><span class="n">dates</span><span class="p">;</span>
+</pre></td></tr></tbody></table></code></pre></div></div>
+
+<p><img src="http://andy-blog.oss-cn-beijing.aliyuncs.com/blog/2021-07-01-iShot2021-07-01%2023.47.37.png" width="30%" /></p>
+
+<p>假设我们希望最终得到的数据集中包含以下字段：</p>
+
+<ul>
+  <li>基准日期</li>
+  <li>活跃用户数</li>
+  <li>1 日留存率</li>
+  <li>2 日留存率</li>
+  <li>……</li>
+  <li>7 日留存率</li>
+  <li>15 日留存率</li>
+  <li>30 日留存率</li>
+</ul>
+
+<p>首先，对于活跃用户数，我们可以在上表的基础上，对基准日期进行分组统计得到：</p>
+
+<div class="language-sql highlighter-rouge"><div class="highlight"><pre class="highlight"><code><table class="rouge-table"><tbody><tr><td class="rouge-gutter gl"><pre class="lineno">1
+2
+3
+4
+5
+6
+7
+8
+9
+10
+</pre></td><td class="rouge-code"><pre><span class="k">SELECT</span> 
+  <span class="n">a</span><span class="p">.</span><span class="n">dates</span><span class="p">,</span>
+  <span class="k">COUNT</span><span class="p">(</span><span class="k">DISTINCT</span> <span class="n">a</span><span class="p">.</span><span class="n">user_id</span><span class="p">)</span> <span class="k">AS</span> <span class="n">user_count</span>
+<span class="k">FROM</span>
+  <span class="p">(</span><span class="k">SELECT</span> <span class="n">user_id</span><span class="p">,</span> <span class="n">dates</span> <span class="k">FROM</span> <span class="n">temp_trade</span> <span class="k">GROUP</span> <span class="k">BY</span> <span class="n">user_id</span><span class="p">,</span> <span class="n">dates</span><span class="p">)</span> <span class="k">AS</span> <span class="n">a</span>
+  <span class="k">LEFT</span> <span class="k">JOIN</span>
+  <span class="p">(</span><span class="k">SELECT</span> <span class="n">user_id</span><span class="p">,</span> <span class="n">dates</span> <span class="k">FROM</span> <span class="n">temp_trade</span> <span class="k">GROUP</span> <span class="k">BY</span> <span class="n">user_id</span><span class="p">,</span> <span class="n">dates</span><span class="p">)</span> <span class="k">AS</span> <span class="n">b</span>
+  <span class="k">ON</span> <span class="n">a</span><span class="p">.</span><span class="n">user_id</span> <span class="o">=</span> <span class="n">b</span><span class="p">.</span><span class="n">user_id</span>
+<span class="k">WHERE</span> <span class="n">b</span><span class="p">.</span><span class="n">dates</span> <span class="o">&gt;=</span> <span class="n">a</span><span class="p">.</span><span class="n">dates</span>
+<span class="k">GROUP</span> <span class="k">BY</span> <span class="n">a</span><span class="p">.</span><span class="n">dates</span><span class="p">;</span>
+</pre></td></tr></tbody></table></code></pre></div></div>
+
+<p><img src="http://andy-blog.oss-cn-beijing.aliyuncs.com/blog/2021-07-01-iShot2021-07-02%2000.10.34.png" width="21%" /></p>
+
+<p>现在，我们已经得到了目标结果集中的前两个字段。显然，后续的 1 日留存率、2 日留存率……30 日留存率的计算模式是相同的。而我们知道，某日留存率 ＝ 当日留存数 / 基准日期活跃数，所以我们先计算对应日期的留存数：</p>
+
+<div class="language-sql highlighter-rouge"><div class="highlight"><pre class="highlight"><code><table class="rouge-table"><tbody><tr><td class="rouge-gutter gl"><pre class="lineno">1
+2
+3
+4
+5
+6
+7
+8
+9
+10
+11
+12
+13
+14
+15
+16
+17
+18
+19
+</pre></td><td class="rouge-code"><pre><span class="k">SELECT</span> 
+  <span class="n">a</span><span class="p">.</span><span class="n">dates</span><span class="p">,</span>
+  <span class="k">COUNT</span><span class="p">(</span><span class="k">DISTINCT</span> <span class="n">a</span><span class="p">.</span><span class="n">user_id</span><span class="p">)</span> <span class="k">AS</span> <span class="n">user_count</span><span class="p">,</span>
+  <span class="k">COUNT</span><span class="p">(</span><span class="k">DISTINCT</span> <span class="n">IF</span><span class="p">(</span><span class="n">DATEDIFF</span><span class="p">(</span><span class="n">b</span><span class="p">.</span><span class="n">dates</span><span class="p">,</span> <span class="n">a</span><span class="p">.</span><span class="n">dates</span><span class="p">)</span> <span class="o">=</span> <span class="mi">1</span><span class="p">,</span> <span class="n">b</span><span class="p">.</span><span class="n">user_id</span><span class="p">,</span> <span class="k">NULL</span><span class="p">))</span> <span class="k">AS</span> <span class="n">remain_1</span><span class="p">,</span>
+  <span class="k">COUNT</span><span class="p">(</span><span class="k">DISTINCT</span> <span class="n">IF</span><span class="p">(</span><span class="n">DATEDIFF</span><span class="p">(</span><span class="n">b</span><span class="p">.</span><span class="n">dates</span><span class="p">,</span> <span class="n">a</span><span class="p">.</span><span class="n">dates</span><span class="p">)</span> <span class="o">=</span> <span class="mi">2</span><span class="p">,</span> <span class="n">b</span><span class="p">.</span><span class="n">user_id</span><span class="p">,</span> <span class="k">NULL</span><span class="p">))</span> <span class="k">AS</span> <span class="n">remain_2</span><span class="p">,</span>
+  <span class="k">COUNT</span><span class="p">(</span><span class="k">DISTINCT</span> <span class="n">IF</span><span class="p">(</span><span class="n">DATEDIFF</span><span class="p">(</span><span class="n">b</span><span class="p">.</span><span class="n">dates</span><span class="p">,</span> <span class="n">a</span><span class="p">.</span><span class="n">dates</span><span class="p">)</span> <span class="o">=</span> <span class="mi">3</span><span class="p">,</span> <span class="n">b</span><span class="p">.</span><span class="n">user_id</span><span class="p">,</span> <span class="k">NULL</span><span class="p">))</span> <span class="k">AS</span> <span class="n">remain_3</span><span class="p">,</span>
+  <span class="k">COUNT</span><span class="p">(</span><span class="k">DISTINCT</span> <span class="n">IF</span><span class="p">(</span><span class="n">DATEDIFF</span><span class="p">(</span><span class="n">b</span><span class="p">.</span><span class="n">dates</span><span class="p">,</span> <span class="n">a</span><span class="p">.</span><span class="n">dates</span><span class="p">)</span> <span class="o">=</span> <span class="mi">4</span><span class="p">,</span> <span class="n">b</span><span class="p">.</span><span class="n">user_id</span><span class="p">,</span> <span class="k">NULL</span><span class="p">))</span> <span class="k">AS</span> <span class="n">remain_4</span><span class="p">,</span>
+  <span class="k">COUNT</span><span class="p">(</span><span class="k">DISTINCT</span> <span class="n">IF</span><span class="p">(</span><span class="n">DATEDIFF</span><span class="p">(</span><span class="n">b</span><span class="p">.</span><span class="n">dates</span><span class="p">,</span> <span class="n">a</span><span class="p">.</span><span class="n">dates</span><span class="p">)</span> <span class="o">=</span> <span class="mi">5</span><span class="p">,</span> <span class="n">b</span><span class="p">.</span><span class="n">user_id</span><span class="p">,</span> <span class="k">NULL</span><span class="p">))</span> <span class="k">AS</span> <span class="n">remain_5</span><span class="p">,</span>
+  <span class="k">COUNT</span><span class="p">(</span><span class="k">DISTINCT</span> <span class="n">IF</span><span class="p">(</span><span class="n">DATEDIFF</span><span class="p">(</span><span class="n">b</span><span class="p">.</span><span class="n">dates</span><span class="p">,</span> <span class="n">a</span><span class="p">.</span><span class="n">dates</span><span class="p">)</span> <span class="o">=</span> <span class="mi">6</span><span class="p">,</span> <span class="n">b</span><span class="p">.</span><span class="n">user_id</span><span class="p">,</span> <span class="k">NULL</span><span class="p">))</span> <span class="k">AS</span> <span class="n">remain_6</span><span class="p">,</span>
+  <span class="k">COUNT</span><span class="p">(</span><span class="k">DISTINCT</span> <span class="n">IF</span><span class="p">(</span><span class="n">DATEDIFF</span><span class="p">(</span><span class="n">b</span><span class="p">.</span><span class="n">dates</span><span class="p">,</span> <span class="n">a</span><span class="p">.</span><span class="n">dates</span><span class="p">)</span> <span class="o">=</span> <span class="mi">7</span><span class="p">,</span> <span class="n">b</span><span class="p">.</span><span class="n">user_id</span><span class="p">,</span> <span class="k">NULL</span><span class="p">))</span> <span class="k">AS</span> <span class="n">remain_7</span><span class="p">,</span>
+  <span class="k">COUNT</span><span class="p">(</span><span class="k">DISTINCT</span> <span class="n">IF</span><span class="p">(</span><span class="n">DATEDIFF</span><span class="p">(</span><span class="n">b</span><span class="p">.</span><span class="n">dates</span><span class="p">,</span> <span class="n">a</span><span class="p">.</span><span class="n">dates</span><span class="p">)</span> <span class="o">=</span> <span class="mi">15</span><span class="p">,</span> <span class="n">b</span><span class="p">.</span><span class="n">user_id</span><span class="p">,</span> <span class="k">NULL</span><span class="p">))</span> <span class="k">AS</span> <span class="n">remain_15</span><span class="p">,</span>
+  <span class="k">COUNT</span><span class="p">(</span><span class="k">DISTINCT</span> <span class="n">IF</span><span class="p">(</span><span class="n">DATEDIFF</span><span class="p">(</span><span class="n">b</span><span class="p">.</span><span class="n">dates</span><span class="p">,</span> <span class="n">a</span><span class="p">.</span><span class="n">dates</span><span class="p">)</span> <span class="o">=</span> <span class="mi">30</span><span class="p">,</span> <span class="n">b</span><span class="p">.</span><span class="n">user_id</span><span class="p">,</span> <span class="k">NULL</span><span class="p">))</span> <span class="k">AS</span> <span class="n">remain_30</span>
+<span class="k">FROM</span>
+  <span class="p">(</span><span class="k">SELECT</span> <span class="n">user_id</span><span class="p">,</span> <span class="n">dates</span> <span class="k">FROM</span> <span class="n">temp_trade</span> <span class="k">GROUP</span> <span class="k">BY</span> <span class="n">user_id</span><span class="p">,</span> <span class="n">dates</span><span class="p">)</span> <span class="k">AS</span> <span class="n">a</span>
+  <span class="k">LEFT</span> <span class="k">JOIN</span> 
+  <span class="p">(</span><span class="k">SELECT</span> <span class="n">user_id</span><span class="p">,</span> <span class="n">dates</span> <span class="k">FROM</span> <span class="n">temp_trade</span> <span class="k">GROUP</span> <span class="k">BY</span> <span class="n">user_id</span><span class="p">,</span> <span class="n">dates</span><span class="p">)</span> <span class="k">AS</span> <span class="n">b</span>
+  <span class="k">ON</span> <span class="n">a</span><span class="p">.</span><span class="n">user_id</span> <span class="o">=</span> <span class="n">b</span><span class="p">.</span><span class="n">user_id</span>
+<span class="k">WHERE</span> <span class="n">b</span><span class="p">.</span><span class="n">dates</span> <span class="o">&gt;=</span> <span class="n">a</span><span class="p">.</span><span class="n">dates</span>
+<span class="k">GROUP</span> <span class="k">BY</span> <span class="n">a</span><span class="p">.</span><span class="n">dates</span><span class="p">;</span>
+</pre></td></tr></tbody></table></code></pre></div></div>
+
+<p><img src="http://andy-blog.oss-cn-beijing.aliyuncs.com/blog/2021-07-01-iShot2021-07-02%2000.15.41.png" width="87%" /></p>
+
+<p>然后，基于某日留存数，我们就可以计算出当日的留存率。为了便于后续计算，我们可以将上面的 <code class="language-plaintext highlighter-rouge">SELECT</code> 语句保存为视图（或者通过 <code class="language-plaintext highlighter-rouge">WITH AS</code> 语句创建临时表，以便在同一条 SQL 语句内进行重复调用）：</p>
+
+<div class="language-sql highlighter-rouge"><div class="highlight"><pre class="highlight"><code><table class="rouge-table"><tbody><tr><td class="rouge-gutter gl"><pre class="lineno">1
+2
+3
+4
+5
+6
+7
+8
+9
+10
+11
+12
+13
+14
+15
+16
+17
+18
+19
+20
+21
+22
+</pre></td><td class="rouge-code"><pre><span class="k">CREATE</span> <span class="k">VIEW</span> <span class="n">user_remain_view</span> <span class="k">AS</span>
+<span class="k">SELECT</span> 
+  <span class="n">a</span><span class="p">.</span><span class="n">dates</span><span class="p">,</span>
+  <span class="k">COUNT</span><span class="p">(</span><span class="k">DISTINCT</span> <span class="n">a</span><span class="p">.</span><span class="n">user_id</span><span class="p">)</span> <span class="k">AS</span> <span class="n">user_count</span><span class="p">,</span>
+  <span class="k">COUNT</span><span class="p">(</span><span class="k">DISTINCT</span> <span class="n">IF</span><span class="p">(</span><span class="n">DATEDIFF</span><span class="p">(</span><span class="n">b</span><span class="p">.</span><span class="n">dates</span><span class="p">,</span> <span class="n">a</span><span class="p">.</span><span class="n">dates</span><span class="p">)</span> <span class="o">=</span> <span class="mi">1</span><span class="p">,</span> <span class="n">b</span><span class="p">.</span><span class="n">user_id</span><span class="p">,</span> <span class="k">NULL</span><span class="p">))</span> <span class="k">AS</span> <span class="n">remain_1</span><span class="p">,</span>
+  <span class="k">COUNT</span><span class="p">(</span><span class="k">DISTINCT</span> <span class="n">IF</span><span class="p">(</span><span class="n">DATEDIFF</span><span class="p">(</span><span class="n">b</span><span class="p">.</span><span class="n">dates</span><span class="p">,</span> <span class="n">a</span><span class="p">.</span><span class="n">dates</span><span class="p">)</span> <span class="o">=</span> <span class="mi">2</span><span class="p">,</span> <span class="n">b</span><span class="p">.</span><span class="n">user_id</span><span class="p">,</span> <span class="k">NULL</span><span class="p">))</span> <span class="k">AS</span> <span class="n">remain_2</span><span class="p">,</span>
+  <span class="k">COUNT</span><span class="p">(</span><span class="k">DISTINCT</span> <span class="n">IF</span><span class="p">(</span><span class="n">DATEDIFF</span><span class="p">(</span><span class="n">b</span><span class="p">.</span><span class="n">dates</span><span class="p">,</span> <span class="n">a</span><span class="p">.</span><span class="n">dates</span><span class="p">)</span> <span class="o">=</span> <span class="mi">3</span><span class="p">,</span> <span class="n">b</span><span class="p">.</span><span class="n">user_id</span><span class="p">,</span> <span class="k">NULL</span><span class="p">))</span> <span class="k">AS</span> <span class="n">remain_3</span><span class="p">,</span>
+  <span class="k">COUNT</span><span class="p">(</span><span class="k">DISTINCT</span> <span class="n">IF</span><span class="p">(</span><span class="n">DATEDIFF</span><span class="p">(</span><span class="n">b</span><span class="p">.</span><span class="n">dates</span><span class="p">,</span> <span class="n">a</span><span class="p">.</span><span class="n">dates</span><span class="p">)</span> <span class="o">=</span> <span class="mi">4</span><span class="p">,</span> <span class="n">b</span><span class="p">.</span><span class="n">user_id</span><span class="p">,</span> <span class="k">NULL</span><span class="p">))</span> <span class="k">AS</span> <span class="n">remain_4</span><span class="p">,</span>
+  <span class="k">COUNT</span><span class="p">(</span><span class="k">DISTINCT</span> <span class="n">IF</span><span class="p">(</span><span class="n">DATEDIFF</span><span class="p">(</span><span class="n">b</span><span class="p">.</span><span class="n">dates</span><span class="p">,</span> <span class="n">a</span><span class="p">.</span><span class="n">dates</span><span class="p">)</span> <span class="o">=</span> <span class="mi">5</span><span class="p">,</span> <span class="n">b</span><span class="p">.</span><span class="n">user_id</span><span class="p">,</span> <span class="k">NULL</span><span class="p">))</span> <span class="k">AS</span> <span class="n">remain_5</span><span class="p">,</span>
+  <span class="k">COUNT</span><span class="p">(</span><span class="k">DISTINCT</span> <span class="n">IF</span><span class="p">(</span><span class="n">DATEDIFF</span><span class="p">(</span><span class="n">b</span><span class="p">.</span><span class="n">dates</span><span class="p">,</span> <span class="n">a</span><span class="p">.</span><span class="n">dates</span><span class="p">)</span> <span class="o">=</span> <span class="mi">6</span><span class="p">,</span> <span class="n">b</span><span class="p">.</span><span class="n">user_id</span><span class="p">,</span> <span class="k">NULL</span><span class="p">))</span> <span class="k">AS</span> <span class="n">remain_6</span><span class="p">,</span>
+  <span class="k">COUNT</span><span class="p">(</span><span class="k">DISTINCT</span> <span class="n">IF</span><span class="p">(</span><span class="n">DATEDIFF</span><span class="p">(</span><span class="n">b</span><span class="p">.</span><span class="n">dates</span><span class="p">,</span> <span class="n">a</span><span class="p">.</span><span class="n">dates</span><span class="p">)</span> <span class="o">=</span> <span class="mi">7</span><span class="p">,</span> <span class="n">b</span><span class="p">.</span><span class="n">user_id</span><span class="p">,</span> <span class="k">NULL</span><span class="p">))</span> <span class="k">AS</span> <span class="n">remain_7</span><span class="p">,</span>
+  <span class="k">COUNT</span><span class="p">(</span><span class="k">DISTINCT</span> <span class="n">IF</span><span class="p">(</span><span class="n">DATEDIFF</span><span class="p">(</span><span class="n">b</span><span class="p">.</span><span class="n">dates</span><span class="p">,</span> <span class="n">a</span><span class="p">.</span><span class="n">dates</span><span class="p">)</span> <span class="o">=</span> <span class="mi">15</span><span class="p">,</span> <span class="n">b</span><span class="p">.</span><span class="n">user_id</span><span class="p">,</span> <span class="k">NULL</span><span class="p">))</span> <span class="k">AS</span> <span class="n">remain_15</span><span class="p">,</span>
+  <span class="k">COUNT</span><span class="p">(</span><span class="k">DISTINCT</span> <span class="n">IF</span><span class="p">(</span><span class="n">DATEDIFF</span><span class="p">(</span><span class="n">b</span><span class="p">.</span><span class="n">dates</span><span class="p">,</span> <span class="n">a</span><span class="p">.</span><span class="n">dates</span><span class="p">)</span> <span class="o">=</span> <span class="mi">30</span><span class="p">,</span> <span class="n">b</span><span class="p">.</span><span class="n">user_id</span><span class="p">,</span> <span class="k">NULL</span><span class="p">))</span> <span class="k">AS</span> <span class="n">remain_30</span>
+<span class="k">FROM</span> 
+  <span class="p">(</span><span class="k">SELECT</span> <span class="n">user_id</span><span class="p">,</span> <span class="n">dates</span> <span class="k">FROM</span> <span class="n">temp_trade</span> <span class="k">GROUP</span> <span class="k">BY</span> <span class="n">user_id</span><span class="p">,</span> <span class="n">dates</span><span class="p">)</span> <span class="k">AS</span> <span class="n">a</span>
+  <span class="k">LEFT</span> <span class="k">JOIN</span> 
+  <span class="p">(</span><span class="k">SELECT</span> <span class="n">user_id</span><span class="p">,</span> <span class="n">dates</span> <span class="k">FROM</span> <span class="n">temp_trade</span> <span class="k">GROUP</span> <span class="k">BY</span> <span class="n">user_id</span><span class="p">,</span> <span class="n">dates</span><span class="p">)</span> <span class="k">AS</span> <span class="n">b</span>
+  <span class="k">ON</span> <span class="n">a</span><span class="p">.</span><span class="n">user_id</span> <span class="o">=</span> <span class="n">b</span><span class="p">.</span><span class="n">user_id</span>
+<span class="k">WHERE</span> <span class="n">b</span><span class="p">.</span><span class="n">dates</span> <span class="o">&gt;=</span> <span class="n">a</span><span class="p">.</span><span class="n">dates</span>
+<span class="k">GROUP</span> <span class="k">BY</span> <span class="n">a</span><span class="p">.</span><span class="n">dates</span><span class="p">;</span>
+
+<span class="k">SELECT</span> <span class="o">*</span> <span class="k">FROM</span> <span class="n">user_remain_view</span><span class="p">;</span>
+</pre></td></tr></tbody></table></code></pre></div></div>
+
+<p><img src="http://andy-blog.oss-cn-beijing.aliyuncs.com/blog/2021-07-01-iShot2021-07-02%2000.15.41.png" width="87%" /></p>
+
+<p>计算留存率（视图方法）：</p>
+
+<div class="language-sql highlighter-rouge"><div class="highlight"><pre class="highlight"><code><table class="rouge-table"><tbody><tr><td class="rouge-gutter gl"><pre class="lineno">1
+2
+3
+4
+5
+6
+7
+8
+9
+10
+11
+12
+13
+</pre></td><td class="rouge-code"><pre><span class="k">SELECT</span> 
+  <span class="n">dates</span><span class="p">,</span> 
+  <span class="n">user_count</span><span class="p">,</span>
+  <span class="n">CONCAT</span><span class="p">(</span><span class="n">ROUND</span><span class="p">(</span><span class="n">remain_1</span> <span class="o">/</span> <span class="n">user_count</span> <span class="o">*</span> <span class="mi">100</span><span class="p">,</span> <span class="mi">2</span><span class="p">),</span> <span class="s1">'%'</span><span class="p">)</span> <span class="k">AS</span> <span class="n">day_1</span><span class="p">,</span>
+  <span class="n">CONCAT</span><span class="p">(</span><span class="n">ROUND</span><span class="p">(</span><span class="n">remain_2</span> <span class="o">/</span> <span class="n">user_count</span> <span class="o">*</span> <span class="mi">100</span><span class="p">,</span> <span class="mi">2</span><span class="p">),</span> <span class="s1">'%'</span><span class="p">)</span> <span class="k">AS</span> <span class="n">day_2</span><span class="p">,</span>
+  <span class="n">CONCAT</span><span class="p">(</span><span class="n">ROUND</span><span class="p">(</span><span class="n">remain_3</span> <span class="o">/</span> <span class="n">user_count</span> <span class="o">*</span> <span class="mi">100</span><span class="p">,</span> <span class="mi">2</span><span class="p">),</span> <span class="s1">'%'</span><span class="p">)</span> <span class="k">AS</span> <span class="n">day_3</span><span class="p">,</span>
+  <span class="n">CONCAT</span><span class="p">(</span><span class="n">ROUND</span><span class="p">(</span><span class="n">remain_4</span> <span class="o">/</span> <span class="n">user_count</span> <span class="o">*</span> <span class="mi">100</span><span class="p">,</span> <span class="mi">2</span><span class="p">),</span> <span class="s1">'%'</span><span class="p">)</span> <span class="k">AS</span> <span class="n">day_4</span><span class="p">,</span>
+  <span class="n">CONCAT</span><span class="p">(</span><span class="n">ROUND</span><span class="p">(</span><span class="n">remain_5</span> <span class="o">/</span> <span class="n">user_count</span> <span class="o">*</span> <span class="mi">100</span><span class="p">,</span> <span class="mi">2</span><span class="p">),</span> <span class="s1">'%'</span><span class="p">)</span> <span class="k">AS</span> <span class="n">day_5</span><span class="p">,</span>
+  <span class="n">CONCAT</span><span class="p">(</span><span class="n">ROUND</span><span class="p">(</span><span class="n">remain_6</span> <span class="o">/</span> <span class="n">user_count</span> <span class="o">*</span> <span class="mi">100</span><span class="p">,</span> <span class="mi">2</span><span class="p">),</span> <span class="s1">'%'</span><span class="p">)</span> <span class="k">AS</span> <span class="n">day_6</span><span class="p">,</span>
+  <span class="n">CONCAT</span><span class="p">(</span><span class="n">ROUND</span><span class="p">(</span><span class="n">remain_7</span> <span class="o">/</span> <span class="n">user_count</span> <span class="o">*</span> <span class="mi">100</span><span class="p">,</span> <span class="mi">2</span><span class="p">),</span> <span class="s1">'%'</span><span class="p">)</span> <span class="k">AS</span> <span class="n">day_7</span><span class="p">,</span>
+  <span class="n">CONCAT</span><span class="p">(</span><span class="n">ROUND</span><span class="p">(</span><span class="n">remain_15</span> <span class="o">/</span> <span class="n">user_count</span> <span class="o">*</span> <span class="mi">100</span><span class="p">,</span> <span class="mi">2</span><span class="p">),</span> <span class="s1">'%'</span><span class="p">)</span> <span class="k">AS</span> <span class="n">day_15</span><span class="p">,</span>
+  <span class="n">CONCAT</span><span class="p">(</span><span class="n">ROUND</span><span class="p">(</span><span class="n">remain_30</span> <span class="o">/</span> <span class="n">user_count</span> <span class="o">*</span> <span class="mi">100</span><span class="p">,</span> <span class="mi">2</span><span class="p">),</span> <span class="s1">'%'</span><span class="p">)</span> <span class="k">AS</span> <span class="n">day_30</span>
+<span class="k">FROM</span> <span class="n">user_remain_view</span><span class="p">;</span>
+</pre></td></tr></tbody></table></code></pre></div></div>
+
+<p><img src="http://andy-blog.oss-cn-beijing.aliyuncs.com/blog/2021-07-01-iShot2021-07-02%2000.50.18.png" width="85%" /></p>
+
+<p>另外，我们也可以通过使用 <code class="language-plaintext highlighter-rouge">WITH AS</code> 语句创建临时表计算留存率：</p>
+
+<div class="language-sql highlighter-rouge"><div class="highlight"><pre class="highlight"><code><table class="rouge-table"><tbody><tr><td class="rouge-gutter gl"><pre class="lineno">1
+2
+3
+4
+5
+6
+7
+8
+9
+10
+11
+12
+13
+14
+15
+16
+17
+18
+19
+20
+21
+22
+23
+24
+25
+26
+27
+28
+29
+30
+31
+32
+33
+</pre></td><td class="rouge-code"><pre><span class="k">WITH</span> <span class="n">temp_table_trades</span> <span class="k">AS</span>
+<span class="p">(</span><span class="k">SELECT</span> 
+  <span class="n">a</span><span class="p">.</span><span class="n">dates</span><span class="p">,</span>
+  <span class="k">COUNT</span><span class="p">(</span><span class="k">DISTINCT</span> <span class="n">a</span><span class="p">.</span><span class="n">user_id</span><span class="p">)</span> <span class="k">AS</span> <span class="n">user_count</span><span class="p">,</span>
+  <span class="k">COUNT</span><span class="p">(</span><span class="k">DISTINCT</span> <span class="n">IF</span><span class="p">(</span><span class="n">DATEDIFF</span><span class="p">(</span><span class="n">b</span><span class="p">.</span><span class="n">dates</span><span class="p">,</span> <span class="n">a</span><span class="p">.</span><span class="n">dates</span><span class="p">)</span> <span class="o">=</span> <span class="mi">1</span><span class="p">,</span> <span class="n">b</span><span class="p">.</span><span class="n">user_id</span><span class="p">,</span> <span class="k">NULL</span><span class="p">))</span> <span class="k">AS</span> <span class="n">remain_1</span><span class="p">,</span>
+  <span class="k">COUNT</span><span class="p">(</span><span class="k">DISTINCT</span> <span class="n">IF</span><span class="p">(</span><span class="n">DATEDIFF</span><span class="p">(</span><span class="n">b</span><span class="p">.</span><span class="n">dates</span><span class="p">,</span> <span class="n">a</span><span class="p">.</span><span class="n">dates</span><span class="p">)</span> <span class="o">=</span> <span class="mi">2</span><span class="p">,</span> <span class="n">b</span><span class="p">.</span><span class="n">user_id</span><span class="p">,</span> <span class="k">NULL</span><span class="p">))</span> <span class="k">AS</span> <span class="n">remain_2</span><span class="p">,</span>
+  <span class="k">COUNT</span><span class="p">(</span><span class="k">DISTINCT</span> <span class="n">IF</span><span class="p">(</span><span class="n">DATEDIFF</span><span class="p">(</span><span class="n">b</span><span class="p">.</span><span class="n">dates</span><span class="p">,</span> <span class="n">a</span><span class="p">.</span><span class="n">dates</span><span class="p">)</span> <span class="o">=</span> <span class="mi">3</span><span class="p">,</span> <span class="n">b</span><span class="p">.</span><span class="n">user_id</span><span class="p">,</span> <span class="k">NULL</span><span class="p">))</span> <span class="k">AS</span> <span class="n">remain_3</span><span class="p">,</span>
+  <span class="k">COUNT</span><span class="p">(</span><span class="k">DISTINCT</span> <span class="n">IF</span><span class="p">(</span><span class="n">DATEDIFF</span><span class="p">(</span><span class="n">b</span><span class="p">.</span><span class="n">dates</span><span class="p">,</span> <span class="n">a</span><span class="p">.</span><span class="n">dates</span><span class="p">)</span> <span class="o">=</span> <span class="mi">4</span><span class="p">,</span> <span class="n">b</span><span class="p">.</span><span class="n">user_id</span><span class="p">,</span> <span class="k">NULL</span><span class="p">))</span> <span class="k">AS</span> <span class="n">remain_4</span><span class="p">,</span>
+  <span class="k">COUNT</span><span class="p">(</span><span class="k">DISTINCT</span> <span class="n">IF</span><span class="p">(</span><span class="n">DATEDIFF</span><span class="p">(</span><span class="n">b</span><span class="p">.</span><span class="n">dates</span><span class="p">,</span> <span class="n">a</span><span class="p">.</span><span class="n">dates</span><span class="p">)</span> <span class="o">=</span> <span class="mi">5</span><span class="p">,</span> <span class="n">b</span><span class="p">.</span><span class="n">user_id</span><span class="p">,</span> <span class="k">NULL</span><span class="p">))</span> <span class="k">AS</span> <span class="n">remain_5</span><span class="p">,</span>
+  <span class="k">COUNT</span><span class="p">(</span><span class="k">DISTINCT</span> <span class="n">IF</span><span class="p">(</span><span class="n">DATEDIFF</span><span class="p">(</span><span class="n">b</span><span class="p">.</span><span class="n">dates</span><span class="p">,</span> <span class="n">a</span><span class="p">.</span><span class="n">dates</span><span class="p">)</span> <span class="o">=</span> <span class="mi">6</span><span class="p">,</span> <span class="n">b</span><span class="p">.</span><span class="n">user_id</span><span class="p">,</span> <span class="k">NULL</span><span class="p">))</span> <span class="k">AS</span> <span class="n">remain_6</span><span class="p">,</span>
+  <span class="k">COUNT</span><span class="p">(</span><span class="k">DISTINCT</span> <span class="n">IF</span><span class="p">(</span><span class="n">DATEDIFF</span><span class="p">(</span><span class="n">b</span><span class="p">.</span><span class="n">dates</span><span class="p">,</span> <span class="n">a</span><span class="p">.</span><span class="n">dates</span><span class="p">)</span> <span class="o">=</span> <span class="mi">7</span><span class="p">,</span> <span class="n">b</span><span class="p">.</span><span class="n">user_id</span><span class="p">,</span> <span class="k">NULL</span><span class="p">))</span> <span class="k">AS</span> <span class="n">remain_7</span><span class="p">,</span>
+  <span class="k">COUNT</span><span class="p">(</span><span class="k">DISTINCT</span> <span class="n">IF</span><span class="p">(</span><span class="n">DATEDIFF</span><span class="p">(</span><span class="n">b</span><span class="p">.</span><span class="n">dates</span><span class="p">,</span> <span class="n">a</span><span class="p">.</span><span class="n">dates</span><span class="p">)</span> <span class="o">=</span> <span class="mi">15</span><span class="p">,</span> <span class="n">b</span><span class="p">.</span><span class="n">user_id</span><span class="p">,</span> <span class="k">NULL</span><span class="p">))</span> <span class="k">AS</span> <span class="n">remain_15</span><span class="p">,</span>
+  <span class="k">COUNT</span><span class="p">(</span><span class="k">DISTINCT</span> <span class="n">IF</span><span class="p">(</span><span class="n">DATEDIFF</span><span class="p">(</span><span class="n">b</span><span class="p">.</span><span class="n">dates</span><span class="p">,</span> <span class="n">a</span><span class="p">.</span><span class="n">dates</span><span class="p">)</span> <span class="o">=</span> <span class="mi">30</span><span class="p">,</span> <span class="n">b</span><span class="p">.</span><span class="n">user_id</span><span class="p">,</span> <span class="k">NULL</span><span class="p">))</span> <span class="k">AS</span> <span class="n">remain_30</span>
+<span class="k">FROM</span> 
+  <span class="p">(</span><span class="k">SELECT</span> <span class="n">user_id</span><span class="p">,</span> <span class="n">dates</span> <span class="k">FROM</span> <span class="n">temp_trade</span> <span class="k">GROUP</span> <span class="k">BY</span> <span class="n">user_id</span><span class="p">,</span> <span class="n">dates</span><span class="p">)</span> <span class="k">AS</span> <span class="n">a</span>
+  <span class="k">LEFT</span> <span class="k">JOIN</span> 
+  <span class="p">(</span><span class="k">SELECT</span> <span class="n">user_id</span><span class="p">,</span> <span class="n">dates</span> <span class="k">FROM</span> <span class="n">temp_trade</span> <span class="k">GROUP</span> <span class="k">BY</span> <span class="n">user_id</span><span class="p">,</span> <span class="n">dates</span><span class="p">)</span> <span class="k">AS</span> <span class="n">b</span>
+  <span class="k">ON</span> <span class="n">a</span><span class="p">.</span><span class="n">user_id</span> <span class="o">=</span> <span class="n">b</span><span class="p">.</span><span class="n">user_id</span>
+<span class="k">WHERE</span> <span class="n">b</span><span class="p">.</span><span class="n">dates</span> <span class="o">&gt;=</span> <span class="n">a</span><span class="p">.</span><span class="n">dates</span>
+<span class="k">GROUP</span> <span class="k">BY</span> <span class="n">a</span><span class="p">.</span><span class="n">dates</span><span class="p">)</span>
+<span class="k">SELECT</span>
+  <span class="n">dates</span><span class="p">,</span> 
+  <span class="n">user_count</span><span class="p">,</span>
+  <span class="n">CONCAT</span><span class="p">(</span><span class="n">ROUND</span><span class="p">(</span><span class="n">remain_1</span> <span class="o">/</span> <span class="n">user_count</span> <span class="o">*</span> <span class="mi">100</span><span class="p">,</span> <span class="mi">2</span><span class="p">),</span> <span class="s1">'%'</span><span class="p">)</span> <span class="k">AS</span> <span class="n">day_1</span><span class="p">,</span>
+  <span class="n">CONCAT</span><span class="p">(</span><span class="n">ROUND</span><span class="p">(</span><span class="n">remain_2</span> <span class="o">/</span> <span class="n">user_count</span> <span class="o">*</span> <span class="mi">100</span><span class="p">,</span> <span class="mi">2</span><span class="p">),</span> <span class="s1">'%'</span><span class="p">)</span> <span class="k">AS</span> <span class="n">day_2</span><span class="p">,</span>
+  <span class="n">CONCAT</span><span class="p">(</span><span class="n">ROUND</span><span class="p">(</span><span class="n">remain_3</span> <span class="o">/</span> <span class="n">user_count</span> <span class="o">*</span> <span class="mi">100</span><span class="p">,</span> <span class="mi">2</span><span class="p">),</span> <span class="s1">'%'</span><span class="p">)</span> <span class="k">AS</span> <span class="n">day_3</span><span class="p">,</span>
+  <span class="n">CONCAT</span><span class="p">(</span><span class="n">ROUND</span><span class="p">(</span><span class="n">remain_4</span> <span class="o">/</span> <span class="n">user_count</span> <span class="o">*</span> <span class="mi">100</span><span class="p">,</span> <span class="mi">2</span><span class="p">),</span> <span class="s1">'%'</span><span class="p">)</span> <span class="k">AS</span> <span class="n">day_4</span><span class="p">,</span>
+  <span class="n">CONCAT</span><span class="p">(</span><span class="n">ROUND</span><span class="p">(</span><span class="n">remain_5</span> <span class="o">/</span> <span class="n">user_count</span> <span class="o">*</span> <span class="mi">100</span><span class="p">,</span> <span class="mi">2</span><span class="p">),</span> <span class="s1">'%'</span><span class="p">)</span> <span class="k">AS</span> <span class="n">day_5</span><span class="p">,</span>
+  <span class="n">CONCAT</span><span class="p">(</span><span class="n">ROUND</span><span class="p">(</span><span class="n">remain_6</span> <span class="o">/</span> <span class="n">user_count</span> <span class="o">*</span> <span class="mi">100</span><span class="p">,</span> <span class="mi">2</span><span class="p">),</span> <span class="s1">'%'</span><span class="p">)</span> <span class="k">AS</span> <span class="n">day_6</span><span class="p">,</span>
+  <span class="n">CONCAT</span><span class="p">(</span><span class="n">ROUND</span><span class="p">(</span><span class="n">remain_7</span> <span class="o">/</span> <span class="n">user_count</span> <span class="o">*</span> <span class="mi">100</span><span class="p">,</span> <span class="mi">2</span><span class="p">),</span> <span class="s1">'%'</span><span class="p">)</span> <span class="k">AS</span> <span class="n">day_7</span><span class="p">,</span>
+  <span class="n">CONCAT</span><span class="p">(</span><span class="n">ROUND</span><span class="p">(</span><span class="n">remain_15</span> <span class="o">/</span> <span class="n">user_count</span> <span class="o">*</span> <span class="mi">100</span><span class="p">,</span> <span class="mi">2</span><span class="p">),</span> <span class="s1">'%'</span><span class="p">)</span> <span class="k">AS</span> <span class="n">day_15</span><span class="p">,</span>
+  <span class="n">CONCAT</span><span class="p">(</span><span class="n">ROUND</span><span class="p">(</span><span class="n">remain_30</span> <span class="o">/</span> <span class="n">user_count</span> <span class="o">*</span> <span class="mi">100</span><span class="p">,</span> <span class="mi">2</span><span class="p">),</span> <span class="s1">'%'</span><span class="p">)</span> <span class="k">AS</span> <span class="n">day_30</span>
+<span class="k">FROM</span> <span class="n">temp_table_trades</span><span class="p">;</span>
+</pre></td></tr></tbody></table></code></pre></div></div>
+
+<p><img src="http://andy-blog.oss-cn-beijing.aliyuncs.com/blog/2021-07-01-iShot2021-07-02%2000.50.18.png" width="85%" /></p>
+
+<h4 id="612-rfm-模型分析">6.1.2 RFM 模型分析</h4>
+
+<p>RFM 是 3 个指标的缩写：</p>
+
+<ul>
+  <li><strong>R（Recency）</strong>表示最近一次消费时间间隔；</li>
+  <li><strong>F（Frequency）</strong>表示消费频率；</li>
+  <li><strong>M（Monetary）</strong>表示消费金额。</li>
+</ul>
+
+<p>通过以上 3 个指标对用户进行分类的方法称为 <strong>RFM 模型分析</strong>。</p>
+
+<p>不同业务对各指标的定义不同，具体需要根据业务场景和需求灵活定义。各指标与用户价值之间的关系如下：</p>
+
+<ul>
+  <li>对于最近一次消费时间间隔（R），上一次消费时间离得越近，也就是 R 的值越小，用户价值越高；</li>
+  <li>对于消费频率（F），消费频率越高，也就是 F 的值越大，用户价值越高；</li>
+  <li>对于消费金额（M），消费金额越高，也就是 M 的值越大，用户价值越高。</li>
+</ul>
+
+<p>将这 3 个指标 <strong>按照价值</strong> 由低到高排序，并将其作为坐标轴，我们可以将用户空间分割为 8 个象限，对应下图中的 8 类用户：</p>
+
+<p><img src="http://andy-blog.oss-cn-beijing.aliyuncs.com/blog/2021-07-02-WX20210702-222315%402x.png" width="60%" /></p>
+
+<p>于是，我们可以得到以下用户分类规则：</p>
+
+<table>
+  <thead>
+    <tr>
+      <th style="text-align: left">用户分类</th>
+      <th style="text-align: center">最近一次消费时间间隔（R）</th>
+      <th style="text-align: center">消费频率（F）</th>
+      <th style="text-align: center">消费金额（M）</th>
+    </tr>
+  </thead>
+  <tbody>
+    <tr>
+      <td style="text-align: left">1. 重要价值用户</td>
+      <td style="text-align: center">高</td>
+      <td style="text-align: center">高</td>
+      <td style="text-align: center">高</td>
+    </tr>
+    <tr>
+      <td style="text-align: left">2. 重要发展用户</td>
+      <td style="text-align: center">高</td>
+      <td style="text-align: center">低</td>
+      <td style="text-align: center">高</td>
+    </tr>
+    <tr>
+      <td style="text-align: left">3. 重要保持用户</td>
+      <td style="text-align: center">低</td>
+      <td style="text-align: center">高</td>
+      <td style="text-align: center">高</td>
+    </tr>
+    <tr>
+      <td style="text-align: left">4. 重要挽留用户</td>
+      <td style="text-align: center">低</td>
+      <td style="text-align: center">低</td>
+      <td style="text-align: center">高</td>
+    </tr>
+    <tr>
+      <td style="text-align: left">5. 一般价值用户</td>
+      <td style="text-align: center">高</td>
+      <td style="text-align: center">高</td>
+      <td style="text-align: center">低</td>
+    </tr>
+    <tr>
+      <td style="text-align: left">6. 一般发展用户</td>
+      <td style="text-align: center">高</td>
+      <td style="text-align: center">低</td>
+      <td style="text-align: center">低</td>
+    </tr>
+    <tr>
+      <td style="text-align: left">7. 一般保持用户</td>
+      <td style="text-align: center">低</td>
+      <td style="text-align: center">高</td>
+      <td style="text-align: center">低</td>
+    </tr>
+    <tr>
+      <td style="text-align: left">8. 一般挽留用户</td>
+      <td style="text-align: center">低</td>
+      <td style="text-align: center">低</td>
+      <td style="text-align: center">低</td>
+    </tr>
+  </tbody>
+</table>
+
+<p><strong>注意：上表中各指标的高低代表的是其反映出的用户价值高低，而非指标本身的数值大小。</strong></p>
+
+<p>利用 RFM 模型，我们可以将用户按照价值进行分类，对不同价值的用户采取不同的运营策略，将公司的有限资源发挥出最大效用，从而实现 <strong>精细化运营</strong>。</p>
+
+<p>具体步骤：</p>
+
+<ol>
+  <li>计算 R、F、M 的值。一般涉及 3 个数据字段：用户 ID、消费时间、消费金额。</li>
+  <li>给 R、F、M 值按照用户价值打分（例如，最近一次消费时间越近，用户价值越高，R 项分值就越高），一般采用 5 分制。</li>
+  <li>计算用户价值平均值，即分别计算 R、F、M 得分的平均值。</li>
+  <li>用户分类。将各用户的 R、F、M 得分分别与各自的平均值进行比较，然后按照上面的分类规则表对用户进行分类。</li>
+</ol>
+
+<p><strong>1）RFM 模型：R 部分</strong></p>
+
+<p>R 指标分析：根据每个用户最近一次购买时间，给出相应的分数。</p>
+
+<p>这里我们可以分两步：</p>
+
+<ol>
+  <li>获取每个用户的最近购买时间；</li>
+  <li>计算每个用户最近购买时间距离参照日期相差几天，根据相差的天数进行打分。</li>
+</ol>
+
+<p>注意，参照日期需要在所有购买日期之后，这里我们可以选取 <code class="language-plaintext highlighter-rouge">2019-12-18</code> 作为参照日期。</p>
+
+<p>另外，我们这里采用 5 分制，通过计算最近一次购买日期距离参照日期的天数，如果：</p>
+
+<ul>
+  <li>&lt;= 2，打 5 分；</li>
+  <li>&lt;= 4，打 4 分；</li>
+  <li>&lt;= 6，打 3 分；</li>
+  <li>&lt;= 8，打 2 分；</li>
+  <li>其他，打 1 分。</li>
+</ul>
+
+<div class="language-sql highlighter-rouge"><div class="highlight"><pre class="highlight"><code><table class="rouge-table"><tbody><tr><td class="rouge-gutter gl"><pre class="lineno">1
+2
+3
+4
+5
+6
+7
+8
+9
+10
+11
+12
+13
+14
+15
+16
+17
+18
+19
+20
+21
+22
+23
+24
+25
+26
+27
+28
+29
+30
+</pre></td><td class="rouge-code"><pre><span class="c1">-- R 指标分析：根据每个用户最近一次购买时间，给出相应的分数</span>
+
+<span class="c1">-- 1. 建立 R 视图：统计每个用户的最近购买时间</span>
+<span class="k">DROP</span> <span class="k">VIEW</span> <span class="n">IF</span> <span class="k">EXISTS</span> <span class="n">user_recency_view</span><span class="p">;</span>
+<span class="k">CREATE</span> <span class="k">VIEW</span> <span class="n">user_recency_view</span> <span class="k">AS</span>
+<span class="k">SELECT</span>
+  <span class="n">user_id</span><span class="p">,</span> 
+  <span class="k">MAX</span><span class="p">(</span><span class="n">dates</span><span class="p">)</span> <span class="k">AS</span> <span class="n">recent_buy_time</span>
+<span class="k">FROM</span>  <span class="n">temp_trade</span>
+<span class="k">WHERE</span> <span class="n">behavior_type</span> <span class="o">=</span> <span class="mi">2</span>
+<span class="k">GROUP</span> <span class="k">BY</span> <span class="n">user_id</span><span class="p">;</span>
+
+<span class="c1">-- 2. 建立 R 评分视图：计算每个用户最近购买时间距离参照日期 '2019-12-18' 的天数，</span>
+<span class="c1">-- 根据距离天数进行打分：&lt;=2 5分；&lt;=4 4分；&lt;=6 3分；&lt;=8 2分；其他 1分</span>
+<span class="k">DROP</span> <span class="k">VIEW</span> <span class="n">IF</span> <span class="k">EXISTS</span> <span class="n">r_score_view</span><span class="p">;</span>
+<span class="k">CREATE</span> <span class="k">VIEW</span> <span class="n">r_score_view</span> <span class="k">AS</span>
+<span class="k">SELECT</span> 
+  <span class="n">user_id</span><span class="p">,</span>
+  <span class="n">recent_buy_time</span><span class="p">,</span>
+  <span class="n">DATEDIFF</span><span class="p">(</span><span class="s1">'2019-12-18'</span><span class="p">,</span> <span class="n">recent_buy_time</span><span class="p">)</span> <span class="k">AS</span> <span class="n">date_distance</span><span class="p">,</span>
+  <span class="k">CASE</span>
+    <span class="k">WHEN</span> <span class="n">DATEDIFF</span><span class="p">(</span><span class="s1">'2019-12-18'</span><span class="p">,</span> <span class="n">recent_buy_time</span><span class="p">)</span> <span class="o">&lt;=</span> <span class="mi">2</span> <span class="k">THEN</span> <span class="mi">5</span>
+    <span class="k">WHEN</span> <span class="n">DATEDIFF</span><span class="p">(</span><span class="s1">'2019-12-18'</span><span class="p">,</span> <span class="n">recent_buy_time</span><span class="p">)</span> <span class="o">&lt;=</span> <span class="mi">4</span> <span class="k">THEN</span> <span class="mi">4</span>
+    <span class="k">WHEN</span> <span class="n">DATEDIFF</span><span class="p">(</span><span class="s1">'2019-12-18'</span><span class="p">,</span> <span class="n">recent_buy_time</span><span class="p">)</span> <span class="o">&lt;=</span> <span class="mi">6</span> <span class="k">THEN</span> <span class="mi">3</span>
+    <span class="k">WHEN</span> <span class="n">DATEDIFF</span><span class="p">(</span><span class="s1">'2019-12-18'</span><span class="p">,</span> <span class="n">recent_buy_time</span><span class="p">)</span> <span class="o">&lt;=</span> <span class="mi">8</span> <span class="k">THEN</span> <span class="mi">2</span>
+    <span class="k">ELSE</span> <span class="mi">1</span> 
+  <span class="k">END</span> <span class="k">AS</span> <span class="n">r_score</span>
+<span class="k">FROM</span> <span class="n">user_recency_view</span><span class="p">;</span>
+
+<span class="k">SELECT</span> <span class="o">*</span> <span class="k">FROM</span> <span class="n">r_score_view</span><span class="p">;</span>
+</pre></td></tr></tbody></table></code></pre></div></div>
+
+<p><img src="http://andy-blog.oss-cn-beijing.aliyuncs.com/blog/2021-07-02-WX20210703-000033%402x.png" width="45%" /></p>
+
+<p><strong>2）RFM 模型：F 部分</strong></p>
+
+<p>F 指标分析：计算每个用户在一定时间内的消费频率，给出相应分数。</p>
+
+<p>这里，我们以整个数据集中的时间跨度为准，即不限制具体时间段，统计每个用户在数据集中的所有消费次数。</p>
+
+<p>同样，我们这里采用 5 分制，通过对用户分组，计算每个用户有多少条消费记录，如果：</p>
+
+<ul>
+  <li>&lt;= 2，打 1 分；</li>
+  <li>&lt;= 4，打 2 分；</li>
+  <li>&lt;= 6，打 3 分；</li>
+  <li>&lt;= 8，打 4 分；</li>
+  <li>其他，打 5 分。</li>
+</ul>
+
+<div class="language-sql highlighter-rouge"><div class="highlight"><pre class="highlight"><code><table class="rouge-table"><tbody><tr><td class="rouge-gutter gl"><pre class="lineno">1
+2
+3
+4
+5
+6
+7
+8
+9
+10
+11
+12
+13
+14
+15
+16
+17
+18
+19
+20
+21
+22
+23
+24
+25
+26
+27
+28
+29
+</pre></td><td class="rouge-code"><pre><span class="c1">-- F 指标计算：统计每个用户的消费次数，给出相应的分数</span>
+
+<span class="c1">-- 1. 建立 F 视图：统计每个用户的消费次数</span>
+<span class="k">DROP</span> <span class="k">VIEW</span> <span class="n">IF</span> <span class="k">EXISTS</span> <span class="n">user_frequency_view</span><span class="p">;</span>
+<span class="k">CREATE</span> <span class="k">VIEW</span> <span class="n">user_frequency_view</span> <span class="k">AS</span>
+<span class="k">SELECT</span>
+  <span class="n">user_id</span><span class="p">,</span>
+  <span class="k">COUNT</span><span class="p">(</span><span class="n">user_id</span><span class="p">)</span> <span class="k">AS</span> <span class="n">buy_frequency</span>
+<span class="k">FROM</span> <span class="n">temp_trade</span>
+<span class="k">WHERE</span> <span class="n">behavior_type</span> <span class="o">=</span> <span class="mi">2</span>
+<span class="k">GROUP</span> <span class="k">BY</span> <span class="n">user_id</span><span class="p">;</span>
+
+<span class="c1">-- 2. 建立 F 评分视图：基于购买次数对用户进行打分</span>
+<span class="c1">-- 按照购买次数评分：&lt;=2 1分；&lt;=4 2分；&lt;=6 3分；&lt;=8 4分；其他 5分</span>
+<span class="k">DROP</span> <span class="k">VIEW</span> <span class="n">IF</span> <span class="k">EXISTS</span> <span class="n">f_score_view</span><span class="p">;</span>
+<span class="k">CREATE</span> <span class="k">VIEW</span> <span class="n">f_score_view</span> <span class="k">AS</span>
+<span class="k">SELECT</span>
+  <span class="n">user_id</span><span class="p">,</span>
+  <span class="n">buy_frequency</span><span class="p">,</span>
+  <span class="k">CASE</span>
+    <span class="k">WHEN</span> <span class="n">buy_frequency</span> <span class="o">&lt;=</span> <span class="mi">2</span> <span class="k">THEN</span> <span class="mi">1</span>
+    <span class="k">WHEN</span> <span class="n">buy_frequency</span> <span class="o">&lt;=</span> <span class="mi">4</span> <span class="k">THEN</span> <span class="mi">2</span>
+    <span class="k">WHEN</span> <span class="n">buy_frequency</span> <span class="o">&lt;=</span> <span class="mi">6</span> <span class="k">THEN</span> <span class="mi">3</span>
+    <span class="k">WHEN</span> <span class="n">buy_frequency</span> <span class="o">&lt;=</span> <span class="mi">8</span> <span class="k">THEN</span> <span class="mi">4</span>
+    <span class="k">ELSE</span> <span class="mi">5</span>
+  <span class="k">END</span> <span class="k">AS</span> <span class="n">f_score</span>
+<span class="k">FROM</span> <span class="n">user_frequency_view</span><span class="p">;</span>
+
+<span class="k">SELECT</span> <span class="o">*</span> <span class="k">FROM</span> <span class="n">f_score_view</span><span class="p">;</span>
+</pre></td></tr></tbody></table></code></pre></div></div>
+
+<p><img src="http://andy-blog.oss-cn-beijing.aliyuncs.com/blog/2021-07-02-WX20210703-000633%402x.png" width="32%" /></p>
+
+<p><strong>3）整合结果</strong></p>
+
+<p>由于该数据集中没有包含消费金额相关的字段信息，这里我们将仅基于最近一次消费时间间隔（R）和消费频率（F）建⽴ RFM 模型，并且将用户分为以下 4 类：</p>
+
+<ul>
+  <li>重要⾼价值客户：指最近⼀次消费较近⽽且消费频率较⾼的客户；</li>
+  <li>重要唤回客户：指最近⼀次消费较远且消费频率较⾼的客户；</li>
+  <li>重要深耕客户：指最近⼀次消费较近且消费频率较低的客户；</li>
+  <li>重要挽留客户：指最近⼀次消费较远且消费频率较低的客户。</li>
+</ul>
+
+<p>我们将按照最近⼀次消费时间间隔的均值和消费频率的均值来确定 R 和 F 得分的⾼、低分界线。</p>
+
+<div class="language-sql highlighter-rouge"><div class="highlight"><pre class="highlight"><code><table class="rouge-table"><tbody><tr><td class="rouge-gutter gl"><pre class="lineno">1
+2
+3
+4
+</pre></td><td class="rouge-code"><pre><span class="c1">-- 计算 R 得分和 F 得分的均值</span>
+<span class="k">SELECT</span>
+  <span class="p">(</span><span class="k">SELECT</span> <span class="k">AVG</span><span class="p">(</span><span class="n">r_score</span><span class="p">)</span> <span class="k">FROM</span> <span class="n">r_score_view</span><span class="p">)</span> <span class="k">AS</span> <span class="n">r_avg</span><span class="p">,</span>
+  <span class="p">(</span><span class="k">SELECT</span> <span class="k">AVG</span><span class="p">(</span><span class="n">f_score</span><span class="p">)</span> <span class="k">FROM</span> <span class="n">f_score_view</span><span class="p">)</span> <span class="k">AS</span> <span class="n">f_avg</span><span class="p">;</span>
+</pre></td></tr></tbody></table></code></pre></div></div>
+
+<p><img src="http://andy-blog.oss-cn-beijing.aliyuncs.com/blog/2021-07-02-WX20210703-010249%402x.png" width="16%" /></p>
+
+<div class="language-sql highlighter-rouge"><div class="highlight"><pre class="highlight"><code><table class="rouge-table"><tbody><tr><td class="rouge-gutter gl"><pre class="lineno">1
+2
+3
+4
+5
+6
+7
+8
+9
+10
+11
+12
+13
+14
+15
+16
+</pre></td><td class="rouge-code"><pre><span class="c1">-- 拿到每个用户的 R 得分和 F 得分（两表关联 r_score_view 和 f_score_view），然后与均值对比，得到各用户类型</span>
+<span class="k">DROP</span> <span class="k">VIEW</span> <span class="n">IF</span> <span class="k">EXISTS</span> <span class="n">rfm_inall_view</span><span class="p">;</span>
+<span class="k">CREATE</span> <span class="k">VIEW</span> <span class="n">rfm_inall_view</span> <span class="k">AS</span>
+<span class="k">SELECT</span>
+  <span class="n">r</span><span class="p">.</span><span class="n">user_id</span><span class="p">,</span>
+  <span class="n">r</span><span class="p">.</span><span class="n">r_score</span><span class="p">,</span>
+  <span class="n">f</span><span class="p">.</span><span class="n">f_score</span><span class="p">,</span>
+  <span class="k">CASE</span>
+    <span class="k">WHEN</span> <span class="n">r</span><span class="p">.</span><span class="n">r_score</span> <span class="o">&gt;</span> <span class="mi">2</span><span class="p">.</span><span class="mi">7939</span> <span class="k">AND</span> <span class="n">f</span><span class="p">.</span><span class="n">f_score</span> <span class="o">&gt;</span> <span class="mi">2</span><span class="p">.</span><span class="mi">2606</span> <span class="k">THEN</span> <span class="s1">'重要高价值客户'</span>
+    <span class="k">WHEN</span> <span class="n">r</span><span class="p">.</span><span class="n">r_score</span> <span class="o">&lt;</span> <span class="mi">2</span><span class="p">.</span><span class="mi">7939</span> <span class="k">AND</span> <span class="n">f</span><span class="p">.</span><span class="n">f_score</span> <span class="o">&gt;</span> <span class="mi">2</span><span class="p">.</span><span class="mi">2606</span> <span class="k">THEN</span> <span class="s1">'重要唤回客户'</span>
+    <span class="k">WHEN</span> <span class="n">r</span><span class="p">.</span><span class="n">r_score</span> <span class="o">&gt;</span> <span class="mi">2</span><span class="p">.</span><span class="mi">7939</span> <span class="k">AND</span> <span class="n">f</span><span class="p">.</span><span class="n">f_score</span> <span class="o">&lt;</span> <span class="mi">2</span><span class="p">.</span><span class="mi">2606</span> <span class="k">THEN</span> <span class="s1">'重要深耕客户'</span>
+    <span class="k">WHEN</span> <span class="n">r</span><span class="p">.</span><span class="n">r_score</span> <span class="o">&lt;</span> <span class="mi">2</span><span class="p">.</span><span class="mi">7939</span> <span class="k">AND</span> <span class="n">f</span><span class="p">.</span><span class="n">f_score</span> <span class="o">&lt;</span> <span class="mi">2</span><span class="p">.</span><span class="mi">2606</span> <span class="k">THEN</span> <span class="s1">'重要挽留客户'</span>
+  <span class="k">END</span> <span class="k">AS</span> <span class="n">user_class</span>
+<span class="k">FROM</span> <span class="n">r_score_view</span> <span class="k">AS</span> <span class="n">r</span> <span class="k">INNER</span> <span class="k">JOIN</span> <span class="n">f_score_view</span> <span class="k">AS</span> <span class="n">f</span> <span class="k">ON</span> <span class="n">r</span><span class="p">.</span><span class="n">user_id</span> <span class="o">=</span> <span class="n">f</span><span class="p">.</span><span class="n">user_id</span><span class="p">;</span>
+
+<span class="k">SELECT</span> <span class="o">*</span> <span class="k">FROM</span> <span class="n">rfm_inall_view</span><span class="p">;</span>
+</pre></td></tr></tbody></table></code></pre></div></div>
+
+<p><img src="http://andy-blog.oss-cn-beijing.aliyuncs.com/blog/2021-07-03-WX20210703-223152%402x.png" width="38%" /></p>
+
+<div class="language-sql highlighter-rouge"><div class="highlight"><pre class="highlight"><code><table class="rouge-table"><tbody><tr><td class="rouge-gutter gl"><pre class="lineno">1
+2
+3
+4
+5
+6
+7
+8
+9
+10
+11
+12
+13
+14
+15
+16
+17
+</pre></td><td class="rouge-code"><pre><span class="c1">-- 统计各用户的用户类型、最近一次购买时间间隔、购买频率</span>
+<span class="k">DROP</span> <span class="k">VIEW</span> <span class="n">IF</span> <span class="k">EXISTS</span> <span class="n">user_class_view</span><span class="p">;</span>
+<span class="k">CREATE</span> <span class="k">VIEW</span> <span class="n">user_class_view</span> <span class="k">AS</span> 
+<span class="k">WITH</span> <span class="n">temp_rf</span> <span class="k">AS</span> <span class="p">(</span>
+<span class="k">SELECT</span>
+  <span class="n">r</span><span class="p">.</span><span class="n">user_id</span><span class="p">,</span> 
+  <span class="n">date_distance</span><span class="p">,</span> 
+  <span class="n">buy_frequency</span>
+<span class="k">FROM</span> <span class="n">r_score_view</span> <span class="n">r</span> <span class="k">INNER</span> <span class="k">JOIN</span> <span class="n">f_score_view</span> <span class="n">f</span> <span class="k">ON</span> <span class="n">r</span><span class="p">.</span><span class="n">user_id</span> <span class="o">=</span> <span class="n">f</span><span class="p">.</span><span class="n">user_id</span><span class="p">)</span> 
+<span class="k">SELECT</span> 
+  <span class="n">rfm</span><span class="p">.</span><span class="n">user_id</span><span class="p">,</span>
+  <span class="n">user_class</span><span class="p">,</span> 
+  <span class="n">date_distance</span><span class="p">,</span> 
+  <span class="n">buy_frequency</span>
+<span class="k">FROM</span> <span class="n">rfm_inall_view</span> <span class="k">AS</span> <span class="n">rfm</span> <span class="k">LEFT</span> <span class="k">JOIN</span> <span class="n">temp_rf</span> <span class="k">AS</span> <span class="n">trf</span> <span class="k">ON</span> <span class="n">rfm</span><span class="p">.</span><span class="n">user_id</span> <span class="o">=</span> <span class="n">trf</span><span class="p">.</span><span class="n">user_id</span><span class="p">;</span>
+
+<span class="k">SELECT</span> <span class="o">*</span> <span class="k">FROM</span> <span class="n">user_class_view</span><span class="p">;</span>
+</pre></td></tr></tbody></table></code></pre></div></div>
+
+<p><img src="http://andy-blog.oss-cn-beijing.aliyuncs.com/blog/2021-07-03-WX20210703-230515%402x.png" width="50%" /></p>
+
+<div class="language-sql highlighter-rouge"><div class="highlight"><pre class="highlight"><code><table class="rouge-table"><tbody><tr><td class="rouge-gutter gl"><pre class="lineno">1
+2
+3
+4
+5
+6
+7
+8
+</pre></td><td class="rouge-code"><pre><span class="c1">-- 统计各个用户类型下的用户数量、最近一次购买的平均时间间隔、平均消费频率</span>
+<span class="k">SELECT</span>
+  <span class="n">user_class</span><span class="p">,</span>
+  <span class="k">COUNT</span><span class="p">(</span><span class="n">user_id</span><span class="p">)</span> <span class="k">AS</span> <span class="n">user_count</span><span class="p">,</span>
+  <span class="k">AVG</span><span class="p">(</span><span class="n">date_distance</span><span class="p">)</span> <span class="k">AS</span> <span class="n">avg_date_distance</span><span class="p">,</span>
+  <span class="k">AVG</span><span class="p">(</span><span class="n">buy_frequency</span><span class="p">)</span> <span class="k">AS</span> <span class="n">avg_buy_frequency</span>
+<span class="k">FROM</span> <span class="n">user_class_view</span> 
+<span class="k">GROUP</span> <span class="k">BY</span> <span class="n">user_class</span><span class="p">;</span>
+</pre></td></tr></tbody></table></code></pre></div></div>
+
+<p><img src="http://andy-blog.oss-cn-beijing.aliyuncs.com/blog/2021-07-03-WX20210703-232624%402x.png" width="60%" /></p>
+
+<p>现在，我们已经完成了对用户群体的分类，这实际上相当于在一定程度上对用户进行画像，接下来就可以针对不同用户群体采取不同的运营策略。当然，后续具体运营策略的设计和实施就属于运营人员的工作范围了。</p>
+
+<h3 id="62-商品指标体系">6.2 商品指标体系</h3>
+
+<p>前面我们分析了 “人货场” 中与 “人（用户）” 相关的指标，现在我们来分析与 “货（商品）” 相关的指标。</p>
+
+<p>我们将从下面两个维度来进行分析：</p>
+
+<ul>
+  <li><strong>按照商品进行分组统计：</strong>商品的点击量（浏览 / 曝光）、收藏量、加购量（加入购物车的次数）、购买次数、购买转化率（该商品的所有⽤户中有购买转化的⽤户占⽐）。</li>
+  <li><strong>按照商品品类进行分组统计：</strong>对应品类的点击量、收藏量、加购量、购买次数、购买转化率。</li>
+</ul>
+
+<h4 id="621-商品指标统计">6.2.1 商品指标统计</h4>
+
+<div class="language-sql highlighter-rouge"><div class="highlight"><pre class="highlight"><code><table class="rouge-table"><tbody><tr><td class="rouge-gutter gl"><pre class="lineno">1
+2
+3
+4
+5
+6
+7
+8
+9
+10
+11
+12
+</pre></td><td class="rouge-code"><pre><span class="c1">-- 统计各商品的点击量、收藏量、加购量、购买次数、购买转化率</span>
+<span class="k">SELECT</span>
+  <span class="n">item_id</span><span class="p">,</span>
+  <span class="k">SUM</span><span class="p">(</span><span class="n">IF</span><span class="p">(</span><span class="n">behavior_type</span> <span class="o">=</span> <span class="mi">1</span><span class="p">,</span> <span class="mi">1</span><span class="p">,</span> <span class="mi">0</span><span class="p">))</span> <span class="k">AS</span> <span class="n">pv</span><span class="p">,</span>
+  <span class="k">SUM</span><span class="p">(</span><span class="n">IF</span><span class="p">(</span><span class="n">behavior_type</span> <span class="o">=</span> <span class="mi">4</span><span class="p">,</span> <span class="mi">1</span><span class="p">,</span> <span class="mi">0</span><span class="p">))</span> <span class="k">AS</span> <span class="n">favorite</span><span class="p">,</span>
+  <span class="k">SUM</span><span class="p">(</span><span class="n">IF</span><span class="p">(</span><span class="n">behavior_type</span> <span class="o">=</span> <span class="mi">3</span><span class="p">,</span> <span class="mi">1</span><span class="p">,</span> <span class="mi">0</span><span class="p">))</span> <span class="k">AS</span> <span class="n">cart</span><span class="p">,</span>
+  <span class="k">SUM</span><span class="p">(</span><span class="n">IF</span><span class="p">(</span><span class="n">behavior_type</span> <span class="o">=</span> <span class="mi">2</span><span class="p">,</span> <span class="mi">1</span><span class="p">,</span> <span class="mi">0</span><span class="p">))</span> <span class="k">AS</span> <span class="n">purchase</span><span class="p">,</span>
+  <span class="n">CONCAT</span><span class="p">(</span><span class="n">ROUND</span><span class="p">(</span><span class="k">COUNT</span><span class="p">(</span><span class="k">DISTINCT</span> <span class="n">IF</span><span class="p">(</span><span class="n">behavior_type</span> <span class="o">=</span> <span class="mi">2</span><span class="p">,</span> <span class="n">user_id</span><span class="p">,</span> <span class="k">NULL</span><span class="p">))</span> <span class="o">/</span> 
+               <span class="k">COUNT</span><span class="p">(</span><span class="k">DISTINCT</span> <span class="n">user_id</span><span class="p">)</span> <span class="o">*</span> <span class="mi">100</span><span class="p">,</span> <span class="mi">2</span><span class="p">),</span> <span class="s1">'%'</span><span class="p">)</span> <span class="k">AS</span> <span class="n">purchase_ratio</span>
+<span class="k">FROM</span> <span class="n">temp_trade</span>
+<span class="k">GROUP</span> <span class="k">BY</span> <span class="n">item_id</span>
+<span class="k">ORDER</span> <span class="k">BY</span> <span class="n">purchase</span> <span class="k">DESC</span><span class="p">,</span> <span class="n">purchase_ratio</span> <span class="k">DESC</span><span class="p">;</span>
+</pre></td></tr></tbody></table></code></pre></div></div>
+
+<p><img src="http://andy-blog.oss-cn-beijing.aliyuncs.com/blog/2021-07-03-WX20210703-133926%402x.png" width="55%" /></p>
+
+<p>注意：由于这里我们的数据集比较有限，计算得到的转化率的值的集合可能比较小。</p>
+
+<h4 id="622-商品品类指标统计">6.2.2 商品品类指标统计</h4>
+
+<div class="language-sql highlighter-rouge"><div class="highlight"><pre class="highlight"><code><table class="rouge-table"><tbody><tr><td class="rouge-gutter gl"><pre class="lineno">1
+2
+3
+4
+5
+6
+7
+8
+9
+10
+11
+12
+</pre></td><td class="rouge-code"><pre><span class="c1">-- 统计各品类的点击量、收藏量、加购量、购买次数、购买转化率</span>
+<span class="k">SELECT</span>
+  <span class="n">item_category</span><span class="p">,</span>
+  <span class="k">SUM</span><span class="p">(</span><span class="n">IF</span><span class="p">(</span><span class="n">behavior_type</span> <span class="o">=</span> <span class="mi">1</span><span class="p">,</span> <span class="mi">1</span><span class="p">,</span> <span class="mi">0</span><span class="p">))</span> <span class="k">AS</span> <span class="n">pv</span><span class="p">,</span>
+  <span class="k">SUM</span><span class="p">(</span><span class="n">IF</span><span class="p">(</span><span class="n">behavior_type</span> <span class="o">=</span> <span class="mi">4</span><span class="p">,</span> <span class="mi">1</span><span class="p">,</span> <span class="mi">0</span><span class="p">))</span> <span class="k">AS</span> <span class="n">favorite</span><span class="p">,</span>
+  <span class="k">SUM</span><span class="p">(</span><span class="n">IF</span><span class="p">(</span><span class="n">behavior_type</span> <span class="o">=</span> <span class="mi">3</span><span class="p">,</span> <span class="mi">1</span><span class="p">,</span> <span class="mi">0</span><span class="p">))</span> <span class="k">AS</span> <span class="n">cart</span><span class="p">,</span>
+  <span class="k">SUM</span><span class="p">(</span><span class="n">IF</span><span class="p">(</span><span class="n">behavior_type</span> <span class="o">=</span> <span class="mi">2</span><span class="p">,</span> <span class="mi">1</span><span class="p">,</span> <span class="mi">0</span><span class="p">))</span> <span class="k">AS</span> <span class="n">purchase</span><span class="p">,</span>
+  <span class="n">CONCAT</span><span class="p">(</span><span class="n">ROUND</span><span class="p">(</span><span class="k">COUNT</span><span class="p">(</span><span class="k">DISTINCT</span> <span class="n">IF</span><span class="p">(</span><span class="n">behavior_type</span> <span class="o">=</span> <span class="mi">2</span><span class="p">,</span> <span class="n">user_id</span><span class="p">,</span> <span class="k">NULL</span><span class="p">))</span> <span class="o">/</span> 
+               <span class="k">COUNT</span><span class="p">(</span><span class="k">DISTINCT</span> <span class="n">user_id</span><span class="p">)</span> <span class="o">*</span> <span class="mi">100</span><span class="p">,</span> <span class="mi">2</span><span class="p">),</span> <span class="s1">'%'</span><span class="p">)</span> <span class="k">AS</span> <span class="n">purchase_ratio</span>
+<span class="k">FROM</span> <span class="n">temp_trade</span>
+<span class="k">GROUP</span> <span class="k">BY</span> <span class="n">item_category</span>
+<span class="k">ORDER</span> <span class="k">BY</span> <span class="n">purchase</span> <span class="k">DESC</span><span class="p">,</span> <span class="n">purchase_ratio</span> <span class="k">DESC</span><span class="p">;</span>
+</pre></td></tr></tbody></table></code></pre></div></div>
+
+<p><img src="http://andy-blog.oss-cn-beijing.aliyuncs.com/blog/2021-07-03-WX20210703-134048%402x.png" width="58%" /></p>
+
+<h3 id="63-平台指标体系">6.3 平台指标体系</h3>
+
+<p>前面我们分析了 “人货场” 中的 “人（用户）” 和 “货（商品）” 的相关指标，接下来我们来分析与 “场（平台）” 相关的指标。</p>
+
+<p>同样，我们从以下两个维度进行分析：</p>
+
+<ul>
+  <li>
+    <p><strong>从平台角度来看用户的行为：</strong>按日统计整个平台的点击量、收藏量、加购量、购买次数、购买转化率。</p>
+  </li>
+  <li>
+    <p><strong>用户行为路径分析：</strong>用户在购买商品的时候，可能会经历一系列的操作，例如：“浏览 $\rightarrow$ 收藏 $\rightarrow$ 加入购物车 $\rightarrow$ 支付购买”；或者 “浏览 $\rightarrow$ 支付购买”，又或者 “浏览 $\rightarrow$ 加入购物车 $\rightarrow$ 支付购买” 等等，我们将这些统称为行为路径。这里，我们可以以最近一次的 “支付购买” 行为为基准，并往前推 4 个操作行为，由此得到一条由 5 个操作组成的行为路径，然后统计每条行为路径下的用户数量。</p>
+  </li>
+</ul>
+
+<h4 id="631-平台用户指标统计">6.3.1 平台用户指标统计</h4>
+
+<div class="language-sql highlighter-rouge"><div class="highlight"><pre class="highlight"><code><table class="rouge-table"><tbody><tr><td class="rouge-gutter gl"><pre class="lineno">1
+2
+3
+4
+5
+6
+7
+8
+9
+10
+11
+12
+</pre></td><td class="rouge-code"><pre><span class="c1">-- 统计平台每日的点击量、收藏量、加购量、购买次数、购买转化率</span>
+<span class="k">SELECT</span>
+  <span class="n">dates</span><span class="p">,</span>
+  <span class="k">SUM</span><span class="p">(</span><span class="n">IF</span><span class="p">(</span><span class="n">behavior_type</span> <span class="o">=</span> <span class="mi">1</span><span class="p">,</span> <span class="mi">1</span><span class="p">,</span> <span class="mi">0</span><span class="p">))</span> <span class="k">AS</span> <span class="n">pv</span><span class="p">,</span>
+  <span class="k">SUM</span><span class="p">(</span><span class="n">IF</span><span class="p">(</span><span class="n">behavior_type</span> <span class="o">=</span> <span class="mi">4</span><span class="p">,</span> <span class="mi">1</span><span class="p">,</span> <span class="mi">0</span><span class="p">))</span> <span class="k">AS</span> <span class="n">favorite</span><span class="p">,</span>
+  <span class="k">SUM</span><span class="p">(</span><span class="n">IF</span><span class="p">(</span><span class="n">behavior_type</span> <span class="o">=</span> <span class="mi">3</span><span class="p">,</span> <span class="mi">1</span><span class="p">,</span> <span class="mi">0</span><span class="p">))</span> <span class="k">AS</span> <span class="n">cart</span><span class="p">,</span>
+  <span class="k">SUM</span><span class="p">(</span><span class="n">IF</span><span class="p">(</span><span class="n">behavior_type</span> <span class="o">=</span> <span class="mi">2</span><span class="p">,</span> <span class="mi">1</span><span class="p">,</span> <span class="mi">0</span><span class="p">))</span> <span class="k">AS</span> <span class="n">purchase</span><span class="p">,</span>
+  <span class="n">CONCAT</span><span class="p">(</span><span class="n">ROUND</span><span class="p">(</span><span class="k">COUNT</span><span class="p">(</span><span class="k">DISTINCT</span> <span class="n">IF</span><span class="p">(</span><span class="n">behavior_type</span> <span class="o">=</span> <span class="mi">2</span><span class="p">,</span> <span class="n">user_id</span><span class="p">,</span> <span class="k">NULL</span><span class="p">))</span> <span class="o">/</span> 
+               <span class="k">COUNT</span><span class="p">(</span><span class="k">DISTINCT</span> <span class="n">user_id</span><span class="p">)</span> <span class="o">*</span> <span class="mi">100</span><span class="p">,</span> <span class="mi">2</span><span class="p">),</span> <span class="s1">'%'</span><span class="p">)</span> <span class="k">AS</span> <span class="n">purchase_ratio</span>
+<span class="k">FROM</span> <span class="n">temp_trade</span>
+<span class="k">GROUP</span> <span class="k">BY</span> <span class="n">dates</span>
+<span class="k">ORDER</span> <span class="k">BY</span> <span class="n">dates</span> <span class="k">DESC</span><span class="p">;</span>
+</pre></td></tr></tbody></table></code></pre></div></div>
+
+<p><img src="http://andy-blog.oss-cn-beijing.aliyuncs.com/blog/2021-07-03-WX20210703-165511%402x.png" width="55%" /></p>
+
+<h4 id="632-用户行为路径分析">6.3.2 用户行为路径分析</h4>
+
+<p>如前所述，这里我们以最后的 “支付购买” 为基准，并往前推 4 个操作行为，由此得到一条由 5 个操作组成的行为路径，然后统计每条行为路径下的用户数量。</p>
+
+<p>这里各行为代号可以从用户行为字段 <code class="language-plaintext highlighter-rouge">behavior_type</code> 获取：</p>
+
+<ul>
+  <li>1：曝光</li>
+  <li>2：购买</li>
+  <li>3：加⼊购物⻋</li>
+  <li>4：加⼊收藏夹</li>
+</ul>
+
+<p>这里的核心步骤是：拼接行为路径。</p>
+
+<p>例如，对于用户张三，其对于 a 商品可能存在以下行为：1、3、2、4、3、1、2。我们从最后的 2（购买）开始，往前推 4 个行为，然后拼接得到一条 “2 $\rightarrow$ 4 $\rightarrow$ 3 $\rightarrow$ 1 $\rightarrow$ 2” 的行为路径。</p>
+
+<p>因此，我们需要：</p>
+
+<ol>
+  <li>将多个行为并列摆放，即使用窗口函数中的偏移分析函数 <code class="language-plaintext highlighter-rouge">LAG()</code> 或者 <code class="language-plaintext highlighter-rouge">LEAD()</code> 为各行为分别创建一个字段；</li>
+  <li>使用 <code class="language-plaintext highlighter-rouge">CONCAT()</code> 函数对各行为字段进行拼接，得到行为路径；</li>
+  <li>统计各行为路径下的用户数量。</li>
+</ol>
+
+<div class="language-sql highlighter-rouge"><div class="highlight"><pre class="highlight"><code><table class="rouge-table"><tbody><tr><td class="rouge-gutter gl"><pre class="lineno">1
+2
+3
+4
+5
+6
+7
+8
+9
+10
+11
+12
+13
+14
+15
+16
+17
+18
+19
+20
+21
+22
+23
+24
+25
+26
+</pre></td><td class="rouge-code"><pre><span class="cm">/*
+用户行为拼接准备
+
+使用偏移分析函数 LAG() 或者 LEAD() 为各行为分别创建一个字段，这里涉及到分组和排序：
+1. 将 PARTITION BY 后的字段指定为 user_id 和 item_id
+2. 将 ORDER BY 后的字段指定为 date_time
+
+注意，这里我们排序字段指定的是 date_time 而不是 dates，因为同一天内可能存在多个行为，需要考虑它们之间的顺序。
+另外，由于要统计的是最近一次购买行为对应的路径，可以使用排序函数 RANK() 按照 date_time 字段进行倒排序，然后取第一条记录。
+*/</span>
+<span class="k">DROP</span> <span class="k">VIEW</span> <span class="n">IF</span> <span class="k">EXISTS</span> <span class="n">path_base_view</span><span class="p">;</span>
+<span class="k">CREATE</span> <span class="k">VIEW</span> <span class="n">path_base_view</span> <span class="k">AS</span>
+<span class="k">SELECT</span> <span class="n">a</span><span class="p">.</span><span class="o">*</span> <span class="k">FROM</span> 
+  <span class="p">(</span><span class="k">SELECT</span>
+    <span class="n">user_id</span><span class="p">,</span>
+    <span class="n">item_id</span><span class="p">,</span>
+    <span class="n">LAG</span><span class="p">(</span><span class="n">behavior_type</span><span class="p">,</span> <span class="mi">4</span><span class="p">)</span> <span class="n">OVER</span> <span class="p">(</span><span class="n">PARTITION</span> <span class="k">BY</span> <span class="n">user_id</span><span class="p">,</span> <span class="n">item_id</span> <span class="k">ORDER</span> <span class="k">BY</span> <span class="n">date_time</span><span class="p">)</span> <span class="k">AS</span> <span class="n">lag_4</span><span class="p">,</span>
+    <span class="n">LAG</span><span class="p">(</span><span class="n">behavior_type</span><span class="p">,</span> <span class="mi">3</span><span class="p">)</span> <span class="n">OVER</span> <span class="p">(</span><span class="n">PARTITION</span> <span class="k">BY</span> <span class="n">user_id</span><span class="p">,</span> <span class="n">item_id</span> <span class="k">ORDER</span> <span class="k">BY</span> <span class="n">date_time</span><span class="p">)</span> <span class="k">AS</span> <span class="n">lag_3</span><span class="p">,</span>
+    <span class="n">LAG</span><span class="p">(</span><span class="n">behavior_type</span><span class="p">,</span> <span class="mi">2</span><span class="p">)</span> <span class="n">OVER</span> <span class="p">(</span><span class="n">PARTITION</span> <span class="k">BY</span> <span class="n">user_id</span><span class="p">,</span> <span class="n">item_id</span> <span class="k">ORDER</span> <span class="k">BY</span> <span class="n">date_time</span><span class="p">)</span> <span class="k">AS</span> <span class="n">lag_2</span><span class="p">,</span>
+    <span class="n">LAG</span><span class="p">(</span><span class="n">behavior_type</span><span class="p">,</span> <span class="mi">1</span><span class="p">)</span> <span class="n">OVER</span> <span class="p">(</span><span class="n">PARTITION</span> <span class="k">BY</span> <span class="n">user_id</span><span class="p">,</span> <span class="n">item_id</span> <span class="k">ORDER</span> <span class="k">BY</span> <span class="n">date_time</span><span class="p">)</span> <span class="k">AS</span> <span class="n">lag_1</span><span class="p">,</span>
+    <span class="n">behavior_type</span><span class="p">,</span>
+    <span class="n">RANK</span><span class="p">()</span> <span class="n">OVER</span> <span class="p">(</span><span class="n">PARTITION</span> <span class="k">BY</span> <span class="n">user_id</span><span class="p">,</span> <span class="n">item_id</span> <span class="k">ORDER</span> <span class="k">BY</span> <span class="n">date_time</span> <span class="k">DESC</span><span class="p">)</span> <span class="k">AS</span> <span class="n">rank_number</span>
+  <span class="k">FROM</span> <span class="n">temp_trade</span><span class="p">)</span> <span class="k">AS</span> <span class="n">a</span>
+<span class="k">WHERE</span> <span class="n">a</span><span class="p">.</span><span class="n">rank_number</span> <span class="o">=</span> <span class="mi">1</span> <span class="k">AND</span> <span class="n">a</span><span class="p">.</span><span class="n">behavior_type</span> <span class="o">=</span> <span class="mi">2</span><span class="p">;</span>
+
+<span class="k">SELECT</span> <span class="o">*</span> <span class="k">FROM</span> <span class="n">path_base_view</span><span class="p">;</span>
+</pre></td></tr></tbody></table></code></pre></div></div>
+
+<p><img src="http://andy-blog.oss-cn-beijing.aliyuncs.com/blog/2021-07-03-WX20210703-174817%402x.png" width="70%" /></p>
+
+<div class="language-sql highlighter-rouge"><div class="highlight"><pre class="highlight"><code><table class="rouge-table"><tbody><tr><td class="rouge-gutter gl"><pre class="lineno">1
+2
+3
+4
+5
+6
+7
+8
+9
+10
+11
+12
+13
+14
+15
+16
+17
+</pre></td><td class="rouge-code"><pre><span class="c1">-- 拼接行为路径，并统计各行为路径下的用户数量 </span>
+<span class="c1">-- 注意：lag_4 到 lag_1 可能存在 NULL，因此我们用字符串 '空' 来对其进行标记，防止 CONCAT 函数输出 NULL 值。 </span>
+<span class="k">SELECT</span> 
+  <span class="n">CONCAT</span><span class="p">(</span><span class="n">IFNULL</span><span class="p">(</span><span class="n">lag_4</span><span class="p">,</span> <span class="s1">'空'</span><span class="p">),</span> <span class="s1">'-'</span><span class="p">,</span> 
+         <span class="n">IFNULL</span><span class="p">(</span><span class="n">lag_3</span><span class="p">,</span> <span class="s1">'空'</span><span class="p">),</span> <span class="s1">'-'</span><span class="p">,</span> 
+         <span class="n">IFNULL</span><span class="p">(</span><span class="n">lag_2</span><span class="p">,</span> <span class="s1">'空'</span><span class="p">),</span> <span class="s1">'-'</span><span class="p">,</span> 
+         <span class="n">IFNULL</span><span class="p">(</span><span class="n">lag_1</span><span class="p">,</span> <span class="s1">'空'</span><span class="p">),</span> <span class="s1">'-'</span><span class="p">,</span> 
+         <span class="n">behavior_type</span><span class="p">)</span> <span class="k">AS</span> <span class="n">behavior_path</span><span class="p">,</span>
+  <span class="k">COUNT</span><span class="p">(</span><span class="k">DISTINCT</span> <span class="n">user_id</span><span class="p">)</span> <span class="k">AS</span> <span class="n">user_count</span>
+<span class="k">FROM</span> <span class="n">path_base_view</span>
+<span class="k">GROUP</span> <span class="k">BY</span>
+  <span class="n">CONCAT</span><span class="p">(</span><span class="n">IFNULL</span><span class="p">(</span><span class="n">lag_4</span><span class="p">,</span> <span class="s1">'空'</span><span class="p">),</span> <span class="s1">'-'</span><span class="p">,</span> 
+         <span class="n">IFNULL</span><span class="p">(</span><span class="n">lag_3</span><span class="p">,</span> <span class="s1">'空'</span><span class="p">),</span> <span class="s1">'-'</span><span class="p">,</span> 
+         <span class="n">IFNULL</span><span class="p">(</span><span class="n">lag_2</span><span class="p">,</span> <span class="s1">'空'</span><span class="p">),</span> <span class="s1">'-'</span><span class="p">,</span>
+         <span class="n">IFNULL</span><span class="p">(</span><span class="n">lag_1</span><span class="p">,</span> <span class="s1">'空'</span><span class="p">),</span> <span class="s1">'-'</span><span class="p">,</span> 
+         <span class="n">behavior_type</span><span class="p">)</span>
+<span class="k">ORDER</span> <span class="k">BY</span> <span class="n">user_count</span> <span class="k">DESC</span><span class="p">;</span>
+</pre></td></tr></tbody></table></code></pre></div></div>
+
+<p><img src="http://andy-blog.oss-cn-beijing.aliyuncs.com/blog/2021-07-03-WX20210704-001255%402x.png" width="25%" /></p>
+
+<h2 id="7-结论">7. 结论</h2>
+
+<p>至此，我们已经分析完了 “人”、“货”、“场” 三个维度下的若干指标。接下来我们将对相关结论进行梳理。</p>
+
+<h3 id="71-用户分析">7.1 用户分析</h3>
+
+<p>用户分析中，我们有一个非常重要的指标，就是 UV（独立访客数）。我们每天会对 UV 进行统计，通过对 UV 进行异常分析，可以发现一些问题。例如，我们之前按日期对 UV 进行过数量统计，我们可以通过下面的折线图来观察其变化趋势：</p>
+
+<p><img src="http://andy-blog.oss-cn-beijing.aliyuncs.com/blog/2021-07-03-%E5%9B%BE%E7%89%87%201.png" width="60%" /></p>
+
+<center><font size="2"><b>图 1. </b>UV 异常分析：每⽇ UV 数据中，明显异常点为双⼗⼆活动造成，该影响为已知影响。</font></center>
+
+<p>可以看到，每日的 UV 数据图中，存在一个非常明显的波峰，它对应于一个特殊的日期 <code class="language-plaintext highlighter-rouge">2019-12-12</code>，即 “双十二”。通常，数据中的这种波峰属于一个异常点，但是这里的这个异常点是由一个已知因素造成的，因为 “双十二” 属于购物节，当天访问量增加属于正常情况。可见，通过分析 UV 曲线，我们确实可以观察到一些现象。</p>
+
+<p>同时，我们还可以对 UV 数据的周环比进行分析。例如，假设今天是周三，我们可以拿今天的 UV 数据和上周三的 UV 数据进行对比，具体计算方式为：（本周三 UV － 上周三 UV）/ 上周三 UV。为什么我们要比较周环比（和一周前的数据相比），而不是和前一天的数据相比呢？因为前一天的数据时间间隔太短，比较起来意义不大。同样，我们可以绘制 UV 的周环比折线图观察其变化趋势：</p>
+
+<p><img src="http://andy-blog.oss-cn-beijing.aliyuncs.com/blog/2021-07-03-%E5%9B%BE%E7%89%87%201-1.png" width="60%" /></p>
+
+<font size="2"><b>图 2. </b>UV 周环⽐分析：⽇常周环⽐数据⼤多⼤于 0，说明⽤户数量呈上升趋势，其中如11⽉26⽇、12⽉2⽇、12⽉7⽇的数据均小于 0，说明用户数量呈下降趋势，需要结合其他数据做进⼀步的下降原因分析。而12月13日到12月18 日的数据虽然也小于 0，但考虑 “双⼗⼆” 活动后⽤户周环⽐会相应下降，属于正常现象。</font>
+
+<p>一般来说，周环比的数据往往是大于 0 的，代表用户数量呈上升趋势。但是，从图中可以看到，11⽉26⽇、12⽉2⽇、12⽉7⽇的数据均小于 0，说明这几天的用户数相比一周前有所减少，因此我们需要结合其他数据进一步分析其下降的原因。</p>
+
+<p>通常可能的原因有：</p>
+
+<ul>
+  <li>内部问题：产品 BUG（⽹站 bug 影响用户体验）、策略问题（周年庆活动结束了）、营销问题（代⾔⼈换了）等；</li>
+  <li>外部问题：竞品活动问题（其他平台⼤酬宾）、政治环境问题（进⼝商品限制）、舆情⼝碑问题（平台商品爆出质量问题）等。</li>
+</ul>
+
+<p>但是，对于一些特殊的时间段，例如，“双十二” 活动之后周环比下降一般属于正常现象。因为此类活动往往会由于打折促销等因素，会在短期内吸引大量用户关注，从而带来很高的 UV，而大部分用户往往会趁机一次性购买较多产品，因此活动之后一段时间内购物需求会有所下降，这些都属于正常现象。</p>
+
+<p>当然，我们还可以对其他基础指标（例如：浏览深度、留存率等）进行类似的分析工作，此处不再展开赘述。</p>
+
+<h3 id="72-精细化运营">7.2 精细化运营</h3>
+
+<p>通过之前在 RFM 模型中对的⽤户最近⼀次购买时间、⽤户消费频次分析，我们分拆得到了以下 4 种重要⽤户：</p>
+
+<ul>
+  <li>重要⾼价值客户：指最近⼀次消费较近⽽且消费频率较⾼的客户；</li>
+  <li>重要唤回客户：指最近⼀次消费较远且消费频率较⾼的客户；</li>
+  <li>重要深耕客户：指最近⼀次消费较近且消费频率较低的客户；</li>
+  <li>重要挽留客户：指最近⼀次消费较远且消费频率较低的客户。</li>
+</ul>
+
+<p><img src="http://andy-blog.oss-cn-beijing.aliyuncs.com/blog/2021-07-04-%E5%9B%BE%E7%89%87%201.png" width="60%" /></p>
+
+<center><font size="2"><b>图 3：</b>各用户类型下的用户人数。</font></center>
+
+<p><img src="http://andy-blog.oss-cn-beijing.aliyuncs.com/blog/2021-07-04-%E5%9B%BE%E7%89%87%202.png" width="60%" /></p>
+
+<center><font size="2"><b>图 4：</b>各用户类型的平均最近一次购买时间间隔和平均购买次数的分布情况。</font></center>
+
+<p>我们可以在后续精细化运营场景中直接使⽤细分⽤户，做差异化运营：</p>
+
+<ul>
+  <li>对⾼价值客户做 VIP 服务设计，增加⽤户粘性同时通过设计优惠券提升客户消费；</li>
+  <li>对唤回客户做定向⼴告、短信召回策略，尝试召回⽤户；</li>
+  <li>对深耕客户做⼴告、推送刺激，提升消费频次；</li>
+  <li>对挽留客户做优惠券、签到送礼策略，增加挽留⽤户粘性。</li>
+</ul>
+
+<h3 id="73-商品分析">7.3 商品分析</h3>
+
+<p>我们在之前已经对各商品和各品类的点击量、收藏量、加入购物车的次数、购买次数和购买转化率都进行了统计。</p>
+
+<p>下面是基于购买量统计得到的排名前 10 的商品品类及相关指标：</p>
+
+<table>
+  <thead>
+    <tr>
+      <th>item_category</th>
+      <th>pv</th>
+      <th>favorite</th>
+      <th>cart</th>
+      <th>purchase</th>
+      <th>purchase_ratio</th>
+    </tr>
+  </thead>
+  <tbody>
+    <tr>
+      <td>13230</td>
+      <td>1481</td>
+      <td>2</td>
+      <td>35</td>
+      <td>43</td>
+      <td>12.50%</td>
+    </tr>
+    <tr>
+      <td>5894</td>
+      <td>1336</td>
+      <td>2</td>
+      <td>20</td>
+      <td>36</td>
+      <td>12.36%</td>
+    </tr>
+    <tr>
+      <td>1863</td>
+      <td>1461</td>
+      <td>11</td>
+      <td>41</td>
+      <td>34</td>
+      <td>11.37%</td>
+    </tr>
+    <tr>
+      <td>6513</td>
+      <td>1030</td>
+      <td>7</td>
+      <td>29</td>
+      <td>31</td>
+      <td>13.44%</td>
+    </tr>
+    <tr>
+      <td>11279</td>
+      <td>767</td>
+      <td>4</td>
+      <td>22</td>
+      <td>25</td>
+      <td>12.59%</td>
+    </tr>
+    <tr>
+      <td>10894</td>
+      <td>491</td>
+      <td>2</td>
+      <td>15</td>
+      <td>20</td>
+      <td>12.61%</td>
+    </tr>
+    <tr>
+      <td>5027</td>
+      <td>1498</td>
+      <td>2</td>
+      <td>27</td>
+      <td>19</td>
+      <td>7.32%</td>
+    </tr>
+    <tr>
+      <td>2825</td>
+      <td>608</td>
+      <td>0</td>
+      <td>11</td>
+      <td>15</td>
+      <td>9.30%</td>
+    </tr>
+    <tr>
+      <td>5399</td>
+      <td>1131</td>
+      <td>4</td>
+      <td>18</td>
+      <td>15</td>
+      <td>4.88%</td>
+    </tr>
+    <tr>
+      <td>4370</td>
+      <td>493</td>
+      <td>4</td>
+      <td>15</td>
+      <td>13</td>
+      <td>8.97%</td>
+    </tr>
+  </tbody>
+</table>
+
+<p>可以看到，其中 ID 为 <code class="language-plaintext highlighter-rouge">5027</code>、<code class="language-plaintext highlighter-rouge">5399</code> 的商品品类的购买转化率较其余商品品类偏低。因此，需要结合更多数据做进⼀步解读（可能的原因：品类⾃有特性导致⽤户购买较低，⽐如⾮必需品、奢侈品等等）。</p>
+
+<h3 id="74-产品功能路径分析">7.4 产品功能路径分析</h3>
+
+<p>以下为主要购买路径和对应的用户人数：</p>
+
+<table>
+  <thead>
+    <tr>
+      <th>behavior_path</th>
+      <th>user_count</th>
+    </tr>
+  </thead>
+  <tbody>
+    <tr>
+      <td>空-空-空-空-2</td>
+      <td>146</td>
+    </tr>
+    <tr>
+      <td>空-空-空-1-2</td>
+      <td>64</td>
+    </tr>
+    <tr>
+      <td>空-空-1-1-2</td>
+      <td>10</td>
+    </tr>
+    <tr>
+      <td>空-空-2-1-2</td>
+      <td>2</td>
+    </tr>
+    <tr>
+      <td>空-空-空-3-2</td>
+      <td>2</td>
+    </tr>
+    <tr>
+      <td>空-1-1-1-2</td>
+      <td>1</td>
+    </tr>
+    <tr>
+      <td>空-空-1-3-2</td>
+      <td>1</td>
+    </tr>
+    <tr>
+      <td>空-空-空-2-2</td>
+      <td>1</td>
+    </tr>
+  </tbody>
+</table>
+
+<p>我们可以发现：</p>
+
+<ul>
+  <li>⽤户多以直接购买为主；</li>
+  <li>添加购物⻋的购买在主要购买路径中数量较少。</li>
+</ul>
+
+<p>也就是说，目前用户在购买商品时对于添加购物车和收藏功能使用频率很低，这说明平台在这两项功能的用户体验方面可能存在一些问题。想象一下，如果每次用户在购买商品时都是直接支付，那么相当于每次只购买了一件商品；而如果用户习惯于使用购物车功能，那么很有可能会每次购买多件商品，从而在平台消费更多金额。</p>
+
+<p>因此，后续对于产品的加入购物车功能和收藏功能还需要结合更多数据做改进⽅案。</p>
+
+<p>以上就是我们根据前面提取的数据指标初步分析出的一些方向性的结果，后续还可以结合更多指标进行更加精细化的深入分析。</p>
+
+<h2 id="8-产出分析报告">8. 产出分析报告</h2>
+
+<h3 id="81-结论">8.1 结论</h3>
+
+<ol>
+  <li>
+    <p><strong>双十二活动效果预热明显：</strong>双十二前（11月18-12月8日）日均活跃用户数237人，日均周环比增长2%，用户稳定增长，说明前期活动 预热效果明显；</p>
+  </li>
+  <li>
+    <p><strong>已挖掘出部分高价值用户：</strong>已经挖掘出来44个高价值客户、44个重要深耕客户、66个重要挽留用户和11个重要唤回客户。后续运营活 动可以直接使用；</p>
+  </li>
+  <li>
+    <p><strong>头部商品品类基本保持正常转化率：</strong>头部商品品类基本保持正常平均转化率10.4%，部分品类’5027‘、’5399‘转化率偏低，需要后续 与商品运营团队沟通方案；</p>
+  </li>
+  <li>
+    <p><strong>购物车转化率偏低：</strong>在所有的消费路径中，58%的用户有加入购物车的行为；但仅有0.6%的用户在加入购物车之后发生购买；说明加 入购物车购买转化率偏低的情况，后续与产品团队协商改进建议；</p>
+  </li>
+  <li>
+    <p><strong>每日活跃用户留存率较为稳定，双十二活动效果明显：</strong>一般每日活跃用户留存率稳定在 60%到 70%之间，在双十二前几天逐渐上升， 双十二当天达到峰值（80%左右），之后一周逐渐下降到最低点（55%）左右。说明目前活跃用户留存率比较稳定，双十二活动效果明显， 通常用户在双十二活动后一段时间内购物需求有所下降，属于正常现象。建议可以增加购物积分制度，鼓励购物量较大的客户经常消费， 增加其活跃率。</p>
+  </li>
+  <li>
+    <p><strong>近一月平均留存有所下降，针对不同行为的用户查找原因：</strong>近一月的平均留存曲线从次留的 67.8% 下降至30日留的 56.6%，下降幅度为 11.2%；</p>
+  </li>
+</ol>
+
+<h3 id="82-指标数据说明">8.2 指标、数据说明</h3>
+
+<ol>
+  <li>
+    <p><strong>统计周期：</strong>2019年11月18日至2019年12月18日；</p>
+  </li>
+  <li>
+    <p><strong>当日UV：</strong>指当日的用户排重计数；</p>
+  </li>
+  <li>
+    <p><strong>重要高价值客户：</strong>指最近一次消费较近而且消费频率较高的客户；</p>
+  </li>
+  <li>
+    <p><strong>重要唤回客户：</strong>指最近一次消费较远且消费频率较高的客户；</p>
+  </li>
+  <li>
+    <p><strong>重要深耕客户：</strong>指最近一次消费较近且消费频率较低的客户；</p>
+  </li>
+  <li>
+    <p><strong>重要挽留客户：</strong>指最近一次消费较远且消费频率较低的客户；</p>
+  </li>
+  <li>
+    <p><strong>购买转化率：</strong>商品的被购买次数除以所有对商品的行为数；</p>
+  </li>
+  <li>
+    <p><strong>活跃用户留存率：</strong>按照日期统计，目标日期的活跃用户数除以基准日期的活跃用户数。</p>
+  </li>
+</ol>
+
+<h3 id="83-用户分析部分">8.3 用户分析部分</h3>
+
+<h4 id="831-双十二后前用户稳步上升">8.3.1 双十二后前用户稳步上升</h4>
+
+<p><img src="http://andy-blog.oss-cn-beijing.aliyuncs.com/blog/2021-07-07-WX20210707-164158%402x.png" width="90%" /></p>
+
+<ul>
+  <li>双十二前（11月18-12月8日）日均活跃用户数237人，日均周环比增长 2%；</li>
+  <li>双十二当日用户提升至 324 人；</li>
+  <li>双十二后，用户回落。</li>
+</ul>
+
+<h4 id="832-重点挖掘用户以及后续策略">8.3.2 重点挖掘用户以及后续策略</h4>
+
+<p><img src="http://andy-blog.oss-cn-beijing.aliyuncs.com/blog/2021-07-07-WX20210707-164413%402x.png" width="90%" /></p>
+
+<ul>
+  <li>共挖掘重要客户 165人；</li>
+  <li>后续工作重点，需要对高价值客户（44人）做 VIP 服务设计，增加用户粘性同时通过设计优惠券提升客户消费；</li>
+  <li>对深耕客户（44人）做广告、推送刺激，提升消费频次；</li>
+  <li>对挽留客户（66人）做优惠券、签到送礼策略，增加挽留用户粘性；</li>
+  <li>对唤回客户（11人）做定向广告、短信召回策略，尝试召回用户。</li>
+</ul>
+
+<h3 id="84-商品分析部分">8.4 商品分析部分</h3>
+
+<h4 id="841-重点维护商品品类">8.4.1 重点维护商品品类</h4>
+
+<p><img src="http://andy-blog.oss-cn-beijing.aliyuncs.com/blog/2021-07-07-WX20210707-164606%402x.png" width="90%" /></p>
+
+<ul>
+  <li>该周期内销量靠前的品类如上图所示；</li>
+  <li>以下品类后续需要重点维护；同时，对于 “5027”、“5399” 品类，发现存在曝光转化较低的情况，后续还需要进一步分析曝光较低的原因，提升品类曝光转化。</li>
+</ul>
+
+<h3 id="85-产品分析部分">8.5 产品分析部分</h3>
+
+<h4 id="851-产品主要消费路径">8.5.1 产品主要消费路径</h4>
+
+<p><img src="http://andy-blog.oss-cn-beijing.aliyuncs.com/blog/2021-07-07-WX20210707-164951%402x.png" width="35%" /></p>
+
+<ul>
+  <li>上表是产品的主要消费转化路径；</li>
+  <li>可以发现用户以直接购买转化为主；</li>
+  <li>重新购买（第4名、第6名）和加购物车转化（第4、第6名）都有一定的排名；</li>
+  <li>在所有的消费路径中，58% 的用户有加入购物车的行为；但仅有 0.6% 的用户在加入购物车之后发生购买；</li>
+  <li>购物车相关产品的后续改进会与产品经理沟通进行。</li>
+</ul>
+
+<h3 id="86-留存分析部分">8.6 留存分析部分</h3>
+
+<h4 id="861-留存分析">8.6.1 留存分析</h4>
+
+<p><img src="http://andy-blog.oss-cn-beijing.aliyuncs.com/blog/2021-07-16-iShot2021-07-16%2012.13.35.png" width="90%" /></p>
+
+<ul>
+  <li>计算近一个月的用户平均留存，近一月的平均留存曲线从次留的 67.8% 下降至30日留的 56.6%，下降幅度为 11.2%；</li>
+  <li>拆分不同行为的用户留存曲线（将仅有曝光的用户拆分出来，其余用户不做处理）。可见拉低短期用户留存（14日内）的用户主要为 “仅曝光” 用户；而拉低14日以上留存的用户主要为 “加入收藏夹” 的用户；</li>
+  <li>而分析每类用户的每日次留曲线，可以看出11月25至12月3日、12月14至17日区间有多次 “加入收藏夹” 的用户留存低于 “仅曝光” 的用户，后续会针对这几天的 “加入收藏夹” 用户做详细拆解，分析留存较低的原因。</li>
+</ul>
+:ET
