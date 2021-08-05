@@ -1,0 +1,273 @@
+I"�/<h1 id="lecture-10-软间隔-svm-拉格朗日对偶">Lecture 10 软间隔 SVM 、拉格朗日对偶</h1>
+<h2 id="主要内容">主要内容</h2>
+<ul>
+  <li><strong>软间隔 SVM</strong>
+    <ul>
+      <li>直觉和问题的数学表述</li>
+    </ul>
+  </li>
+  <li><strong>拉格朗日对偶</strong>
+    <ul>
+      <li>具有不同训练复杂度的替代数学表述</li>
+      <li>解释支持向量</li>
+      <li>为学习核函数做准备（下节内容）</li>
+    </ul>
+  </li>
+</ul>
+
+<h2 id="上节回顾硬间隔-svm">上节回顾：硬间隔 SVM</h2>
+<p><img src="https://tva1.sinaimg.cn/large/006y8mN6ly1g8pbl86eg7j31a40amq71.jpg" /></p>
+
+<ul>
+  <li>SVM 是一种线性二分类器</li>
+  <li>最大间隔：旨在寻找对噪声具有鲁棒性的边界</li>
+  <li>解决分歧的技巧：$\dfrac{y_{i^*}(\boldsymbol w’\boldsymbol x_{i^*}+b)}{\|\boldsymbol w\|}=\dfrac{1}{\|\boldsymbol w\|}$</li>
+  <li>硬间隔程序：<br />
+$\mathop{\operatorname{arg\,min}}\limits_{\boldsymbol w,b}\|\boldsymbol w\|\quad\text{s.t.}\; y_i(\boldsymbol w’\boldsymbol x_i+b)\ge 1 \;\text{for}\; i=1,…,n$</li>
+</ul>
+
+<h2 id="1-软间隔-svm">1. 软间隔 SVM</h2>
+<p><strong>处理线性不可分的情况</strong></p>
+<h3 id="11-当数据不是线性可分的时候">1.1 当数据不是线性可分的时候</h3>
+<ul>
+  <li>硬间隔的损失函数过于严格</li>
+  <li>真实数据不太可能严格线性可分</li>
+  <li>
+    <p>如果数据不是线性可分的，硬间隔 SVM 会遇到问题<br />
+<img src="https://tva1.sinaimg.cn/large/006y8mN6ly1g8pc03ql2kj30o80hcwf5.jpg" width="40%" /></p>
+  </li>
+  <li>SVM 提供了 3 种方法来处理这一问题：
+    <ol>
+      <li>还是采用硬间隔 SVM，但是需要进行 <strong>数据转换</strong>（下节内容）</li>
+      <li><strong>放松</strong> 约束条件</li>
+      <li>方法 1 与 方法 2 的结合</li>
+    </ol>
+  </li>
+</ul>
+
+<h3 id="12-软间隔-svm">1.2 软间隔 SVM</h3>
+<ul>
+  <li>
+    <p>放松约束条件以允许数据点落在 <strong>间隔内部</strong> 或者甚至落在分类边界 <strong>错误的一侧</strong> <br />
+<img src="https://tva1.sinaimg.cn/large/006y8mN6ly1g8pc7yiu2rj30o40hijsm.jpg" width="40%" /></p>
+  </li>
+  <li>但是，我们通过 “违反” 的程度来惩罚边界</li>
+  <li>图中，目标函数的惩罚会考虑橙色的距离</li>
+</ul>
+
+<h3 id="13-hinge-损失软间隔-svm-的损失函数">1.3 Hinge 损失：软间隔 SVM 的损失函数</h3>
+<ul>
+  <li>
+    <p>硬间隔 SVM 的损失函数：<br />
+$l_{\infty} =\begin{cases}0\quad\;\, 1-y(\boldsymbol w’\boldsymbol x+b)\le0 \\<br />
+\infty\quad \text{otherwise}\end{cases}$
+<br /></p>
+  </li>
+  <li>
+    <p>软间隔 SVM 的损失函数（<strong>Hinge 损失</strong>）：<br />
+$l_{h} =\begin{cases}0\qquad\qquad\quad\quad 1-y(\boldsymbol w’\boldsymbol x+b)\le0 \\<br />
+\\<br />
+1-y\color{red}{\underbrace{\color{black}{(\boldsymbol w’\boldsymbol x+b)}}_{\hat{y}}}\quad \text{otherwise}\end{cases}$<br /><br />
+<img src="https://tva1.sinaimg.cn/large/006y8mN6ly1g8pdgedremj30g80aqmxj.jpg" width="40%" />
+对比感知器的损失函数</p>
+  </li>
+</ul>
+
+<h3 id="14-软间隔-svm-的目标函数">1.4 软间隔 SVM 的目标函数</h3>
+<ul>
+  <li>
+    <p>软间隔 SVM 的 <strong>目标函数</strong></p>
+
+\[\mathop{\operatorname{arg\,min}}\limits_{\boldsymbol w,b}\left(\sum_{i=1}^{n}l_h (\boldsymbol x_i,y_i,\boldsymbol w)+\lambda\|\boldsymbol w\|^2\right)\]
+
+    <ul>
+      <li>联想岭回归</li>
+      <li>Hinge 损失：$l_h=\max(0,1-y_i(\boldsymbol w’\boldsymbol x_i+b))$</li>
+    </ul>
+  </li>
+  <li>
+    <p>我们将重构该目标函数，使其更易于分析</p>
+  </li>
+</ul>
+
+<h3 id="15-重构软间隔的目标函数">1.5 重构软间隔的目标函数</h3>
+<ul>
+  <li>
+    <p>定义松弛变量作为损失的上限</p>
+
+\[\xi_i\ge l_h=\max\left(0,1-y_i(\boldsymbol w'\boldsymbol x_i+b)\right)\]
+
+    <p>或者等效地，$\xi_i\ge 1-y_i(\boldsymbol w’\boldsymbol x_i+b)$ 并且 $\xi_i\ge 0$</p>
+  </li>
+  <li>
+    <p>将软间隔 SVM 的目标函数重写为：</p>
+
+\[\begin{array}{cc}\mathop{\operatorname{arg\,min}}\limits_{\boldsymbol w,b,\boldsymbol \xi}\left(\dfrac{1}{2}\|\boldsymbol w\|^2+C\sum_{i=1}^{n}\xi_i\right)\\\;\\ \text{s.t.}\;\xi_i\ge 1-y_i(\boldsymbol w'\boldsymbol x_i+b) \;\text{for}\; i=1,...,n\\\;\\ \xi_i\ge 0 \;\text{for}\; i=1,...,n
+\end{array}\]
+  </li>
+</ul>
+
+<h3 id="16-svm-的两种变体">1.6 SVM 的两种变体</h3>
+<ul>
+  <li>
+    <p>硬间隔 SVM 目标函数：</p>
+
+\[\begin{array}{cc}\mathop{\operatorname{arg\,min}}\limits_{\boldsymbol w,b}\dfrac{1}{2}\|\boldsymbol w\|^2\\\\
+\text{s.t.}\;y_i(\boldsymbol w'\boldsymbol x_i+b)\ge 1\;\text{for}\;i=1,...,n\end{array}\]
+
+    <p>注：将 $\|\boldsymbol w\|$ 换成 $0.5\|\boldsymbol w\|^2$ 利用了单调递增的转换。修改后的目标函数的解与之前相同。</p>
+  </li>
+  <li>
+    <p>软间隔 SVM 的目标函数：</p>
+
+\[\begin{array}{cc}\mathop{\operatorname{arg\,min}}\limits_{\boldsymbol w,b,\boldsymbol \xi}\left(\dfrac{1}{2}\|\boldsymbol w\|^2+C\sum_{i=1}^{n}\xi_i\right)\\\;\\ \text{s.t.}\;y_i(\boldsymbol w'\boldsymbol x_i+b)\ge 1-\xi_i \;\text{for}\; i=1,...,n\\\;\\ \xi_i\ge 0 \;\text{for}\; i=1,...,n
+\end{array}\]
+  </li>
+  <li>
+    <p>在第二种情况下，通过引入松弛变量 $\xi_i$ 以允许违反，约束条件被放松（“软化”）了。因此，被称为 “软间隔”。</p>
+  </li>
+</ul>
+
+<h2 id="2-svm-的拉格朗日对偶">2. SVM 的拉格朗日对偶</h2>
+<p><strong>一个等效的公式，具有重要的意义。</strong></p>
+<h3 id="21-约束优化">2.1 约束优化</h3>
+<ul>
+  <li>
+    <p>约束优化：<strong>规范形式</strong><br />
+<img src="https://tva1.sinaimg.cn/large/006y8mN6ly1g8powk071aj30ao0by3z8.jpg" width="20%" align="right" /></p>
+
+\[\begin{array}{cc}\text{minimise}\;f(\boldsymbol x)\\\\
+\text{s.t.}\;g_i(\boldsymbol x)\le 0, i=1,...,n\\\\
+h_j(\boldsymbol x)= 0, j=1,...,m\end{array}\]
+
+    <ul>
+      <li>例如：找到位于桥的南边，湖中最深的点。</li>
+    </ul>
+  </li>
+  <li>适用，但是：并不能直接应用梯度下降</li>
+  <li>硬间隔 SVM：$\mathop{\operatorname{arg\,min}}\limits_{\boldsymbol w}\dfrac{1}{2}\|\boldsymbol w\|^2\quad\text{s.t.}\;1-y_i(\boldsymbol w’\boldsymbol x_i+b)\le 0\;\text{for}\;i=1,…,n$</li>
+  <li><strong>拉格朗日乘子法</strong>
+    <ul>
+      <li>转换为无约束优化 - 对于求解不是必需的</li>
+      <li>将 <strong>原始问题</strong> 转换为一个相关的 <strong>对偶问题</strong>，以替代原始问题</li>
+      <li>分析两个问题求解的必要和充分条件</li>
+    </ul>
+  </li>
+</ul>
+
+<h3 id="22-拉格朗日和对偶性">2.2 拉格朗日和对偶性</h3>
+<ul>
+  <li>通过辅助变量引入辅助目标函数：<br />
+$\mathcal{L}(\boldsymbol x,\boldsymbol\lambda,\boldsymbol \nu)=f(\boldsymbol x)+\sum_{i=1}^{n}\lambda_ig_i(\boldsymbol x)+\sum_{j=1}^{m}\nu_jh_j(\boldsymbol x)$ （原始约束变成了惩罚项）
+    <ul>
+      <li>称为 <strong>拉格朗日函数</strong></li>
+      <li>新加入的 $\boldsymbol \lambda$ 和 $\boldsymbol \nu$ 称为 <strong>拉格朗日乘子</strong> 或者 <strong>对偶变量</strong></li>
+    </ul>
+  </li>
+  <li>（旧的）<strong>原始问题</strong>：$\min_{\boldsymbol x}\max_{\boldsymbol{\lambda\ge0,\nu}}\mathcal{L}(\boldsymbol x,\boldsymbol\lambda,\boldsymbol \nu)$</li>
+  <li>（新的）<strong>对偶问题</strong>：$\max_{\boldsymbol{\lambda\ge0,\nu}}\min_{\boldsymbol x}\mathcal{L}(\boldsymbol x,\boldsymbol\lambda,\boldsymbol \nu)$ （可能更容易解决，有利的）</li>
+  <li>对偶理论将原始问题和对偶问题联系起来：
+    <ul>
+      <li>弱对偶：对偶最优解 $\le$ 原始最优解</li>
+      <li>对于凸优化问题（包括 SVM）<strong>强对偶</strong>：二者最优解一样</li>
+    </ul>
+  </li>
+</ul>
+
+<h3 id="23-硬间隔-svm-的对偶问题">2.3 硬间隔 SVM 的对偶问题</h3>
+<ul>
+  <li>
+    <p>在最小化了关于原始变量的拉格朗日函数之后，现在将其关于对偶变量进行最大化，得到对偶问题</p>
+
+\[\begin{array}{cc}\mathop{\operatorname{arg\,max}}\limits_{\boldsymbol \lambda}\sum_{i=1}^{n}\lambda_i-\dfrac{1}{2}\sum_{i=1}^{n}\sum_{j=1}^{n}\lambda_i\lambda_jy_iy_j\boldsymbol x_i'\boldsymbol x_j\\\\
+\text{s.t.}\;\lambda_i\ge 0\;\text{and}\;\sum_{i=1}^{n}\lambda_iy_i=0
+\end{array}\]
+  </li>
+  <li><strong>强对偶</strong>：求解对偶问题，即可得到原始问题的解</li>
+  <li>与原始问题类似的地方：所谓的二次规划 - 现成的软件可以解决 – 稍后</li>
+  <li>与原始问题不同的地方：
+    <ul>
+      <li>求解复杂度是 $O(n^3)$ 而非 $O(d^3)$</li>
+      <li>程序仅取决于数据的点积 - 稍后将更多关于核方法</li>
+    </ul>
+  </li>
+</ul>
+
+<h3 id="24-利用对偶解进行预测">2.4 利用对偶解进行预测</h3>
+<ul>
+  <li>恢复原始变量
+    <ul>
+      <li>回忆平稳性：$\color{red}{w_j^*}-\sum_{i=1}^{n}\lambda_iy_i(\boldsymbol x_i)_j=0$</li>
+      <li>互补松弛：$\color{red}{b^*}$ 可以从对偶解中得到，注意对于任何样本 $j$ 和 $\lambda_i^{*}&gt;0$，我们有<br />
+$y_j(b^*+\sum_{i=1}^{n}\lambda_i^{*}y_i\boldsymbol x_i’\boldsymbol x_j)=1$
+<br /></li>
+    </ul>
+  </li>
+  <li>测试：对新的实例 $\boldsymbol x$ 进行分类，基于下面式子的符号<br />
+$s=b^{*}+\sum_{i=1}^{n}\lambda_i^{*} y_i\boldsymbol x_i’\boldsymbol x$</li>
+</ul>
+
+<h3 id="25-软间隔-svm-的对偶问题">2.5 软间隔 SVM 的对偶问题</h3>
+<ul>
+  <li>
+    <p>训练：找到 $\boldsymbol \lambda$ 求解</p>
+
+\[\begin{array}{cc}\mathop{\operatorname{arg\,max}}\limits_{\boldsymbol \lambda}\sum_{i=1}^{n}\lambda_i-\dfrac{1}{2}\sum_{i=1}^{n}\sum_{j=1}^{n}\lambda_i\lambda_jy_iy_j\boldsymbol x_i'\boldsymbol x_j\\\\
+\text{s.t.}\;\color{red}{\underbrace{\color{black}{C\ge\lambda_i\ge 0}}_{\text{盒子约束}}}\;\text{and}\;\sum_{i=1}^{n}\lambda_iy_i=0\end{array}\]
+  </li>
+  <li>
+    <p>进行预测：和硬间隔的情况一样的模式</p>
+  </li>
+</ul>
+
+<p><img src="https://tva1.sinaimg.cn/large/006y8mN6ly1g8ptobvbc6j316d0u0dry.jpg" /></p>
+
+<h2 id="3-其他注意事项">3. 其他注意事项</h2>
+<h3 id="31-互补松弛点积">3.1 互补松弛、点积</h3>
+<ul>
+  <li>回忆 KKT 的条件之一是互补松弛性<br />
+$\lambda_i^{*}(y_i((\boldsymbol w^{*})’\boldsymbol x_i+b^{*})-1)=0$</li>
+  <li>
+    <p>回忆 $y_i(\boldsymbol w’\boldsymbol x_i+b)-1&gt;0$ 意味着 $\boldsymbol x_i$ 在间隔外侧<br />
+<img src="https://tva1.sinaimg.cn/large/006y8mN6ly1g8pu4ujx9kj30o40hsdh4.jpg" width="40%" /></p>
+  </li>
+  <li>( 像大多数 ) 间隔外侧的点必须满足 $\lambda^*=0$</li>
+  <li>那些满足非零 $\lambda$ 的点即 <strong>支持向量</strong><br />
+$\boldsymbol w^{*}=\sum_{i=1}^{n}\lambda_iy_i\boldsymbol x_i$</li>
+  <li>预测由松弛变量的点积给出<br />
+$s=b^{*}+\sum_{i=1}^{n}\lambda_i^{*}y_i\boldsymbol x_i’\boldsymbol x$</li>
+</ul>
+
+<h3 id="32-训练-svm">3.2 训练 SVM</h3>
+<ul>
+  <li>SVM 的对偶问题是 <strong>二次规划问题</strong>。利用标准算法，这类问题可以在 $O(n^3)$ 的时间复杂度内解决。或者对于原始问题，可以在 $O(d^3)$ 的时间复杂度内解决。</li>
+  <li>这可能效率低下；已经有几种专门的求解方法被提出。</li>
+  <li>求解方法主要是对训练数据进行分解，并将问题分解为可以快速解决的较小问题。</li>
+  <li>原始的 SVM 训练算法的分解利用了许多 $\lambda$ 将为零（稀疏性）的这一事实。</li>
+  <li><strong>顺序最小优化（SMO）</strong> 是极端分块情况下的另一种算法。一个迭代过程，可以在每次迭代时随机选择几对 $\lambda$ 进行解析优化。</li>
+</ul>
+
+<h2 id="总结">总结</h2>
+<ul>
+  <li>软间隔 SVM
+    <ul>
+      <li>直觉和问题的数学表述</li>
+    </ul>
+  </li>
+  <li>构造对偶问题
+    <ul>
+      <li>拉格朗日乘子法、KKT 条件</li>
+      <li>弱对偶和强对偶</li>
+    </ul>
+  </li>
+  <li>补充
+    <ul>
+      <li>互补松弛性</li>
+      <li>训练注意事项</li>
+    </ul>
+  </li>
+</ul>
+
+<p>下节内容：核方法</p>
+
+:ET

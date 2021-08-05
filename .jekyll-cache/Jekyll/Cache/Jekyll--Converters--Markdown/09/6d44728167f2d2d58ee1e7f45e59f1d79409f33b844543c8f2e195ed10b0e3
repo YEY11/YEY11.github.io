@@ -1,0 +1,15 @@
+I"\<h1 id="lecture-15-贝叶斯分类">Lecture 15 贝叶斯分类</h1>
+<h2 id="主要内容">主要内容</h2>
+<ul>
+  <li><strong>离散设定下的贝叶斯思想</strong>
+    <ul>
+      <li>Beta-Binomial 共轭</li>
+    </ul>
+  </li>
+  <li><strong>贝叶斯分类</strong>
+    <ul>
+      <li>非共轭的渐进必要性</li>
+    </ul>
+  </li>
+</ul>
+:ET

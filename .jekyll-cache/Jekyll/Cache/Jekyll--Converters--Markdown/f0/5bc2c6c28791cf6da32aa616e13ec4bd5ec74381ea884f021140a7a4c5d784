@@ -1,0 +1,383 @@
+I"ޜ<h1 id="lecture-07-非线性模型">Lecture 07 非线性模型</h1>
+
+<p><strong>参考教材</strong>：</p>
+
+<ul>
+  <li><em>Gareth, J., Daniela, W., Trevor, H., &amp; Robert, T. (2013). An intruduction to statistical learning: with applications in R. Spinger.</em></li>
+  <li><em>Hastie, T., Tibshirani, R., &amp; Friedman, J. (2009). The elements of statistical learning: data mining, inference, and prediction. Spinger Science &amp; Business Media.</em></li>
+</ul>
+
+<h2 id="1-引言">1. 引言</h2>
+
+<p>目前为止，我们讨论的内容大多集中于线性模型。相比于其他模型而言，线性模型更易于描述、实现简单、解释性和推断理论都相对成熟。然而，我们也不能回避标准线性回归模型在预测上明显不足的问题。这是因为模型的线性假设通常只是对真实函数的一种近似，有时这种近似效果并不理想。</p>
+
+<p>上节课中，我们介绍了一些用于提升线性回归模型预测效果的模型，例如：基于最小二乘的岭回归、Lasso、PCR 和 PLS。这些模型在降低线性模型复杂度的同时也降低了估计的方差。但事实上，线性模型的形式仍未改变。</p>
+
+<p>本节课中，我们将介绍一些非线性模型，它们在保证良好的可解释性的前提下，通过放松线性假设对原始线性模进行简单推广，例如：</p>
+
+<ul>
+  <li>
+    <p><strong>多项式回归 (Polynomial regression)</strong>：用原始预测变量的幂作为新的预测变量以替代原始变量。例如：一个三次回归模型包含三个预测变量 $X,X^2,X^3$。这是一种简单实用的表达数据非线性关系的模型。</p>
+
+    <p><br /></p>
+  </li>
+  <li>
+    <p><strong>阶梯函数 (Step functions)</strong>：将某个预测变量的取值空间分割成 $K$ 个不同区域，以此来生成一个新的定性变量，分段拟合一个常量函数。</p>
+
+    <p><br /></p>
+  </li>
+  <li>
+    <p><strong>回归样条 (Regression spline)</strong>：该方法在形式上比多项式回归和阶梯拟合方法更灵活，实际上回归样条可以视为前两类方法的推广。首先将 $X$ 的取值范围分割成 $K$ 个区域，在每个区域上分别独立拟合一个多项式函数。然而，通常会对这些多项式函数进行一些限制以保证在区域边界或 <strong>结点 (knots)</strong> 处的连接是光滑的。只要将 $X$ 的取值区间划分为足够多的区域，此方法就能够产生灵活度很高的拟合。</p>
+
+    <p><br /></p>
+  </li>
+  <li>
+    <p><strong>光滑样条 (Smoothing splines)</strong>：与回归样条类似，但是产生机制略有不同，一般是通过最小化一个带光滑惩罚项的残差平方和的式子来得到光滑样条的结果。</p>
+
+    <p><br /></p>
+  </li>
+  <li>
+    <p><strong>局部回归 (Local regression)</strong>：与样条方法类似，但是存在一个重大差别：局部回归中的区域之间是允许重叠的，并且这种重叠将以一种非常光滑的方式完成。</p>
+
+    <p><br /></p>
+  </li>
+  <li>
+    <p><strong>广义可加模型 (Generalized additive models)</strong>：实际上是将上述模型推广到多个预测变量的情况。</p>
+  </li>
+</ul>
+
+<p>上述方法都具有很高的灵活性，并且不会丢失线性模型的简单性和可解释性。</p>
+
+<h2 id="2-多项式回归">2. 多项式回归</h2>
+
+<p>为了体现响应变量和预测变量之间的非线性关系，将线性模型推广的最自然的方法是将标准线性模型替换为一个多项式函数：</p>
+
+\[y_i = \beta_0 + \beta_1 x_i + \beta_2 x_i^2 + \beta_3 x_i^3 + \dots + \beta_d x_i^d + \epsilon_i\]
+
+<p>其中，$\epsilon_i$ 是误差项。这种方法称为 <strong>多项式回归</strong>。对于阶数比较大的 $d$，多项式回归将呈现明显的非线性曲线。</p>
+
+<p>注意到其本质上可视为预测变量 $x_i,x_i^2,x_i^3,\dots,x_i^d$ 的标准线性模型，因此用最小二乘回归的方法就能得到其系数的估计。对多项式阶数 $d$ 的选择不宜过大，一般不大于 $3$ 或者 $4$，这是因为 $d$ 越大，多项式曲线就会变得过于灵活，以至于出现一些奇怪的形状，尤其是在 $X$ 变量的边界附近。</p>
+
+<p>图 1 的左图是 <code class="language-plaintext highlighter-rouge">Wage</code> 数据集中的 <code class="language-plaintext highlighter-rouge">wage</code> 变量关于 <code class="language-plaintext highlighter-rouge">age</code> 变量的散点图，其中包含了居住在美国亚特兰大中部地区男性的收入和人口信息。图中蓝色实线是使用最小二乘法拟合的 $4$ 阶多项式回归的结果。尽管表面上看，这个模型与其他线性回归模型并无明显差异，但每个变量的系数不再是模型关注的重点。相反，通过观察 <code class="language-plaintext highlighter-rouge">age</code> 在 $18$ 岁到 $80$ 岁之间的 $62$ 个观测值的函数拟合结果，可以帮助我们更好地理解 <code class="language-plaintext highlighter-rouge">age</code> 和 <code class="language-plaintext highlighter-rouge">wage</code> 的关系。</p>
+
+<p><img src="http://andy-blog.oss-cn-beijing.aliyuncs.com/blog/2020-11-09-WX20201110-003200%402x.png" width="80%" /></p>
+
+<p><span style="margin:auto; display:table; font-size:10pt"> <span style="color:steelblue;font-weight:bold">图 1</span>：<code class="language-plaintext highlighter-rouge">Wage</code> 数据集。<strong>左图</strong>：实线表示 <code class="language-plaintext highlighter-rouge">wage</code> (单位：千美元) 关于 <code class="language-plaintext highlighter-rouge">age</code> 的 $4$ 阶多项式模型曲线，用最小二乘法拟合；虚线表示 $95\%$ 置信区间。<strong>右图</strong>：针对二元变量 <code class="language-plaintext highlighter-rouge">wage &gt;250</code> 的逻辑回归模型建模结果，通常采用 $4$ 阶多项式，蓝色实线表示 <code class="language-plaintext highlighter-rouge">wage &gt;250</code> 的后验概率，虚线则是估计的 $95\%$ 置信区间。</span></p>
+
+<p>首先创建一些新的变量 $X_1=X, X_2=X^2,\dots$，然后按照多元线性回归的方式拟合它们。</p>
+
+<p>这里，我们真正关心的并非回归系数，而是在任意一个 $x_0$ 处的拟合函数值：</p>
+
+\[\hat f(x_0) = \hat \beta_0 + \hat \beta_1 x_0+ \hat \beta_2 x_0^2+ \hat \beta_3 x_0^3+ \hat \beta_4 x_0^4\]
+
+<p>由于 $\hat f(x_0)$ 是一个关于 $\hat \beta_{\ell}$ 的线性函数，我们可以得到一个在任意 $x_0$ 处的 <strong>点方差 (pointwise-variances)</strong> $\mathrm{Var}[\hat f(x_0)]$ 的简单表示。在图 1 中，我们已经计算了 $x_0$ 值组成的网格上的拟合值和 <strong>点标准误 (pointwise standard errors)</strong>。并且画出了出拟合值曲线以及距离拟合值两倍标准误的曲线，即 $\hat f(x_0) \pm 2 \cdot \mathrm{se}[\hat f(x_0)]$。之所以取两倍标准误是因为为对于正态分布的误差项来说，这个值对应的大约是 $95\%$ 置信区间。</p>
+
+<p>通常，我们要么将阶数 $d$ 固定在一个合理的较低值，要么使用交叉验证来选择 $d$。</p>
+
+<p>从图 1 可以看出，工资好像是来自于两个不同的总体：一个总体是年收入高于 $250$ 千美元的高收入组，而另一个则是低收入组。将 <code class="language-plaintext highlighter-rouge">wage</code> 看作一个二元变量就能将数据分成两个组。这样以 <code class="language-plaintext highlighter-rouge">age</code> 的多项式函数作为预测变量的逻辑回归就能用来预测这个二元响应变量。换句话说，实际上需要拟合的是下面这个模型：</p>
+
+\[\Pr(y_i &gt; 250 \mid x_i) = \dfrac{\exp(\beta_0 + \beta_1 x_i + \beta_2 x_i^2 +  \dots + \beta_d x_i^d)}{1 + \exp(\beta_0 + \beta_1 x_i + \beta_2 x_i^2 + \dots + \beta_d x_i^d)}\]
+
+<p>为了获得其置信区间，只需要计算相关的 $\mathrm{logit}$ 函数的上下限，然后取反即可得到概率的置信区间。</p>
+
+<p>并且，我们可以将多个变量分开处理，只需将变量堆叠到一个矩阵中，然后将进行分区计算即可 (参见后面的 GAM)。</p>
+
+<p><strong>注意</strong>：多项式函数具有臭名昭著的 <strong>尾部行为 (tail behavior)</strong>，这会导致推断非常困难。</p>
+
+<p>在 R 中，我们可以在 <code class="language-plaintext highlighter-rouge">formula</code> 参数中使用 <code class="language-plaintext highlighter-rouge">y ~ poly(x, degree=3)</code> 进行多项式拟合。</p>
+
+<h2 id="3-阶梯函数">3. 阶梯函数</h2>
+
+<p>在线性模型中使用特征变量的多项式形式作为预测变量得到了在 $X$ 取值空间全局皆非线性的拟合函数。如果不希望得到全局的模型，可以使用 <strong>阶梯函数</strong> 拟合。这里，把 $X$ 的取值范围分割成一些区间，每个区间上拟合一个不同的 <strong>常数</strong>。这相当于 <strong>将一个连续变量转换成一个有序的分类变量</strong>。</p>
+
+<p>具体来说，首先在 $X$ 取值空间上创建 $K$ 个分割点 $c_1,c_2,\dots,c_K$，然后构造以下 $K+1$ 个新变量：</p>
+
+\[\begin{align}
+C_0(X) &amp;= I(X &lt; c_1) \\[2ex]
+C_1(X) &amp;= I(c_1 \le X &lt; c_2) \\[2ex]
+C_2(X) &amp;= I(c_2 \le X &lt; c_3) \\[2ex]
+&amp;\; \vdots \\[2ex]
+C_{K-1}(X) &amp;= I(c_{K-1} \le X &lt; c_K) \\[2ex]
+C_K(X) &amp;= I(c_K \le X)
+\end{align}\]
+
+<p>其中，$I(\cdot)$ 是指示函数，当条件成立时返回 $1$，否则返回 $0$。例如，当 $c_K \le X$ 时，$I(c_K \le X)$ 等于 $1$，否则等于 $0$。这样定义的变量有时候也称为 <strong>虚拟变量</strong>。注意，由于 $X$ 只能落在 $K + 1$ 个区间中的某一个，于是对任意 $X$ 的取值，都有 $C_0(X) + C_1(X) +\cdots + C_K(X) = 1$。然后，我们可以将 $C_1(X),C_2(X),\dots, C_K(X)$ 作为预测变量，使用最小二乘法来拟合一个线性模型：</p>
+
+\[y_i = \beta_0 + \beta_1 C_1(x_i) + \beta_2 C_2(x_i) + \cdots + \beta_K C_K(x_i) +\epsilon_i\]
+
+<p>对于 $X$ 的一个给定值，$C_1(X),C_2(X),\dots, C_K(X)$ 中至多只有一项系数非零。注意到，当 $X &lt; c_1$ 时，式中的每个预测变量都为零，所以 $\beta_0$ 可以被解释为 $X &lt; c_1$ 时响应 $Y$ 的平均值。相应地，当 $c_j \le X &lt; c_{j+1}$ 时，响应的预测值为 $\beta_0 + \beta_j$，所以这里 $\beta_j$ 可以被解释为：当 $X$ 由 $X &lt; c_1$ 增至 $c_j \le X &lt; c_{j+1}$ 时，响应变量 $Y$ 的平均增量。</p>
+
+<p>图 2 左图是以图 1 中的 <code class="language-plaintext highlighter-rouge">Wage</code> 数据拟合阶梯函数的效果。用 <code class="language-plaintext highlighter-rouge">wage</code> 对 <code class="language-plaintext highlighter-rouge">age</code> 拟合逻辑回归模型：</p>
+
+\[\Pr(y_i &gt; 250 \mid x_i) = \dfrac{\exp(\beta_0 + \beta_1 C_1(x_i) + \cdots + \beta_K C_K(x_i))}{1 + \exp(\beta_0 + \beta_1 C_1(x_i) + \cdots + \beta_K C_K(x_i))}\]
+
+<p>并用该模型预测一个样本属于高收入组的概率。图 2 右图显示使用这种方法得到的拟合后验概率。</p>
+
+<p><img src="http://andy-blog.oss-cn-beijing.aliyuncs.com/blog/2020-11-09-WX20201110-014845%402x.png" width="80%" /></p>
+
+<p><span style="margin:auto; display:table; font-size:10pt"> <span style="color:steelblue;font-weight:bold">图 2</span>：<code class="language-plaintext highlighter-rouge">Wage</code> 数据集。<strong>左图</strong>：实线表示用阶梯函数拟合 <code class="language-plaintext highlighter-rouge">wage</code> (单位：千美元) 关于 <code class="language-plaintext highlighter-rouge">age</code> 的最小二乘回归的结果；虚线为相应的 $95\%$ 置信区间。<strong>右图</strong>：使用阶梯函数，对二元变量 <code class="language-plaintext highlighter-rouge">wage &gt;250</code> 建立逻辑回归模型，实线表示 <code class="language-plaintext highlighter-rouge">wage &gt;250</code> 的后验概率，虚线为相应的 $95\%$ 置信区间。</span></p>
+
+<p>但是，如果预测变量本身不具有明显的分割点，则不适用于分段固定值拟合。例如，图 2 左侧，在第一区间内 <code class="language-plaintext highlighter-rouge">wage</code> 随 <code class="language-plaintext highlighter-rouge">age</code> 本来应有的增长趋势没有得到体现。不过，阶梯函数拟合方法在生物统计和生态学等领域很受欢迎。例如，一些研究习惯将每五年作为一个年龄组来定义预测区间。</p>
+
+<p>总的来说，阶梯函数方法易于使用。我们可以创建一系列虚拟变量来代表每个变量组。这对于创建易于解释的交互项非常有用。例如，我们可以创建关于 <code class="language-plaintext highlighter-rouge">year</code> 和 <code class="language-plaintext highlighter-rouge">age</code> 的交互作用：</p>
+
+\[I(\mathtt{year} &lt; 2005)\cdot \mathtt{age},\quad I(\mathtt{year} \ge 2005)\cdot \mathtt{age}\]
+
+<p>将允许不同年龄组拟合不同的线性函数。</p>
+
+<p>在 R 中，可以使用 <code class="language-plaintext highlighter-rouge">I(year &lt; 2005)</code> 或者 <code class="language-plaintext highlighter-rouge">cut(age, c(18, 25, 40, 65, 90))</code> 完成。</p>
+
+<p>但是，关于分割点或结点的选择可能是个问题。为了创建非线性，我们可以使用一些更平滑的替代方法，例如：样条方法。</p>
+
+<h2 id="4-基函数">4. 基函数</h2>
+
+<p>多项式和阶梯函数回归模型实际上是特殊的 <strong>基函数 (basis function)</strong> 方法。基本原理是对变量 $X$ 的函数或变换 $b_1(X),b_2(X),\dots,b_K(X)$ 进行建模。以模型</p>
+
+\[y_i = \beta_0 + \beta_1 b_1(x_i) + \beta_2 b_2(x_i) + \beta_3 b_3(x_i) + \cdots + \beta_K b_K(x_i) +\epsilon_i\]
+
+<p>来替代线性模型。注意基函数 $b_1(\cdot),b_2(\cdot),\dots,b_K(\cdot)$ 的值是给定的而且是已知的 (也就是说，在建模之前就选定了基函数的形式)。例如，对于多项式回归来说，基函数就是 $b_j(x_i) = x_i^j$，而对于阶梯函数其基函数则为 $b_j(x_i) = I(c_j \le x_i &lt; c_{j+1})$。我们可以认为上面的式子实际上等价于预测变量为 $b_1(x_i),b_2(x_i),\dots,b_K(x_i)$ 的标准线性模型。因此，可以使用最小二乘法来估计式中未知的回归系数。重要的是，这还表示之前我们所讨论的有关线性模型的各种推断结果，如标准误、系数估计值和用于模型整体显著性检验的 $F$ 统计量都可以使用。</p>
+
+<p>到目前为止，多项式函数和阶梯函数都可以视为模型的基函数。其实，换成其他的基函数也是可以的。例如，可以用小波变换或傅立叶级数构建基函数。接下来，我们将探讨一类广泛采用的基函数：<strong>回归样条 (regression spline)</strong>。</p>
+
+<h2 id="5-回归样条">5. 回归样条</h2>
+
+<p>这里我们将讨论一类光滑的基函数，它是前面多项式回归和阶梯函数回归方法的延伸和推广。</p>
+
+<h3 id="51-分段多项式">5.1 分段多项式</h3>
+
+<p>相比在 $X$ 整个域上拟合一个高阶多项式，<strong>分段多项式回归 (Piecewise polynomial regression)</strong> 在由结点定义的 $X$ 的不同区域上拟合独立的低阶多项式函数。</p>
+
+<p>例如，这里我们使用分段三次多项式函数来拟合下面的三次回归模型：</p>
+
+\[y_i = \beta_0 + \beta_1 x_i + \beta_2 x_i^2 + \beta_3 x_i^3 + \epsilon_i\]
+
+<p>其中，系数 $\beta_0$、$\beta_1$、$\beta_2$ 和 $\beta_3$ 在 $X$ 的不同区域上是不相同的。系数发生变化的临界点称为 <strong>结点 (knots)</strong>。</p>
+
+<p>例如，无结点的分段三次多项式就是上面式子中 $d=3$ 的标准三次多项式。具有一个结点 $c$ 的分段三次多项式形式如下：</p>
+
+\[y_i = \begin{cases}y_i = \beta_{01} + \beta_{11} x_i + \beta_{21} x_i^2 + \beta_{31} x_i^3 + \epsilon_i &amp; \text{if } x_i &lt; c \\[2ex]
+y_i = \beta_{02} + \beta_{12} x_i + \beta_{22} x_i^2 + \beta_{32} x_i^3 + \epsilon_i &amp; \text{if } x_i \ge c \end{cases}\]
+
+<p>换句话说，模型要求拟合两个不同的多项式函数，其中一个在 $x_i &lt; c$ 的观测子集上，另一个在 $x_i \ge c$ 的观测子集上。第一个多项式函数的系数为 $\beta_{01}$、$\beta_{11}$、$\beta_{21}$、$\beta_{31}$，第二个多项式函数的系数为 $\beta_{02}$、$\beta_{12}$、$\beta_{22}$、$\beta_{32}$。每一个多项式函数都使用最小二乘法来拟合。</p>
+
+<p><strong>采用更多的结点可以得到更光滑的分段多项式</strong>。一般情况下，如果在 $X$ 的整个域上设置 $K$ 个不同结点，那么最终将得到 $K+1$ 个不同的三次多项式。请注意，这里我们不一定要使用三次多项式，我们也可以拟合诸如分段线性函数之类的其他函数。事实上，之前的分段常数函数 (阶梯函数) 就是阶数为 $0$ 的分段多项式。</p>
+
+<p>图 3 左上图显示了使用分段三次多项式且只有一个结点 <code class="language-plaintext highlighter-rouge">age =50</code> 的函数来拟合 <code class="language-plaintext highlighter-rouge">Wage</code> 数据集的结果。图中的问题非常明显：该函数是不连续的且看起来很荒谬。由于每个多项式都有 $4$ 个参数，所以总共使用了 $8$ 个 <strong>自由度</strong> 构建这个分段多项式模型。</p>
+
+<h3 id="52-约束条件与样条">5.2 约束条件与样条</h3>
+
+<p><img src="http://andy-blog.oss-cn-beijing.aliyuncs.com/blog/2020-11-10-WX20201110-123427%402x.png" width="80%" /></p>
+
+<p><span style="margin:auto; display:table; font-size:10pt"> <span style="color:steelblue;font-weight:bold">图 3</span>：设定结点为 <code class="language-plaintext highlighter-rouge">age =50</code>，在 <code class="language-plaintext highlighter-rouge">Wage</code> 数据集的一个子集上拟合多个分段多项式模型。<strong>左上</strong>：没有任何约束的三次多项式。<strong>右上</strong>：约束在 <code class="language-plaintext highlighter-rouge">age=50</code> 处连续的三次多项式。<strong>左下</strong>：约束在 <code class="language-plaintext highlighter-rouge">age=50</code> 处连续且此处的一阶、二阶导数也连续的三次多项式。<strong>右下</strong>：约束在 <code class="language-plaintext highlighter-rouge">age=50</code> 处连续的线性样条。</span></p>
+
+<p>图 3 左上图看起来并未得到正确的拟合，这是因为拟合曲线过于灵活。为了修正这个问题，需要在拟合曲线连续这一约束下，拟合分段多项式。换句话说，函数在 <code class="language-plaintext highlighter-rouge">age=50</code> 处不能出现跳跃，图 3 右上图显示了此约束下的拟合结果，看上去比左上图好一些，但连接处的 V-形看上去还是不太自然。</p>
+
+<p>在图 3 左下图中，我们添加了两个额外约束：在 <code class="language-plaintext highlighter-rouge">age=50</code> 处的一阶、二阶 <strong>导数</strong> 都是连续的。换而言之，左下图要求分段多项式在 <code class="language-plaintext highlighter-rouge">age=50</code> 处不仅连续，并且非常 <strong>光滑</strong>。我们施加在分段三次多项式上的每个约束都通过降低模型复杂度有效地释放了一个自由度。因此，在左上图中，我们使用了 $8$ 个自由度，而在左下图中，我们施加了 $3$ 个约束 (原函数、一阶、二阶导数均连续)，因此还剩下 $5$ 个自由度。左下图中的曲线称为 <strong>三次样条曲线 (cubic spline)</strong>。通常，具有 $K$ 个结点的三次样条总共使用 $4 + K$ 个自由度。</p>
+
+<p>图 3 右下图是 <strong>线性样条 (linear spline)</strong>，它在 <code class="language-plaintext highlighter-rouge">age=50</code> 处是连续的。一个 $d$ 阶样条通常被定义为一个分段 $d$ 阶多项式，并且在每个结点处的前 $d-1$ 阶导数都是连续的。因此，线性样条可以通过以下方式得到：在由结点定义的预测变量空间的每个区域中都拟合一条线，并且在每个结点处保持连续性。</p>
+
+<p>在这里，图 3 中 只有 <code class="language-plaintext highlighter-rouge">age=50</code> 这一个结点。当然，我们还可以添加更多结点，并在每个结点上施加连续性。</p>
+
+<h3 id="53-样条基函数表示">5.3 样条基函数表示</h3>
+
+<p>我们在前面看到的回归样条可能看起来有些复杂：如何在原函数 (以及可能在其前 $d-1$ 导数) 满足连续性的约束下，拟合分段 $d$ 阶多项式？事实证明，我们可以使用基函数模型来表示回归样条。</p>
+
+<h4 id="线性样条">线性样条</h4>
+
+<p>一个具有 $K$ 个结点 $\xi_k\, (k=1,\dots,K)$ 的 <strong>线性样条 (linear spline)</strong> 是一个在每个结点处都连续的分段线性多项式函数 ($d=1$)。</p>
+
+<p>我们可以将此模型表示为：</p>
+
+\[y_i = \beta_0 + \beta_1 b_1(x_i) + \beta_2 b_2(x_i) + \cdots + \beta_{K+1} b_{K+1}(x_i) + \epsilon_i\]
+
+<p>其中，$b_k$ 是 <strong>基函数</strong>：</p>
+
+\[\begin{align}
+b_1(x_i) &amp;= x_i \\[2ex]
+b_{k+1}(x_i) &amp;= (x_i - \xi_k)_{+} \quad k=1,\dots,K
+\end{align}\]
+
+<p>这里，$()_{+}$ 表示 <strong>大于零的部分</strong>，即</p>
+
+\[(x_i - \xi_k)_{+} = \begin{cases}x_i - \xi_k &amp; \text{if } x_i &gt; \xi_k \\[2ex] 0 &amp; \text{otherwise}\end{cases}\]
+
+<p><img src="http://andy-blog.oss-cn-beijing.aliyuncs.com/blog/2020-11-10-WX20201110-134853%402x.png" width="80%" /></p>
+
+<p><span style="margin:auto; display:table; font-size:10pt"> <span style="color:steelblue;font-weight:bold">图 4</span>：线性样条 ($d=1$)。蓝色直线表示原始线性多项式模型，橙色直线表示线性样条的基函数。可以看到，在加入基函数后，原始线性模型在不同区域上采用了不同的线性模型拟合，并且在结点处是连续的。</span></p>
+
+<h4 id="三次样条">三次样条</h4>
+
+<p>一个具有 $K$ 个结点 $\xi_k\, (k=1,\dots,K)$ 的 <strong>三次样条 (cubic spline)</strong> 是一个在每个结点处的前 $2$ 阶导数都连续的分段三次多项式函数 ($d=3$)。</p>
+
+<p>同样，我们可以用 <strong>截断幂基函数 (truncated power basis function)</strong> 来表示该模型：</p>
+
+\[y_i = \beta_0 + \beta_1 b_1(x_i) + \beta_2 b_2(x_i) + \cdots + \beta_{K+3} b_{K+3}(x_i) + \epsilon_i\]
+
+<p>其中，</p>
+
+\[\begin{align}
+b_1(x_i) &amp;= x_i \\[2ex]
+b_2(x_i) &amp;= x_i^2 \\[2ex]
+b_3(x_i) &amp;= x_i^3 \\[2ex]
+b_{k+3}(x_i) &amp;= (x_i - \xi_k)_{+}^3 \quad k=1,\dots,K
+\end{align}\]
+
+<p>并且</p>
+
+\[(x_i-\xi_k)_{+}^3 = \begin{cases}(x_i-\xi_k)^3 &amp; \text{if } x_i &gt; \xi_k \\[2ex] 0 &amp; \text{otherwise}\end{cases}\]
+
+<p>可以证明，在原三次多项式基础上添加截断幂基函数项 $\beta_{k+3}b_{k+3}(x_i)$ 只会使其在 $\xi_k$ 处的三阶导数非连续；而在每个结点处，函数本身及其一阶、二阶导数都是连续的。</p>
+
+<p><img src="http://andy-blog.oss-cn-beijing.aliyuncs.com/blog/2020-11-10-WX20201110-140809%402x.png" width="80%" /></p>
+
+<p><span style="margin:auto; display:table; font-size:10pt"> <span style="color:steelblue;font-weight:bold">图 5</span>：三次样条 ($d=3$)。蓝色曲线表示原始三次多项式模型，橙色曲线表示三次样条的截断幂基函数。可以看到，在加入截断幂基函数后，原始三次多项式模型在不同区域上采用了不同的三次多项式模型拟合，并且在结点处，函数本身及其一阶、二阶导数都是连续的。</span></p>
+
+<h4 id="自然样条">自然样条</h4>
+
+<p>不幸的是，样条在预测变量范围之外的区域 (即当 $X$ 取很小或很大的值时) 可能具有较高的方差。图 6 显示了在 <code class="language-plaintext highlighter-rouge">Wage</code> 数据集上的具有 $3$ 个结点的拟合结果。可以看到，在边界区域 (最左边和最右边的区域) 出现的置信带相当宽。</p>
+
+<p><img src="http://andy-blog.oss-cn-beijing.aliyuncs.com/blog/2020-11-10-WX20201110-141921%402x.png" width="70%" /></p>
+
+<p><span style="margin:auto; display:table; font-size:10pt"> <span style="color:steelblue;font-weight:bold">图 6</span>：在 <code class="language-plaintext highlighter-rouge">Wage</code> 数据集的一个子集应用具有 $3$ 个结点的三次样条和自然三次样条的拟合结果。蓝色实线表示三次样条，红色实线表示自然三次样条；蓝色虚线表示三次样条的置信带，红色虚线表示自然三次样条的置信带。灰色圆点表示数据点，竖直虚线表示节点分区。</span></p>
+
+<p><strong>自然样条 (Natural spline)</strong> 是对回归样条附加了额外的 <strong>边界约束 (boundary constraints)</strong>：函数必须在边界区域 (即 $X$ 小于最小结点或大于最大结点的区域) 为线性，这意味着自然样条通常会在边界处产生更稳定的估计。</p>
+
+<p>自然三次样条曲线在两端边界结点之外的区域呈现线性，这相当于附加了 $2\times 2$ 个额外约束 (左右边界区域各拟合一个线性模型，每个线性模型包含 $2$ 个参数)。并且，自然三次样条允许我们以与常规三次样条相同的自由度设置更多内部结点。可以看到，在图 6 中，自然三次样条线显示为红线，可以看到，其在边界处的置信区间 (红色虚线) 要比三次样条的置信区间 (蓝色虚线) 窄一些。</p>
+
+<p>在 R 中，我们可以使用 <code class="language-plaintext highlighter-rouge">splines</code> 包轻松拟合样条：<code class="language-plaintext highlighter-rouge">bs(x, ...)</code> 用于任意阶数样条，<code class="language-plaintext highlighter-rouge">ns(x, ...)</code> 用于自然三次样条。</p>
+
+<h3 id="54-确定结点的个数和位置">5.4 确定结点的个数和位置</h3>
+
+<p>在拟合样条时一个自然的问题是：结点应该选在什么位置？</p>
+
+<p>回归样条曲线在包含许多结点的区域中最灵活，因为在这些区域中，多项式系数可以快速变化。因此，一种选择是在我们认为特征变化最快的地方设置更多结点，而在看起来更稳定的地方设置更少结点。尽管这种方式可以很好地工作，但在实践中通常会以某种统一方式设置结点：</p>
+
+<ul>
+  <li>一种方式是先指定所需的结点数 $K$，然后将它们放置在观测 $X$ 的合适的分位数上。</li>
+  <li>一个包含 $K$ 个结点的三次样条具有 $K+4$ 个参数或者自由度。</li>
+  <li>一个包含 $K$ 个结点的自然样条具有 $K$ 个自由度。</li>
+</ul>
+
+<p>图 7 显示了有关 <code class="language-plaintext highlighter-rouge">Wage</code> 数据集的示例，与图 6 一样，我们拟合了具有 $3$ 个结点的自然三次样条，但这里结点的位置被自动选择为 <code class="language-plaintext highlighter-rouge">age</code> 的 $25\%$、$50\%$ 和 $75\%$ 分位数。这需要通过在原三次样条 (自由度为 $3+4=7$) 上释放 $4$ 个自由度来指定 (因此，这里自然样条自由度为 $7-4=3$)。</p>
+
+<p><img src="http://andy-blog.oss-cn-beijing.aliyuncs.com/blog/2020-11-10-WX20201110-143608%402x.png" width="80%" /></p>
+
+<p><span style="margin:auto; display:table; font-size:10pt"> <span style="color:steelblue;font-weight:bold">图 7</span>：采用带有 $4$ 个自由度的自然三次样条函数来拟合 <code class="language-plaintext highlighter-rouge">Wage</code> 数据集。<strong>左图</strong>：以 <code class="language-plaintext highlighter-rouge">wage</code> 为响应变量和 <code class="language-plaintext highlighter-rouge">age</code> 为预测变量构造样条来拟合。<strong>右图</strong>：以 <code class="language-plaintext highlighter-rouge">wage &gt;250</code> 作为响应变量和 <code class="language-plaintext highlighter-rouge">age</code> 为预测变量得到的逻辑回归模型来拟合。实线表示 <code class="language-plaintext highlighter-rouge">wage &gt; 250</code> 的后验概率。</span></p>
+
+<p>另外一个问题是：需要使用几个结点，或者说样条函数的自由度选定在多少呢？</p>
+
+<p>一种方法是尝试多个不同的结点个数，然后从中选择拟合形状最理想的曲线。另一种较为客观的方法是使用交叉验证：首先移除部分数据 (例如：$10\%$)，然后用其余数据来拟合样条函数，接着用拟合得到的样条函数来对移除部分进行预测。这样不断重复多次直到所有数据都被移除过一次，最后计算整体的交叉验证 $\mathrm{RSS}$。依次对不同结点数目 $K$ 重复上述过程，最终选择最小 $\mathrm{RSS}$ 对应的 $K$。</p>
+
+<p>图 8 给出了 <code class="language-plaintext highlighter-rouge">Wage</code> 数据集在不同自由度下的 $10$-折交叉验证的均方误差。其中左图是自然三次样条，右图是三次样条。可以看到，两者结果相差不大，并且都明确指出自由度为 $1$ 的拟合 (即线性回归) 是不够的。两条曲线都是先急速下降然后趋于平稳，这里自由度为 $3$ 的自然样条和自由度为 $4$ 的三次样条都足够了。</p>
+
+<p><img src="http://andy-blog.oss-cn-beijing.aliyuncs.com/blog/2020-11-10-WX20201110-152336%402x.png" width="80%" /></p>
+
+<p><span style="margin:auto; display:table; font-size:10pt"> <span style="color:steelblue;font-weight:bold">图 8</span>：<code class="language-plaintext highlighter-rouge">Wage</code> 数据集在不同自由度下的 $10$-折交叉验证的均方误差。响应变量是 <code class="language-plaintext highlighter-rouge">wage</code>，预测变量是 <code class="language-plaintext highlighter-rouge">age</code>。<strong>左图</strong>：自然三次样条。<strong>右图</strong>：三次样条。</span></p>
+
+<p>后面我们将拟合具有多个变量的可加样条模型。这就需要对每个变量都选择一个合适的自由度。处理这类问题时，通常会采用一种比较实用的方法，即把每个变量的自由度都设定为固定数值 (例如：$4$)。</p>
+
+<h3 id="55-对比多项式回归">5.5 对比多项式回归</h3>
+
+<p>回归样条通常会得到比多项式回归更好的结果。不同于与多项式必须使用高阶来产生灵活的拟合，样条可以通过增加结数但保持固定的阶数来引入灵活性。通常，样条方法会产生更稳定的估计。样条曲线还允许我们在函数 $f$ 快速变化的区域上设置更多结点从而提高灵活性，而在 $f$ 较为稳定的区域设置更少结点。图 9 比较了<code class="language-plaintext highlighter-rouge">Wage</code> 数据集上的 $15$ 个自由度的自然三次样条和 $15$ 阶多项式，由于多项式额外的灵活性，其在边界区域的效果很差，而自然三次样条仍然能够提供较好的拟合。</p>
+
+<p><img src="http://andy-blog.oss-cn-beijing.aliyuncs.com/blog/2020-11-10-WX20201110-151432%402x.png" width="60%" /></p>
+
+<p><span style="margin:auto; display:table; font-size:10pt"> <span style="color:steelblue;font-weight:bold">图 9</span>：在 <code class="language-plaintext highlighter-rouge">Wage</code> 数据集上，对比具有 $15$ 个自由度的自然三次样条与 $15$ 阶多项式。可以看到，多项式在左右两端的边界区域拟合效果很差，尤其是在尾部附近。</span></p>
+
+<h2 id="6-光滑样条">6. 光滑样条</h2>
+
+<h3 id="61-光滑样条概述">6.1 光滑样条概述</h3>
+
+<p>在之前的回归样条中，我们首先设定一些结点，然后产生一列基函数，最后使用最小二乘法估计样条函数的系数。现在，我们考虑另一种生成样条的方式。</p>
+
+<p>为了对给定数据拟合一条光滑曲线，实际就是需要找到某个能够很好拟合观测数据的函数 $g(x)$，使得 $\mathrm{RSS}=\sum_{i=1}^{n}(y_i - g(x_i))^2$ 尽量小。但是存在一个问题：如果对 $g(x_i)$ 不施加任何约束，那么直接在每个 $y_i$ 处插值即可得到一个使得 $\mathrm{RSS}$ 为零的 $g(x)$。但是，这种方式得到的函数将过于灵活，并且存在严重的过拟合。而实际上，我们真正需要的 $g(x)$ 需要满足 $\mathrm{RSS}$ 尽量小的同时曲线也尽量 <strong>光滑 (smooth)</strong>。</p>
+
+<p>如何保证 $g(x)$ 是光滑的呢？一种自然的方式是采用以下准则：</p>
+
+\[\mathop{\operatorname{minimize}}\limits_{g \in \mathcal S} \sum_{i=1}^{n}(y_i - g(x_i))^2 + \lambda \int g''(t)^2dt\]
+
+<p>其中，</p>
+
+<ul>
+  <li>第一项是 $\mathrm{RSS}$，它试图使 $g(x)$ 在每个 $x_i$ 上匹配数据。</li>
+  <li>第二项是 <strong>粗糙度惩罚 (roughness penalty)</strong>，它控制着 $g(x)$ 的波动程度，通过一个 <strong>调节参数</strong> $\lambda \ge 0$ 进行调节：
+    <ul>
+      <li>$\lambda$ 越小，函数波动越剧烈，当 $\lambda=0$ 时，将最终得到在 $y_i$ 处插值的函数。</li>
+      <li>随着 $\lambda \to \infty$，函数 $g(x)$ 趋近线性。</li>
+    </ul>
+  </li>
+</ul>
+
+<p>通过上式得到的函数 $g(x)$ 被称为 <strong>光滑样条 (smoothing spline)</strong>。实际上，这里得到的光滑样条是一个具有 $n$ 个结点 $x_1,x_2,\dots,x_n$ 的自然三次样条，只不过它与之前通过给定结点 $x_1,x_2,\dots,x_n$ 然后确定基函数的方法得到的自然三次样条是不同的。我们可以认为光滑样条是自然三次样条的收缩版本，而调节参数 $\lambda$ 控制了收缩程度。</p>
+
+<h3 id="62-选择光滑参数-lambda">6.2 选择光滑参数 $\lambda$</h3>
+
+<p>简单来说，光滑样条就是将每一个不同的 $x_i$ 都设为结点的自然三次样条。但是由于将每个数据点都作为一个结点会使得光滑样条的自由度过高，从而波动剧烈。调节参数 $\lambda$ 控制着光滑样条的粗糙度，同时也控制着 <strong>有效自由度 (effective degrees of freedom)</strong>。可以证明，当 $\lambda$ 从 $0$ 增加到 $\infty$ 时，有效自由度，记为 $\mathrm{df}_{\lambda}$，将从 $n$ 降至 $2$。</p>
+
+<p>那么对于光滑样条，为什么我们讨论的不是自由度，而是有效自由度呢？</p>
+
+<p>通常，自由度是指自由参数的数量，例如多项式或三次样条中拟合系数的数量。尽管光滑样条具有 $n$ 个参数，因此具有 $n$ 个 <strong>名义自由度 (nominal degrees of freedom)</strong>，但是这 $n$ 个参数会受到严重约束或者收缩。因此，我们用 $\mathrm{df}_{\lambda}$ 来衡量是光滑样条的灵活度，其值越高，则光滑样条灵活度越高 (偏差较小，但方差较大)。</p>
+
+<p>为了定义有效自由度，我们可以将指定 $\lambda$ 的光滑样条对 $n$ 个观测的拟合值向量写成：</p>
+
+\[\hat{\mathbf g}_{\lambda} =\mathbf S_{\lambda}\mathbf y\]
+
+<p>其中，$\mathbf{S}_{\lambda}$ 是一个 $n\times n$ 的矩阵 (由 $x_i$ 和 $\lambda$ 决定)，$\mathbf y$ 是观测的响应值向量。</p>
+
+<p><strong>有效自由度 (effective degrees of freedom)</strong> 的定义由下式给出：</p>
+
+\[\mathrm{df}_{\lambda}=\sum_{i=1}^{n}\{\mathbf{S}_{\lambda}\}_{ii}\]
+
+<p>可以看到，它是矩阵 $\mathbf{S}_{\lambda}$ 的对角线上的元素之和。</p>
+
+<p>在拟合光滑样条时，我们 <strong>不需要事先选择结点个数或者位置</strong>，实际上在每个训练观测 $x_1,\dots,x_n$ 处都有一个结点。但是，我们仍然需要确定一个合适的 $\lambda$。一个自然的解决方案是使用交叉验证：即选择能够使交叉验证 $\mathrm{RSS}$ 尽量小的 $\lambda$。</p>
+
+<p>我们利用下式计算光滑样条的留一交叉验证误差 (LOOCV)，其运算量与计算单个拟合模型相同：</p>
+
+\[\mathrm{RSS}_{cv}(\lambda) = \sum_{i=1}^{n}(y_i - \hat g_{\lambda}^{(-i)}(x_i))^2 = \sum_{i=1}^{n}\left[\dfrac{y_i - \hat g_{\lambda}(x_i)}{1-\{\mathbf S_{\lambda}\}_{ii}} \right]^2\]
+
+<p>其他相关细节：</p>
+
+<ul>
+  <li>光滑样条避免了结点选择问题，只需要选择一个 $\lambda$ 即可。</li>
+  <li>具体算法细节过于复杂，此处略去。在 R 中，可以用 <code class="language-plaintext highlighter-rouge">smooth.spline()</code> 来拟合光滑样条。</li>
+  <li>在 R 中，我们可以直接指定自由度来拟合光滑样条 <code class="language-plaintext highlighter-rouge">smooth.spline(age, wage, df=10)</code>。</li>
+  <li>在 R 中，默认采用 LOOCV 来拟合光滑样条 <code class="language-plaintext highlighter-rouge">smooth.spline(age, wage)</code>。</li>
+</ul>
+
+<p>图 10 是使用光滑样条拟合 <code class="language-plaintext highlighter-rouge">Wage</code> 数据的结果，其中红线表示有效自由度为 $16$ 时的结果，蓝线则是默认留一交叉验证选取 $\lambda$ 的拟合结果：</p>
+
+<p><img src="http://andy-blog.oss-cn-beijing.aliyuncs.com/blog/2020-11-10-WX20201110-172510%402x.png" width="60%" /></p>
+
+<p><span style="margin:auto; display:table; font-size:10pt"> <span style="color:steelblue;font-weight:bold">图 10</span>：使用光滑样条拟合 <code class="language-plaintext highlighter-rouge">Wage</code> 数据。红线表示有效自由度为 $16$ 时的结果。蓝线则是默认留一交叉验证选取 $\lambda$ 的拟合结果，这里得到的有效自由度为 $6.8$。</span></p>
+
+<p>可以看到，这里两种方法得到的光滑样条之间的差异非常小，仔细观察可能会发现自由度为 $16$ 的光滑样条看起来波动稍微大一些。尽管两个拟合结果只有微小的差异，但这里我们更倾向于有效自由度为 $6.8$ 的光滑样条，因为通常来说，除非有足够的理由支持，我们一般倾向于选择更简单的模型。</p>
+
+<h2 id="7-局部回归">7. 局部回归</h2>
+
+<p><strong>局部回归 (Local regression)</strong> 是拟合光滑非线性函数的另外一种方法，在对一个目标观测点 $x_0$ 拟合时，该方法只用到这个点附近的训练观测。图 11 通过一些模拟函数表达了这一思想，其中一个目标观测点在 $0.4$ 附近，另一个则在边界处 $0.05$ 的位置。图中的蓝色曲线是生成模拟数据的真实函数 $f(x)$，橙色曲线是用局部回归拟合得到的 $\hat f(x)$。</p>
+
+<p><img src="http://andy-blog.oss-cn-beijing.aliyuncs.com/blog/2020-11-10-WX20201110-173800%402x.png" width="80%" /></p>
+
+<p><span style="margin:auto; display:table; font-size:10pt"> <span style="color:steelblue;font-weight:bold">图 1</span>：使用光滑样条拟合 <code class="language-plaintext highlighter-rouge">Wage</code> 数据。红线表示有效自由度为 $16$ 时的结果。蓝线则是默认留一交叉验证选取 $\lambda$ 的拟合结果，这里得到的有效自由度为 $6.8$。</span></p>
+
+<p>利用滑动权重函数，我们通过加权最小二乘来拟合 $X$ 范围内的线性函数。</p>
+
+<p>在 R 中，我们可以使用 <code class="language-plaintext highlighter-rouge">loess()</code> 实现局部回归。</p>
+
+<h2 id="8-广义可加模型">8. 广义可加模型</h2>
+
+<p><strong>广义可加模型 (Generalized additive models, GAM)</strong> 允许我们在多个变量下实现灵活的非线性，但仍然保留线性模型的可加性结构。</p>
+
+\[y_i=\beta_0 + f_1(x_{i1})+ f_2(x_{i2})+\cdots + f_p(x_{ip}) + \epsilon_i\]
+
+<p><img src="http://andy-blog.oss-cn-beijing.aliyuncs.com/blog/2020-11-10-WX20201110-174556%402x.png" width="90%" /></p>
+
+<p>GAM 用于分类：</p>
+
+\[\log \left(\dfrac{p(X)}{1-p(X)} \right) = \beta_0 + f_1(X_1)+ f_2(X_2)+\cdots + f_p(X_p)\]
+
+<p><img src="http://andy-blog.oss-cn-beijing.aliyuncs.com/blog/2020-11-10-WX20201110-175017%402x.png" width="90%" /></p>
+
+<p>下节内容：非线性模型</p>
+:ET

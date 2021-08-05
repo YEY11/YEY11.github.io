@@ -1,0 +1,158 @@
+I"�<h1 id="module-12-总结">Module 12 总结</h1>
+
+<h2 id="1-回顾伦理工具">1. 回顾伦理工具</h2>
+
+<h3 id="11-为什么要使用这些工具">1.1 为什么要使用这些工具？</h3>
+
+<p>对人工智能伦理进行反思和严谨的思考，以及独立和与该领域研究人员对话的能力。</p>
+
+<h3 id="12-伦理理论框架">1.2 伦理理论/框架</h3>
+
+<p><img src="http://andy-blog.oss-cn-beijing.aliyuncs.com/blog/2021-06-25-WX20210625-121355%402x.png" width="70%" /></p>
+
+<ul>
+  <li>功利主义（Utilitarianism）</li>
+  <li>义务论（Deontology）</li>
+  <li>美德伦理（Virtue ethics）</li>
+  <li>关怀伦理（Ethics of care）</li>
+  <li>原则主义（Principlism）</li>
+</ul>
+
+<h3 id="13-伦理原则">1.3 伦理原则</h3>
+
+<ul>
+  <li>行善（Beneficence）</li>
+  <li>无恶意（Nonmaleficence）</li>
+  <li>透明度（Transparency）</li>
+  <li>安全（Safety）</li>
+  <li>问责制（Accountability）</li>
+  <li>公平/公正（Fairness/justice）</li>
+  <li>尊重自主权（Respect for autonomy）</li>
+  <li>隐私（Privacy）</li>
+  <li>……</li>
+</ul>
+
+<h3 id="14-设计中的伦理指南beard--longstaff">1.4 设计中的伦理指南（Beard &amp; Longstaff）</h3>
+
+<ul>
+  <li>正当性优先（需要伦理反思和讨论）（Ought before can, need for ethical reflection and discussion）</li>
+  <li>非工具主义（康德道义论）（Non-instrumentalism, Kantian deontology）</li>
+  <li>自决（自主）（Self-determination, autonomy）</li>
+  <li>责任（自我问责）（Responsibility, accountability of self）</li>
+  <li>净收益（Net benefit）</li>
+  <li>公平（公正，例如：类似案例类似处理）（Fairness, justice – like cases alike)）</li>
+  <li>可及性（平等）（Accessibility, equity）</li>
+  <li>目的（Purpose）</li>
+</ul>
+
+<h3 id="15-例子杀手机器人">1.5 例子：杀手机器人</h3>
+
+<p>自主战斗机器：它们应该被开发吗？ 或者应该停止/禁止它们吗？</p>
+
+<p>可以 <em>潜在地</em> 使用每种 <strong>伦理理论/框架</strong> 来 <em>支持或反对</em> 杀手机器人。</p>
+
+<p>例如，功利主义：杀手机器人既可以带来好的后果（例如减少士兵死亡）也可以带来坏的后果（例如使国家更有可能开战）等。其他理论也可以类似分析。</p>
+
+<p><strong>原则和指南</strong> 的应用也类似，例如，问责制：也许民主国家可以对使用杀手机器人承担一定的责任，但流氓国家或恐怖组织呢？</p>
+
+<p>但是，请仔细选择和使用它们：</p>
+
+<ul>
+  <li>有时以一种方式使用理论或原则可能比以另一种方式使用更好</li>
+  <li>例如，设计一个终结者天网显然不会得到大多数/所有伦理理论的支持！</li>
+  <li>需要 <em>展示</em> 您对这些理论/原则的理解</li>
+  <li><em>详细</em> 论证这些理论或原则 <em>如何</em> 支持您的立场（例如，功利主义：好的和坏的后果的 <em>证据</em>；展示如何 <em>权衡</em> 它们以使好处最大化等）</li>
+  <li>考虑 <em>其他</em> 观点，进行反驳并与之互动</li>
+</ul>
+
+<p>另请参阅 Bietti reading 以获取另一个示例（监视）</p>
+
+<h2 id="2-从伦理清洗到伦理抨击bietti-2020">2. 从伦理清洗到伦理抨击（Bietti, 2020）</h2>
+
+<p>阅读：Bietti, E. (2020, January). From ethics washing to ethics bashing: a view on tech ethics from within moral philosophy. In Proceedings of the 2020 Conference on Fairness, Accountability, and Transparency (pp. 210-219).</p>
+
+<h3 id="21-伦理清洗ethics-washing">2.1 伦理清洗（Ethics washing）</h3>
+
+<ul>
+  <li>错误使用 “伦理” 一词和伦理语言</li>
+  <li>大型科技公司</li>
+  <li>伦理行为的表象而非现实</li>
+  <li>自私自利的使用</li>
+  <li>
+    <p>为放松管制、自我监管或市场驱动的治理进行辩护</p>
+  </li>
+  <li>
+    <p>雇佣伦理哲学家来让自己看起来很好但实际上做的并不多</p>
+  </li>
+  <li>
+    <p>公司的伦理学家可能对他们的言行感到或受到拘束</p>
+  </li>
+  <li>
+    <p>修补圆角 vs. 提出尖锐的、破坏性的问题</p>
+
+    <p>例如：“可以做到并不意味着应该做”，某些 AI 也许本来就不应该被开发出来，而不是事后再去对其算法公平性进行修补</p>
+  </li>
+</ul>
+
+<h3 id="22-伦理抨击ethics-bashing">2.2 伦理抨击（Ethics bashing）</h3>
+
+<p>哲学和伦理被视为：</p>
+
+<ol>
+  <li>
+    <p>单纯的沟通策略，以及掩盖不道德行为的形式</p>
+  </li>
+  <li>
+    <p>对于实践中需要处理的复杂问题，采取单纯的 “象牙塔式” 的智能化（过于抽象、遗漏细节、相关性不足）</p>
+  </li>
+  <li>
+    <p>反对政治代表和社会组织</p>
+  </li>
+</ol>
+
+<h3 id="23-固有价值与工具价值">2.3 固有价值与工具价值</h3>
+<ul>
+  <li>固有价值（Intrinsic value）：为了理解自身而值得践行的伦理</li>
+  <li>工具价值（Instrumental value）：将伦理作为改变事物的工具，例如：更好的监管、公司声誉等。</li>
+  <li>不相互排斥！两种价值都很重要</li>
+  <li>伦理/道德哲学：需要理性、公正和质疑的态度 —— 而不是以工具性态度为主</li>
+</ul>
+
+<h3 id="24-问题">2.4 问题</h3>
+
+<p>伦理学家应该为谷歌或 Facebook 等大型科技公司工作吗？</p>
+
+<p>他们是否应该准备好冒着失去工作的风险，并遵循自己的良知？</p>
+
+<p>他们是否应该充当公司不良行为的举报人？</p>
+
+<h3 id="25-其他问题">2.5 其他问题</h3>
+
+<ul>
+  <li>
+    <p>伦理学：能带来什么好处？</p>
+  </li>
+  <li>
+    <p>伦理学是值得践行的吗？</p>
+  </li>
+  <li>
+    <p>伦理准则有用吗？</p>
+  </li>
+  <li>
+    <p>伦理学仅仅是 “在飞机上扮演自行车刹车的角色” 吗？</p>
+  </li>
+  <li>
+    <p><strong>硬性监管（Hard regulation）</strong> 对于确保良好结果和追究人们的责任是否更为重要？</p>
+  </li>
+  <li>
+    <p>是否应该向所有计算机科学家教授伦理学？</p>
+  </li>
+</ul>
+
+<h2 id="3-推荐阅读">3. 推荐阅读</h2>
+
+<ul>
+  <li><a href="http://andy-blog.oss-cn-beijing.aliyuncs.com/blog/2021-08-05-SSRN-id3513182.pdf"><em>From Ethics Washing to Ethics Bashing.</em></a></li>
+</ul>
+
+:ET

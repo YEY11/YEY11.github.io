@@ -1,0 +1,711 @@
+I"ǆ<h1 id="lecture-08-线性和二次分类">Lecture 08 线性和二次分类</h1>
+
+<p><strong>参考教材</strong>：</p>
+
+<ul>
+  <li><em>Hardle, W. and Simar, L (2015). Applied multivariate statistical analysis, 4th edition.</em></li>
+  <li><em>Hastie, T. Tibshirani, R. and Friedman, J. (2009). The elements of statistical learning, 2nd edition</em></li>
+</ul>
+
+<h2 id="1-引言">1. 引言</h2>
+
+<p>在分类问题中，总体中我们感兴趣的个体来自一些不同的类别 (例如：$K$ 个类别)。</p>
+
+<p>例如，$K=2$：健康；患病。</p>
+
+<p>我们可以从观测到的 $(X_1,G_1),\dots, (X_n, G_n)$ 中获得训练样本，其中</p>
+
+<ul>
+  <li>$G_i \in \{1,2,\dots,K\}$ 是第 $i$ 个观测样本的分组标签 (每个个体都刚好属于一个分组)。</li>
+  <li>$X_i$ 是一个解释变量 (例如，年龄、血压等)，或者，更常见的是由多个变量组成的一个向量 $X_i=(X_{i1},\dots, X_{ip})^{\mathrm T}$。</li>
+</ul>
+
+<p><strong>问题</strong>：假设现在又来了一个新的个体，我们只观测到了它的解释变量 $X=x=(x_1,\dots,x_p)^{\mathrm T}$，但是不知道它来自哪个分组。</p>
+
+<p><strong>目标</strong>：我们需要将这个新的个体分类到正确的分组之中 (即找到其所属的分组)。这等价于找到这个新个体的分组标签 $G\in \{1,\dots, K\}$。</p>
+
+<p>我们应该怎么做？</p>
+
+<h2 id="2-主要技术思想">2. 主要技术思想</h2>
+
+<p><strong>主要思想</strong>：将该新值 $x$ 与训练样本 $X_i$ 进行比较。</p>
+
+<p>如果 $x$ 与来自分组 $k$ 中的 $X_i$ 要比来自其他分组的样本更相似，那么我们就将这个新个体分到组 $k$。</p>
+
+<p>那么如何确定 $x$ 与来自分组 $k$ 中的 $X_i$ 要比来自其他分组的样本 “更相似” 呢？</p>
+
+<p>对于 $k=1,\dots, K$，使用训练数据来估计在给定 $X$ 等于 $x$ 的情况下，一个个体来自组 $k$ 的概率：</p>
+
+\[P(G=k\mid X=x)\]
+
+<p>将其估计值表示为：</p>
+
+\[\hat P(G=k\mid X=x)\]
+
+<p>然后，将这个新个体分类到组 $k$，如果</p>
+
+\[\hat P(G=k\mid X=x) &gt; \max_{j=1,\dots,K,j\ne k} \hat P(G=j\mid X=x)\]
+
+<p>存在许多不同的分类方法，但它们本质上都对应于估计上述概率的各种方式。</p>
+
+<p>有两类主要方法：</p>
+
+<ul>
+  <li>回归估计技术</li>
+  <li>贝叶斯方法</li>
+</ul>
+
+<p>首先介绍二分类情况下的方法，即 $K=2$（可以扩展到 $K &gt; 2$ 个类的情况）。</p>
+
+<p>在本章中：我们观测到 i.i.d. 的训练样本数据 $(X_i, G_i), i=1,\dots,n$。当我们不想突显样本这一概念时，可以用符号 $(X,G)$ 表示来自同一总体的一般个体。</p>
+
+<h2 id="3-对于-k2-类的简单回归方法">3. 对于 $K=2$ 类的简单回归方法</h2>
+
+<p>假设所有个体都只来自 $K=2$ 个分组，那么我们可以将一个新个体分到组 $1$，如果</p>
+
+\[P(G=1\mid X=x) &gt; P(G=2\mid X=x)\]
+
+<p>在实践中：仅给定样本 $(X_1,G_1),\dots,(X_n, G_n)$，我们需要寻找 $P(G=k\mid X=x), k=1,2$ 的估计量。</p>
+
+<p>主要思想：通过回归来估计  $P(G=k\mid X=x)$。</p>
+
+<p>为此，我们需要根据 $G$ 定义一个新的变量。对于 $k=1,2$，令</p>
+
+\[Y_k=I\{G=k\}=\begin{cases}1 &amp; \text{if } G=k \\[2ex] 0 &amp; \text{otherwise}\end{cases}\]
+
+<p>在样本级别，这意味着对于 $i=1,\dots,n$，我们定义</p>
+
+\[Y_{ik}=I\{G_i=k\}\]
+
+<p>例如：假设我们观测到的训练样本大小为 $n=7$，其中 $G_i$ 为</p>
+
+\[(G_1,\dots,G_7)=(1,1,1,2,2,2,1)\]
+
+<p>那么，对于 $i=1,\dots,n$ 和 $k=1,2$，$Y_{ik}$ 由下式给出：</p>
+
+\[\begin{align}(Y_{11},\dots,Y_{71}) &amp;= (1,1,1,0,0,0,1) \\[2ex]
+(Y_{12},\dots,Y_{72}) &amp;= (0,0,0,1,1,1,0)\end{align}\]
+
+<p>如果我们定义回归曲线</p>
+
+\[m_k(x)=E(Y_k \mid X=x)\]
+
+<p>那么，我们有</p>
+
+\[P(G=k\mid X=x)=E\left(I\{G=k\} \mid X=x\right)=m_k(x)\]
+
+<p>我们可以使用标准回归估计技术来估计 $m_k$。</p>
+
+<p>由于每个个体都必须属于两组之一，因此，对于所有 $x\in \mathbb R^p$，我们有</p>
+
+\[P(G=1\mid X=x) + P(G=2\mid X=x) = 1\]
+
+<p>即，</p>
+
+\[m_2(x) = 1- m_1(x)\]
+
+<p>因此，我们只需要估计 $m_1$ (然后 $m_2$ 可由上述关系推得)。</p>
+
+<h3 id="31-线性回归分类器">3.1 线性回归分类器</h3>
+
+<p>当我们使用线性回归分类器时，我们假设</p>
+
+\[m_1(x)=E(Y_1\mid X=x)=P(G=1\mid X=x) = \beta_0 + \beta^{\mathrm T}x\]
+
+<p>使用 $\beta_0$ 和 $\beta$ 的 LS 估计量 (或者 PCR 或者 PLS；关于如何计算分类的 CV，请参见教材第 35 页) 来估计 $m_1$</p>
+
+\[\hat m_1(x) = \hat \beta_0 + \hat \beta^{\mathrm T} x\]
+
+<p>可以推得 $\hat m_2=1-\hat m_1$。</p>
+
+<p>将一个新的 $x$ 分类到组 $1$，如果</p>
+
+\[\hat m_1(x) &gt; \hat m_2(x) \quad \Longleftrightarrow \quad \hat \beta_0 + \hat \beta^{\mathrm T} x &gt; 1- \hat \beta_0 - \hat \beta^{\mathrm T} x \quad \Longleftrightarrow \quad \color{red}{\hat \beta_0 + \hat \beta^{\mathrm T} x &gt; 1/2}\]
+
+<p>否则，将 $x$ 分类到组 $2$。</p>
+
+<p><strong>注意</strong>：该方法依赖于线性回归模型的有效性，通常只是现实世界的一种近似。</p>
+
+<h4 id="例子golub-数据">例子：Golub 数据</h4>
+
+<p><em>Golub TR et al (1999), Molecular Classiﬁcation of cancer: class Discovery and Class Prediction by gene expression monitoring, Science 286:531-7</em></p>
+
+<ul>
+  <li>两种类型的患者，对应于两种类型的白血病 (ALL 和 AML)。</li>
+  <li>$X =(X_1, X_2)^{\mathrm T}$：两个已知的与白血病类型相关的基因表达。</li>
+</ul>
+
+<p>根据估计的线性模型，我们可以得到</p>
+
+\[\begin{align}
+\hat m_1(x) &amp;= 0.9231 + 0.2454 x_1− 0.4800 x_2 \\[2ex]
+\hat m_2(x) &amp;= 0.07691 − 0.24542 x_1+ 0.47999 x_2 \approx 1 − \hat m_1(x)
+\end{align}\]
+
+<p>(其中，“$\approx$” 是由于数值误差)</p>
+
+<h4 id="区分分类边界">区分/分类边界</h4>
+
+<p>分类边界是分到组 $1$ 的数据区域和分到组 $2$ 的数据区域之间的边界。它是通过求解以下方程式得到的</p>
+
+\[\hat m_1(x) - \hat m_2(x) = 0\]
+
+<p>对于线性回归分类器而言，上式等价于</p>
+
+\[\hat m_1(x)=1/2\]
+
+<p>在 Golub 数据的例子中，分类边界是通过求解下式得到的</p>
+
+\[0.9231 + 0.2454 x_1 − 0.4800 x_2 = 1/2\]
+
+<p>可以将其用以下直线表示</p>
+
+\[x_2 = \dfrac{0.9231 − 0.5}{0.4800} + \dfrac{0.2454}{0.4800} x_1 = 0.8815 + 0.5113 x_1\]
+
+<p>我们将在该直线某一侧的数据分为一类，将直线另一侧的数据分为另一类。</p>
+
+<p>下图中的直线代表分类边界。训练集的 $X_i$ 来自两个分组，由不同颜色/符号表示。如果一个新观测值落在该直线下方区域，则将其分类到红色三角组；否则将其分类到黑色圆圈组。</p>
+
+<p><img src="http://andy-blog.oss-cn-beijing.aliyuncs.com/blog/2020-10-23-WX20201023-151229%402x.png" width="60%" /></p>
+
+<h4 id="其他例子">其他例子</h4>
+
+<ul>
+  <li>左图：训练集中的 $X_i$，不同分组用蓝色/红色表示。</li>
+  <li>右图：需要分类的新数据</li>
+</ul>
+
+<p>这里只是一个例子。与现实生活不同，我们知道新数据的真实组类 (右图中的蓝色/红色)：可以用来检查分类器的性能。</p>
+
+<p>绿色直线表示根据训练集 $X_i$ 构造的决策边界：</p>
+
+\[\hat \beta_0 + \hat \beta_1 x_1 + \hat \beta_2 x_2 = 1/2\]
+
+<p>如果新数据落在该直线上方，则将其分类到组 $1$；如果落在该直线下方，则将其分类到组 $2$ (可以发现，分类器也会犯一些错误：直线上方也有一些来自蓝色组的数据)。</p>
+
+<p><img src="http://andy-blog.oss-cn-beijing.aliyuncs.com/blog/2020-10-23-WX20201023-152408%402x.png" /></p>
+
+<h3 id="32-逻辑回归分类器">3.2 逻辑回归分类器</h3>
+
+<p>线性回归分类器的问题：我们对于 $P(G = 1 \mid X = x)$ 的估计量 $\hat \beta_0 + \hat \beta ^{\mathrm T} x$ 无法保证落在 $0$ 到 $1$ 之间，但是这里我们是在估计一个概率。</p>
+
+<p>建议：使用逻辑回归，即假设</p>
+
+\[m_1(x)=P(G=1\mid X=x)=E(Y_1\mid X=x) =\dfrac{\exp(\beta_0 + \beta^{\mathrm T}x)}{1+ \exp(\beta_0 + \beta^{\mathrm T}x)}\]
+
+<p>使用根据以下训练数据得到的最大似然估计量 (MLE) $\hat \beta_0, \hat \beta$ 来估计 $\beta_0, \beta$</p>
+
+\[(X_1, Y_{11}),\dots,(X_n, Y_{n1})\]
+
+<p>(或者，可以根据需要将数据替换为其 PCA 或 PLS 成分，有关如何在分类中计算 CV，请参阅第教材第 35 页)。</p>
+
+<p><strong>注意</strong>：此方法依赖于逻辑模型假设，该假设通常只是现实世界的一种近似。</p>
+
+<p>如前所述，$m_2 = 1- m_1$，即在此模型中：</p>
+
+\[\begin{align}
+m_1(x) &amp;= P(G=1\mid X=x) = \dfrac{\exp(\beta_0 + \beta^{\mathrm T}x)}{1+ \exp(\beta_0 + \beta^{\mathrm T}x)} \\[2ex]
+m_2(x) &amp;= P(G=2\mid X=x) = 1-m_1(x) = \dfrac{1}{1+ \exp(\beta_0 + \beta^{\mathrm T}x)}
+\end{align}\]
+
+<p>将一个新的 $x$ 分类到组 $1$，如果</p>
+
+\[\hat m_1(x) &gt; \hat m_2(x) \quad \Longleftrightarrow \quad \exp(\hat \beta_0 + \hat \beta^{\mathrm T}x) &gt; 1 \quad \Longleftrightarrow \quad \color{red}{\hat \beta_0 + \hat \beta^{\mathrm T}x &gt; 0}\]
+
+<p>否则，将 $x$ 分类到组 $2$。</p>
+
+<p>分类边界可以通过求解以下方程得到</p>
+
+\[\hat m_1(x) - \hat m_2(x) = 0 \quad \Longleftrightarrow \quad \exp(\hat \beta_0 + \hat \beta^{\mathrm T}x) = 1 \quad \Longleftrightarrow \quad \hat \beta_0 + \hat \beta^{\mathrm T}x = 0\]
+
+<h4 id="例子golub-数据-1">例子：Golub 数据</h4>
+
+<ul>
+  <li>两种类型的患者，对应于两种类型的白血病 (ALL 和 AML)。</li>
+  <li>$X =(X_1, X_2)^{\mathrm T}$：两个已知的与白血病类型相关的基因表达。</li>
+</ul>
+
+<p>根据估计的逻辑回归模型，我们可以得到</p>
+
+\[\hat m_1(x)=\dfrac{\exp(0.9432 + 0.5487 x_1− 10.714 x_2)}{1+ \exp(0.9432 + 0.5487 x_1− 10.714 x_2)}\]
+
+<p>在此示例中，分类边界可以通过求解下式得到</p>
+
+\[0.9432 + 0.5487 x_1 − 10.714 x_2 = 0\]
+
+<p>可以将其用以下直线表示</p>
+
+\[x_2 = \dfrac{0.9432}{10.714} + \dfrac{0.5487}{10.714} x_1 = 0.08803435 + 0.05121337 x_1\]
+
+<h4 id="其他例子-1">其他例子</h4>
+
+<ul>
+  <li>左图：训练集中的 $X_i$，不同分组用蓝色/红色表示。</li>
+  <li>右图：需要分类的新数据</li>
+</ul>
+
+<p>这里只是一个例子。与现实生活不同，我们知道新数据的真实组类 (右图中的蓝色/红色)：可以用来检查分类器的性能。</p>
+
+<p>青色直线表示根据训练集 $X_i$ 构造的决策边界：</p>
+
+\[\hat \beta_0 + \hat \beta_1 x_1 + \hat \beta_2 x_2 = 0\]
+
+<p>如果新数据落在该直线上方，则将其分类到组 $1$；如果落在该直线下方，则将其分类到组 $2$ (可以发现，分类器也会犯一些错误：直线上方也有一些来自蓝色组的数据)。</p>
+
+<p><img src="http://andy-blog.oss-cn-beijing.aliyuncs.com/blog/2020-10-23-WX20201023-165539%402x.png" /></p>
+
+<h4 id="对比线性回归与逻辑回归">对比线性回归与逻辑回归</h4>
+
+<p><img src="http://andy-blog.oss-cn-beijing.aliyuncs.com/blog/2020-10-23-WX20201023-165655%402x.png" /></p>
+
+<p>可以看到，逻辑回归的分类效果要优于线性回归。</p>
+
+<h2 id="4-对于-k2-类的贝叶斯方法线性和二次判别">4. 对于 $K=2$ 类的贝叶斯方法：线性和二次判别</h2>
+
+<p>另一种估计 $P(G=k\mid X=x)$ 的方法是利用贝叶斯定理。</p>
+
+<p>利用贝叶斯定理，我们有</p>
+
+\[P(G=k\mid X=x) = \dfrac{P(X=x\mid G=k)\pi_k}{P(X=x)}\]
+
+<p>其中，</p>
+
+\[\pi_k=P(G=k)\]
+
+<p>需要估计训练数据集中的所有概率 $\pi_k$。</p>
+
+<h3 id="41-线性判别-linear-discriminant-ld">4.1 线性判别 (Linear Discriminant, LD)</h3>
+
+<p>对于 LD 方法，我们应用贝叶斯定理的前提是：假设 $P(X=x\mid G=k)$ 是多元正态分布 $N_p(\mu_k,\Sigma)$ 的概率密度函数。</p>
+
+<p>回忆一下，$p$ 维正态分布 $N_p(\mu_k,\Sigma)$ 的概率密度函数被定义为</p>
+
+\[f_k(x)=(2\pi)^{-p/2} \{\mathrm{det}(\Sigma)\}^{-1/2} \exp \{-0.5(x-\mu_k)^{\mathrm T}\Sigma^{-1}(x-\mu_k)\}\]
+
+<p>利用前面的贝叶斯定理，可以推得一个新的个体 $X=x$ 更有可能来自组 $1$，而不是组 $2$，当且仅当</p>
+
+\[\begin{align}
+&amp; P(G=1\mid X=x) &gt; P(G=2\mid X=x) \\[2ex]
+\Longleftrightarrow \quad &amp; P(X=x\mid G=1)\pi_1 &gt; P(X=x\mid G=2)\pi_2 \\[2ex]
+\Longleftrightarrow \quad &amp; \exp \{-0.5(x-\mu_1)^{\mathrm T}\Sigma^{-1}(x-\mu_1)\} \pi_1 &gt; \exp \{-0.5(x-\mu_2)^{\mathrm T}\Sigma^{-1}(x-\mu_2)\} \pi_2 \\[2ex]
+\Longleftrightarrow \quad &amp; 2\log(\pi_1/ \pi_2) + 2x^{\mathrm T} \Sigma^{-1}(\mu_1-\mu_2) - \mu_1^{\mathrm T} \Sigma^{-1}\mu_1 +\mu_2^{\mathrm T} \Sigma^{-1}\mu_2 &gt; 0
+\end{align}\]
+
+<p>如果上式条件满足，则将 $x$ 分类到组 $1$；否则将其分类到组 $2$。</p>
+
+<p>这里，决策规则</p>
+
+\[2\log(\pi_1/ \pi_2) + 2x^{\mathrm T} \Sigma^{-1}(\mu_1-\mu_2) - \mu_1^{\mathrm T} \Sigma^{-1}\mu_1 +\mu_2^{\mathrm T} \Sigma^{-1}\mu_2 &gt; 0\]
+
+<p>是一个关于 $x$ 的线性函数，因此被称为线性判别。</p>
+
+<p><strong>注意</strong>：此方法依赖于正态性和方差齐性假设 (两个组的 $\Sigma$ 相同)，而这些在实践中通常是无法满足的。因此，它只是提供了一种关于现实世界的近似。</p>
+
+<p>在实践中，我们并不知道 $\pi_k, \mu_k, \Sigma$，但是我们可以利用训练集数据来估计它们：</p>
+
+\[\hat \pi_k = n_k / n\]
+
+<p>其中，$n_k$ 为来自组 $k$ 的训练数据的数量。</p>
+
+<p><strong>注意</strong>：这里假设训练集数据中每个组的大小都代表了在总体中组的大小，但并非总是如此。如果我们不知道训练集中的组的大小是否具有代表性，那么采用上式计算出的 $\pi_k$ 可能存在错误估计的风险。</p>
+
+<p>相反，在这种情况下，我们通常使用下式来估计 $\pi_k$：</p>
+
+\[\hat \pi_k = 1/K\]
+
+<p>(在这种情况下，对于 $K=2$，我们有 $\hat \pi_1=\hat \pi_2 = 1/2$)。</p>
+
+<p>为了估计 $\mu_k$ 和 $\Sigma$，我们需要重新标记数据 $X_i$，以区分它们来自哪个组：令 $X_{i,k} \;(i=1,\dots,n_k)$ 表示所有来自组 $k$ 的 $X_i$。然后，我们有</p>
+
+\[\begin{align}
+\hat \mu_k &amp;= \overline X_k = \dfrac{1}{n_k}\sum_{i=1}^{n_k}X_{i,k} \\[2ex]
+\hat \Sigma &amp;= \dfrac{1}{n_1+n_2 -2}\sum_{k=1}^{2}\sum_{i=1}^{n_k}(X_{i,k}-\hat \mu_k)(X_{i,k}-\hat \mu_k)^{\mathrm T}
+\end{align}\]
+
+<p>分类/决策边界可以通过求解下式得到：</p>
+
+\[\hat m_1(x) - \hat m_2(x)=0 \quad \Longleftrightarrow \quad 2\log(\hat \pi_1/ \hat \pi_2) + 2x^{\mathrm T} \hat \Sigma^{-1}(\hat \mu_1- \hat \mu_2) - \hat \mu_1^{\mathrm T} \hat \Sigma^{-1}\hat \mu_1 + \hat \mu_2^{\mathrm T}\hat  \Sigma^{-1}\hat \mu_2 = 0\]
+
+<h4 id="例子golub-数据-2">例子：Golub 数据</h4>
+
+<ul>
+  <li>两种类型的患者，对应于两种类型的白血病 (ALL 和 AML)。</li>
+  <li>$X =(X_1, X_2)^{\mathrm T}$：两个已知的与白血病类型相关的基因表达。</li>
+</ul>
+
+<p><img src="http://andy-blog.oss-cn-beijing.aliyuncs.com/blog/2020-10-23-WX20201023-175226%402x.png" width="60%" /></p>
+
+<h4 id="其他例子-2">其他例子</h4>
+
+<ul>
+  <li>左图：训练集中的 $X_i$，不同分组用蓝色/红色表示。</li>
+  <li>右图：需要分类的新数据</li>
+</ul>
+
+<p>这里只是一个例子。与现实生活不同，我们知道新数据的真实组类 (右图中的蓝色/红色)：可以用来检查分类器的性能。</p>
+
+<p>洋红色直线表示根据训练集 $X_i$ 构造的决策边界：</p>
+
+\[2\log(\hat \pi_1/ \hat \pi_2) + 2x^{\mathrm T} \hat \Sigma^{-1}(\hat \mu_1- \hat \mu_2) - \hat \mu_1^{\mathrm T} \hat \Sigma^{-1}\hat \mu_1 + \hat \mu_2^{\mathrm T}\hat  \Sigma^{-1}\hat \mu_2 = 0\]
+
+<p>如果新数据落在该直线上方，则将其分类到组 $1$；如果落在该直线下方，则将其分类到组 $2$ (可以发现，分类器也会犯一些错误：直线上方也有一些来自蓝色组的数据)。</p>
+
+<p><img src="http://andy-blog.oss-cn-beijing.aliyuncs.com/blog/2020-10-23-WX20201023-223212%402x.png" /></p>
+
+<h4 id="三种分类方法对比">三种分类方法对比</h4>
+
+<p>如果我们令</p>
+
+\[\begin{align}
+\hat \beta_0 &amp;= 2\log(\hat \pi_1 /\hat \pi_2) - \hat \mu_1^{\mathrm T} \hat \Sigma^{-1}\hat \mu_1 + \hat \mu_2^{\mathrm T}\hat  \Sigma^{-1}\hat \mu_2 \\[2ex]
+\hat \beta &amp;= 2 \hat \Sigma^{-1}(\hat \mu_1- \hat \mu_2)
+\end{align}\]
+
+<p>那么 LD 可以写为：将 $x$ 分类到组 $1$，当且仅当</p>
+
+\[\hat \beta_0 + x^{\mathrm T}\hat \beta &gt; 0\]
+
+<p>对于线性回归，我们有：将 $x$ 分类到组 $1$，当且仅当</p>
+
+\[\hat \beta_0 + x^{\mathrm T}\hat \beta &gt; 1/2\]
+
+<p>对于逻辑回归，我们有：将 $x$ 分类到组 $1$，当且仅当</p>
+
+\[\hat \beta_0 + x^{\mathrm T}\hat \beta &gt; 0\]
+
+<p>这三种方法似乎看上去都一样，但是它们在构造 $\beta_0$ 和 $\beta$ 的方式上有差别。</p>
+
+<p>在这三种情况下，决策/分类边界可以通过图形方式描述，即两个不同类别之间的一个线性分界：</p>
+
+<ul>
+  <li>
+    <p>LD：两个类别落在以下直线的两侧</p>
+
+\[\hat \beta_0 + x^{\mathrm T}\hat \beta = 0\]
+  </li>
+  <li>
+    <p>线性回归：两个类别落在以下直线的两侧</p>
+
+\[\hat \beta_0 + x^{\mathrm T}\hat \beta = 1/2\]
+  </li>
+  <li>
+    <p>逻辑回归：两个类别落在以下直线的两侧</p>
+
+\[\hat \beta_0 + x^{\mathrm T}\hat \beta = 0\]
+  </li>
+</ul>
+
+<p>所有这三种方法所依赖的模型假设都只是对于真实情况的近似。通常来说，逻辑回归要比其他两种方法的分类效果更好。</p>
+
+<h4 id="例子-1线性可分数据">例子 1：线性可分数据</h4>
+
+<p>图中直线代表决策边界：绿色表示线性回归，青色表示逻辑回归，洋红色表示 LD。</p>
+
+<ul>
+  <li>左图：训练集中的 $X_i$ 与估计的线性决策边界。</li>
+  <li>右图：新数据将根据该线性决策边界进行分类。</li>
+</ul>
+
+<p>右图中，来自不同组的新数据的真实类别分别用红/蓝两种颜色表示；如果数据点落在直线下方，我们将其分类到组 $2$，否则将其分类到组 $1$。</p>
+
+<p><img src="http://andy-blog.oss-cn-beijing.aliyuncs.com/blog/2020-10-23-WX20201023-230746%402x.png" /></p>
+
+<p>可以看到，逻辑回归 (青色直线) 的分类效果最好。</p>
+
+<h4 id="例子-2线性不可分数据">例子 2：线性不可分数据</h4>
+
+<p>图中直线代表决策边界：绿色表示线性回归，青色表示逻辑回归，洋红色表示 LD。</p>
+
+<ul>
+  <li>左图：训练集中的 $X_i$ 与估计的线性决策边界。</li>
+  <li>右图：新数据将根据该线性决策边界进行分类。</li>
+</ul>
+
+<p>右图中，来自不同组的新数据的真实类别分别用红/蓝两种颜色表示；如果数据点落在直线上方，我们将其分类到组 $1$，否则将其分类到组 $2$。</p>
+
+<p><img src="http://andy-blog.oss-cn-beijing.aliyuncs.com/blog/2020-10-23-WX20201023-231228%402x.png" /></p>
+
+<p>可以看到，三种方法都无法很好地将两个类别区分开，因此对于某些数据集，线性方法并不总是有效的。</p>
+
+<h3 id="42-二次判别-quadratic-discriminant-qd">4.2 二次判别 (Quadratic Discriminant, QD)</h3>
+
+<p>与 LD 一样，对于 QD 方法，我们假设 $X \mid G =k$ 是一个 $p$ 维正态变量，但区别在于，这里我们假设对于 $k = 1$ 和 $k = 2$，它们的均值 $\mu$ 和协方差 $\Sigma$ 都不相同。而在 LD 中，两组的 $\Sigma$ 是相同的。</p>
+
+<p>因此，在 QD 中，组 $k$ 中的 $X$ 的概率密度函数 $P(X=x \mid G=k)$ 为</p>
+
+\[f_k(x)=(2\pi)^{-p/2} \{\mathrm{det}(\Sigma_k)\}^{-1/2} \exp \{-0.5(x-\mu_k)^{\mathrm T}\Sigma_k^{-1}(x-\mu_k)\}\]
+
+<p>这里，$x$ 更有可能来自组 $1$，而不是组 $2$，当且仅当</p>
+
+\[\begin{align}
+&amp; P(G=1\mid X=x) &gt; P(G=2\mid X=x) \\[2ex]
+\Longleftrightarrow \quad &amp; P(X=x\mid G=1)\pi_1 &gt; P(X=x\mid G=2)\pi_2 \\[2ex]
+\Longleftrightarrow \quad &amp; \{\mathrm{det}(\Sigma_1)\}^{-1/2} \exp \{-0.5(x-\mu_1)^{\mathrm T}\Sigma_1^{-1}(x-\mu_1)\} \pi_1 \\
+&amp; \qquad &gt; \{\mathrm{det}(\Sigma_2)\}^{-1/2} \exp \{-0.5(x-\mu_2)^{\mathrm T}\Sigma_2^{-1}(x-\mu_2)\} \pi_2 \\[2ex]
+\Longleftrightarrow \quad &amp; -2\log(\pi_1) + \log \{\mathrm{det}(\Sigma_1)\} + (x-\mu_1)^{\mathrm T}\Sigma_1^{-1}(x-\mu_1) \\
+&amp; \qquad &lt; -2\log(\pi_2) + \log \{\mathrm{det}(\Sigma_2)\} + (x-\mu_2)^{\mathrm T}\Sigma_2^{-1}(x-\mu_2)
+\end{align}\]
+
+<p>这里，决策规则</p>
+
+\[\begin{align}
+\, &amp; -2\log(\pi_1) + \log \{\mathrm{det}(\Sigma_1)\} + (x-\mu_1)^{\mathrm T}\Sigma_1^{-1}(x-\mu_1) \\
+\, &amp; \qquad &lt; -2\log(\pi_2) + \log \{\mathrm{det}(\Sigma_2)\} + (x-\mu_2)^{\mathrm T}\Sigma_2^{-1}(x-\mu_2)
+\end{align}\]
+
+<p>是一个关于 $x$ 的二次函数，因此被称为二次判别。</p>
+
+<p>在实践中，我们通过下式估计未知的 $\mu_k$ 和 $\Sigma_k$</p>
+
+\[\begin{align}
+\hat \mu_k &amp;= \overline X_k = \dfrac{1}{n_k}\sum_{i=1}^{n_k}X_{i,k} \\[2ex]
+\hat \Sigma_k &amp;= \dfrac{1}{n_k -1}\sum_{i=1}^{n_k}(X_{i,k}-\hat \mu_k)(X_{i,k}-\hat \mu_k)^{\mathrm T}
+\end{align}\]
+
+<p>如果我们知道样本中的组大小反映了总体中的组大小，则可以通过 $\hat \pi_k = n_k / n$ 来估计 $\pi_k$，其中，$n_k$ 为来自组 $k$ 的训练数据的数量。否则，我们将取 $\hat \pi_k = 1/K$。</p>
+
+<h4 id="qd-例子golub-数据">QD 例子：Golub 数据</h4>
+
+<ul>
+  <li>两种类型的患者，对应于两种类型的白血病 (ALL 和 AML)。</li>
+  <li>$X =(X_1, X_2)^{\mathrm T}$：两个已知的与白血病类型相关的基因表达。</li>
+</ul>
+
+<p><img src="http://andy-blog.oss-cn-beijing.aliyuncs.com/blog/2020-10-23-WX20201023-234833%402x.png" width="60%" /></p>
+
+<h4 id="例子-1线性可分数据-1">例子 1：线性可分数据</h4>
+
+<p>图中洋红色曲线表示根据训练集中的 $X_i$ 构造的二次决策边界。</p>
+
+<ul>
+  <li>左图：训练集中的 $X_i$ 与估计的二次决策边界。</li>
+  <li>右图：新数据将根据该二次决策边界进行分类。</li>
+</ul>
+
+<p>右图中，来自不同组的新数据的真实类别分别用红/蓝两种颜色表示；如果数据点椭圆边界内，我们将其分类到组 $1$，否则将其分类到组 $2$。</p>
+
+<p><img src="http://andy-blog.oss-cn-beijing.aliyuncs.com/blog/2020-10-23-WX20201023-235806%402x.png" /></p>
+
+<h4 id="例子-2线性不可分数据-1">例子 2：线性不可分数据</h4>
+
+<p>图中洋红色曲线表示根据训练集中的 $X_i$ 构造的二次决策边界。</p>
+
+<ul>
+  <li>左图：训练集中的 $X_i$ 与估计的二次决策边界。</li>
+  <li>右图：新数据将根据该二次决策边界进行分类。</li>
+</ul>
+
+<p>右图中，来自不同组的新数据的真实类别分别用红/蓝两种颜色表示；如果数据点椭圆边界内，我们将其分类到组 $1$，否则将其分类到组 $2$。</p>
+
+<p><img src="http://andy-blog.oss-cn-beijing.aliyuncs.com/blog/2020-10-23-WX20201023-235943%402x.png" /></p>
+
+<p>可以看到，对于线性不可分数据，二次判别的分类效果要优于前面三种线性方法。</p>
+
+<h3 id="43-qd-vs-ld正则估计器交叉验证">4.3 QD vs LD、正则估计器、交叉验证</h3>
+
+<p>看起来 QD 方法比 LD 方法要好得多，那么为什么不总是使用它呢？</p>
+
+<p>在 QD 方法中，我们需要估计 $K$ 个协方差矩阵 (这里我们主要研究 $K=2$ 的情况，但是可以推广到 $K &gt; 2$ 的情况)。</p>
+
+<p>如果 $p$ 很大，估计多个协方差矩阵意味着需要估计更多的参数。而当我们需要估计的参数过多时，可能会导致方法的精度降低，并且可能会使得决策 (分类) 结果不可靠。</p>
+
+<p>某些版本的 QD 分析 (称为正则化 QD 分析) 会在 LD 和 QD 之间进行权衡，通过选择 $k$ 组协方差矩阵</p>
+
+\[\tilde \Sigma_k = \alpha \hat \Sigma_k + (1-\alpha) \hat \Sigma\]
+
+<p>其中，$\alpha \in [0, 1]$ 可以通过 <strong>交叉验证 (cross-validation, CV)</strong> 进行选择。</p>
+
+<p>当 $p$ 很大时，即使是 $\Sigma$ 也可能涉及太多参数。这种情况下，一种正则化的版本是在 $\Sigma$ 和一个常数方差 (对于 $X$ 的所有分量都相同) 之间进行权衡</p>
+
+\[\tilde \Sigma = \alpha \hat \Sigma + (1-\alpha) \hat \sigma^2 I_p\]
+
+<p>其中，$\alpha \in [0, 1]$ 可以通过 CV 进行选择。</p>
+
+<p>实现正则化的另一种方法是将数据 $X$ 替换为其 PCA 或 PLS 成分，然后通过 CV 选择需要保留的成分数量 $q$。</p>
+
+<p>分类问题中的 CV 是什么？在这种情况下，我们会对 <strong>分类误差</strong> 进行估计。</p>
+
+<p>什么是分类误差？令 $\hat G$ 为一个分类器，它将值为 $X$ 的个体分配给组 $\hat G$ (一个关于 $X$ 的函数)；并且，令 $G$ 为该个体的真实分组。那么，该分类器的错误率为</p>
+
+\[\text{error} = P(\hat G\ne G) = P(\hat G \ne G \mid G=1)\pi_1 + P(\hat G \ne G \mid G=2)\pi_2\]
+
+<p>当然，在实践中我们无法这样计算，因为我们并不知道 $G$ (这就是为什么我们要对其进行估计的原因)。</p>
+
+<p>相反，我们使用分类误差的 CV 估计量。令 $G_1,\dots, G_n$ 表示训练集中 $n$ 个个体的真实组类，并假设尽管我们知道他们的真实组，但仍将其应用于分类器，并将它们分别分类为 $\hat G_1,\dots, \hat G_n$。然后，分类误差的 <strong>留一法 (leave-one-out) CV</strong> 估计量被定义为</p>
+
+\[CV= \dfrac{1}{n}\sum_{i=1}^{n}I(\hat G_i^{(-i)} \ne G_i)\]
+
+<p>这里，$\hat G_i^{(-i)}$ 表示在不使用第 $i$ 个个体计算出分类器 $\hat G^{(-i)}$ 的情况下，$G_i$ (训练数据中第 $i$ 个个体的分类器) 的留一法估计量。例如，在 QD 方法中，我们使用除第 $i$ 个观测值外的所有观测值来估计 $\mu_k$ 和 $\Sigma_k$。</p>
+
+<p>我们也可以使用 <strong>$B$-折 CV</strong>：</p>
+
+<ol>
+  <li>将数据随机分为大小相等的 $B$ 个块。</li>
+  <li>对于 $b=1,\dots,B$，我们在不使用第 $b$ 个数据块的情况下计算出分类器 $\hat G^{(-b)}$。</li>
+  <li>我们将 $\hat G^{(-b)}$ 应用于第 $b$ 个块中的所有数据：$\hat G^{(-b)}(X_i)$ 表示第 $i$ 个个体 (假定其落在第 $b$ 个块中) 的分类结果，并将其与 $G_i$ 进行比较。</li>
+  <li>对所有块进行求和。</li>
+</ol>
+
+<p>换而言之，我们计算</p>
+
+\[CV=\dfrac{1}{n}\sum_{b=1}^{B}\sum_{i=1}^{n}I(\hat G_i^{(-b)} \ne G_i) \cdot I\{i\text{-th individual is in block } b\}\]
+
+<p>这种方法的好处是我们将同样的分类器 $\hat G^{(-b)}$ 重复使用多次。</p>
+
+<p>请注意，无论使用 “留一法” 还是 “$B$-折”，估计的 CV 分类误差都将通过分类器中涉及的调参实现隐式索引。</p>
+
+<p>例如，如果使用教材第 33 页的正则化，则有 $CV = CV(\alpha)$。同样，如果使用 PCA/PLS，则有 $CV = CV(q)$。</p>
+
+<p>我们最终选择的分类器将基于最小化 CV 估计值进行调参，例如：如果对于教材第 33 页的正则化方案，我们有</p>
+
+\[\hat \alpha =\mathop{\operatorname{arg\,min}}\limits_{\alpha \in [0, 1]}CV(\alpha)\]
+
+<p>那么，基于该特定值 $\hat \alpha$，最后的 QD 分类器将具有 $\tilde \Sigma_k$。对于 PCA/PLS，我们也会类似地选择 $\hat q$。</p>
+
+<h2 id="5-对于-k--2-类的简单回归方法">5. 对于 $K &gt; 2$ 类的简单回归方法</h2>
+
+<p>给定 i.i.d 数据：$(X_1,G_1),\dots,(X_n,G_n)$，其中，$G_i=1,2,\dots,K$ (类别标签)。</p>
+
+<p>重新编码 $G_i$：对于 $k=1,\dots,K$，令</p>
+
+\[Y_{ik}=I\{G_i=k\}=\begin{cases}1 &amp; \text{if } G_i=k \\[2ex] 0 &amp; \text{otherwise}\end{cases}\]
+
+<p>例如，如果有 $K=3$ 和 $n=5$，并且我们观测到</p>
+
+\[(G_1,G_2,G_3,G_4,G_5)=(2,3,1,1,2)\]
+
+<p>那么，我们可以创建</p>
+
+\[\begin{pmatrix}Y_{11} \\ Y_{21} \\ Y_{31} \\ Y_{41} \\ Y_{51} \end{pmatrix}=\begin{pmatrix}0 \\ 0 \\ 1 \\ 1 \\ 0 \end{pmatrix},\quad \begin{pmatrix}Y_{12} \\ Y_{22} \\ Y_{32} \\ Y_{42} \\ Y_{52} \end{pmatrix}=\begin{pmatrix}1 \\ 0 \\ 0 \\ 0 \\ 1 \end{pmatrix},\quad \begin{pmatrix}Y_{13} \\ Y_{23} \\ Y_{33} \\ Y_{43} \\ Y_{53} \end{pmatrix}=\begin{pmatrix}0 \\ 1 \\ 0 \\ 0 \\ 0 \end{pmatrix}\]
+
+<p>定义 $K$ 个回归曲线：对于 $k=1,\dots,K$，</p>
+
+\[m_k(x) = E(Y_k \mid X=x) = P(G=k\mid X=x)\]
+
+<p>由于 $x$ 必须来自 $K$ 个分组中的某一个 (且仅一个)，我们有</p>
+
+\[\sum_{k=1}^{K}m_k(x)=\sum_{k=1}^{K}P(G=k \mid X=x)=1\]
+
+<p>因此，我们有</p>
+
+\[m_K(x) = 1- \sum_{j=1}^{K-1}m_j(x)\]
+
+<p>我们只需要通过 $\hat m_1,\dots,\hat m_{K-1}$ 估计 $m_1,\dots,m_{K-1}$，并且取</p>
+
+\[\hat m_K(x)=1- \sum_{j=1}^{K-1}\hat m_j(x)\]
+
+<p>将新的 $x$ 分类到具有最大 $\hat m_k(x)$ 的组。</p>
+
+<h3 id="51-对于-k--2-类的线性回归方法">5.1 对于 $K &gt; 2$ 类的线性回归方法</h3>
+
+<p>重新编码数据：$(X_1, Y_{11},\dots,Y_{1K}),\dots,(X_n,Y_{n1},\dots,Y_{nK})$</p>
+
+<p>定义 $K$ 个线性回归曲线：对于 $k=1,\dots,K$，</p>
+
+\[m_k(x) = E(Y_k\mid X=x)= \beta_{0k} + \beta_k^{\mathrm T}x = \beta_{0k} + \beta_{1k}x_1 + \cdots + \beta_{pk}x_p\]
+
+<p>利用 LS、PLS、PCA 或者其他方法估计 $\beta_{jk}$。例如，对于标准 LS：</p>
+
+\[(\hat \beta_{0k},\hat \beta_{1k},\dots,\hat \beta_{pk})^{\mathrm T} = (\mathcal X^{\mathrm T}\mathcal X)^{-1}\mathcal X^{\mathrm T}Y_k\]
+
+<p>其中，</p>
+
+\[\mathcal X=\begin{pmatrix}1 &amp; X_{11} &amp; \cdots &amp; X_{1p} \\ \vdots &amp; \vdots &amp; &amp; \vdots \\ 1 &amp; X_{n1} &amp; \cdots &amp; X_{np}\end{pmatrix},\quad Y_k = \begin{pmatrix}Y_{1k} \\ \vdots \\ Y_{nk}\end{pmatrix}\]
+
+<p>对于一个 $X$ 的值为 $x=(x_1,\dots,x_p)^{\mathrm T}$ 的新个体：</p>
+
+<ul>
+  <li>
+    <p>计算 $\hat m_1(x),\dots,\hat m_K(x)$，其中，对于 $k=1,\dots,K-1$，</p>
+
+\[\hat m_k(x)=\hat \beta_{0k} +\hat \beta_{1k}x_1 + \cdots + \hat \beta_{pk}x_p\]
+
+    <p>以及</p>
+
+\[\hat m_K(x) = 1- \sum_{j=1}^{K-1}\hat m_j(x)\]
+  </li>
+  <li>
+    <p>将该新个体分类到 $\hat m_1(x),\dots,\hat m_K(x)$ 中的最大值 $\hat G$：</p>
+
+\[\hat G = \mathop{\operatorname{arg\,max}}\limits_{k=1,\dots,K} \hat m_k(x)\]
+  </li>
+</ul>
+
+<h3 id="52-对于-k--2-类的逻辑回归方法">5.2 对于 $K &gt; 2$ 类的逻辑回归方法</h3>
+
+<p>在逻辑回归中，基于 $K = 2$ 的情况，似乎可以进一步假设：对于 $k = 1,\dots,K$，</p>
+
+\[m_k(x)=E(Y_k \mid X=x) = P(G=k \mid X=x) = \dfrac{\exp(\beta_{0k} + \beta_k^{\mathrm T}x)}{1 + \exp(\beta_{0k} + \beta_k^{\mathrm T}x)}\]
+
+<p>然而，如前所述，我们必须满足 $m_1(x) + \cdots + m_K(x)=1$。</p>
+
+<p>这可以通过使用以下略经修改的模型实现：对于 $k=1,\dots,K-1$，</p>
+
+\[m_k(x) = \dfrac{\exp(\beta_{0k} + \beta_k^{\mathrm T}x)}{1 + \sum_{\ell =1}^{K-1} \exp(\beta_{0\ell} + \beta_{\ell}^{\mathrm T}x)}\]
+
+<p>然后，我们取</p>
+
+\[m_K(x) = 1- \sum_{k=1}^{K-1}m_k(x) = 1 - \dfrac{\sum_{k=1}^{K-1} \exp(\beta_{0k} + \beta_k^{\mathrm T}x)}{1 + \sum_{\ell =1}^{K-1} \exp(\beta_{0\ell} + \beta_{\ell}^{\mathrm T}x)} = \dfrac{1}{1 + \sum_{\ell =1}^{K-1} \exp(\beta_{0\ell} + \beta_{\ell}^{\mathrm T}x)}\]
+
+<p>对于 $k=1, \dots, K-1$，使用最大似然估计量 $\hat \beta_{0k}$ 和 $\hat \beta_k$ 来估计 $\beta_{0k}$ 和 $\beta_k$ (同样，可以使用 PLS 成分代替)，并推断出 $m_k$ 的估计量 $\hat m_k$。然后通过下式估计 $m_K(x)$</p>
+
+\[\hat m_K(x) = 1- \sum_{k=1}^{K-1}\hat m_k(x)\]
+
+<p>将新个体分类到 $\hat m_1(x),\dots,\hat m_K(x)$ 中的最大值 $\hat G$：</p>
+
+\[\hat G = \mathop{\operatorname{arg\,max}}\limits_{k=1,\dots,K} \hat m_k(x)\]
+
+<p>但是，实际上我们并不需要计算 $\hat m_k$，因此也不需要计算指数。其实，要找到最大值，我们可以在不同组之间进行两两比较。</p>
+
+<p>我们可以计算</p>
+
+\[\begin{align}
+\log \dfrac{P(G=1\mid X=x)}{P(G=K \mid X=x)} &amp;= \log \dfrac{m_1(x)}{m_K(x)} = \beta_{01} + \beta_1^{\mathrm T}x \\[2ex]
+\log \dfrac{P(G=2\mid X=x)}{P(G=K \mid X=x)} &amp;= \log \dfrac{m_2(x)}{m_K(x)} = \beta_{02} + \beta_2^{\mathrm T}x \\[2ex]
+\vdots \\[2ex]
+\log \dfrac{P(G=K-1\mid X=x)}{P(G=K \mid X=x)} &amp;= \log \dfrac{m_{K-1}(x)}{m_K(x)} = \beta_{0,K-1} + \beta_{K-1}^{\mathrm T}x
+\end{align}\]
+
+<p>例如，假设 $K &gt; 5$ 并且 $P(G=5 \mid X=x)$ 是最大值。然后我们将有</p>
+
+\[m_5(x) &gt; m_K(x) \quad \Longleftrightarrow \quad \log \dfrac{m_5(x)}{m_K(x)} &gt; 0\]
+
+<p>并且，对于所有 $k\ne 5$，</p>
+
+\[m_k(x) &lt; m_5(x) \quad \Longleftrightarrow \quad \dfrac{m_k(x)}{m_K(x)} &lt; \dfrac{m_5(x)}{m_K(x)} \quad \Longleftrightarrow \quad \log \dfrac{m_k(x)}{m_K(x)} &lt; \log \dfrac{m_5(x)}{m_K(x)}\]
+
+<p>因此，我们可以仅根据这些对数比做出决策。</p>
+
+<p>对于 $K = 2$ 的情况，这是一种线性方法。</p>
+
+<h3 id="53-对于-k--2-类的-ld-和-qd-方法">5.3 对于 $K &gt; 2$ 类的 LD 和 QD 方法</h3>
+
+<p>利用相同的思想，LD 和 QD 方法可以推广到 $K&gt; 2$ 类的情况。</p>
+
+<p>令 $\pi_1 = P(G=1),\dots,\pi_K = P(G=K)$。</p>
+
+<ul>
+  <li>
+    <p>LD：将一个新观测 $x$ 分类到能够最大化下式的组 $k$ 中</p>
+
+\[\delta_k(x) = x^{\mathrm T}\hat \Sigma^{-1} \hat \mu_k - \dfrac{1}{2}\hat \mu_k^{\mathrm T} \hat \Sigma^{-1} \hat \mu_k + \log \hat \pi_k\]
+  </li>
+  <li>
+    <p>QD：将一个新观测 $x$ 分类到能够最大化下式的组 $k$ 中</p>
+
+\[\delta_k(x) = \log(\hat \pi_k) - \dfrac{1}{2}\log\{\mathrm{det}(\hat \Sigma_k)\} - \dfrac{1}{2}(x-\hat \mu_k)^{\mathrm T} \hat \Sigma_k^{-1}(x-\hat \mu_k)\]
+  </li>
+</ul>
+
+<p>与在 $K = 2$ 组的情况下一样，为简单起见，我们重新标记数据 $X_i$，以区分它们来自哪个组：$X_{i,k}\;(i=1,\dots,n_k)$ 表示来自组 $k$ 的所有 $X_i$。</p>
+
+<p>$\hat \pi_k = n_k/ n$ 是整个训练数据集中来自组 $k$ 的数据所占比例，</p>
+
+\[\begin{align}
+\hat \mu_k &amp;= \overline X_k = \dfrac{1}{n_k} \sum_{i=1}^{n_k} X_{i,k} \\[2ex]
+\hat \Sigma_k &amp;= \dfrac{1}{n_k-1} \sum_{i=1}^{n_k} (X_{i,k} - \hat \mu_k)(X_{i,k} - \hat \mu_k)^{\mathrm T} \\[2ex]
+\hat \Sigma &amp;= \dfrac{1}{n_1 + \cdots + n_K - K} \sum_{k=1}^{K} \sum_{i=1}^{n_k} (X_{i,k} - \hat \mu_k)(X_{i,k} - \hat \mu_k)^{\mathrm T}
+\end{align}\]
+
+<p>下节内容：分类和回归树 (CART)</p>
+:ET

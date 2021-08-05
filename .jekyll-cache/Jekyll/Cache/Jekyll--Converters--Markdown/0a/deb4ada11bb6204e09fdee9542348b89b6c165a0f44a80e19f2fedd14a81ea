@@ -1,0 +1,448 @@
+I"��<h1 id="lecture-08-nlp-深度学习循环网络">Lecture 08 NLP 深度学习：循环网络</h1>
+
+<p>上节课我们介绍了前馈神经网络，本节课我们将学习循环神经网络。</p>
+
+<h2 id="1-n-gram-语言模型">1. N-gram 语言模型</h2>
+<p>让我们再次回到 n-gram 语言模型。</p>
+<ul>
+  <li>可以基于词频计数（以及平滑技术）实现 n-gram 语言模型。<br />
+给定一个语料库，基于其中 bigram/trigram 的频数实现语言模型，并且利用平滑技术处理稀疏性问题和未知单词 gram 的问题。</li>
+  <li>可以基于前馈神经网络实现。<br />
+假设给定 $(n-1)$ 个上下文单词，任务是预测下一个单词。我们可以将其转换为一个分类问题：输出单词是整个词汇表中的某个单词。和一般的分类问题的不同之处在于，这里可能的输出集合非常大。但是除此之外，它和其他分类问题本质上没有区别，所以我们可以基于前馈神经网络实现它。</li>
+</ul>
+
+<p>让我们来看一个使用 trigram 模型生成句子的例子：</p>
+
+\[\textit{I saw a table is round and about}\]
+
+<p>对于人类而言，上面生成的句子看上去语义不通。但是从 trigram 模型的角度来看，这个句子并没有什么奇怪的，因为如果我们逐个观察 trigram 模型的上下文，会发现每个 trigram 看上去都说得通：</p>
+
+\[\textit{I saw a / saw a table / a table is / table is round / is round and / round and about}\]
+
+<p>那么，为什么最终我们得到的句子语义不通呢？问题在于：有限的 <strong>上下文</strong>。</p>
+
+<p>当我们试图生成下一个的单词时，只要我们是基于有限的固定大小的上下文单词，那么当生成长句子或者长段落时，最终的句子或者段落意思可能前后语义完全无关。这实际上不是模型本身的问题，而是关于模型假设的问题：即我们可以基于有限的几个单词生成文本。</p>
+
+<h2 id="2-循环神经网络rnn">2. 循环神经网络（RNN）</h2>
+
+<h3 id="21-循环神经网络">2.1 循环神经网络</h3>
+<ul>
+  <li>RNN 允许我们表示任意大小的输入。<br />
+不同于 n-gram 模型，RNN 不再限制于仅查看前 $(n-1)$ 个单词上下文。</li>
+  <li>核心思想：每次处理输入序列中的一个元素，应用一个循环方程。</li>
+  <li>为了捕获所有的上下文信息，用一个 <span style="color:red">状态向量（state vector）</span>表示前面已处理过的上下文。</li>
+</ul>
+
+<p><img src="http://andy-blog.oss-cn-beijing.aliyuncs.com/blog/2020-04-21-WX20200421-131451%402x.png" width="15%" align="right" /></p>
+
+<p>所以，RNN 实际上就是一个方程：</p>
+
+\[\mathbf s_i=f(\mathbf s_{i-1},\mathbf x_i)\]
+
+<p>其中，$\mathbf s_{i-1}$ 表示之前的状态信息，$\mathbf x_i$ 表示当前输入，$f$ 是带参数的函数，$\mathbf s_i$ 表示生成的新状态。</p>
+
+<p>本质上，它试图查看之前的状态 $\mathbf s_{i-1}$，并且结合当前的输入 $\mathbf x_i$，生成新的状态 $\mathbf s_i$。所以，新的状态 $\mathbf s_i$ 中包含了处理过的 $\mathbf x_i$ 的信息。</p>
+
+<p>那么，我们如何实现这个 RNN 函数呢？</p>
+
+\[\mathbf s_i=\tanh(W_{\mathbf s} \mathbf s_{i-1} + W_{\mathbf x} \mathbf x_i + \mathbf b)\]
+
+<p>本质上，我们这里用权重矩阵 $W_{\mathbf s}$ 和 $W_{\mathbf x}$ 分别对之前的状态信息 $\mathbf s_{i-1}$ 和当前输入 $\mathbf x_i$ 进行线性变换，然后将它们映射到相同的线性空间并相加，然后再加上一个偏置向量 $\mathbf b$，将结果作为 $\tanh$ 函数的输入，得到新的状态信息 $\mathbf s_i$。</p>
+
+<p>可以看到，这里其实和之前前馈神经网络中的隐藏层是一样的，唯一的区别是这里多了一个循环的过程，因为我们总是用到了前一个状态信息 $\mathbf s_{i-1}$。</p>
+
+<h3 id="22-rnn-展开">2.2 RNN 展开</h3>
+<p>现在，我们对 RNN 进行展开，以便观察它具体是如何工作的。</p>
+
+<p><img src="http://andy-blog.oss-cn-beijing.aliyuncs.com/blog/2020-04-21-WX20200421-171113%402x.png" width="80%" /></p>
+
+<p>可以看到，这里我们有一个展开的 RNN，它包含 4 个时间步（time step）：$\mathbf x_1, \mathbf x_2, \mathbf x_3, \mathbf x_4$。并且，随着时间序列进行，状态向量也在发生变化。然后，在每个时间步中，我们还会计算一个 $y_i$：用一个权重矩阵 $W_y$ 对当前时间步的输出状态 $\mathbf s_i$ 进行线性变换，然后输入激活函数 $\sigma$，用于拟合下游任务。如果我们的任务是一个二分类问题，那么激活函数 $\sigma$ 一般采用 $\text{sigmoid}$ 函数；对于多分类问题，可以采用 $\text{softmax}$ 函数。</p>
+
+<p>例如：考虑一个二分类问题，给定一些当天的天气参数（温度、湿度、风速等）以及过去一段时间的天气情况。来预测当天是否会下雨。我们可以用 RNN 来进行预测。我们将天气参数作为输入 $\mathbf x_1$，将之前预测的天气情况作为状态信息 $\mathbf s_0$，然后给出关于 $y_1$（$0$ 或 $1$）的预测。然后，以此类推，继续预测明天、后天的天气情况。</p>
+
+<p><strong>简单 RNN</strong>：</p>
+
+\[\mathbf s_i=\tanh(W_{\mathbf s} \mathbf s_{i-1} + W_{\mathbf x} \mathbf x_i + \mathbf b)\]
+
+\[y_i=\sigma(W_y \mathbf s_i)\]
+
+<p>所以，RNN 会拟合任何关于序列的信息，我们只需要设计正确的输出函数即可。重要的一点是，即使我们有很多的时间步（例如 4 个），但是它们都共享相同的参数矩阵（即 $W_{\mathbf s},W_{\mathbf x}$ 和 $W_{y}$）。所以，即使序列再长，我们也不会有更多的参数。</p>
+
+<h3 id="23-rnn-的训练">2.3 RNN 的训练</h3>
+
+<ul>
+  <li>
+    <p>一个展开的 RNN 只是一个非常深的神经网络。<br />
+例如，在之前的例子中，假如给定之前的状态 $\mathbf s_3$ 和当前输入 $\mathbf x_4$，可以计算当前状态 $\mathbf s_4$：</p>
+
+\[\begin{align}
+\mathbf s_4 &amp;= R(\mathbf s_3,\mathbf x_4) \\
+&amp;= R(\overbrace{R(\mathbf s_2,\mathbf x_3)}^{\mathbf s_3},\mathbf x_4)\\
+&amp;= R(R(\overbrace{R(\mathbf s_1,\mathbf x_2)}^{\mathbf s_2},\mathbf x_3),\mathbf x_4)\\
+&amp;= R(R(R(\overbrace{R(\mathbf s_0,\mathbf x_1)}^{\mathbf s_1},\mathbf x_2),\mathbf x_3),\mathbf x_4)\\
+\end{align}\]
+  </li>
+  <li>
+    <p>但是很多时间步之间都共享相同的参数。<br />
+例如，假设我们要计算梯度，我们只需要对计算图进行展开，得到损失函数，然后计算梯度，更新参数即可。</p>
+  </li>
+  <li>训练 RNN，我只需要利用给定的输入序列，创建一个展开的计算图。</li>
+  <li>然后像之前一样，利用反向传播算法计算梯度。</li>
+  <li>这个过程被称为 <strong>通过时间反向传播</strong>。因为我们不仅是通过不同的层进行反向传播，实际上，我们是通过不同的时间步之间进行反向传播。</li>
+</ul>
+
+<h3 id="24-简单-rnn-用于语言模型">2.4 简单 RNN 用于语言模型</h3>
+<p>这里是一个将 RNN 用于语言模型的简单例子：</p>
+
+<p><img src="http://andy-blog.oss-cn-beijing.aliyuncs.com/blog/2020-04-21-WX20200421-224647%402x.png" width="80%" /></p>
+
+\[\mathbf s_i=\tanh(W_{\mathbf s}\mathbf s_{i-1}+W_{\mathbf x}\mathbf x_{i}+\mathbf b)\]
+
+\[\mathbf y_i=\text{softmax}(W_{\mathbf y}\mathbf s_i)\]
+
+<p>我们知道，语言模型的任务是根据给定的上下文单词预测接下来出现的单词。例如：给定上下文单词 “$\textit{a}$”，预测下一个单词 “$\textit{cow}$”，以此类推，生成后续单词 “$\textit{eats}$”、“$\textit{grass}$” 以及句号 “$\textit{.}$” 等等。</p>
+
+<p>可以看到，该任务可以天然匹配 RNN 的架构，我们要做的就是每次处理一个单词，并确保将生成的状态向量传递给下一个时间步，这样我们就可以构建一个语言模型。</p>
+
+<p>但是，两者之间还是存在一些细微差别：</p>
+
+<ul>
+  <li>这里，输入单词向量 $\mathbf x_i$（即当前单词的 one-hot 向量）被映射为了一个嵌入，即 $W_{\mathbf x}\mathbf x_{i}$。</li>
+  <li>之后，我们需要输出下一个单词，所以相比之前二分类问题中的 $\text{sigmoid}$ 函数，这里我们采用 $\text{softmax}$ 函数。</li>
+</ul>
+
+<p>除此之外，其他部分和之前一样，如之前提到的，模型的大部分参数都集中在 $W_{\mathbf x}$ 和 $W_{\mathbf y}$ 里面。因为 $W_{\mathbf x}$ 是输入嵌入矩阵，其维度为词汇表大小乘以嵌入维度（即 $|V|\times d$）；同理，输出嵌入矩阵 $W_{\mathbf y}$ 中也包含了很多参数。</p>
+
+<h3 id="25-rnn-语言模型训练">2.5 RNN 语言模型：训练</h3>
+<p>这里是一个关于 RNN 语言模型训练的简单例子：</p>
+
+<p><img src="http://andy-blog.oss-cn-beijing.aliyuncs.com/blog/2020-04-22-WX20200422-222547%402x.png" width="50%" /></p>
+
+<p>假设我们的语料库中只有一个句子：$\textit{a cow eats grass}$</p>
+<ul>
+  <li><strong>词汇表</strong>：$V=[\textit{a, cow, eats, grass}]$</li>
+  <li><strong>训练样本</strong>：$\textit{a cow eats grass}$</li>
+</ul>
+
+\[\mathbf s_i=\tanh(W_{\mathbf s}\mathbf s_{i-1}+W_{\mathbf x}\mathbf x_{i}+\mathbf b)\]
+
+\[\mathbf y_i=\text{softmax}(W_{\mathbf y}\mathbf s_i)\]
+
+<p>首先，我们将当前单词转换为 one-hot 向量 $\mathbf x_i$，然后用它来计算下一个隐藏状态 $\mathbf s_i$：在这个过程中，one-hot 向量被转换为词嵌入 $W_{\mathbf x}\mathbf x_{i}$，并且结合之前的状态 $\mathbf s_{i-1}$ 的线性变换 $W_{\mathbf s}\mathbf s_{i-1}$，以及偏置向量 $\mathbf b$，输入 $\tanh$ 函数，计算得到下一个隐藏状态 $\mathbf s_i$。</p>
+
+<p>你可能会问第一个时间步如何计算隐藏状态，因为在它之前没有其他隐藏状态。有很多方法可以处理这种情况：我有时，们可以将初始隐藏状态中的元素全部设为 $0$；而有时，我们可以将初始状态设为可学习的，即随机化初始状态，然后让模型学习到一个好的初始状态。</p>
+
+<p>之后，我们利用权重矩阵 $W_{\mathbf y}$ 对计算得到的状态向量 $\mathbf s_i$ 进行线性变换，并输入 $\text{softmax}$ 函数，得到所有可能单词的概率分布向量 $\mathbf y_i$，其中所有元素之和为 $1$。我们知道第一个单词 “$\textit{a}$” 后面的单词应该为 “$\textit{cow}$”，所以我们找到其对应的概率 $0.3$，然后计算 log 损失 / 交叉熵损失。然后，我们将单词 “$\textit{cow}$” 作为下一个时间步的输入，并且结合之前的状态，计算得到新的状态，并给出预测结果，以此类推。</p>
+
+<p>最终，训练结束时，在这个例子中，我们将得到由 3 个单词 “$\textit{cow}$”、“$\textit{eat}$”、“$\textit{grass}$” 分别给出的 3 个损失函数值，通常我们可以将它们相加或者取平均，作为总的损失函数值来对其进行优化。</p>
+
+<h3 id="26-rnn-语言模型生成">2.6 RNN 语言模型：生成</h3>
+<p>一旦我们完成了训练过程，我们就可以用它来完成一些生成任务。本质上，这里只涉及到向前传播，而不涉及像训练过程中的反向传播过程。</p>
+
+<p><img src="http://andy-blog.oss-cn-beijing.aliyuncs.com/blog/2020-04-22-WX20200422-230444%402x-1.png" width="50%" /></p>
+
+<p>例如：给定初始单词 “$\textit{a}$”，我们计算其 one-hot 向量，然后计算隐藏状态，最后计算得到下一个单词的概率分布向量，并从中选择最大值对应的单词 “$\textit{cow}$” 作为下一个单词（或者，我们也可以基于这个概率分布抽样得到下一个单词）。之后，我们将得到的单词 “$\textit{cow}$” 再次作为 RNN 的输入，从而再计算得到下一个单词 “$\textit{eats}$”，以此类推。</p>
+
+<h3 id="27-语言模型的问题解决了吗">2.7 语言模型的问题解决了吗</h3>
+<p>现在，我们已经用简单 RNN 实现了语言模型，可以处理任意大小的输入，不再受固定输入大小的限制，所以，我们可能认为它应该可以生成一些不错的句子或者文本，但实际情况并非如此。</p>
+
+<ul>
+  <li>理论上，RNN 可以对无限长度的上下文进行建模。</li>
+  <li>但是，在实践中，它真的能够捕获长距离的依赖关系吗？</li>
+  <li>答案是否定的，因为存在 <strong>梯度消失（vanishing gradients）</strong> 问题。</li>
+  <li>由于反向传播，后面时间步中的梯度会迅速减小。</li>
+  <li>早先的输入没有得到太多更新。</li>
+</ul>
+
+<p><strong>为什么简单 RNN 语言模型会存在梯度消失？</strong></p>
+
+<p>我们之前提到过，RNN 模型展开之后是一个非常深的神经网络，当我们在计算梯度时，随着时间推移，梯度会逐渐减小。设想在一个非常长的句子中，当我们进行到很后面时，最开始几个时间步的输入单词将不会再产生太大影响，从而导致它们的参数不再会得到太多更新。所以，随着时间步的推移，梯度会越来越小。</p>
+
+<h2 id="3-长短期记忆网络lstm">3. 长短期记忆网络（LSTM）</h2>
+
+<h3 id="31-长短期记忆网络long-short-term-memorylstm">3.1 长短期记忆网络（Long Short-Term Memory，LSTM）</h3>
+
+<ul>
+  <li>LSTM 被用来解决梯度消失问题。</li>
+  <li>核心思想：用 <strong>记忆细胞（memory cells）</strong> 来保存跨越了很长时间步的梯度。<br />
+我们知道状态向量中包含了一些处理过的单词信息，在简单 RNN 架构中，我们通常只关注那些最近的时间步，而忘记那些跨度很长的时间步。但这里，我们希望通过记忆细胞来保存那些跨越了很长时间步的依赖关系。</li>
+  <li>记忆细胞的访问是通过 <strong>门（gates）</strong> 来控制的。</li>
+  <li>对于每个输入，一个门可以决定：
+    <ul>
+      <li>新输入中有多少信息应该被写入记忆细胞。</li>
+      <li>当前记忆细胞中有多少信息应该被遗忘掉。</li>
+    </ul>
+
+    <p>由于记忆细胞的容量是固定的，所以我们用门来控制其中信息的删除和更新。</p>
+  </li>
+</ul>
+
+<h3 id="32-门gate">3.2 门（gate）</h3>
+<ul>
+  <li>一个 <strong>门（gate）</strong>$\mathbf g$ 是一个向量。
+    <ul>
+      <li>其中每个元素的值都在 $0$ 到 $1$ 之间。</li>
+    </ul>
+  </li>
+  <li>通过将 $\mathbf g$ 和向量 $\mathbf v$ 中的对应元素相乘，来决定 $\mathbf v$ 中有多少信息需要保留。</li>
+  <li>为了满足 $\mathbf g$ 中每个元素都在 $0$ 到 $1$ 之间这一约束条件，我们引入 $\text{sigmoid}$ 函数。</li>
+</ul>
+
+<p><img src="http://andy-blog.oss-cn-beijing.aliyuncs.com/blog/2020-04-23-WX20200423-134152%402x.png" width="40%" /></p>
+
+<p>上面是一个演示如何通过 $\mathbf g$ 来控制 $\mathbf v$ 中信息的例子。这里，门向量 $\mathbf g=[0.9,0.1,0.0]$，而 $\mathbf v$ 是一个随机向量 $[2.5,5.3,1.2]$。可以看到，如果我们将两者的对应元素相乘，对于 $\mathbf g$ 中的第一个元素 $0.9$，它非常接近 $1$，所以将其与 $\mathbf v$ 中对应元素 $2.5$ 相乘得到的结果为 $2.3$ 非常接近相乘之前的值。而对于第二个元素，$\mathbf g$ 对应的 $0.1$ 非常接近于 $0$，所以将其与 $\mathbf v$ 中对应元素 $5.3$ 相乘得到的结果为 $0.5$，非常接近于 $0$。所以，门向量 $\mathbf g$ 本质上决定了 $\mathbf v$ 中有多少元素将变为 $0$。</p>
+
+<h3 id="33-lstm-vs-简单-rnn">3.3 LSTM vs. 简单 RNN</h3>
+<p><strong>简单 RNN 架构</strong></p>
+
+<p><img src="http://andy-blog.oss-cn-beijing.aliyuncs.com/blog/2020-04-23-WX20200423-135226%402x.png" width="80%" /></p>
+
+<p>这里，我们有 3 个时间步：$\mathbf x_{t-1},\,\mathbf x_{t},\,\mathbf x_{t+1}$。在简单 RNN 中，我们只有一个非常简单的函数：我们将当前时间步 $\mathbf x_{t}$ 与之前的状态 $\mathbf h_{t-1}$ 结合，然后将其输入非线性函数 $\tanh$，得到新的状态 $\mathbf h_{t}$，并将其输入下一个时间步。</p>
+
+<p><strong>LSTM 架构</strong></p>
+
+<p><img src="http://andy-blog.oss-cn-beijing.aliyuncs.com/blog/2020-04-23-WX20200423-135252%402x.png" width="80%" /></p>
+
+<p>LSTM 中的过程要比简单 RNN 中更加复杂一些。其中包含 3 个 $\text{sigmoid}$ 函数（即图中的 $\sigma$），它们实际上对应 LSTM 中的 3 个门。你可能注意到了，从前一个时间步到后一个时间步之间，存在两条输入流和输出流：下面那条表示之前的状态向量，而上面那条表示记忆细胞。记忆细胞可以从某种程度上理解为另一种状态向量，用于存储较长时间跨度上的依赖关系。</p>
+
+<h3 id="34-lstm遗忘门">3.4 LSTM：遗忘门</h3>
+<p>LSTM 中的第一个门是 <strong>遗忘门（Forget Gate）</strong>。</p>
+
+<p><img src="http://andy-blog.oss-cn-beijing.aliyuncs.com/blog/2020-04-23-WX20200423-141736%402x.png" width="50%" /></p>
+
+\[f_t=\sigma(W_f \cdot [\mathbf h_{t-1},\mathbf x_{t}]+\mathbf b_{f})\]
+
+<p>其中，$\mathbf h_{t-1}$ 为之前的状态向量，$\mathbf x_{t}$ 为当前的输入向量。</p>
+
+<p><strong>遗忘门控制着前一个时间步得到的记忆细胞 $C_{t-1}$ 中有多少信息是需要遗忘/丢弃的。</strong></p>
+
+<p><strong>那么如何计算遗忘门的函数值呢？</strong></p>
+
+<p>我们知道遗忘门就是一个向量，其中所有元素的取值范围都在 $0$ 到 $1$ 之间。我们将之前的状态向量 $\mathbf h_{t-1}$ 和当前输入向量 $\mathbf x_{t}$ 连接起来，并且用矩阵 $W_f$ 进行线性变换，然后加上偏置向量 $\mathbf b_{f}$，再输入 $\text{sigmoid}$ 函数，将所有元素都映射到 $0$ 到 $1$ 之间。注意，这里我们将 $\mathbf h_{t-1}$ 和 $\mathbf x_{t}$ 连接之后再进行线性变换的做法，和之前分别对两者进行线性变换再相加的做法本质上是一样的。</p>
+
+<p><strong>为什么需要遗忘门呢？</strong>我们可以通过一个简单的例子进行理解：</p>
+
+<p>假设现在我们有一个句子：$\textit{The cats that the } \boldsymbol {boy} \color{red}{\textit{ likes}}$</p>
+
+<p>如果我们希望知道这里的动词 “$\textit{like}$” 应当用单数还是复数形式，我们需要去看它前面的主语 “$\textit{boy}$” 而非更早之前出现的 “$\textit{cats}$”，而这需要通过遗忘门来完成：想象一下，假设当前时间步的输入单词为 “$\textit{boy}$”，而记忆细胞中存储了很多信息，包括之前出现的单词 “$\textit{cats}$” 的一些相关信息。现在，我们要预测当前单词 “$\textit{boy}$” 的下一个单词，记忆细胞需要忘记之前出现的单词 “$\textit{cats}$”，然后存储当前单词 “$\textit{boy}$” 的信息，来正确预测接下来出现的单数形式的动词 “$\textit{likes}$”。否则，如果我们用之前的复数名词 “$\textit{cats}$” 预测，将会得到错误的动词复数形式 “$\textit{like}$”。</p>
+
+<h3 id="35-lstm输入门">3.5 LSTM：输入门</h3>
+
+<p>这里我们介绍 LSTM 中的第二个门：<strong>输入门（input gate）</strong>。</p>
+
+<p><img src="http://andy-blog.oss-cn-beijing.aliyuncs.com/blog/2020-04-23-WX20200423-141951%402x.png" width="50%" /></p>
+
+\[i_t=\sigma(W_i \cdot [\mathbf h_{t-1},\mathbf x_{t}]+\mathbf b_{i})\]
+
+\[\tilde C_t=\tanh(W_C \cdot [\mathbf h_{t-1},\mathbf x_{t}]+\mathbf b_{C})\]
+
+<p><strong>输入门控制着有多少新的信息需要写入记忆细胞中。</strong></p>
+
+<p>可以看到，输入门的计算过程和遗忘门几乎一样，但是请注意，它们两者的参数是不共享的：也就是说，这里的权重矩阵 $W_i$ 和偏置向量 $\mathbf b_i$ 不同于之前的 $W_f$ 和 $\mathbf b_f$。</p>
+
+<p>接下来，我们还要计算需要加入记忆细胞的 <strong>蒸馏信息（distilled information）$\tilde C_t$</strong>。<br />
+例如：之前例子中单词 “$\textit{boy}$” 的相关信息。计算过程也和之前一样，只是这里我们不需要 $\text{sigmoid}$ 函数，而是可以直接使用非线性函数 $\tanh$，因为它只包含了需要加入的新信息，不需要所有元素都在 $0$ 到 $1$ 之间。我们可以从某种程度上将其理解为与当前输入单词相关的新的信息。</p>
+
+<h3 id="36-lstm更新记忆细胞">3.6 LSTM：更新记忆细胞</h3>
+
+<p>我们已经讨论了如何计算遗忘门和输入门，现在我们将讨论如何利用它们 <strong>更新记忆细胞</strong>。</p>
+
+<p><img src="http://andy-blog.oss-cn-beijing.aliyuncs.com/blog/2020-04-23-WX20200423-142007%402x.png" width="50%" /></p>
+
+\[C_t=f_t*C_{t-1}+i_t* \tilde C_{t}\]
+
+<p>其中，$f_t$ 表示遗忘门，$i_t$ 表示输入门，$*$ 表示两个向量/矩阵中对应元素相乘。</p>
+
+<p><strong>利用遗忘门和输入门更新记忆细胞。</strong></p>
+
+<p>计算过程非常直接：我们将遗忘门和之前记忆细胞向量中的对应元素相乘（本质上是将 $C_{t-1}$ 中的某些元素归零，即从记忆细胞中删除部分信息），然后将输入门和当前时间步的蒸馏信息中的对应元素相乘（本质上是将当前输入信息 $\tilde C_{t}$ 的某些元素归零，过滤得到需要加入记忆细胞的信息），最后将二者相加即得到更新后的记忆细胞状态 $C_t$。</p>
+
+<h3 id="37-lstm输出门">3.7 LSTM：输出门</h3>
+
+<p>现在，我们将讨论 LSTM 中的最后一个门：<strong>输出门（output gate）</strong>。</p>
+
+<p><img src="http://andy-blog.oss-cn-beijing.aliyuncs.com/blog/2020-04-23-WX20200423-150254%402x.png" width="50%" /></p>
+
+\[o_t=\sigma(W_o \cdot [\mathbf h_{t-1},\mathbf x_{t}]+\mathbf b_{o})\]
+
+\[\mathbf h_t=o_t * \tanh(C_t)\]
+
+<p><strong>输出门控制着我们需要从记忆细胞中提取多少内容来生成下一个隐藏状态 $\mathbf h_t$</strong>。</p>
+
+<p>回忆在 LSTM 中我们有两条输入流，除了有简单 RNN 中已有的隐藏状态之外，我们现在还有记忆细胞。下一个隐藏状态的计算实际上取决于记忆细胞。</p>
+
+<p>首先，我们计算输出门 $o_t$，计算过程同遗忘门和输入门类似，同样，它有自己的参数 $W_o$ 和 $\mathbf b_o$。然后，我们只需要将更新后的记忆细胞 $C_t$ 输入非线性函数 $\tanh$，并将结果与输出门 $o_t$ 中的对应元素相乘，即可得到下一个隐藏状态 $\mathbf h_t$。同样，这个过程中有些元素将被归零，因为它们对于下一个隐藏状态而言属于无用信息。</p>
+
+<p>现在，我们可以将得到的 $C_t$ 和 $\mathbf h_t$ 两者都传递给下一个时间步，所以，同简单 RNN 架构相比，LSTM 在不同时间步之间传递的信息更多。</p>
+
+<h3 id="38-lstm总结">3.8 LSTM：总结</h3>
+
+<p><img src="http://andy-blog.oss-cn-beijing.aliyuncs.com/blog/2020-04-23-WX20200423-155916%402x.png" width="45%" /></p>
+
+<p>这里是 LSTM 架构中涉及到的所有公式：</p>
+
+\[\begin{align}
+f_t &amp;= \sigma(W_f \cdot [\mathbf h_{t-1},\mathbf x_{t}]+\mathbf b_{f})\\
+i_t &amp;= \sigma(W_i \cdot [\mathbf h_{t-1},\mathbf x_{t}]+\mathbf b_{i})\\
+o_t &amp; =\sigma(W_o \cdot [\mathbf h_{t-1},\mathbf x_{t}]+\mathbf b_{o})\\
+\tilde C_t &amp;= \tanh(W_C \cdot [\mathbf h_{t-1},\mathbf x_{t}]+\mathbf b_{C})\\
+C_t &amp;= f_t*C_{t-1}+i_t* \tilde C_{t}\\
+\mathbf h_t &amp;= o_t * \tanh(C_t)
+\end{align}\]
+
+<p>可以看到，我们一共有 3 个门：遗忘门、输入门、输出门，并且它们的计算过程也非常相似，但是它们彼此之间的参数并不共享。然后，我们计算蒸馏信息 $\tilde C_t$，它表示我们希望加入记忆细胞的候选信息，其计算过程和门类似，唯一区别是采用了另一种非线性函数 $\tanh$ 而非之前的 $\text{sigmoid}$，因为我们不需要将结果中的所有元素都约束到 $[0,1]$ 区间内。当然，这里我们可以采用任何非线性函数（例如 ReLU 等），$\tanh$ 只是其中最常用的一种。之后，我们可以利用遗忘门和输入门来更新记忆细胞并计算下一个隐藏状态。最后，我们将更新后的记忆细胞和隐藏状态作为下一个时间步的输入。</p>
+
+<h2 id="4-lstm-变体">4. LSTM 变体</h2>
+
+<p>我们已经介绍了经典的 LSTM 架构，现在我们将介绍一些 LSTM 的相关变体。</p>
+
+<h3 id="41-peephole-连接">4.1 Peephole 连接</h3>
+
+<p>LSTM 的一种变体是 <strong>peephole 连接（peephole connections）</strong>。</p>
+
+<p>它允许 LSTM 的 3 个门不仅依赖于当前输入 $\mathbf x_t$ 和之前的隐藏状态 $\mathbf h_{t-1}$，同时还依赖于之前的记忆细胞状态 $C_{t-1}$。</p>
+
+\[\begin{align}
+f_t &amp;= \sigma(W_f\cdot [C_{t-1},\mathbf h_{t-1},\mathbf x_t]+\mathbf b_f)\\
+i_t &amp;= \sigma(W_i\cdot [C_{t-1},\mathbf h_{t-1},\mathbf x_t]+\mathbf b_i)\\
+o_t &amp;= \sigma(W_o\cdot [C_{t-1},\mathbf h_{t-1},\mathbf x_t]+\mathbf b_o)
+\end{align}\]
+
+<p>可以看到，和 LSTM 唯一区别就是在决定哪些项归零时，我们增加了之前的记忆细胞状态作为参考。通常，peephole 连接会包含非常多的参数。</p>
+
+<h3 id="42-门控循环单元gru">4.2 门控循环单元（GRU）</h3>
+
+<p><strong>门控循环单元（Gated Recurrent Unit，GRU）</strong>是一种比 LSTM 更简单的循环神经网络。</p>
+
+<p>GRU 只包含 2 个门，并且没有记忆细胞，其基本架构如下：</p>
+
+<p><img src="http://andy-blog.oss-cn-beijing.aliyuncs.com/blog/2020-04-23-WX20200423-164018%402x.png" width="45%" /></p>
+
+\[\begin{align}
+z_t &amp;= \sigma(W_z\cdot [\mathbf h_{t-1},\mathbf x_t])\\
+r_t &amp;= \sigma(W_r\cdot [\mathbf h_{t-1},\mathbf x_t])\\
+\tilde {\mathbf h}_{t} &amp;= \tanh(W\cdot [r_t * \mathbf h_{t-1},\mathbf x_t])\\
+\mathbf h_t &amp;= (\mathbf 1-z_t)*\mathbf h_{t-1} + z_t * \tilde {\mathbf h}_{t}
+\end{align}\]
+
+<p>关于 GRU，我们不会进行非常详细的讨论。基本上，GRU 包含一个 <strong>更新门（update gate）$z_t$</strong> 和一个 <strong>重置门（reset gate）$r_t$</strong>，其计算过程和 LSTM 中的门类似。然后我们计算 <strong>蒸馏隐藏状态 \(\tilde {\mathbf h}_{t}\)</strong>，它表示我们从当前输入中提取到的希望加入隐藏状态的信息，和之前的 $\tilde C_t$ 类似，但计算过程有些差别：其中包含了当前输入 $\mathbf x_t$ 和之前的隐藏状态 $\mathbf h_{t-1}$，并且在计算之前，我们还将重置门 $r_t$ 和之前的隐藏状态 $\mathbf h_{t-1}$ 中的对应元素相乘。重置门 $r_t$ 的作用是在计算蒸馏隐藏状态前，将之前的隐藏状态 $\mathbf h_{t-1}$ 中某些无用的元素归零。然后，我们用更新门 $z_t$ 来更新隐藏状态。相比 LSTM 中更新记忆细胞时使用两个独立的门（遗忘门和输入门），GRU 在更新隐藏状态时只用到了一个更新门：这里 $z_t$ 扮演了类似输入门的角色，而 $(\mathbf 1-z_t)$ 则扮演了类似遗忘门的角色。</p>
+
+<p>实践中，GRU 和 LSTM 的性能相当，并且由于少了一个门和记忆细胞，GRU 的参数要比 LSTM 少一些。但是，GRU 并没有在参数数量上取得太大的优势，因为绝大部分（$90\%$ 左右）的参数集中在嵌入矩阵中，所以节省一个门可能只是减少了几百/几千个参数，而这些减少对于训练一个很大的模型并没有太大差别。</p>
+
+<h3 id="43-多层-lstm">4.3 多层 LSTM</h3>
+
+<p>我们也可以对 LSTM 进行叠加，从而得到 <strong>多层 LSTM（multi-layer LSTM）</strong>。</p>
+
+<p><img src="http://andy-blog.oss-cn-beijing.aliyuncs.com/blog/2020-04-23-WX20200423-171238%402x.png" width="80%" /></p>
+
+<p>之前，我们介绍了如何将 LSTM 应用于语言模型：根据给定的当前单词和之前的隐藏状态，预测下一个可能出现的单词。实际上，我们可以叠加多层 LSTM 来处理这个问题：我们将前一层 LSTM 的输出结果作为下一层 LSTM 的输入，以此类推，将最后一层输出结果作为下一个单词。</p>
+
+<p>实践中，在训练数据充足的情况下，多层 LSTM 的表现要优于单层 LSTM。从直觉上，在靠近原始输入层的底层 LSTM 中，其捕获到的更多是一些句法 (syntactic) 相关的信息，例如，词性标签 (POS) 等；而在更上层的 LSTM 中，其捕获到的更多是一些更加高层次的语义 (semantic) 方面的信息，例如，语篇 (discourse) 结构层面的信息，这也是其比单层 LSTM 效果更好的原因。</p>
+
+<h3 id="44-双向-lstm">4.4 双向 LSTM</h3>
+
+<p>我们还可以构造 <strong>双向 LSTM（bidirectional LSTM）</strong>。</p>
+
+<p><img src="http://andy-blog.oss-cn-beijing.aliyuncs.com/blog/2020-04-23-WX20200423-172722%402x.png" width="80%" /></p>
+
+\[\mathbf y_i=\text{softmax}(W_{\mathbf s}\cdot [\mathbf s_i,\mathbf u_i])\]
+
+<p>双向 LSTM 包含一个从左至右的 LSTM 和一个从右至左的 LSTM。当我们处理一个给定单词时，它将结合第一个 LSTM 从左至右的隐藏状态 $\mathbf s_i$ 和第二个 LSTM 从右至左的隐藏状态 $\mathbf u_i$，所以，我们无法用它来预测下一个单词。因此，我们无法用双向 LSTM 来实现语言模型。</p>
+
+<p>但是，双向 LSTM 很适合处理序列标注问题，例如：词性标注。假设我们现在需要预测单词 “$\textit{cow}$” 的词性，第一个方向的 LSTM 提供了 “$\textit{cow}$” 之前的单词的词性，而第二个方向的 LSTM 则提供了 “$\textit{cow}$” 之后的单词的词性，这使得我们在预测单词 “$\textit{cow}$” 的词性时，有了更多可以利用的信息。</p>
+
+<p>计算过程也非常简单，只需要将两个方向的状态连接，然后进行线性变换，输入 $\text{softmax}$ 函数即可得到可能的词性概率分布向量。</p>
+
+<h2 id="5-应用">5. 应用</h2>
+
+<h3 id="51-莎士比亚生成器">5.1 莎士比亚生成器</h3>
+
+<ul>
+  <li><strong>项目地址</strong>：<a href="http://karpathy.github.io/2015/05/21/rnn-effectiveness/">http://karpathy.github.io/2015/05/21/rnn-effectiveness/</a></li>
+  <li><strong>训练数据</strong>：莎士比亚的所有作品</li>
+  <li><strong>模型</strong>：3 层的 <strong>字符级别</strong> RNN，隐藏维度为 512。<br />
+字符级别意味着我们不再关注单词层面，即不需要再考虑 token 化之类的事情。</li>
+</ul>
+
+<p>下面是一个训练好的模型生成的一段剧本，注意它们是逐个字符生成的，所以有些可能不是单词：</p>
+
+<p><img src="http://andy-blog.oss-cn-beijing.aliyuncs.com/blog/2020-04-23-WX20200423-174653%402x.png" width="65%" /></p>
+
+<h3 id="52-维基百科生成器">5.2 维基百科生成器</h3>
+
+<ul>
+  <li><strong>项目地址</strong>：<a href="http://karpathy.github.io/2015/05/21/rnn-effectiveness/">http://karpathy.github.io/2015/05/21/rnn-effectiveness/</a></li>
+  <li><strong>训练数据</strong>：100 MB 的维基百科数据。</li>
+</ul>
+
+<p>例子：</p>
+
+<p><img src="http://andy-blog.oss-cn-beijing.aliyuncs.com/blog/2020-04-23-WX20200423-183522%402x.png" width="100%" /></p>
+
+<p>可以看到，尽管其中存在一些错误，但总体看上去效果不错。</p>
+
+<h3 id="53-代码生成器">5.3 代码生成器</h3>
+
+<ul>
+  <li><strong>项目地址</strong>：<a href="http://karpathy.github.io/2015/05/21/rnn-effectiveness/">http://karpathy.github.io/2015/05/21/rnn-effectiveness/</a></li>
+</ul>
+
+<p>例子：</p>
+
+<p><img src="http://andy-blog.oss-cn-beijing.aliyuncs.com/blog/2020-04-23-WX20200423-183836%402x.png" /></p>
+
+<h3 id="54-deep-speare">5.4 Deep-Speare</h3>
+
+<p>生成 <strong>莎士比亚十四行诗（Shakespearean sonnets）</strong>。</p>
+
+<p>和之前的生成戏剧不同，十四行诗有其特定的结构要求，所以不仅需要生成具有意义的句子，而且需要符合十四行诗的格式要求。</p>
+
+<ul>
+  <li><strong>项目地址</strong>：<a href="https://github.com/jhlau/deepspeare">https://github.com/jhlau/deepspeare</a></li>
+</ul>
+
+<p>例子：</p>
+
+<p><img src="http://andy-blog.oss-cn-beijing.aliyuncs.com/blog/2020-04-23-WX20200423-184544%402x.png" width="80%" /></p>
+
+<p>为了检查生成的十四行诗的质量，我们找了一些人做测试，让他们区分哪些诗文出自人类，哪些出于计算机程序。测试结果是大约有 50% 的诗文无法被正确区分。</p>
+
+<h3 id="55-文本分类">5.5 文本分类</h3>
+<p>RNN 可以被用于各种 NLP 任务。尤其适用于那些单词顺序相关的任务，例如：情感分类。</p>
+
+<p><img src="http://andy-blog.oss-cn-beijing.aliyuncs.com/blog/2020-04-23-WX20200423-190025%402x.png" width="80%" /></p>
+
+<p>我们只需要按顺序处理单词，然后基于最后的隐藏状态给出分类结果。</p>
+
+<h3 id="56-序列标注">5.6 序列标注</h3>
+
+<p>RNN 非常适合解决序列标注问题，例如：词性标注（POS tagging）。</p>
+
+<p><img src="http://andy-blog.oss-cn-beijing.aliyuncs.com/blog/2020-04-23-WX20200423-190258%402x.png" width="80%" /></p>
+
+<h2 id="6-总结">6. 总结</h2>
+<ul>
+  <li>优点
+    <ul>
+      <li>具有捕获长距离上下文的能力。</li>
+      <li>优秀的泛化性能。</li>
+      <li>就像前馈神经网络：非常灵活，可以被用于各种任务。</li>
+      <li>在很多 NLP 任务中作为通用组件（因为大部分 NLP 任务都涉及单词序列）。</li>
+    </ul>
+  </li>
+  <li>缺点
+    <ul>
+      <li>由于需要进行序列处理，所以训练速度要比前馈神经网络慢。</li>
+      <li>实践中，还是无法特别好地捕获长距离依赖关系（尤其是在生成长文本时）。</li>
+    </ul>
+  </li>
+</ul>
+
+<h2 id="7-扩展阅读">7. 扩展阅读</h2>
+<ul>
+  <li>G15, Section 10 &amp; 11</li>
+</ul>
+
+<p>下节内容：词汇语义学</p>
+
+:ET

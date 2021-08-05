@@ -1,0 +1,410 @@
+I"�[<h1 id="lecture-11-核方法">Lecture 11 核方法</h1>
+<h2 id="主要内容">主要内容</h2>
+<ul>
+  <li><strong>核化</strong>
+    <ul>
+      <li>SVM 对偶公式的基扩展</li>
+      <li>“核技巧”；特征空间点积的快速计算</li>
+    </ul>
+  </li>
+  <li><strong>模块化学习</strong>
+    <ul>
+      <li>从特征变换中分离出“学习模块”</li>
+      <li>表示定理</li>
+    </ul>
+  </li>
+  <li><strong>构造核函数</strong>
+    <ul>
+      <li>常见核函数及其特性概述</li>
+      <li>Mercer 定理</li>
+      <li>学习非常规数据类型</li>
+    </ul>
+  </li>
+</ul>
+
+<h2 id="1-svm-核化">1. SVM 核化</h2>
+<p><strong>通过基扩展进行特征变换；通过对核进行直接评估来实现加速 —— “核技巧”</strong></p>
+<h3 id="11-svm-处理非线性数据">1.1 SVM 处理非线性数据</h3>
+<ul>
+  <li>方法 1：软间隔 SVM（参考 <a href="https://andy-tk.top/2019/11/15/%E7%BB%9F%E8%AE%A1%E6%9C%BA%E5%99%A8%E5%AD%A6%E4%B9%A010/">Lecture 10</a>）</li>
+  <li>方法 2：<span style="color:red;">特征空间</span> 变换（参考 <a href="https://andy-tk.top/2019/11/08/%E7%BB%9F%E8%AE%A1%E6%9C%BA%E5%99%A8%E5%AD%A6%E4%B9%A004/">Lecture 4</a>）
+    <ul>
+      <li>将数据映射到一个新的特征空间</li>
+      <li>在新的特征空间中运行硬间隔或者软间隔 SVM</li>
+      <li>决策边界在原始特征空间中是非线性的<br />
+<img src="http://andy-blog.oss-cn-beijing.aliyuncs.com/blog/2020-02-14-WX20200214-133247%402x.png" width="80%" /></li>
+    </ul>
+  </li>
+</ul>
+
+<h3 id="12-特征变换基扩展">1.2 特征变换（基扩展）</h3>
+<ul>
+  <li>考虑一个二分类问题</li>
+  <li>每个样本点具有特征 $[x_1, x_2]$</li>
+  <li>
+    <p>非线性可分<br />
+<img src="http://andy-blog.oss-cn-beijing.aliyuncs.com/blog/2020-02-14-WX20200214-133923%402x.png" width="40%" /></p>
+  </li>
+  <li>现在“增加”一个特征 $x_3=x_1^2+x_2^2$</li>
+  <li>每个样本点现在为 $[x_1, x_2, x_1^2+x_2^2]$</li>
+  <li>现在数据变成线性可分了<br />
+<img src="http://andy-blog.oss-cn-beijing.aliyuncs.com/blog/2020-02-14-WX20200214-134026%402x.png" width="40%" /></li>
+</ul>
+
+<h3 id="13-朴素工作流">1.3 朴素工作流</h3>
+<ul>
+  <li>选择 / 设计一个线性模型</li>
+  <li>选择 / 设计一个高维变换 $\varphi (\boldsymbol x)$
+    <ul>
+      <li>希望在添加了许多各种特征之后，其中一些特征将使数据变得线性可分</li>
+    </ul>
+  </li>
+  <li>对于 <span style="color:red;">每个</span> 训练样本，以及 <span style="color:red;">每个</span> 新的实例，计算 $\varphi (\boldsymbol x)$</li>
+  <li>训练分类器 / 进行预测</li>
+  <li><strong>问题：</strong> 对于高维 / 无限维的 $\varphi (\boldsymbol x)$，<span style="color:red;">计算 $\varphi (\boldsymbol x)$ 是不现实 / 不可能的</span>。</li>
+</ul>
+
+<h3 id="14-硬间隔-svm-的对偶公式">1.4 硬间隔 SVM 的对偶公式</h3>
+<ul>
+  <li><strong>训练：</strong> 寻找 $\boldsymbol \lambda$ 使得</li>
+</ul>
+
+\[\begin{array}{cc}\mathop{\operatorname{arg\,max}}\limits_{\boldsymbol \lambda}\sum_{i=1}^{n}\lambda_i-\dfrac{1}{2}\sum_{i=1}^{n}\sum_{j=1}^{n}\lambda_i \lambda_j y_i y_j \color{red}{\underbrace{\fbox{$\color{black}{\boldsymbol x_i' \boldsymbol x_j}$}}_{\text{点积}}}\\\\
+\text{s.t.}\quad \lambda_i\ge 0 \;\text{and}\;\sum_{i=1}^{n}\lambda_i y_i=0 \end{array}\]
+
+<ul>
+  <li><strong>预测：</strong> 根据 $s$ 的符号对实例 $\boldsymbol x$ 进行分类</li>
+</ul>
+
+\[s=b^*+\sum_{i=1}^{n}\lambda_i^* y_i \color{red}{\underbrace{\fbox{$\color{black}{\boldsymbol x_i' \boldsymbol x}$}}_{\text{点积}}}\]
+
+<p>注意：对于任意支持向量 $j$，通过求解 \(y_j(b^{*}+\sum_{i=1}^{n}\lambda_i^* y_i \color{red}{\fbox{$\color{black}{\boldsymbol x_i' \boldsymbol x_j}$}})=1\) 来找到 $b^*$</p>
+
+<h3 id="15-特征空间中的硬间隔-svm">1.5 特征空间中的硬间隔 SVM</h3>
+<ul>
+  <li><strong>训练：</strong> 寻找 $\boldsymbol \lambda$ 使得</li>
+</ul>
+
+\[\begin{array}{cc}\mathop{\operatorname{arg\,max}}\limits_{\boldsymbol \lambda}\sum_{i=1}^{n}\lambda_i-\dfrac{1}{2}\sum_{i=1}^{n}\sum_{j=1}^{n}\lambda_i \lambda_j y_i y_j \color{red}{\fbox{$\color{black}{\varphi (\boldsymbol x_i)' \varphi (\boldsymbol x_j)}$}}\\\\
+\text{s.t.}\quad \lambda_i\ge 0 \;\text{and}\;\sum_{i=1}^{n}\lambda_i y_i=0 \end{array}\]
+
+<ul>
+  <li><strong>预测：</strong> 根据 $s$ 的符号对实例 $\boldsymbol x$ 进行分类</li>
+</ul>
+
+\[s=b^*+\sum_{i=1}^{n}\lambda_i^* y_i \color{red}{\fbox{$\color{black}{\varphi (\boldsymbol x_i)' \varphi (\boldsymbol x)}$}}\]
+
+<p>注意：对于任意支持向量 $j$，通过求解 \(y_j(b^{*}+\sum_{i=1}^{n}\lambda_i^* y_i \color{red}{\fbox{$\color{black}{\varphi (\boldsymbol x_i)' \varphi (\boldsymbol x_j)}$}})=1\) 来找到 $b^*$</p>
+
+<h3 id="16-观察核表示">1.6 观察：核表示</h3>
+<ul>
+  <li>参数估计和计算预测都仅依赖于 <span style="color:red;">点积</span> 形式的数据
+    <ul>
+      <li>在原始特征空间：$\boldsymbol u’ \boldsymbol v=\sum_{i=1}^{m}u_i v_i$</li>
+      <li>在经过特征变换后的空间：$\varphi(\boldsymbol u)’ \varphi(\boldsymbol v)=\sum_{i=1}^{l}\varphi(\boldsymbol u)_i \varphi(\boldsymbol v)_i$</li>
+    </ul>
+  </li>
+  <li>
+    <p><span style="color:red;">核函数</span> 是可以在某些特征空间中表示为点积的函数</p>
+
+\[K(\boldsymbol u, \boldsymbol v)=\varphi(\boldsymbol u)' \varphi(\boldsymbol v)\]
+  </li>
+</ul>
+
+<h3 id="17-核函数是一种捷径例子">1.7 核函数是一种捷径：例子</h3>
+<ul>
+  <li>对于某些 $\varphi(\boldsymbol x)$，<strong>直接对核函数进行计算</strong> 要比先映射到特征空间然后再计算点积 <strong>更快</strong>。</li>
+  <li>例如，考虑两个向量 $\boldsymbol u =[ u_1 ]$ 和 $\boldsymbol v =[ v_1 ]$，以及变换 $\varphi(\boldsymbol x)=[ x_1^2, \sqrt{2c} x_1, c ]$，其中 $c$ 是某个常数
+    <ul>
+      <li>所以，$\varphi(\boldsymbol u)=[ u_1^2, \sqrt{2c} u_1, c ]’$（<span style="color:green;">2 步操作</span>）和 $\varphi(\boldsymbol v)=[ v_1^2, \sqrt{2c} v_1, c ]’$（<span style="color:green;">+2 步操作</span>）</li>
+      <li>然后，$\varphi(\boldsymbol u)’\varphi(\boldsymbol v)=(u_1^2 v_1^2+2cu_1 v_1+c^2)$ （<span style="color:green;">+5 步操作 = 9 步操作</span>）</li>
+    </ul>
+  </li>
+  <li>
+    <p>这可以通过 <strong>直接计算核函数</strong> 来代替</p>
+
+\[\varphi(\boldsymbol u)' \varphi(\boldsymbol v)=(u_1 v_1 +c)^2\]
+
+    <ul>
+      <li>现在只需 <span style="color:purple;">3 步操作</span></li>
+      <li>这里，$K(\boldsymbol u, \boldsymbol v)=(u_1 v_1 +c)^2$ 是相应的核函数</li>
+    </ul>
+  </li>
+</ul>
+
+<h3 id="18-更通用的核技巧">1.8 更通用的：“核技巧”</h3>
+<ul>
+  <li>考虑两个训练数据点 $\boldsymbol x_i$ 和 $\boldsymbol x_j$，以及它们在经过变换后的特征空间中的点积。</li>
+  <li>$k_{ij}\equiv \varphi(\boldsymbol x_i)’\varphi(\boldsymbol x_j)$ <span style="color:red;">核矩阵</span> 可以按如下步骤计算：
+    <ol>
+      <li>计算 $\varphi(\boldsymbol x_i)’$</li>
+      <li>计算 $\varphi(\boldsymbol x_j)$</li>
+      <li>计算 $k_{ij}=\varphi(\boldsymbol x_i)’\varphi(\boldsymbol x_j)$</li>
+    </ol>
+  </li>
+  <li>然而，对于某些变换 $\varphi$，存在一种“捷径”函数可以得到与 $K(\boldsymbol x_i,\boldsymbol x_j)=k_{ij}$ 完全相同的答案：
+    <ul>
+      <li>不包含上面的 1-3 步，而且没有计算 $\varphi(\boldsymbol x_i)$ 和 $\varphi(\boldsymbol x_j)$</li>
+      <li>通常，计算 $k_{ij}$ 的时间复杂度为 $O(m)$，但是计算 $\varphi(\boldsymbol x)$ 的时间复杂度为 $O(l)$，其中 $l \gg m$（<span style="color:red;">计算上不现实</span>）甚至 $l=\infty$（<span style="color:red;">计算上不可行</span>）</li>
+    </ul>
+  </li>
+</ul>
+
+<h3 id="19-核函数硬间隔-svm"><a name="anchor1.9">1.9 核函数硬间隔 SVM</a></h3>
+<ul>
+  <li>
+    <p><strong>训练：</strong> 寻找 $\boldsymbol \lambda$ 使得</p>
+
+\[\begin{array}{cc}\mathop{\operatorname{arg\,max}}\limits_{\boldsymbol \lambda}\sum_{i=1}^{n}\lambda_i-\dfrac{1}{2}\sum_{i=1}^{n}\sum_{j=1}^{n}\lambda_i \lambda_j y_i y_j \color{red}{\underbrace{\fbox{$\color{black}{K(\boldsymbol x_i, \boldsymbol x_j)}$}}_{\text{核函数}}}\\\\
+\text{s.t.}\quad \lambda_i\ge 0 \;\text{and}\;\sum_{i=1}^{n}\lambda_i y_i=0 \end{array}\]
+
+    <p><span style="color:red;">特征映射通过核函数实现</span></p>
+  </li>
+  <li>
+    <p><strong>预测：</strong> 根据 $s$ 的符号对实例 $\boldsymbol x$ 进行分类</p>
+
+\[s=b^*+\sum_{i=1}^{n}\lambda_i^* y_i \color{red}{\underbrace{\fbox{$\color{black}{K(\boldsymbol x_i, \boldsymbol x)}$}}_{\text{核函数}}}\]
+
+    <p><span style="color:red;">特征映射通过核函数实现</span></p>
+  </li>
+  <li>
+    <p>这里，我们注意到，对于任意支持向量 $j$，都有 \(y_j(b^{*}+\sum_{i=1}^{n}\lambda_i^* y_i \color{red}{\fbox{$\color{black}{K(\boldsymbol x_i, \boldsymbol x_j)}$}})=1\)，可以以此来找到 $b^*$</p>
+  </li>
+</ul>
+
+<h3 id="110-非线性的处理方法">1.10 非线性的处理方法</h3>
+<ul>
+  <li><strong><span style="color:red;">ANN</span></strong>
+    <ul>
+      <li>$\boldsymbol u=\varphi(\boldsymbol x)$ 中的元素是输入 $\boldsymbol x$ 经过变换得到的</li>
+      <li>该 $\varphi$ 具有从数据中学习得到的权重</li>
+    </ul>
+
+    <p><img src="http://andy-blog.oss-cn-beijing.aliyuncs.com/blog/2020-02-14-WX20200214-205052%402x.png" width="30%" /></p>
+  </li>
+  <li><strong><span style="color:red;">SVM</span></strong>
+    <ul>
+      <li>对核函数 $K$ 的选择决定了特征空间 $\varphi$</li>
+      <li>不学习 $\varphi$ 的权重</li>
+      <li>但是，甚至不需要计算 $\varphi$ 就可以支持高维</li>
+      <li>同样支持任意数据类型</li>
+    </ul>
+  </li>
+  <li>
+    <p><strong><span style="color:SteelBlue;">思考：</span></strong><br />
+<strong>1. 所有的用到了特征空间变换 $\varphi(\boldsymbol x)$ 的方法都用到了核函数吗？</strong><br />
+不是的，虽然对于 SVM 是这样，但是回忆之前 <a href="https://andy-tk.top/2019/11/08/%E7%BB%9F%E8%AE%A1%E6%9C%BA%E5%99%A8%E5%AD%A6%E4%B9%A004/">Lecture 04</a> 的内容，我们还在更为一般的条件下讨论过基扩展和特征映射，同样在神经网络中我们也可以使用特征映射。我们总是可以在进行特征映射之后应用机器学习算法，而有些算法并不需要涉及到点积的计算，记住核函数是对应于点积的，我们并不一定需要在机器学习中使用核函数。<br />
+<br /></p>
+
+    <p><strong>2. 支持向量是来自于训练集中的点吗？</strong><br />
+是的，支持向量是训练的样本，它们具有 <strong>非零对偶变量</strong>（即拉格朗日乘子 $\lambda_i\ne 0$）。所以当我们用 SVM 进行预测时（参考 <a href="#anchor1.9">“1.9 核函数硬间隔 SVM”</a>）：</p>
+
+\[s=b^*+\sum_{i=1}^{n}\lambda_i^* y_i \color{red}{\underbrace{\fbox{$\color{black}{K(\boldsymbol x_i, \boldsymbol x)}$}}_{\text{核函数}}}\]
+
+    <p>如果我们用对偶方程训练 SVM，我们不会得到任何 $w$，我们会得到很多不同的 $\lambda_i$，其中每一个都对应于一个训练样本，所有的 $\lambda_i$ 都要求非负（当然，其中很多可能为 $0$，这取决于你的数据和你所采用的特征映射），而其中那些 $\lambda_i$ 为 $0$ 的训练样本是那些落在最大间隔之外的点，它们并不 “支持着” 决策边界，因为 $\lambda_i$ 为 $0$ 会使得原始问题中约束条件失效，它们并不涉及 $w$ 的计算（事实上，它们并不涉及有关预测值的计算）。通过观察上面的式子，可以发现不论核函数 $K(\boldsymbol x_i, \boldsymbol x)$ 等于多少，只要 $x_i$ 对应的 $\lambda_i=0$，那么在求和时该项就会被消掉，这就是为什么 <strong>支持向量</strong> 非常重要的原因。它们之所以重要不是因为有一个时髦的名称，它们从实质上来帮助 SVM 进行预测，它们实际上是一些对于 SVM 的训练非常重要的样本。所以，如果在非支持向量的训练样本中存在一些噪声，通常不会对结果有什么影响；只有那些属于支持向量的训练样本是至关重要的。<br />
+<br /></p>
+
+    <p><strong>3. 我们总是可以通过特征映射 $\varphi(\boldsymbol x)$ 使得数据完美线性可分吗？</strong><br />
+不是的，假如我不告诉你关于数据的任何信息，可能存在两个不同的样本 $\boldsymbol x_i$ 对应相同的 $y_i$ 的情况，这是有可能发生的，其原因可能不是由于测量数据的方法导致的，它有可能是由于存在隐变量，或者 $y$ 的噪声导致的。所以，问题中的说法并不准确，更恰当的说法是：通常情况下，我们都可以通过特征映射 $\varphi(\boldsymbol x)$ 使得数据 <strong>更加</strong> 线性可分。</p>
+  </li>
+</ul>
+
+<h2 id="2-模块化学习">2. 模块化学习</h2>
+<p><strong>SVM 之外的核化；将 “学习模块” 从特征空间变换中分离出来</strong></p>
+<h3 id="21-模块化学习">2.1 模块化学习</h3>
+<ul>
+  <li>与特征映射相关的所有信息都浓缩在核函数中</li>
+  <li>为了使用一种不同的特征映射，只需要简单地更换核函数即可</li>
+  <li>算法设计可以分为：选择 “学习方法”（例如，SVM vs Logistic 回归）和选择特征空间映射，即核函数。</li>
+</ul>
+
+<h3 id="22-核化感知器">2.2 核化感知器</h3>
+<ul>
+  <li>当分类正确时，权重不会更新</li>
+  <li>当分类错误时：$\boldsymbol w^{k+1}=-\eta(\pm \boldsymbol x)$（其中，$\eta&gt;0$ 被称为 <strong>学习率</strong>）
+    <ul>
+      <li>如果 $y=1$，但是 $s&lt;0$<br />
+$w_i\leftarrow w_i+\eta x_i$<br />
+$w_0\leftarrow w_0+\eta$</li>
+      <li>如果 $y=-1$，但是 $s\ge 0$<br />
+$w_i\leftarrow w_i-\eta x_i$<br />
+$w_0\leftarrow w_0-\eta$</li>
+    </ul>
+  </li>
+</ul>
+
+<p>假设所有权重的初始值都设为 $0$</p>
+
+<p>第一次更新：$\boldsymbol w=\eta y_{i_1}\boldsymbol x_{i_1}$<br />
+第二次更新：$\boldsymbol w=\eta y_{i_1}\boldsymbol x_{i_1}+\eta y_{i_2}\boldsymbol x_{i_2}$<br />
+第三次更新：$\boldsymbol w=\eta y_{i_1}\boldsymbol x_{i_1}+\eta y_{i_2}\boldsymbol x_{i_2}+\eta y_{i_3}\boldsymbol x_{i_3}$<br />
+…</p>
+
+<ul>
+  <li>权重总是具有形式 $\boldsymbol w=\sum_{i=1}^{n}\alpha_i y_i\boldsymbol x_i$，其中 $\boldsymbol \alpha$ 是一些系数</li>
+  <li>感知器的权重总是数据的 <span style="color:red;">线性组合</span></li>
+  <li>回忆一个新的数据点 $\boldsymbol x$ 的预测是基于 $w_0+\boldsymbol w’\boldsymbol x$ 的符号</li>
+  <li>将 $\boldsymbol w$ 进行替换，我们得到 $w_0+\sum_{i=1}^{n}\alpha_i y_i\boldsymbol x_i’\boldsymbol x$</li>
+  <li>点积 $\boldsymbol x_i’\boldsymbol x$ 可以被替换为一个 <span style="color:red;">核函数</span></li>
+</ul>
+
+<p><strong><span style="color:SteelBlue;">算法描述：</span></strong><br />
+选择初始权重 $\boldsymbol w^{(0)}, k=0$<br />
+设定 $\boldsymbol \alpha=\boldsymbol 0$<br />
+对于 $t$ 从 $1$ 到 $T$（轮）：<br />
+$\qquad$ 对于每个训练样本 \(\{\boldsymbol x_i,y_i\}\)：<br />
+$\qquad \qquad$ 基于 \(w_0+\sum_{j=1}^{n}\alpha_j y_j \color{red}{\underbrace{\fbox{$\color{black}{\boldsymbol x_i' \boldsymbol x_j}$}}_{\text{核矩阵} k_{ij}}}\)<br />
+$\qquad \qquad$ 如果分类错误，<strong>更新</strong> $\alpha_i \leftarrow \alpha_i+1$</p>
+
+<h3 id="23-表示定理">2.3 表示定理</h3>
+<ul>
+  <li>
+    <p><strong>定理：</strong> 对于任何训练集 \(\{\boldsymbol x_i,y_i\}_{i=1}^{n}\)，任何经验风险函数 $E$，单调递增函数 $g$，然后任何解</p>
+
+\[f^* \in \mathop{\operatorname{arg\,min}}\limits_f E(\boldsymbol x_1,y_1,f(\boldsymbol x_1),...,\boldsymbol x_n,y_n,f(\boldsymbol x_n))+g(\|f\|)\]
+
+    <p>都有对应某些系数的表示：</p>
+
+\[f^*(\boldsymbol x)=\sum_{i=1}^{n}\alpha_i k(\boldsymbol x,\boldsymbol x_i)\]
+
+    <p>注：$f$ 位于 <a href="https://zhuanlan.zhihu.com/p/29527729">再生核希尔伯特空间（RKHS）</a></p>
+  </li>
+  <li>表示定理告诉我们（决策理论）学习器什么时候可以核化</li>
+  <li>对偶告诉我们该线性核表示的形式</li>
+  <li>SVM 只是一个例子，其他还包括诸如：
+    <ul>
+      <li>岭回归</li>
+      <li>Logistic 回归</li>
+      <li>主成分分析（PCA）</li>
+      <li>典型相关分析（CCA）</li>
+      <li>线性判别分析（LDA）</li>
+      <li>还有很多…</li>
+    </ul>
+  </li>
+</ul>
+
+<h2 id="3-构造核函数">3. 构造核函数</h2>
+<p><strong>一些流行的核函数及其属性概述</strong></p>
+<h3 id="31-多项式核">3.1 多项式核</h3>
+<ul>
+  <li>函数 $K(\boldsymbol u,\boldsymbol v)=(\boldsymbol u’\boldsymbol v+c)^d$ 被称为 <strong>多项式核</strong>
+    <ul>
+      <li>这里 $\boldsymbol u$ 和 $\boldsymbol v$ 都是 $m$ 维的向量</li>
+      <li>$d \ge 0$ 是一个整数，$c\ge 0$ 是一个常数</li>
+    </ul>
+  </li>
+  <li>不失一般性地，假设 $c=0$
+    <ul>
+      <li>如果并非如此，将 $\sqrt{c}$ 作为哑变量特征添加到 $\boldsymbol u$ 和 $\boldsymbol v$</li>
+    </ul>
+  </li>
+  <li>推导如下：<br />
+\(\begin{eqnarray}
+(\boldsymbol u'\boldsymbol v)^d &amp;=&amp; (u_1v_1+\cdots+u_mv_m)(u_1v_1+\cdots+u_mv_m)...(u_1v_1+\cdots+u_mv_m)\\
+&amp;=&amp; \sum_{i=1}^{l}(u_1v_1)^{a_{i_1}}...(u_mv_m)^{a_{i_m}}\qquad \color{red}{\text{（这里}\, 0\le a_{ij}\le d \,\text{和}\, l \,\text{都是整数）}}\\
+&amp;=&amp; \sum_{i=1}^{l} (u_1^{a_{i_1}}...u_m^{a_{i_m}})(v_1^{a_{i_1}}...v_m^{a_{i_m}})\\
+&amp;=&amp; \sum_{i=1}^{l}\varphi(\boldsymbol u)_i \varphi(\boldsymbol v)_i
+\end{eqnarray}\)</li>
+  <li>特征映射 $\varphi: \Bbb R^m \rightarrow \Bbb R^l$，其中 $\varphi_i(\boldsymbol x)=(x_1^{a_{i_1}}…x_m^{a_{i_m}})$</li>
+</ul>
+
+<h3 id="32-检查核函数的合法性">3.2 检查核函数的合法性</h3>
+<ul>
+  <li><strong>方法 1：</strong> 给定合法的核函数 $K_1(\boldsymbol u, \boldsymbol v), K_2(\boldsymbol u, \boldsymbol v)$，常数 $c&gt;0$，并且 $f(\boldsymbol x)$ 是一个实值函数。那么，下面的每个函数都是一个合法的核函数：
+    <ul>
+      <li>$K(\boldsymbol u,\boldsymbol v)=K_1(\boldsymbol u,\boldsymbol v)+K_2(\boldsymbol u,\boldsymbol v)$</li>
+      <li>$K(\boldsymbol u,\boldsymbol v)=cK_1(\boldsymbol u,\boldsymbol v)$</li>
+      <li>$K(\boldsymbol u,\boldsymbol v)=f(\boldsymbol u)K_1(\boldsymbol u,\boldsymbol v)\,f(\boldsymbol v)$</li>
+      <li>更多实例，请参考 <a href="http://users.isr.ist.utl.pt/~wurmd/Livros/school/Bishop%20-%20Pattern%20Recognition%20And%20Machine%20Learning%20-%20Springer%20%202006.pdf">PRML by Bishop</a></li>
+    </ul>
+  </li>
+  <li><strong>方法 2：</strong> 利用 <strong>Mercer 定理</strong></li>
+</ul>
+
+<h3 id="33-径向基函数核">3.3 径向基函数核</h3>
+<ul>
+  <li>函数 \(K(\boldsymbol u,\boldsymbol v)=\exp(-\gamma \| \boldsymbol u-\boldsymbol v\|^2)\) 被称为 <strong>径向基函数核</strong>（又称 <strong>高斯核</strong>）
+    <ul>
+      <li>这里 $\gamma&gt;0$ 是 spread 参数</li>
+    </ul>
+  </li>
+  <li>推导如下：<br />
+\(\begin{eqnarray}
+\exp(-\gamma \| \boldsymbol u-\boldsymbol v\|^2) &amp;=&amp; \exp\left(-\gamma (\boldsymbol u-\boldsymbol v)'(\boldsymbol u-\boldsymbol v)\right)\\
+&amp;=&amp; \exp\left(-\gamma (\boldsymbol u'\boldsymbol u-2\boldsymbol u'\boldsymbol v+\boldsymbol v'\boldsymbol v)\right)\\
+&amp;=&amp; \exp(-\gamma \boldsymbol u'\boldsymbol u)\exp(2\gamma \boldsymbol u'\boldsymbol v)\exp(-\gamma \boldsymbol v'\boldsymbol v)\\
+&amp;=&amp; f(\boldsymbol u)\exp(2\gamma \boldsymbol u'\boldsymbol v)\,f(\boldsymbol v)\\
+&amp;=&amp; f(\boldsymbol u)\left(\sum_{d=0}^{\infty}r_d(\boldsymbol u'\boldsymbol v)^d\right)\,f(\boldsymbol v) \qquad \color{red}{\text{（指数函数的泰勒展开）}}
+\end{eqnarray}\)</li>
+  <li>这里，每个 $(\boldsymbol u’\boldsymbol v)^d$ 都是一个 <strong>多项式核</strong>。利用核函数的性质，可知中间部分也是一个合法的核函数，因此，最终整个表达式是一个合法的核函数。</li>
+</ul>
+
+<h3 id="34-mercer-定理">3.4 Mercer 定理</h3>
+<ul>
+  <li>问题：给定一个映射 $\varphi(\boldsymbol u)$，是否存在一个合法的核函数？</li>
+  <li>
+    <p>逆问题：给定某个函数 $K(\boldsymbol u,\boldsymbol v)$，它是一个合法的核函数吗？换而言之，是否存在一个映射 $\varphi(\boldsymbol u)$ 是由这个核函数实现的？
+<br /></p>
+  </li>
+  <li><strong><span style="color:steelblue">Mercer 定理：</span></strong>
+    <ul>
+      <li>考虑一个有限序列 $\boldsymbol x_1,…,\boldsymbol x_n$</li>
+      <li>构造一个由成对的值 $K(\boldsymbol x_i,\boldsymbol x_j)$ 组成的 $n\times n$ 的矩阵</li>
+      <li>如果这个矩阵是 <strong>半正定的</strong>，那么 $K(\boldsymbol x_i,\boldsymbol x_j)$ 是一个合法的核函数，这一点对于所有可能的序列 $\boldsymbol x_1,…,\boldsymbol x_n$ 都满足</li>
+    </ul>
+  </li>
+</ul>
+
+<h3 id="35-各种不同类型的输入数据">3.5 各种不同类型的输入数据</h3>
+<ul>
+  <li>到目前为止，本课程 COMP90051 涉及的数据都是由数字组成的向量</li>
+  <li>但是，如果我们想在不同类型的数据上应用机器学习该怎么办？</li>
+  <li>图<br />
+<img src="http://andy-blog.oss-cn-beijing.aliyuncs.com/blog/2020-02-15-WX20200216-004030%402x.png" width="20%" />
+    <ul>
+      <li>Facebook, Twitter, …</li>
+    </ul>
+  </li>
+  <li>可变长度序列
+    <ul>
+      <li><em>“science is organized knowledge”, “wisdom is organized life”, …</em></li>
+      <li>“<span style="color:red">C</span><span style="color:green">A</span><span style="color:orange">TT</span><span style="color:red">C</span>”, “<span style="color:green">AAA</span><span style="color:steelblue">G</span><span style="color:green">A</span><span style="color:steelblue">G</span><span style="color:green">A</span>”</li>
+    </ul>
+  </li>
+  <li>歌曲，电影等等</li>
+</ul>
+
+<h3 id="36-处理任意数据结构">3.6 处理任意数据结构</h3>
+<ul>
+  <li>核函数是一种强大的方法可以处理很多不同的数据类型</li>
+  <li>可以在可变长度的字符串上定义相似度函数：<br />
+$K($<em>“science is organized knowledge”, “wisdom is organized life”</em>$)$</li>
+  <li>然而，不是所有的作用在两个对象上的函数都是一个合法的核函数</li>
+  <li>记住，我们需要核函数 $K(\boldsymbol u,\boldsymbol v)$ 在某个特征空间实现点积的计算</li>
+</ul>
+
+<h2 id="总结">总结</h2>
+<ul>
+  <li>核函数
+    <ul>
+      <li>基扩展处理非线性</li>
+      <li>核技巧加速计算</li>
+    </ul>
+  </li>
+  <li>模块化学习
+    <ul>
+      <li>将 “学习模块” 从特征变换中分离出来</li>
+      <li>表示定理</li>
+    </ul>
+  </li>
+  <li>构造核函数
+    <ul>
+      <li>一些流行的核函数及其属性概述</li>
+      <li>Mercer 定理</li>
+      <li>将机器学习扩展到常规数据结构之外</li>
+    </ul>
+  </li>
+</ul>
+
+<p>下节内容：集成学习</p>
+:ET

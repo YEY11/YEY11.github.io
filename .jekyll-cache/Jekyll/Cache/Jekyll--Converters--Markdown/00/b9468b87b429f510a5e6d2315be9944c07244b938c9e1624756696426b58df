@@ -1,0 +1,731 @@
+I"��<h1 id="lecture-04-面向事务的计算">Lecture 04 面向事务的计算</h1>
+
+<p><strong>参考教材</strong>：<em>Transaction Processing: Concepts and Techniques, Jim Gray and Andreas Reuter, Morgan Kaufmann, 1993</em></p>
+
+<p>本节课中，我们将介绍面向事务的计算及其相关概念。</p>
+
+<h2 id="1-事务模型">1. 事务模型</h2>
+
+<h3 id="11-acid-特性">1.1 ACID 特性</h3>
+
+<p><strong>事务 (Transactions)</strong> 是数据库系统中的一个行动或者操作单元。一个事务需要满足 <strong>ACID</strong> 特性：</p>
+
+<ul>
+  <li>
+    <p><strong>原子性 (Atomicity)</strong></p>
+
+    <p>对于数据的所有更改都当作单个操作一样执行。也就是说，要么一次性执行所有更改，要么所有更改都不执行。</p>
+
+    <ul>
+      <li>应用程序将无法直接找到失败原因。</li>
+      <li>也许可以通过其他方式找到失败原因，例如：通过查看系统日志或伪造成功。</li>
+    </ul>
+  </li>
+  <li>
+    <p><strong>一致性 (Consistency)</strong></p>
+
+    <p>当一个事务开始和结束时，数据应当处于一致状态。(例如：银行转帐)</p>
+
+    <ul>
+      <li>通常无法计算。</li>
+      <li>即使可以使用某种受限语言进行计算，也可能是不切实际的，因为这意味着巨大的计算需求。</li>
+      <li>只能保证受限的一致性类型，例如：后面将要讨论的可序列化交易。</li>
+      <li>当原子性无法满足时将出现不一致性问题，另外，当存在并发 (同时有多个事务对同一数据进行操作) 时也可能出现不一致性问题。</li>
+    </ul>
+  </li>
+  <li>
+    <p><strong>隔离性 (Isolation)</strong></p>
+
+    <p>事务的执行就好像它是系统上唯一的事务一样。</p>
+
+    <ul>
+      <li>例如：在某个应用程序中，将资金从一个帐户转移到另一个帐户，隔离性可以确保另一个事务只能在其中一个或另一个帐户中看到转移后的资金，但不会同时在两个帐户中看到，也不会在两个帐户中都看不到。</li>
+    </ul>
+  </li>
+  <li>
+    <p><strong>持久性 (Durability)</strong></p>
+
+    <p>系统应该能够容忍系统故障，并且任何 <strong>已提交的更新</strong> 都不应丢失。</p>
+  </li>
+</ul>
+
+<h3 id="12-磁盘更新">1.2 磁盘更新</h3>
+
+<p><strong>磁盘写 (Disk writes) 为原子操作</strong>：</p>
+
+<p>要么整个数据块都已正确写入磁盘，要么数据块内容未更改。为了实现原子磁盘写入，通常有两种策略：</p>
+
+<ul>
+  <li><strong>双工写 (Duplex write)</strong>
+    <ul>
+      <li>每个数据块都被 <strong>顺序</strong> 写入两个位置 (即第一个位置写入成功后，才会在第二个位置写入)。</li>
+      <li>我们可以通过其 <strong>CRC</strong> 来确定磁盘块的错误。</li>
+      <li>每个块都与一个版本号关联。具有最新版本号的块包含了最新数据。</li>
+      <li>如果其中一个写入失败，则系统可以发出另一个写入。</li>
+      <li>它始终保证至少一个块上具有一致的数据。</li>
+    </ul>
+  </li>
+  <li>
+    <p><strong>日志写 (Logged write)</strong></p>
+
+    <p>与双工写类似，不同之处在于其中一个写操作会进入日志。如果对块的更改很小，则此方法将非常高效。我们将在本课程的后面讨论另一种高效方法。</p>
+  </li>
+</ul>
+
+<p>下面是一个基于双工写更新磁盘块的例子，磁盘上 ID 为 123 的块上存在一些数据信息，其版本号为 v#7，我们希望对其进行一些修改：</p>
+
+<p><img src="http://andy-blog.oss-cn-beijing.aliyuncs.com/blog/2020-08-07-WX20200807-223113%402x.png" width="60%" /></p>
+
+<p>首先，我们将数据从磁盘上读取到主存中：</p>
+
+<p><img src="http://andy-blog.oss-cn-beijing.aliyuncs.com/blog/2020-08-07-WX20200807-223200%402x.png" width="60%" /></p>
+
+<p>然后，我们需要对其中某些信息进行更改，例如将 100 改为 200：</p>
+
+<p><img src="http://andy-blog.oss-cn-beijing.aliyuncs.com/blog/2020-08-07-WX20200807-231909%402x.png" width="60%" /></p>
+
+<p>数据已经在内存中更改完成：</p>
+
+<p><img src="http://andy-blog.oss-cn-beijing.aliyuncs.com/blog/2020-08-07-WX20200807-223305%402x.png" width="60%" /></p>
+
+<p>更改后的数据需要被写回磁盘中：</p>
+
+<p><img src="http://andy-blog.oss-cn-beijing.aliyuncs.com/blog/2020-08-07-WX20200807-223401%402x.png" width="60%" /></p>
+
+<p>但是，我们并不会立即将更改后的数据直接写入之前数据所在的块，而是先将其写入一个新的块里 (理想情况下，可以选择在另一块磁盘上写入)：</p>
+
+<p><img src="http://andy-blog.oss-cn-beijing.aliyuncs.com/blog/2020-08-07-WX20200807-230547%402x.png" width="60%" /></p>
+
+<p>在新的数据块 (ID 为 475) 写入完成后，它会得到一个新的版本号 v#8，由于它比原始版本号 (v#7) 要大，因此，磁盘系统会将其视为最新数据。接下来，将对原始数据块 123 中的数据进行更新，并且将其版本号升级为 v#9：</p>
+
+<p><img src="http://andy-blog.oss-cn-beijing.aliyuncs.com/blog/2020-08-07-WX20200807-230750%402x.png" width="60%" /></p>
+
+<p>这样做的目的是：当我们在磁盘上的数据块 123 进行第二次更改写入时，即使出现故障导致更新失败，在数据块 475 上仍然保留有正确的更新之后的数据信息。</p>
+
+<p>我们甚至可以利用这仅有的两个块进行交叉校验：如果最新的两个版本 v#8 和 v#9 包含相同的数据信息，说明两次写入更新都是成功的，并且数据信息都是正确的。而假如其中某个失败了，导致我们只有一个数据块信息，这种情况下，我们仍然可以采用另一种被称为 <strong>循环冗余校验 (CRC)</strong> 的技术来判断该磁盘上是否存在数据错误。</p>
+
+<h3 id="13-循环冗余校验-crc">1.3 循环冗余校验 (CRC)</h3>
+
+<p><strong>循环冗余校验 (Cyclic Redundancy Check, CRC)</strong> 也称为 <strong>多项式编码 (polynomial code)</strong>，其基本思想是：将位串看作系数为 $0$ 或 $1$ 的多项式。</p>
+
+<p>一个 $k$ 位的二进制串可以视为一个 $k-1$ 阶多项式的系数列表，该多项式有 $k$ 项，从 $x^{k-1}$ 到 $x^0$。对于一个 $k$ 位的二进制串，其最高 (最左边) 位对应的是 $x^{k-1}$ 项的系数，接下来的位对应的是 $x^{k-2}$ 项的系数，以此类推。</p>
+
+<p>例如，对于一个 $6$ 位的二进制串 $110001$，其代表了一个 $5$ 阶多项式，其各项系数从左至右依次为：$1,1,0,0,0,1$，即 $1x^5+1x^4+0x^3+0x^2+0x^1+1x^0$。</p>
+
+<p>多项式的算术运算遵守代数域理论规则，以 $2$ 为模来完成。加法没有进位，减法没有借位，加法和减法都等同于 <strong>异或 (XOR)</strong>。例如：</p>
+
+<p><img src="http://andy-blog.oss-cn-beijing.aliyuncs.com/blog/2020-08-08-WX20200808-114748%402x.png" width="60%" /></p>
+
+<p>长除法与二进制中的除法运算一样，只不过减法按照模 2 进行。如果被除数与除数有一样多的位，则该除数要 “进入到” 被除数中，即两者位数相同则商为 $1$，否则为 $0$。</p>
+
+<p>使用 CRC 时，消息发送方和接收方必须先商定一个 <strong>生成多项式 (generator polynomial)</strong> $G(x)$，其最高位和最低位系数必须为 $1$。假定一个二进制消息串有 $m$ 位，对应于多项式 $M(x)$，为了计算它的 CRC，$M(x)$ 的长度必须大于 $G(x)$。基本思想是在原二进制消息串的尾部附加一个校验和，使得新的二进制串能够被 $G(x)$ 除尽。当接收方收到了带校验和的消息串后，将尝试用 $G(x)$ 去除它。如果有余数，则说明消息传输过程中发生了错误。</p>
+
+<p>CRC 计算过程如下：</p>
+
+<ol>
+  <li>假设 $G(x)$ 的阶数为 $r$。在消息串低位端添加 $r$ 个 $0$，新的消息串为 $m+r$ 位，对应多项式 $x^r M(x)$。</li>
+  <li>利用模 2 除法，用 $G(x)$ 对应的位串去除 $x^r M(x)$ 对应的位串。</li>
+  <li>利用模 2 减法 (即 XOR)，从 $x^r M(x)$ 对应位串中减去余数 (总是小于等于 $r$ 位)，其结果即为带校验和的消息串，其对应的多项式记为 $T(x)$。</li>
+</ol>
+
+<p>下面是采用生成多项式 $G(x)=x^4+x+1$ 计算消息串 $1101011111$ 校验和的例子：</p>
+
+<p><img src="http://andy-blog.oss-cn-beijing.aliyuncs.com/blog/2020-08-08-WX20200808-121440%402x.png" width="80%" /></p>
+
+<p><strong>验证 CRC 的有效性</strong>：再次执行上述计算，可以很容易地验证收到消息的有效性，只不过这次在原消息尾部添加的是上面计算出的校验和而非之前的 $r$ 个 $0$ (当然，余数不足 $r$ 位则在前面补上对应数量的 $0$)。如果没有可检测的错误，则余数应等于 $0$。</p>
+
+<p>通信或磁盘上的大多数错误都是连续发生的，其本质上是突发性的。<strong>带 $r$ 个校验位的多项式编码可以检测到所有长度小于或等于 $r$ 的突发错误</strong>。</p>
+
+<p>例如，给定生成多项式 $G(x)=x^{32}+x^{23}+x^7+1$，它可以检测所有长度小于或等于 $32$ 位的突发错误；在长度为 $33$ 的 $100$ 亿个突发错误中，有 $5$ 个不会被检测到；在长度为 $34$ 或更大的 $100$ 亿个突发错误中，有 3 个不会被检测到。当然，如果需要检测更多位的错误，可以使用更高阶的生成多项式，代价就是计算量会增加。</p>
+
+<h3 id="14-其他相关术语">1.4 其他相关术语</h3>
+
+<p><strong>操作类型</strong>：</p>
+<ul>
+  <li><strong>无保护操作 (Unprotected actions)</strong>：没有 ACID 属性</li>
+  <li><strong>受保护操作 (Protected actions)</strong>：这些操作在完成之前 <strong>不会被外部化</strong>。这些操作受到控制，并且可以根据需要回滚。它们具有 ACID 属性。</li>
+  <li><strong>真实操作 (Real actions)</strong>：这些是真实的物理操作，一旦执行就无法撤消。在许多情况下，真实操作无法实现原子性 (例如：将发射两枚火箭作为单个原子操作）。</li>
+</ul>
+
+<h2 id="2-事务类型">2. 事务类型</h2>
+
+<h3 id="21-c-语言中的嵌入式-sql-示例-开放数据库连接">2.1 C 语言中的嵌入式 SQL 示例 (开放数据库连接)</h3>
+
+<p>现在，我们将通过一个简单例子来理解不同类型的事务。下面是一个在 C 语言中嵌入 SQL 的例子：</p>
+
+<div class="language-c highlighter-rouge"><div class="highlight"><pre class="highlight"><code><table class="rouge-table"><tbody><tr><td class="rouge-gutter gl"><pre class="lineno">1
+2
+3
+4
+5
+6
+7
+8
+9
+10
+11
+12
+13
+14
+15
+16
+17
+18
+19
+20
+21
+22
+23
+24
+25
+26
+27
+28
+29
+30
+31
+32
+33
+34
+</pre></td><td class="rouge-code"><pre><span class="kt">int</span> <span class="nf">main</span><span class="p">(){</span>
+    <span class="n">exec</span> <span class="n">sql</span> <span class="n">INCLUDE</span> <span class="n">SQLCA</span><span class="p">;</span> <span class="cm">/*SQL Communication Area*/</span>
+
+    <span class="n">exec</span> <span class="n">sql</span> <span class="n">BEGIN</span> <span class="n">DECLARE</span> <span class="n">SECTION</span><span class="p">;</span>
+    <span class="cm">/* The following variables are used for communicating between SQL and C */</span>
+    <span class="kt">int</span> <span class="n">OrderID</span><span class="p">;</span> <span class="cm">/* Employee ID (from user) */</span>
+    <span class="kt">int</span> <span class="n">CustID</span><span class="p">;</span> <span class="cm">/* Retrieved customer ID */</span>
+    <span class="kt">char</span> <span class="n">SalesPerson</span><span class="p">[</span><span class="mi">10</span><span class="p">]</span> <span class="cm">/* Retrieved salesperson name */</span>
+    <span class="kt">char</span> <span class="n">Status</span><span class="p">[</span><span class="mi">6</span><span class="p">]</span> <span class="cm">/* Retrieved order status */</span>
+    <span class="n">exec</span> <span class="n">sql</span> <span class="n">END</span> <span class="n">DECLARE</span> <span class="n">SECTION</span><span class="p">;</span>
+
+    <span class="cm">/* Set up error processing */</span>
+    <span class="n">exec</span> <span class="n">sql</span> <span class="n">WHENEVER</span> <span class="n">SQLERROR</span> <span class="n">GOTO</span> <span class="n">query_error</span><span class="p">;</span>
+    <span class="n">exec</span> <span class="n">sql</span> <span class="n">WHENEVER</span> <span class="n">NOT</span> <span class="n">FOUND</span> <span class="n">GOTO</span> <span class="n">bad_number</span><span class="p">;</span>
+
+    <span class="cm">/* Prompt the user for order number */</span>
+    <span class="n">printf</span> <span class="p">(</span><span class="s">"Enter order number: "</span><span class="p">);</span>
+    <span class="n">scanf_s</span><span class="p">(</span><span class="s">"%d"</span><span class="p">,</span> <span class="o">&amp;</span><span class="n">OrderID</span><span class="p">);</span>
+
+    <span class="cm">/* Execute the SQL query */</span>
+    <span class="n">exec</span> <span class="n">sql</span> <span class="n">SELECT</span> <span class="n">CustID</span><span class="p">,</span> <span class="n">SalesPerson</span><span class="p">,</span> <span class="n">Status</span>
+        <span class="n">FROM</span> <span class="n">Orders</span>
+        <span class="n">WHERE</span> <span class="n">OrderID</span> <span class="o">=</span> <span class="o">:</span><span class="n">OrderID</span> <span class="c1">// ”:” indicates to refer to C variable</span>
+        <span class="n">INTO</span> <span class="o">:</span><span class="n">CustID</span><span class="p">,</span> <span class="o">:</span><span class="n">SalesPerson</span><span class="p">,</span> <span class="o">:</span><span class="n">Status</span><span class="p">;</span>
+
+    <span class="cm">/* Display the results */</span>
+    <span class="n">printf</span> <span class="p">(</span><span class="s">"Customer number: %d</span><span class="se">\n</span><span class="s">"</span><span class="p">,</span> <span class="n">CustID</span><span class="p">);</span>
+    <span class="n">printf</span> <span class="p">(</span><span class="s">"Salesperson: %s</span><span class="se">\n</span><span class="s">"</span><span class="p">,</span> <span class="n">SalesPerson</span><span class="p">);</span>
+    <span class="n">printf</span> <span class="p">(</span><span class="s">"Status: %s</span><span class="se">\n</span><span class="s">"</span><span class="p">,</span> <span class="n">Status</span><span class="p">);</span>
+    <span class="n">exit</span><span class="p">();</span>
+    <span class="nl">query_error:</span>
+        <span class="n">printf</span> <span class="p">(</span><span class="s">"SQL error: %ld</span><span class="se">\n</span><span class="s">"</span><span class="p">,</span> <span class="n">sqlca</span><span class="o">-&gt;</span><span class="n">sqlcode</span><span class="p">);</span> <span class="n">exit</span><span class="p">();</span>
+    <span class="nl">bad_number:</span>
+        <span class="n">printf</span> <span class="p">(</span><span class="s">"Invalid order number.</span><span class="se">\n</span><span class="s">"</span><span class="p">);</span> <span class="n">exit</span><span class="p">();}</span>
+</pre></td></tr></tbody></table></code></pre></div></div>
+
+<h3 id="22-相关概念">2.2 相关概念</h3>
+
+<ul>
+  <li>
+    <p><strong>主机变量</strong></p>
+
+    <p>在 <code class="language-plaintext highlighter-rouge">BEGIN DECLARE SECTION</code> 和 <code class="language-plaintext highlighter-rouge">END DECLARE SECTION</code> 之间所包含的部分中所声明的变量被称为 <strong>主机变量 (Host Variables)</strong>。访问这些变量时，它们以冒号 <code class="language-plaintext highlighter-rouge">:</code> 作为前缀。冒号对于区分主机变量和数据库对象 (例如表和列) 至关重要。</p>
+  </li>
+  <li>
+    <p><strong>数据类型</strong></p>
+
+    <p>DBMS 支持的数据类型和主机语言可以完全不同。主机变量具有以下两个作用：</p>
+    <ul>
+      <li>主机变量是程序变量，通过主机语言的语句进行声明和操作</li>
+      <li>在嵌入式 SQL 中使用它们来检索数据库数据</li>
+    </ul>
+
+    <p>如果没有与 DBMS 数据类型相对应的主机语言类型，则 DBMS 会自动转换数据。但是，由于每种 DBMS 在转换过程中都有其自己的规则和偏好，因此必须谨慎选择主机变量类型。</p>
+  </li>
+  <li>
+    <p><strong>错误处理</strong></p>
+
+    <p>DBMS 使用语句 <code class="language-plaintext highlighter-rouge">INCLUDE SQLCA</code>，通过一个 <strong>SQL 通信区 (SQL Communications Area, SQLCA)</strong> 向应用程序报告运行时错误。而 <code class="language-plaintext highlighter-rouge">WHENEVER...GOTO</code> 语句则告诉预处理器为程序生成错误处理代码，以处理 DBMS 所返回的错误。</p>
+  </li>
+  <li>
+    <p><strong>单例 SELECT</strong></p>
+
+    <p>用于返回数据的语句是一个 <strong>单例 (singleton) SELECT</strong> 语句；也就是说，<strong>它仅返回一行数据</strong>。因此，上面的代码示例中并没有声明或使用 <strong>游标 (cursors)</strong>。</p>
+  </li>
+</ul>
+
+<p>接下来，我们将看一下两种不同的事务类型：<strong>扁平事务 (Flat Transaction)</strong> 和 <strong>嵌套事务 (Nested Transaction)</strong>。</p>
+
+<h3 id="23-扁平事务">2.3 扁平事务</h3>
+
+<p>扁平事务的思想很简单：<code class="language-plaintext highlighter-rouge">BEGIN WORK</code> 和 <code class="language-plaintext highlighter-rouge">COMMIT WORK</code> 内部的所有内容都处于同一级别； 也就是说，该交易将与其他所有事务一起保留 (提交)，或者与其他所有事务一起回滚 (中止)。</p>
+
+<p>下面是一个银行转账的例子：</p>
+
+<div class="language-c highlighter-rouge"><div class="highlight"><pre class="highlight"><code><table class="rouge-table"><tbody><tr><td class="rouge-gutter gl"><pre class="lineno">1
+2
+3
+4
+5
+6
+7
+8
+9
+10
+11
+12
+13
+14
+15
+16
+17
+18
+19
+20
+21
+22
+23
+24
+25
+26
+27
+28
+29
+30
+31
+32
+33
+34
+35
+36
+37
+38
+39
+40
+41
+</pre></td><td class="rouge-code"><pre><span class="n">exec</span> <span class="n">sql</span> <span class="n">CREATE</span> <span class="n">Table</span> <span class="nf">accounts</span><span class="p">(</span>
+    <span class="n">AccId</span> <span class="n">NUMERIC</span><span class="p">(</span><span class="mi">9</span><span class="p">),</span>
+    <span class="n">BranchId</span> <span class="n">NUMERIC</span><span class="p">(</span><span class="mi">9</span><span class="p">),</span>
+    <span class="n">FOREIGN</span> <span class="n">KEY</span> <span class="n">REFERENCES</span> <span class="n">branches</span><span class="p">,</span>
+    <span class="n">AccBalance</span> <span class="n">NUMERIC</span><span class="p">(</span><span class="mi">10</span><span class="p">),</span>
+    <span class="n">PRIMARY</span> <span class="n">KEY</span><span class="p">(</span><span class="n">AccId</span><span class="p">));</span>
+
+<span class="n">exec</span> <span class="n">sql</span> <span class="n">BEGIN</span> <span class="n">DECLARE</span> <span class="n">SECTION</span><span class="p">;</span>
+<span class="kt">long</span> <span class="n">AccId</span><span class="p">,</span> <span class="n">BranchId</span><span class="p">,</span> <span class="n">TellerId</span><span class="p">,</span> <span class="n">delta</span><span class="p">,</span> <span class="n">AccBalance</span><span class="p">;</span>
+<span class="n">exec</span> <span class="n">sql</span> <span class="n">END</span> <span class="n">DELCLARATION</span><span class="p">;</span>
+
+<span class="cm">/* Debit/Credit Transaction*/</span>
+<span class="n">DCApplication</span><span class="p">(){</span>
+    <span class="n">read</span> <span class="n">input</span> <span class="n">msg</span><span class="p">;</span>
+    <span class="n">exec</span> <span class="n">sql</span> <span class="n">BEGIN</span> <span class="n">WORK</span><span class="p">;</span>
+    <span class="n">AccBalance</span> <span class="o">=</span> <span class="n">DodebitCredit</span><span class="p">(</span><span class="n">BranchId</span><span class="p">,</span> <span class="n">TellerId</span><span class="p">,</span> <span class="n">AccId</span><span class="p">,</span> <span class="n">delta</span><span class="p">);</span>
+    <span class="n">send</span> <span class="n">output</span> <span class="n">msg</span><span class="p">;</span>
+    <span class="n">exec</span> <span class="n">sql</span> <span class="n">COMMIT</span> <span class="n">WORK</span><span class="p">;</span>
+<span class="p">}</span>
+
+<span class="cm">/* Withdraw money -- bank debits; Deposit money – bank credits */</span>
+<span class="n">Long</span> <span class="nf">DoDebitCredit</span><span class="p">(</span><span class="kt">long</span> <span class="n">BranchId</span><span class="p">,</span> <span class="kt">long</span> <span class="n">TellerId</span><span class="p">,</span> <span class="kt">long</span> <span class="n">AccId</span><span class="p">,</span> <span class="kt">long</span> <span class="n">AccBalance</span><span class="p">,</span> <span class="kt">long</span> <span class="n">delta</span><span class="p">){</span>
+    <span class="n">exec</span> <span class="n">sql</span> <span class="n">UPDATE</span> <span class="n">accounts</span>
+    <span class="n">SET</span> <span class="n">AccBalance</span> <span class="o">=</span> <span class="n">AccBalance</span> <span class="o">+</span> <span class="o">:</span><span class="n">delta</span>
+    <span class="n">WHERE</span> <span class="n">AccId</span> <span class="o">=</span> <span class="o">:</span><span class="n">AccId</span><span class="p">;</span>
+
+    <span class="n">exec</span> <span class="n">sql</span> <span class="n">SELECT</span> <span class="n">AccBalance</span> <span class="n">INTO</span> <span class="o">:</span><span class="n">AccBalance</span>
+    <span class="n">FROM</span> <span class="n">accounts</span> <span class="n">WHERE</span> <span class="n">AccId</span> <span class="o">=</span> <span class="o">:</span><span class="n">AccId</span><span class="p">;</span>
+
+    <span class="n">exec</span> <span class="n">sql</span> <span class="n">UPDATE</span> <span class="n">tellers</span>
+    <span class="n">SET</span> <span class="n">TellerBalance</span> <span class="o">=</span> <span class="n">TellerBalance</span> <span class="o">+</span> <span class="o">:</span><span class="n">delta</span>
+    <span class="n">WHERE</span> <span class="n">TellerId</span> <span class="o">=</span> <span class="o">:</span><span class="n">TellerId</span><span class="p">;</span>
+
+    <span class="n">exec</span> <span class="n">sql</span> <span class="n">UPDATE</span> <span class="n">branches</span>
+    <span class="n">SET</span> <span class="n">BranchBalance</span> <span class="o">=</span> <span class="n">BranchBalance</span> <span class="o">+</span> <span class="o">:</span><span class="n">delta</span>
+    <span class="n">WHERE</span> <span class="n">BranchId</span> <span class="o">=</span> <span class="o">:</span><span class="n">BranchId</span><span class="p">;</span>
+
+    <span class="n">exec</span> <span class="n">sql</span> <span class="n">INSERT</span> <span class="n">INTO</span> <span class="n">history</span><span class="p">(</span><span class="n">TellerId</span><span class="p">,</span> <span class="n">BranchId</span><span class="p">,</span> <span class="n">AccId</span><span class="p">,</span> <span class="n">delta</span><span class="p">,</span> <span class="n">time</span><span class="p">)</span>
+    <span class="n">VALUES</span><span class="p">(</span> <span class="o">:</span><span class="n">TellerId</span><span class="p">,</span> <span class="o">:</span><span class="n">BranchId</span><span class="p">,</span> <span class="o">:</span><span class="n">AccId</span><span class="p">,</span> <span class="o">:</span><span class="n">delta</span><span class="p">,</span> <span class="n">CURRENT</span><span class="p">);</span>
+    <span class="k">return</span><span class="p">(</span><span class="n">AccBalance</span><span class="p">);</span>
+<span class="p">}</span>
+</pre></td></tr></tbody></table></code></pre></div></div>
+
+<p>让我们检查一下帐户余额，并拒绝任何透支帐户的借记。</p>
+
+<div class="language-c highlighter-rouge"><div class="highlight"><pre class="highlight"><code><table class="rouge-table"><tbody><tr><td class="rouge-gutter gl"><pre class="lineno">1
+2
+3
+4
+5
+6
+7
+8
+9
+10
+11
+12
+</pre></td><td class="rouge-code"><pre><span class="n">DCApplication</span><span class="p">(){</span>
+    <span class="n">read</span> <span class="n">input</span> <span class="n">msg</span><span class="p">;</span>
+    <span class="n">exec</span> <span class="n">sql</span> <span class="n">BEGIN</span> <span class="n">WORK</span><span class="p">;</span>
+    <span class="n">AccBalance</span> <span class="o">=</span> <span class="n">DodebitCredit</span><span class="p">(</span><span class="n">BranchId</span><span class="p">,</span> <span class="n">TellerId</span><span class="p">,</span> <span class="n">AccId</span><span class="p">,</span> <span class="n">delta</span><span class="p">);</span>
+    <span class="k">if</span> <span class="p">(</span><span class="n">AccBalance</span> <span class="o">&lt;</span> <span class="mi">0</span> <span class="o">&amp;&amp;</span> <span class="n">delta</span> <span class="o">&lt;</span> <span class="mi">0</span><span class="p">){</span>
+        <span class="n">exec</span> <span class="n">sql</span> <span class="n">ROLLBACK</span> <span class="n">WORK</span><span class="p">;</span>
+    <span class="p">}</span>
+    <span class="k">else</span><span class="p">{</span>
+        <span class="n">send</span> <span class="n">output</span> <span class="n">msg</span><span class="p">;</span>
+        <span class="n">exec</span> <span class="n">sql</span> <span class="n">COMMIT</span> <span class="n">WORK</span><span class="p">;</span>
+    <span class="p">}</span>
+<span class="p">}</span>
+</pre></td></tr></tbody></table></code></pre></div></div>
+
+<h3 id="24-扁平事务的局限性">2.4 扁平事务的局限性</h3>
+
+<p>尽管扁平事务非常简单，但是它无法对很多实际应用场景建模。</p>
+
+<p>例如，机票预订：</p>
+
+<div class="language-c highlighter-rouge"><div class="highlight"><pre class="highlight"><code><table class="rouge-table"><tbody><tr><td class="rouge-gutter gl"><pre class="lineno">1
+2
+3
+4
+5
+</pre></td><td class="rouge-code"><pre><span class="n">BEGIN</span> <span class="n">WORK</span>
+    <span class="n">S1</span><span class="o">:</span> <span class="n">book</span> <span class="n">flight</span> <span class="n">from</span> <span class="n">Melbourne</span> <span class="n">to</span> <span class="n">Singapore</span>
+    <span class="n">S2</span><span class="o">:</span> <span class="n">book</span> <span class="n">flight</span> <span class="n">from</span> <span class="n">Singapore</span> <span class="n">to</span> <span class="n">London</span>
+    <span class="n">S3</span><span class="o">:</span> <span class="n">book</span> <span class="n">flight</span> <span class="n">from</span> <span class="n">London</span> <span class="n">to</span> <span class="n">Dublin</span>
+<span class="n">END</span> <span class="n">WORK</span>
+</pre></td></tr></tbody></table></code></pre></div></div>
+
+<p><strong>问题</strong>：如果我们无法从都柏林到达最终目的地，我们希望从新加坡飞往巴黎，然后到达我们的最终目的地。</p>
+
+<p>如果选择回滚，那么我们需要重新预订从墨尔本到新加坡的预订，这将造成 <strong>时间和资源的浪费</strong>。</p>
+
+<p>又例如，雇员加薪：</p>
+
+<div class="language-c highlighter-rouge"><div class="highlight"><pre class="highlight"><code><table class="rouge-table"><tbody><tr><td class="rouge-gutter gl"><pre class="lineno">1
+2
+3
+4
+5
+6
+7
+8
+9
+10
+</pre></td><td class="rouge-code"><pre><span class="n">IncreaseSalary</span><span class="p">(){</span>
+    <span class="n">real</span> <span class="n">percentRaise</span><span class="p">;</span>
+    <span class="n">receive</span><span class="p">(</span><span class="n">percentRaise</span><span class="p">);</span>
+    <span class="n">exec</span> <span class="n">SQL</span> <span class="n">BEGIN</span> <span class="n">WORK</span><span class="p">;</span>
+        <span class="n">exec</span> <span class="n">SQL</span> <span class="n">UPDATE</span> <span class="n">employee</span>
+        <span class="n">set</span> <span class="n">salary</span> <span class="o">=</span> <span class="n">salary</span><span class="o">*</span><span class="p">(</span><span class="mi">1</span><span class="o">+</span> <span class="o">:</span><span class="n">percentRaise</span><span class="p">)</span>
+        <span class="n">send</span><span class="p">(</span><span class="n">done</span><span class="p">);</span>
+    <span class="n">exec</span> <span class="n">sql</span> <span class="n">COMMIT</span> <span class="n">WORK</span><span class="p">;</span>
+    <span class="k">return</span>
+<span class="p">}</span>
+</pre></td></tr></tbody></table></code></pre></div></div>
+
+<p>这可能是一个非常长时间的事务，<strong>任何事务失败都需要大量不必要的计算</strong>。</p>
+
+<h3 id="25-带保存点的扁平事务">2.5 带保存点的扁平事务</h3>
+
+<p>前面提到，对于一个很长的语句列表，其执行过程中耗时会更长，同时也更容易发生错误，而任何错误都将导致回滚所有操作，这将耗费大量时间。</p>
+
+<p>一种策略是采用 <strong>带保存点 (save points) 的扁平事务</strong>：</p>
+
+<p><img src="http://andy-blog.oss-cn-beijing.aliyuncs.com/blog/2020-08-08-WX20200808-154610%402x.png" width="70%" /></p>
+
+<p>通过在待执行语句中插入一些保存点，它们可以保留之前已经完成的操作。一旦发生错误，我们可以选择直接回滚到之前的某个保存点状态，而不必完全从头开始。例如，在执行操作 7 后，我们希望回滚到保存点 2，这种情况下，操作 3-7 会被丢弃，系统将从保存点 2 的状态开始 (即已经执行过操作 1 和 2)，直接执行操作 8。</p>
+
+<p>例如，假如我们需要为一次长途旅行预订机票：</p>
+<ul>
+  <li><strong>伦敦 $\to$ 纽约 $\qquad$ 纽约 $\to$ 芝加哥 $\qquad$ 芝加哥 $\to$ 得梅因</strong></li>
+  <li>我们可能希望分别在 <strong>伦敦 $\to$ 纽约</strong> 和 <strong>纽约 $\to$ 芝加哥</strong> 的预订代码之后插入保存点。</li>
+  <li>如果我们订不到 <strong>芝加哥 $\to$ 得梅因</strong> 的机票，我们可以回滚到 <strong>伦敦 $\to$ 纽约</strong> 之后的保存点，然后可能尝试预订从 <strong>圣路易斯</strong> 中转的机票。</li>
+</ul>
+
+<p>另外，一种类似策略是采用 <strong>链式 (chained) 事务</strong>：当错误发生时，所有已经执行的操作将被保存，然后在此状态上，继续执行下一次操作。</p>
+
+<h3 id="26-嵌套事务">2.6 嵌套事务</h3>
+
+<p>现在，我们来看另一种事务类型：嵌套事务。</p>
+
+<p><img src="http://andy-blog.oss-cn-beijing.aliyuncs.com/blog/2020-08-08-WX20200808-162521%402x.png" width="70%" /></p>
+
+<p>对于嵌套事务，我们可以从逻辑上将一个事务的操作集合划分为不同的子事务。在父事务内部，我们按照所需顺序依次调用所有子事务。在子事务内部，我们用 <code class="language-plaintext highlighter-rouge">BEGIN WORK</code> 和 <code class="language-plaintext highlighter-rouge">END WORK</code> 包裹所有需要执行的操作或者下一层子事务。</p>
+
+<h3 id="27-嵌套事务规则">2.7 嵌套事务规则</h3>
+
+<ul>
+  <li><strong>提交规则</strong>
+    <ul>
+      <li>子事务可以提交或者中止，但是，<strong>除非其所属的父级也提交，否则其本身无法进行提交</strong>。</li>
+      <li>子事务具有 A (原子性)，C (一致性) 和 I (隔离性) 属性，但没有 D (持久性) 属性，除非其所有祖先都进行提交 (因为嵌套事务可以包含很多层)。</li>
+      <li>子事务的提交使得其结果仅可用于其父级。</li>
+    </ul>
+  </li>
+  <li><strong>回滚规则</strong>
+    <ul>
+      <li>如果子事务回滚，则其所有子级将被强制回滚。</li>
+    </ul>
+  </li>
+  <li><strong>可见性规则</strong>
+    <ul>
+      <li>子事务所做的更改只有在对其进行提交时才对父级可见。而父级的所有对象对其子级都是可见的。这意味着 <strong>父级不应当在子级访问其对象时对它们进行修改</strong>。通常不会发生这种问题，因为父级不会与其子级并行运行。</li>
+    </ul>
+  </li>
+</ul>
+
+<p>另外一种类似策略是 <strong>开放嵌套事务</strong>，其区别在于子事务可以独立提交而无需依赖父级。</p>
+
+<h2 id="3-事务处理">3. 事务处理</h2>
+
+<h3 id="31-事务处理监视器-tp-monitor">3.1 事务处理监视器 (TP monitor)</h3>
+
+<p><strong>TP 监视器</strong> 的主要功能是 <strong>集成</strong> 其他系统组件并管理资源。下面是一个 TP 监视器的一般架构：</p>
+
+<p><img src="http://andy-blog.oss-cn-beijing.aliyuncs.com/blog/2020-08-08-WX20200808-171610%402x.png" /></p>
+
+<p>例如，在一个银行系统中，后端系统包含两个分支 (Branch 1 和 Branch 2) 和一个财务部门 (Finance Dept.)。然后，用户向该系统请求数据，但用户并不知道后端数据是如何管理的，而 TP 监视器将采取一些措施确保用户和后端之间实现顺利交互。首先，所有来自用户的请求将通过一个队列来维持，并且 TP 监视器将根据系统负载情况决定这些请求的优先级。无论这些信息处理器 (分支或者财务子系统) 检索的是什么信息，它们同样需要传递给客户端，所以 TP 监视器还需要提供用户定义服务的接口。TP 监视器的另一个重要功能是：对所有的用户请求以某种方式进行分解或者组合，使这些事务的 ACID 性质得以维持。例如，假如某个客户希望存入一笔存款，然后所有相关的必要信息 (例如账户、余额等) 的更新都必须是一个原子操作，而 TP 监视器将保证这一点。</p>
+
+<h3 id="32-计算方式">3.2 计算方式</h3>
+
+<p>TP 监视器维持来自用户的请求，以及用户和服务器之间的通信或者接口。工作请求会影响到资源和队列的管理，其中可能包含许多工作单元，它们对于如何分配资源具有非常大的影响。</p>
+
+<p>下面是一些常见的工作请求的计算方式：</p>
+
+<ul>
+  <li><strong>批处理 (Batch Processing)</strong>
+    <ul>
+      <li>包含许多工作单元</li>
+      <li>粗粒度 (Coarse grained) 资源分配</li>
+      <li>顺序访问模式</li>
+      <li>较少的并发工作</li>
+      <li>隔离执行</li>
+      <li>应用程序本身负责恢复
+        <ul>
+          <li>例如：通过频繁的程序检查指向；运行某些系统工具以恢复丢失的数据等。</li>
+        </ul>
+      </li>
+    </ul>
+
+    <p>这是长时间运行的应用程序经常使用的模型。</p>
+
+    <p><br /></p>
+  </li>
+  <li><strong>分时 (Time-sharing)</strong>
+    <ul>
+      <li>每个终端一个进程</li>
+      <li>粗粒度资源分配</li>
+      <li>不可预测的资源请求</li>
+      <li>顺序执行</li>
+      <li>数百个并发用户</li>
+      <li>应用程序/用户负责恢复
+        <ul>
+          <li>例如：频繁检查点，运行系统工具以恢复丢失信息，要求操作员恢复丢失的文件。</li>
+        </ul>
+      </li>
+    </ul>
+
+    <p><br /></p>
+  </li>
+  <li><strong>实时处理 (Real-Time processing)</strong>
+    <ul>
+      <li>事件驱动的操作</li>
+      <li>重复的工作负载
+        <ul>
+          <li>例如：监视真实设备并响应异常等。</li>
+        </ul>
+      </li>
+      <li>设备与任务的动态绑定
+        <ul>
+          <li>例如：每个任务可能直接负责监视或控制设备，并将信息传输到需要该信息的那些任务。</li>
+        </ul>
+      </li>
+      <li>隔离执行</li>
+      <li>高可用性，但不一定具有形式上的一致性</li>
+      <li>高性能：系统应提供出色的响应时间，这可能涉及保证截止日期的安排</li>
+    </ul>
+
+    <p><br /></p>
+  </li>
+  <li>
+    <p><strong>客户端-服务器处理 (Client-Server processing)</strong></p>
+
+    <p>这与分时非常相似，唯一区别在于服务是通过向服务器进程发送消息来处理的。基于分时系统实现的客户端-服务器模型能够增加可支持的并发用户数量。</p>
+
+    <p><br /></p>
+  </li>
+  <li><strong>面向事务处理 (Transaction-oriented processing)</strong>
+    <ul>
+      <li>不同计算之间共享数据</li>
+      <li>可变请求</li>
+      <li>重复的工作负载</li>
+      <li>通常是简单计算 (短事务)</li>
+      <li>可能支持批事务</li>
+      <li>大量并发用户 (OLTP，在线交易处理)</li>
+      <li>智能客户程序</li>
+      <li>高可用性</li>
+      <li>基于系统的自动恢复</li>
+      <li>自动负载均衡</li>
+    </ul>
+  </li>
+</ul>
+
+<p>下面是关于这几种计算方式的总结：</p>
+
+<table>
+  <thead>
+    <tr>
+      <th> </th>
+      <th>批处理</th>
+      <th>分时</th>
+      <th>实时处理</th>
+      <th>客户端-服务器</th>
+      <th>面向事务处理</th>
+    </tr>
+  </thead>
+  <tbody>
+    <tr>
+      <td><strong>数据</strong></td>
+      <td>私有</td>
+      <td>私有</td>
+      <td>私有</td>
+      <td>共享</td>
+      <td>共享</td>
+    </tr>
+    <tr>
+      <td><strong>处理时间</strong></td>
+      <td>长</td>
+      <td>长</td>
+      <td>很短</td>
+      <td>长</td>
+      <td>短</td>
+    </tr>
+    <tr>
+      <td><strong>可靠性保证</strong></td>
+      <td>一般</td>
+      <td>一般</td>
+      <td>很高</td>
+      <td>一般</td>
+      <td>很高</td>
+    </tr>
+    <tr>
+      <td><strong>一致性保证</strong></td>
+      <td>无</td>
+      <td>无</td>
+      <td>无</td>
+      <td>无 (?)</td>
+      <td>ACID</td>
+    </tr>
+    <tr>
+      <td><strong>工作模式</strong></td>
+      <td>规则</td>
+      <td>规则</td>
+      <td>随机</td>
+      <td>随机</td>
+      <td>随机</td>
+    </tr>
+    <tr>
+      <td><strong>工作源数量/目的</strong></td>
+      <td>$10^1$</td>
+      <td>$10^2$</td>
+      <td>$10^3$</td>
+      <td>$10^2$</td>
+      <td>$10^5$</td>
+    </tr>
+    <tr>
+      <td><strong>提供的服务</strong></td>
+      <td>虚拟处理器</td>
+      <td>虚拟处理器</td>
+      <td>简单功能</td>
+      <td>简单请求</td>
+      <td>简单或复杂功能</td>
+    </tr>
+    <tr>
+      <td><strong>性能指标</strong></td>
+      <td>吞吐量</td>
+      <td>响应时间</td>
+      <td>响应时间</td>
+      <td>吞吐量和响应时间</td>
+      <td>吞吐量和响应时间</td>
+    </tr>
+    <tr>
+      <td><strong>可用性</strong></td>
+      <td>一般</td>
+      <td>一般</td>
+      <td>高</td>
+      <td>高</td>
+      <td>高</td>
+    </tr>
+    <tr>
+      <td><strong>授权单位</strong></td>
+      <td>作业</td>
+      <td>用户</td>
+      <td>无 (?)</td>
+      <td>请求</td>
+      <td>请求</td>
+    </tr>
+  </tbody>
+</table>
+
+<h3 id="33-事务处理服务-tp-services">3.3 事务处理服务 (TP services)</h3>
+
+<ul>
+  <li>
+    <p><strong>异构性 (Heterogeneity)</strong></p>
+
+    <p>如果应用程序需要访问其他数据库系统，则单个数据库系统的本地 ACID 属性是不够的。本地 TP 监视器需要与其他 TP 监视器进行交互，以确保总体 ACID 属性。为此，必须采用一种两阶段提交协议 (稍后将对此进行讨论)。</p>
+  </li>
+  <li>
+    <p><strong>控制通信 (Control communication)</strong></p>
+
+    <p>如果应用程序与其他远程进程进行通信，则本地 TP 监视器应维持进程之间的通信状态，以使其能够从崩溃中恢复 (这一点在前面已经讨论过了)。</p>
+  </li>
+  <li>
+    <p><strong>终端管理 (Terminal management)</strong></p>
+
+    <p>由于许多终端都运行客户端软件，因此 TP 监视器应在客户端和服务器进程之间提供适当的 ACID 属性。</p>
+  </li>
+  <li>
+    <p><strong>演示服务 (Presentation service)</strong></p>
+
+    <p>从某种意义上说，它类似于终端管理，必须处理不同的演示 (用户界面) 软件，例如：X 视窗。</p>
+  </li>
+  <li>
+    <p><strong>上下文管理 (Context management)</strong></p>
+
+    <p>例如维持会议等。</p>
+  </li>
+  <li>
+    <p><strong>启动/重新启动 (Start/Restart)</strong></p>
+
+    <p>在基于 TP 的系统中，启动和重启动之间没有区别。</p>
+  </li>
+</ul>
+
+<h3 id="34-tp-进程结构">3.4 TP 进程结构</h3>
+
+<p><strong>相关术语</strong></p>
+
+<ul>
+  <li>一个 <strong>终端</strong> (客户端) 希望由应用服务器执行某些功能，而应用服务器又需要数据库中的一些数据。</li>
+  <li>对于每个终端，必须通过一个 <strong>进程</strong> 来最终得到输入、了解功能请求并确保功能得以执行 (或执行功能本身)。</li>
+  <li>一个进程可以处理多个终端请求，或者也可以每个终端都有一个进程。</li>
+</ul>
+
+<p><strong>每个终端都有一个进程来处理所有可能的请求</strong>：</p>
+
+<p><img src="http://andy-blog.oss-cn-beijing.aliyuncs.com/blog/2020-08-08-WX20200808-203114%402x.png" width="60%" /></p>
+
+<p>如果我们有 $20000$ 个终端，$1000$ 个文件 (关系)，并且每个进程大约需要 $50$ 个数据块，那么计算成本将非常高：$20000 \times 1000 \times 50 = 10^9$ 个数据块。</p>
+
+<p><strong>所有终端共用一个进程来处理所有可能的请求</strong>：</p>
+
+<p><img src="http://andy-blog.oss-cn-beijing.aliyuncs.com/blog/2020-08-08-WX20200808-210019%402x.png" width="60%" /></p>
+
+<p>对于某些情况，这种模型可能会出现问题：由于调度而产生的上下文切换可能导致较差的响应；必须处理所有各种终端的大型程序。</p>
+
+<p><strong>多通信进程和服务器</strong>：</p>
+
+<p><img src="http://andy-blog.oss-cn-beijing.aliyuncs.com/blog/2020-08-08-WX20200808-210520%402x.png" width="60%" /></p>
+
+<p>这是一种通用的结构策略，该结构包含很多进程，每个进程可以处理多个终端请求，因此，进程必须是可扩展的 (即单个进程必须能够处理可变数量的终端请求)。可以看到，图中一共有 $n$ 个终端，但是进程数量为 $m$ 个。进程可以和应用进行通信，以保证功能请求得以执行。而应用将从数据库中访问相应数据。</p>
+
+<p>下节内容：并发控制</p>
+:ET

@@ -1,0 +1,496 @@
+I"�H<h1 id="lecture-03-多元分布">Lecture 03 多元分布</h1>
+
+<p><strong>参考教材</strong>：</p>
+
+<ul>
+  <li><em>Hardle, W. and Simar, L (2015). Applied multivariate statistical analysis, 4th edition.</em></li>
+  <li><em>Hastie, T. Tibshirani, R. and Friedman, J. (2009). The elements of statistical learning, 2nd edition</em></li>
+</ul>
+
+<h2 id="1-分布和密度函数">1. 分布和密度函数</h2>
+
+<p>令 $X=(X_1,\dots,X_p)^{\mathrm T}$ 为一个随机向量。</p>
+
+<h3 id="11-累积分布函数">1.1 累积分布函数</h3>
+
+<p>对于所有的 $x=(x_1,\dots,x_p)^{\mathrm T}\in \mathbb R^p$，$X$ 的 <strong>累积分布函数 (Cumulative Distribution Function, CDF)</strong> 被定义为：</p>
+
+\[F(x)=P(X\le x)=P(X_1\le x_1,\dots,X_p \le x_p)\]
+
+<h3 id="12-概率密度函数">1.2 概率密度函数</h3>
+
+<p>如果 $X$ 是连续的，则 $X$ 的 <strong>概率密度函数 (Probability Density Function, PDF)</strong> $f$ 是一个非负函数，可以通过下式定义：</p>
+
+\[F(x)=\int_{-\infty}^{x}f(u)du\]
+
+<p>它总是满足：</p>
+
+\[\int_{-\infty}^{\infty}f(u)du=1\]
+
+<p>该积分是 $p$ 元的，$u\in \mathbb R^p$，但是 $f(u)\in \mathbb R$：</p>
+
+\[\int_{-\infty}^{x}f(u)du = \int_{-\infty}^{x_1} \cdots \int_{-\infty}^{x_p} f(u_1,\dots,u_p)du_1 \dots du_p\]
+
+<h3 id="13-边缘-cdf">1.3 边缘 CDF</h3>
+
+<p>$X$ 的某个子集的 <strong>边缘 CDF (Marginal CDF)</strong> 是通过在该子集上计算的 $X$ 的边缘得到的，从而使其他值等于无穷大。</p>
+
+<ul>
+  <li>
+    <p>例如，$X_1$ 的边缘 CDF 为：</p>
+
+\[\begin{align}
+  F_{X_1}(x_1) &amp;= P(X_1 \le x_1) \\[2ex]
+  &amp;= P(X_1 \le x_1, X_2 \le \infty,\dots,X_p \le \infty) \\[2ex]
+  &amp;= F_X(x_1,\infty,\dots,\infty)
+  \end{align}\]
+  </li>
+  <li>
+    <p>$(X_1,X_3)$ 的边缘 CDF 为：</p>
+
+\[\begin{align}
+  F_{X_1,X_3}(x_1,x_3) &amp;= P(X_1 \le x_1,X_3 \le x_3) \\[2ex]
+  &amp;= P(X_1 \le x_1, X_2 \le \infty,X_3 \le x_3, X_4 \le \infty,\dots,X_p \le \infty) \\[2ex]
+  &amp;= F_X(x_1,\infty,x_3,\infty,\dots,\infty)
+  \end{align}\]
+  </li>
+</ul>
+
+<h3 id="14-边缘密度">1.4 边缘密度</h3>
+
+<p>对于一个连续的随机向量 $X$，$X$ 的某个子集的 <strong>边缘密度 (Marginal Density)</strong> 是通过 $X$ 的 <strong>联合密度 (Joint Density)</strong> $f$ 在其他分量上进行积分得到的。</p>
+<ul>
+  <li>
+    <p>例如，$X_1$ 的边缘密度为：</p>
+
+\[f_{X_1}(x_1)=\int_{-\infty}^{\infty}\cdots \int_{-\infty}^{\infty} f(x_1,u_2,\dots,u_p)du_2 \dots du_p\]
+  </li>
+  <li>
+    <p>$(X_1,X_3)$ 的边缘密度为：</p>
+
+\[f_{X_1,X_3}(x_1,x_3)=\int_{-\infty}^{\infty}\cdots \int_{-\infty}^{\infty} f(x_1,u_2,x_3,u_4,\dots,u_p)du_2 du_4 \dots du_p\]
+  </li>
+</ul>
+
+<h3 id="15-条件-pdf">1.5 条件 PDF</h3>
+
+<p>对于两个连续的随机变量 $X_1$ 和 $X_2$，在给定 $X_1$ 的情况下，$X_2$ 的 <strong>条件 PDF (Conditional PDF)</strong> 为：</p>
+
+\[f(x_2\mid x_1)=\dfrac{f(x_1,x_2)}{f_{X_1}(x_1)}\]
+
+<p>该定义只对值 $x_1$ 满足 $f_{X_1}(x_1)&gt;0$ 成立。</p>
+
+<h3 id="16-独立性">1.6 独立性</h3>
+
+<p>两个连续的随机变量 $X_1$ 和 $X_2$ 是 <strong>独立的 (Independent)</strong> 当且仅当它们满足</p>
+
+\[f(x_1,x_2)=f_{X_1}(x_1)f_{X_2}(x_2)\]
+
+<p>如果 $X_1$ 和 $X_2$ 是独立的，那么</p>
+
+\[f_{X_2\mid X_1}(x_2\mid x_1)=\dfrac{f(x_1,x_2)}{f_{X_1}(x_1)}=\dfrac{f_{X_1}(x_1)f_{X_2}(x_2)}{f_{X_1}(x_1)}=f_{X_2}(x_2)\]
+
+<p>因此，知道 $X_1$ 的值并不会改变对 $X_2$ 的概率评估，反之亦然。</p>
+
+<h3 id="17-期望和方差">1.7 期望和方差</h3>
+
+<p>一个随机向量 $X=(X_1,\dots,X_p)^{\mathrm T}$ 的 <strong>均值 (Mean)</strong> $\mu \in \mathbb R^p$ 被定义为：</p>
+
+\[\mu = \begin{pmatrix}\mu_1 \\ \vdots \\ \mu_p \end{pmatrix} = \begin{pmatrix}E(X_1) \\ \vdots \\ E(X_p) \end{pmatrix} = \begin{pmatrix}\int xf_{X_1}(x)dx \\ \vdots \\ \int xf_{X_p}(x)dx \end{pmatrix}\]
+
+<ul>
+  <li>
+    <p>如果 $X$ 和 $Y$ 是两个 $p$ 维向量，$\alpha$ 和 $\beta$ 是两个常数，那么</p>
+
+\[E(\alpha X + \beta Y)=\alpha E(X) + \beta E(Y)\]
+  </li>
+  <li>
+    <p>如果 $X$ 是一个 $p\times 1$ 的向量，$Y$ 是一个 $q\times 1$ 的向量，$X$ 和 $Y$ 相互独立，那么</p>
+
+\[E(XY^{\mathrm T})=E(X)E(Y^{\mathrm T})\]
+
+    <ul>
+      <li>提示：请记住要始终检查矩阵尺寸是否兼容。</li>
+    </ul>
+  </li>
+</ul>
+
+<p><strong>条件期望 (Conditional Expectation)</strong> $E(X_2\mid X_1=x_1)$ 被定义为：</p>
+
+\[E(X_2\mid X_1=x_1) = \int x_2 f_{X_2\mid X_1}(x_2\mid x_1)dx_2\]
+
+<p>并且 <strong>条件方差 (Conditional Variance)</strong> $\mathrm{Var}(X_2\mid X_1=x_1)$ 被定义为：</p>
+
+\[\mathrm{Var}(X_2\mid X_1=x_1) = E(X_2X_2^{\mathrm T}\mid X_1=x_1)-E(X_2\mid X_1=x_1)E(X_2^{\mathrm T}\mid X_1=x_1)\]
+
+<p>如果 $X_2$ 是一个列向量。</p>
+
+<ul>
+  <li>提示：如有疑问，请检查所得矩阵的维数，以查看是否正确。</li>
+</ul>
+
+<h3 id="18-协方差">1.8 协方差</h3>
+
+<p>如上节课中所述，一个均值为 $\mu$ 的随机向量 $X$ 的 <strong>协方差 (Covariance)</strong> $\Sigma$ 被定义为：</p>
+
+\[\Sigma = E\{(X-\mu)(X-\mu)^{\mathrm T}\}\]
+
+<p>我们将一个均值为 $\mu$，协方差为 $\Sigma$ 的随机向量 $X$ 记为：</p>
+
+\[X \sim (\mu, \Sigma)\]
+
+<p>对于一个均值为 $\mu$ 的 $p\times 1$ 向量 $X$ 和一个均值为 $\nu$ 的 $q\times 1$ 向量 $Y$，两者的 <strong>协方差矩阵 (Covariance Matrix)</strong> 被定义为：</p>
+
+\[\Sigma_{X,Y} = \mathrm{Cov}(X,Y)=E\{(X-\mu)(Y-\nu)^{\mathrm T}\}=E(XY^{\mathrm T})-E(X)E(Y^{\mathrm T})\]
+
+<p>该矩阵的元素是 $X$ 和 $Y$ 中的分量之间的成对协方差。</p>
+
+<ul>
+  <li>
+    <p>我们有</p>
+
+\[\mathrm{Cov}(X+Y,Z)=\mathrm{Cov}(X,Z)+\mathrm{Cov}(Y,Z)\]
+  </li>
+  <li>
+    <p>我们有</p>
+
+\[\mathrm{Var}(X+Y)= \mathrm{Var}(X)+2\mathrm{Cov}(X,Y)+\mathrm{Var}(Y)\]
+  </li>
+  <li>
+    <p>对于矩阵 $\mathcal A$ 和 $\mathcal B$，以及随机向量 $X$ 和 $Y$，我们可以定义：</p>
+
+\[\mathrm{Cov}(\mathcal AX,\mathcal BY)=\mathcal A \mathrm{Cov}(X,Y) \mathcal B^{\mathrm T}\]
+  </li>
+</ul>
+
+<h2 id="2-多元正态分布">2. 多元正态分布</h2>
+
+<p>一个非常有用且经常遇到的分布是 <strong>多元正态分布 (Multinormal Distribution)</strong>，也简称为 <strong>正态分布 (Normal Distribution)</strong>。</p>
+
+<ul>
+  <li>
+    <p>回顾在 <strong>单变量 (univariate)</strong> 情况下，一个正态分布 $N(\mu,\sigma^2)$ 的概率密度函数为：</p>
+
+\[f(x)=\dfrac{1}{\sqrt{2\pi}\sigma}\exp \left \{-\dfrac{(x-\mu)^2}{2\sigma^2} \right \}\]
+
+    <p><br /></p>
+  </li>
+  <li>
+    <p>在 <strong>多变量 (multivariate)</strong> 情况下，需要考虑矩阵和向量。</p>
+
+    <p><br /></p>
+  </li>
+  <li>
+    <p>回顾协方差矩阵：</p>
+
+\[\Sigma = \begin{pmatrix}\sigma_{11} &amp; \cdots &amp; \sigma_{1p} \\ &amp; \vdots &amp; \\ \sigma_{p1} &amp; \cdots &amp; \sigma_{pp}\end{pmatrix}= \begin{pmatrix}\sigma_{1}^2 &amp; \cdots &amp; \sigma_{1p} \\ &amp; \vdots &amp; \\ \sigma_{p1} &amp; \cdots &amp; \sigma_{p}^2\end{pmatrix}\]
+
+    <p>其中，$\sigma_j^2=\mathrm{Var}(X_j)$。</p>
+
+    <p><br /></p>
+  </li>
+  <li>
+    <p>一个均值为 $\mu$，协方差为 $\Sigma$ 的多元正态分布的概率密度函数为：</p>
+
+\[f(x)=|2\pi \Sigma|^{-1/2}\exp \left\{ -\dfrac{1}{2}(x-\mu)^{\mathrm T}\Sigma^{-1}(x-\mu) \right\} \tag{1}\label{1}\]
+
+    <p><br /></p>
+  </li>
+  <li>
+    <p>对于服从这样一个多元正态分布的 $p$ 维向量 $X$，我们将其记为：</p>
+
+\[X\sim N_p(\mu, \Sigma)\]
+
+    <p><strong>如果 $X_i$ 是彼此独立的</strong>，那么</p>
+
+\[\Sigma = \begin{pmatrix} \sigma_1^2 &amp; \cdots &amp; 0 \\ &amp; \vdots &amp; \\ 0 &amp; \cdots &amp; \sigma_p^2\end{pmatrix}=\mathrm{diag}(\sigma_1^2,\dots,\sigma_p^2)\]
+
+    <p>因此，我们有</p>
+
+\[|2\pi \Sigma|=|\mathrm{diag}(2\pi \sigma_1^2,\dots, 2\pi \sigma_p^2)|=(2\pi)^p \sigma_1^2 \cdots \sigma_p^2\]
+
+    <p>以及</p>
+
+\[\Sigma^{-1}=\mathrm{diag}(\sigma_1^{-2},\dots,\sigma_p^{-2})\]
+
+    <p>所以，</p>
+
+\[\begin{align}
+f(x) &amp;= \dfrac{1}{\sqrt{(2\pi)^p}\prod_{j=1}^{p}\sigma_j}\exp \left \{ -\dfrac{1}{2}\sum_{j=1}^{p}\dfrac{(x_j-\mu_j)^2}{\sigma_j^2}\right\} \\[2ex]
+&amp;= \dfrac{1}{\sqrt{(2\pi)^p}\prod_{j=1}^{p}\sigma_j} \prod_{j=1}^{p}\exp\left \{  -\dfrac{(x_j-\mu_j)^2}{2\sigma_j^2}\right\} \\[2ex]
+&amp;= \prod_{j=1}^{p} \left[ \dfrac{1}{\sqrt{2\pi}\sigma_j}\exp \left\{ - \dfrac{(x_j-\mu_j)^2}{2\sigma_j^2}\right\}\right]
+\end{align}\]
+
+    <p>等于 $p$ 个单变量正态分布 $N(\mu_j,\sigma_j^2)$ 的概率密度函数的乘积。</p>
+
+    <p><br /></p>
+
+    <p>由等式 $\eqref{1}$ 可知，当 $(x-\mu)^{\mathrm T}\Sigma^{-1}(x-\mu)$ 是一个常数时，正态分布 $N_p(\mu,\Sigma)$ 的概率密度也是一个常数。</p>
+
+    <p><br /></p>
+
+    <p>现在，对于一个正的常数 $c$，</p>
+
+\[(x-\mu)^{\mathrm T}\Sigma^{-1}(x-\mu)=c\]
+
+    <p>对应一个 <strong>椭球体 (ellipsoid)</strong>。</p>
+
+    <p><br /></p>
+
+    <p>量</p>
+
+\[\sqrt{(x-\mu)^{\mathrm T}\Sigma^{-1}(x-\mu)}\]
+
+    <p>被称为 $x$ 和 $\mu$ 之间的 <strong>马氏距离 (Mahalanobis Distance)</strong>。</p>
+
+    <p><br /></p>
+
+    <p>例如，在 $p=2$ 维情况下：</p>
+
+    <p><img src="http://andy-blog.oss-cn-beijing.aliyuncs.com/blog/2020-08-26-WX20200826-151144%402x.png" width="70%" /></p>
+
+    <p><span><center> <span style="font-size:10pt"> <span style="color:steelblue;font-weight:bold">图 1</span>：一个 $\mu=\begin{pmatrix}3 \\ 2\end{pmatrix}$ 和 $\Sigma=\begin{pmatrix}1 &amp; -1.5 \\ -1.5 &amp; 4\end{pmatrix}$ 的正态分布的样本散点图和椭圆轮廓线</span></center></span></p>
+
+    <p><br /></p>
+  </li>
+  <li>
+    <p>令 $X\sim N_p(\mu, \Sigma)$，$\mathcal A$ 是一个 $q\times p$ 的矩阵，$b$ 是一个 $q\times 1$ 的向量。那么</p>
+
+\[Y=\mathcal AX+b \sim N_q(\mathcal A \mu +b,\mathcal A\Sigma \mathcal A^{\mathrm T})\]
+
+    <p><br /></p>
+  </li>
+  <li>
+    <p>令 $X=(X_1^{\mathrm T},X_2^{\mathrm T})^{\mathrm T} \sim N_p(\mu, \Sigma)$，其中</p>
+
+\[\Sigma = \begin{pmatrix}\Sigma_{11} &amp; \Sigma_{12}\\ \Sigma_{21} &amp; \Sigma_{22}\end{pmatrix}\]
+
+    <p>并且</p>
+
+\[\mathrm{Var}(X_1)=\Sigma_{11},\;\mathrm{Var}(X_2)=\Sigma_{22}\]
+
+    <p>那么，</p>
+
+\[\Sigma_{12}=0 \quad \Longleftrightarrow \quad X_1 \text{ and } X_2 \text{ are independent.}\]
+
+    <p><br /></p>
+  </li>
+  <li>
+    <p>如果 $X\sim N_p(\mu, \Sigma)$，并且 $\mathcal A$ 和 $\mathcal B$ 都是具有 $p$ 列的矩阵，那么</p>
+
+\[\mathcal AX \text{ and } \mathcal BX \text{ are independent} \quad \Longleftrightarrow \quad \mathcal A \Sigma \mathcal B^{\mathrm T}=0\]
+
+    <p><br /></p>
+  </li>
+  <li>
+    <p>如果 $X\sim N_p(\mu, \Sigma)$，并且 $\Sigma$ 是可逆的，那么</p>
+
+\[Y=(X-\mu)^{\mathrm T}\Sigma^{-1}(X-\mu) \sim \chi_p^2\]
+
+    <p><br /></p>
+  </li>
+  <li>
+    <p>如果 $X_1,\dots,X_n \sim \text{i.i.d. } N_p(\mu,\Sigma)$，那么</p>
+
+\[\overline X \sim N_p(\mu, \Sigma / n)\]
+  </li>
+</ul>
+
+<h2 id="3-wishart-分布">3. Wishart 分布</h2>
+
+<ul>
+  <li>
+    <p><strong>Wishart 分布</strong> 是 <strong>卡方分布</strong> 在多维空间上的一种推广。它取决于 3 个参数：维度 $p$，一个 $p\times p$ 的矩阵 $\Sigma$，以及自由度 $n$。记为：</p>
+
+\[W_p(\Sigma, n)\]
+
+    <p><br /></p>
+  </li>
+  <li>
+    <p>回顾一下，如果 $Z_1,\dots,Z_n$ 服从独立标准正态分布 $N(0,1)$，那么</p>
+
+\[X=\sum_{k=1}^{n}Z_k^2 \sim \chi_n^2\]
+
+    <p>服从一个自由度为 $n$ 的卡方分布。</p>
+
+    <p><br /></p>
+  </li>
+  <li>
+    <p>如果 $M$ 是一个 $p\times n$ 的矩阵，它的列之间都相互独立并且都服从一个 $N_p(0,\Sigma)$ 的分布，那么</p>
+
+\[\mathcal M = MM^{\mathrm T} \sim W_p(\Sigma,n)\]
+
+    <p><br /></p>
+  </li>
+  <li>
+    <p>注意，在上面的定义中，$\Sigma$ 不需要是严格正定的，并且关于 $n$ 和 $p$ 也没有任何限制。</p>
+
+    <p><br /></p>
+  </li>
+  <li>
+    <p>注意，$\mathcal M$ 服从 Wishart 分布，它必须是 <strong>非负定的 (Non-negative Deﬁnite)</strong> (根据定义，$\mathcal M$ 可以表示为 $MM^{\mathrm T}$，其中 $M$ 为所有列都服从独立正态分布的某个矩阵。因此，对于所有的 $p$ 维向量 $x$，必须满足 $x^{\mathrm T}\mathcal Mx = x^{\mathrm T}MM^{\mathrm T}x \ge 0$)。</p>
+
+    <p><br /></p>
+  </li>
+  <li>
+    <p>此外，如果 $\mathcal M$ 总是 <strong>非奇异的 (即正定)</strong>，则称其服从一个 <strong>非奇异 Wishart 分布</strong>。</p>
+
+    <p><br /></p>
+  </li>
+  <li>
+    <p>在 Morris Eaton 的讲义的命题 8.2 中可以找到以下结果：</p>
+
+    <p><br /></p>
+
+    <p>假设 $\mathcal M$ 服从参数为 $\Sigma、p、n$ 的 Wishart 分布。那么，当且仅当 $n\ge p$ 并且 $\Sigma&gt;0$ 时，$\mathcal M$ 服从一个非奇异 Wishart 分布，其概率密度函数为：</p>
+
+\[f_{\Sigma,n}(\mathcal M)=\dfrac{|\mathcal M|^{\frac{n-p-1}{2}}\exp\left[-\frac{1}{2}\mathrm{tr}(\mathcal M\Sigma^{-1})\right]}{2^{pn/2}\pi^{p(p-1)/4}|\Sigma|^{n/2}\prod_{i=1}^{p}\Gamma\left[(n+1-i)/2\right ]}\]
+
+    <p><br /></p>
+  </li>
+  <li>
+    <p>当 $\sigma$ 是一个标量时，一个 $W_1(\sigma^2,n)$ 分布等价于 $\sigma^2$ 乘以一个卡方分布 $\chi_n^2$。</p>
+
+    <p><br /></p>
+  </li>
+  <li>
+    <p>如果有一个 $p\times p$ 的随机矩阵 $\mathcal Y\sim W_p(\Sigma,n)$ 和一个 $q\times p$ 的矩阵 $\mathcal B$，那么</p>
+
+\[\mathcal{BYB} \sim W_q(\mathcal B \Sigma \mathcal B^{\mathrm T},n)\]
+
+    <p><br /></p>
+  </li>
+  <li>
+    <p>如果有一个 $p\times p$ 的随机矩阵 $\mathcal Y\sim W_p(\Sigma,n)$ 和一个 $p\times 1$ 的向量 $a$ 满足 $a^{\mathrm T}\Sigma a\ne 0$，那么</p>
+
+\[\dfrac{a^{\mathrm T}\mathcal Y a}{a^{\mathrm T}\Sigma a} \sim \chi_n^2\]
+
+    <p><br /></p>
+  </li>
+  <li>
+    <p>回顾之前的无偏样本方差矩阵</p>
+
+\[S=\dfrac{1}{n-1}\sum_{i=1}^{n}(X_i-\overline X)(X_i-\overline X)^{\mathrm T}\]
+
+    <p>可以证明：</p>
+
+\[(n-1)S \sim W_p(\Sigma, n-1)\]
+
+    <p><br /></p>
+  </li>
+  <li>
+    <p>上面本质上是在说如果 $X_1,\dots,X_n$ 是服从 $\text{i.i.d. } N(\mu, \Sigma)$ 的随机向量，其样本均值为 $\overline X$，那么</p>
+
+\[\sum_{i=1}^{n}(X_i-\overline X)(X_i-\overline X)^{\mathrm T}\]
+
+    <p>与 $\sum_{i=1}^{n-1}Z_iZ_i^{\mathrm T}$ 具有相同的分布，其中，$Z_i$ 是服从 $\text{i.i.d. } N(0,\Sigma)$ 分布的随机向量。</p>
+
+    <p><br /></p>
+  </li>
+  <li>
+    <p>相关证明，请参阅 Anderson 在 <em>An Introduction to Multivariate Statistical Analysis</em> 一书中的 <em>定理 3.3.2</em>。</p>
+
+    <p><br /></p>
+  </li>
+  <li>
+    <p>(提到 Eaton 和 Perlman 发表的关于 “非正态性” 的论文)</p>
+  </li>
+</ul>
+
+<h2 id="4-hotelling-分布">4. Hotelling 分布</h2>
+
+<ul>
+  <li>
+    <p><strong>Hotelling 分布</strong> 是自由度为 $n$ 的 <strong>学生 t 分布</strong> $t_n$ 在多维空间上的一种推广。</p>
+
+    <p><br /></p>
+  </li>
+  <li>
+    <p>在单变量情况下，一个变量 $X\sim t_n$，如果它可以被写为：</p>
+
+\[X=Y\sqrt{n/Z}\]
+
+    <p>其中，$Y$ 和 $Z$ 是相互独立的随机变量，$Y\sim N(0,1)$，$Z\sim \chi_n^2$。</p>
+
+    <p><br /></p>
+  </li>
+  <li>
+    <p><strong>Hotelling 的 T 方分布</strong> $T^2(p,n)$ 定义为：如果 $X\sim N_p(0,\mathcal I_p)$ 和 $\mathcal M \sim W_p(\mathcal I_p,n)$ 之间相互独立，那么</p>
+
+\[nX^{\mathrm T}\mathcal M^{-1}X \sim T_{p,n}^2\]
+
+    <p><br /></p>
+  </li>
+  <li>
+    <p><strong>定理</strong> (Hardle 和 Simar 教材第 193 页)：如果 $X\sim N_p(\mu,\Sigma)$ 和 $\mathcal M\sim W_p(\Sigma,n)$ 相互独立，并且 $\mathcal M$ 是非奇异的，那么</p>
+
+\[n(X-\mu)^{\mathrm T} \mathcal M^{-1} (X-\mu)\sim T_{p,n}^2\]
+
+    <p>例如，如果 $X_1,\dots,X_n \sim \text{i.i.d. } N_p(\mu,\Sigma)$，那么样本均值向量 $\overline X$ 和样本协方差矩阵 $\mathcal S$ 满足：</p>
+
+\[n(\overline X-\mu)^{\mathrm T} \mathcal S^{-1}(\overline X-\mu) \sim T_{p,n-1}^2\]
+
+    <p>上述结果来自 $\mathcal S$ 独立于 $\overline X$ 这一事实，即 <strong>Cochran 定理</strong> (Hardle 和 Simar 教材中的定理 5.7)。</p>
+
+    <p><br /></p>
+
+    <p><strong>证明</strong>：由于 $\overline X = \dfrac{1}{n}\sum_{i=1}^{n} X_i$，并且 $X_i \stackrel{\text{i.i.d.}}{\sim} N_p(\mu,\Sigma)$，所以 $\mathrm{Var}(\overline X) = \dfrac{1}{n}\mathrm{Var}(X_i) = \dfrac{\Sigma}{n}$</p>
+
+    <p>因此，我们有</p>
+
+\[\sqrt{n} (\overline X -\mu) \sim N_p(0,\Sigma)\]
+
+    <p>另外，我们知道</p>
+
+\[S=\dfrac{\sum_{i=1}^{n}(X_i - \overline X)(X_i - \overline X)^{\mathrm T}}{n-1} = \dfrac{Z}{n-1}\]
+
+    <p>其中，$Z=\sum_{i=1}^{n}(X_i - \overline X)(X_i - \overline X)^{\mathrm T} \sim W_p(\Sigma, n-1)$</p>
+
+    <p>因此，我们有</p>
+
+\[\begin{align}
+n(\overline X-\mu)^{\mathrm T} \mathcal S^{-1}(\overline X-\mu) &amp;= \sqrt{n}(\overline X-\mu) ^{\mathrm T} S^{-1} \sqrt{n}(\overline X-\mu) \\[2ex]
+&amp;= (n-1) \sqrt{n}(\overline X-\mu)^{\mathrm T} Z^{-1} \sqrt{n}(\overline X-\mu) \sim T^2_{p,n-1}
+\end{align}\]
+
+    <p><br /></p>
+  </li>
+  <li>
+    <p><strong>Hotelling 的 $T^2$ 分布</strong> 和 <strong>$F$ 分布</strong> 之间的关系是：</p>
+
+\[T_{p,n}^2=\dfrac{np}{n-p+1}F_{p,n-p+1}\]
+
+    <p><br /></p>
+  </li>
+  <li>
+    <p>注意，自由度为 $n$ 的单变量 $t$ 分布的平方等价于一个 $F_{1,n}$ 分布。</p>
+
+    <p><br /></p>
+  </li>
+  <li>
+    <p><strong>Hotelling 的 $T^2$ 检验</strong> 通常用于以下假设检验问题 (Hardle 和 Simar 教材中的 7.1 章节)：</p>
+
+    <p><br /></p>
+
+    <p>假设 $X_1,\dots,X_n$ 是来自总体为 $N_p(\mu,\Sigma)$ 分布的 $\text{i.i.d.}$ 样本，其中 $\Sigma$ 是未知的。我们试图检验：</p>
+
+\[H_0: \mu = \mu_0 \quad \text{VS.} \quad H_1: \text{no constraints}\]
+
+    <p>(这是使用 $t$ 统计量解决的普通单变量检验问题的多元版本。)</p>
+
+    <p><br /></p>
+
+    <p>当 $H_0$ 为真时，我们有：</p>
+
+\[n(\overline X-\mu_0)^{\mathrm T}\mathcal S^{-1}(\overline X-\mu_0) \sim T_{p,n-1}^2\]
+
+    <p>当然，我们可以使用 $n(\overline X-\mu_0)^{\mathrm T}\mathcal S^{-1}(\overline X-\mu_0)$ 作为检验统计量，并根据 $T_{p,n-1}^2$ (或者 $F_{p,n-p}$) 分布校准截止阈值。</p>
+
+    <p><br /></p>
+
+    <p>事实证明，对于该检验问题，我们也可以通过 <strong>似然比检验</strong> 推导出相同的检验 (参见 Hardle 和 Simar 教材中的 7.1 章节)。</p>
+  </li>
+</ul>
+
+<p>下节内容：主成分分析 (一)</p>
+:ET

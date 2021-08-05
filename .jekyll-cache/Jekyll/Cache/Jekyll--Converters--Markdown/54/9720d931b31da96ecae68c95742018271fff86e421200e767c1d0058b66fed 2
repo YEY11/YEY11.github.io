@@ -1,0 +1,199 @@
+I"�5<h2 id="1-问题描述">1. 问题描述</h2>
+
+<p>安装 jekyll 时，执行完 <code class="language-plaintext highlighter-rouge">gem install jekyll</code> 命令后报错：</p>
+
+<div class="language-plaintext highlighter-rouge"><div class="highlight"><pre class="highlight"><code><table class="rouge-table"><tbody><tr><td class="rouge-gutter gl"><pre class="lineno">1
+2
+3
+</pre></td><td class="rouge-code"><pre>Fetching: public_suffix-4.0.6.gem (100%)
+ERROR:  While executing gem ... (Gem::FilePermissionError)
+    You don't have write permissions for the /Library/Ruby/Gems/2.3.0 directory.
+</pre></td></tr></tbody></table></code></pre></div></div>
+
+<p>这是因为 macOS 不允许您对 Mac 自带的 Ruby 版本进行任何更改。但是，像 <code class="language-plaintext highlighter-rouge">bundler</code> 这种通过使用独立版本的 Ruby（该版本不会干扰 Apple 提供的版本）来安装 gem 是可行的。</p>
+
+<p>注意：强烈建议不要使用 <code class="language-plaintext highlighter-rouge">sudo</code> 命令来安装 <code class="language-plaintext highlighter-rouge">gems</code> 或更改系统文件和目录的权限，即使您知道自己在做什么。</p>
+
+<h2 id="2-解决方案">2. 解决方案</h2>
+
+<p><strong>如果您确定您不需要同时使用多个 Ruby 版本（除了 macOS 附带的版本）</strong>，可以按照以下方法：</p>
+
+<p>首先，重新单独安装一个 Ruby 版本：</p>
+
+<div class="language-bash highlighter-rouge"><div class="highlight"><pre class="highlight"><code><table class="rouge-table"><tbody><tr><td class="rouge-gutter gl"><pre class="lineno">1
+</pre></td><td class="rouge-code"><pre>brew <span class="nb">install </span>ruby
+</pre></td></tr></tbody></table></code></pre></div></div>
+
+<p>检查当前使用的 Ruby 路径：</p>
+
+<div class="language-bash highlighter-rouge"><div class="highlight"><pre class="highlight"><code><table class="rouge-table"><tbody><tr><td class="rouge-gutter gl"><pre class="lineno">1
+</pre></td><td class="rouge-code"><pre>which ruby
+</pre></td></tr></tbody></table></code></pre></div></div>
+
+<p>结果：</p>
+
+<div class="language-bash highlighter-rouge"><div class="highlight"><pre class="highlight"><code><table class="rouge-table"><tbody><tr><td class="rouge-gutter gl"><pre class="lineno">1
+</pre></td><td class="rouge-code"><pre>/usr/local/opt/ruby/bin/ruby
+</pre></td></tr></tbody></table></code></pre></div></div>
+
+<p>检查当前使用的 Ruby 版本：</p>
+
+<div class="language-bash highlighter-rouge"><div class="highlight"><pre class="highlight"><code><table class="rouge-table"><tbody><tr><td class="rouge-gutter gl"><pre class="lineno">1
+</pre></td><td class="rouge-code"><pre>ruby <span class="nt">-v</span>
+</pre></td></tr></tbody></table></code></pre></div></div>
+
+<p>结果：</p>
+
+<div class="language-bash highlighter-rouge"><div class="highlight"><pre class="highlight"><code><table class="rouge-table"><tbody><tr><td class="rouge-gutter gl"><pre class="lineno">1
+</pre></td><td class="rouge-code"><pre>ruby 3.0.1p64 <span class="o">(</span>2021-04-05 revision 0fb782ee38<span class="o">)</span> <span class="o">[</span>x86_64-darwin18]
+</pre></td></tr></tbody></table></code></pre></div></div>
+
+<p>然后，更新 shell 配置文件中的 PATH 路径：</p>
+
+<div class="language-bash highlighter-rouge"><div class="highlight"><pre class="highlight"><code><table class="rouge-table"><tbody><tr><td class="rouge-gutter gl"><pre class="lineno">1
+</pre></td><td class="rouge-code"><pre><span class="nb">echo</span> <span class="s1">'export PATH="/usr/local/opt/ruby/bin:/usr/local/lib/ruby/gems/3.0.0/bin:$PATH"'</span> <span class="o">&gt;&gt;</span> ~/.zshrc
+</pre></td></tr></tbody></table></code></pre></div></div>
+
+<p>注意：上面的 <code class="language-plaintext highlighter-rouge">3.0.0</code> 与当前 Ruby 版本有关，如果您安装的 Ruby 是其他版本，请将这里的 <code class="language-plaintext highlighter-rouge">3.0</code> 替换为您的 Ruby 版本的前两位。</p>
+
+<p>刷新 shell 配置文件，使其生效：</p>
+
+<div class="language-bash highlighter-rouge"><div class="highlight"><pre class="highlight"><code><table class="rouge-table"><tbody><tr><td class="rouge-gutter gl"><pre class="lineno">1
+</pre></td><td class="rouge-code"><pre><span class="nb">source</span> ~/.zshrc
+</pre></td></tr></tbody></table></code></pre></div></div>
+
+<p>注意：如果您使用的是 bash shell，请将上面的 <code class="language-plaintext highlighter-rouge">.zshrc</code> 替换为 <code class="language-plaintext highlighter-rouge">.bash_profile</code>。</p>
+
+<p>安装 <code class="language-plaintext highlighter-rouge">jekyll</code> 和 <code class="language-plaintext highlighter-rouge">jekyll bundler</code>：</p>
+
+<div class="language-bash highlighter-rouge"><div class="highlight"><pre class="highlight"><code><table class="rouge-table"><tbody><tr><td class="rouge-gutter gl"><pre class="lineno">1
+2
+</pre></td><td class="rouge-code"><pre>gem <span class="nb">install </span>jekyll
+gem <span class="nb">install </span>jekyll bundler
+</pre></td></tr></tbody></table></code></pre></div></div>
+
+<p>安装完成后，切换目录到本地 github pages 项目所在文件夹，然后尝试在本地启动 Jekyll 服务器：</p>
+
+<div class="language-bash highlighter-rouge"><div class="highlight"><pre class="highlight"><code><table class="rouge-table"><tbody><tr><td class="rouge-gutter gl"><pre class="lineno">1
+2
+</pre></td><td class="rouge-code"><pre><span class="nb">cd</span> /Users/andy/Documents/GitHub/YEY11.github.io
+jekyll s
+</pre></td></tr></tbody></table></code></pre></div></div>
+
+<p>报错：</p>
+
+<div class="language-plaintext highlighter-rouge"><div class="highlight"><pre class="highlight"><code><table class="rouge-table"><tbody><tr><td class="rouge-gutter gl"><pre class="lineno">1
+2
+3
+4
+5
+6
+7
+</pre></td><td class="rouge-code"><pre>Bundler::GemNotFound: Could not find rake-10.3.2 in any of the sources
+~/.rvm/gems/ruby-2.0.0-p451/gems/bundler-1.6.2/lib/bundler/spec_set.rb:92:in `block in materialize'
+~/.rvm/gems/ruby-2.0.0-p451/gems/bundler-1.6.2/lib/bundler/spec_set.rb:85:in `map!'
+~/.rvm/gems/ruby-2.0.0-p451/gems/bundler-1.6.2/lib/bundler/spec_set.rb:85:in `materialize'
+~/.rvm/gems/ruby-2.0.0-p451/gems/bundler-1.6.2/lib/bundler/definition.rb:133:in `specs'
+~/.rvm/gems/ruby-2.0.0-p451/gems/bundler-1.6.2/lib/bundler/definition.rb:178:in `specs_for'
+Show 28 more lines
+</pre></td></tr></tbody></table></code></pre></div></div>
+
+<p>尝试修复，首先运行以下命令，修复捆绑程序路径配置：</p>
+
+<div class="language-bash highlighter-rouge"><div class="highlight"><pre class="highlight"><code><table class="rouge-table"><tbody><tr><td class="rouge-gutter gl"><pre class="lineno">1
+</pre></td><td class="rouge-code"><pre>bundle config <span class="nb">set </span>path <span class="s1">'vendor/cache'</span>
+</pre></td></tr></tbody></table></code></pre></div></div>
+
+<p>然后尝试运行以下命令：</p>
+
+<div class="language-bash highlighter-rouge"><div class="highlight"><pre class="highlight"><code><table class="rouge-table"><tbody><tr><td class="rouge-gutter gl"><pre class="lineno">1
+</pre></td><td class="rouge-code"><pre>bundle <span class="nb">exec </span>jekyll serve
+</pre></td></tr></tbody></table></code></pre></div></div>
+
+<p>按照提示要求，运行以下命令，安装缺失的 gem（这里是 <code class="language-plaintext highlighter-rouge">rake</code>）：</p>
+
+<div class="language-bash highlighter-rouge"><div class="highlight"><pre class="highlight"><code><table class="rouge-table"><tbody><tr><td class="rouge-gutter gl"><pre class="lineno">1
+</pre></td><td class="rouge-code"><pre>bundle <span class="nb">install</span>
+</pre></td></tr></tbody></table></code></pre></div></div>
+
+<p>更新 bundle，确保 <code class="language-plaintext highlighter-rouge">Gemfile.lock</code> 引用的是最新的 gem：</p>
+
+<div class="language-bash highlighter-rouge"><div class="highlight"><pre class="highlight"><code><table class="rouge-table"><tbody><tr><td class="rouge-gutter gl"><pre class="lineno">1
+</pre></td><td class="rouge-code"><pre>bundle update
+</pre></td></tr></tbody></table></code></pre></div></div>
+
+<p>再次尝试在本地启动 Jekyll 服务器：</p>
+
+<div class="language-bash highlighter-rouge"><div class="highlight"><pre class="highlight"><code><table class="rouge-table"><tbody><tr><td class="rouge-gutter gl"><pre class="lineno">1
+</pre></td><td class="rouge-code"><pre>jekyll s
+</pre></td></tr></tbody></table></code></pre></div></div>
+
+<p>仍然报错：</p>
+
+<div class="language-plaintext highlighter-rouge"><div class="highlight"><pre class="highlight"><code><table class="rouge-table"><tbody><tr><td class="rouge-gutter gl"><pre class="lineno">1
+</pre></td><td class="rouge-code"><pre>Jekyll 4.2.0 Please append `--trace` to the `serve` command for any additional information or backtrace.
+</pre></td></tr></tbody></table></code></pre></div></div>
+
+<p>这是因为 <code class="language-plaintext highlighter-rouge">webrick</code> 不再是 Ruby 3.0 中的捆绑 gem，我们需要手动添加 <code class="language-plaintext highlighter-rouge">webrick</code> 到 Gemfile 中作为依赖：</p>
+
+<div class="language-bash highlighter-rouge"><div class="highlight"><pre class="highlight"><code><table class="rouge-table"><tbody><tr><td class="rouge-gutter gl"><pre class="lineno">1
+</pre></td><td class="rouge-code"><pre>bundle add webrick
+</pre></td></tr></tbody></table></code></pre></div></div>
+
+<p>再次尝试在本地启动 Jekyll 服务器：</p>
+
+<div class="language-bash highlighter-rouge"><div class="highlight"><pre class="highlight"><code><table class="rouge-table"><tbody><tr><td class="rouge-gutter gl"><pre class="lineno">1
+</pre></td><td class="rouge-code"><pre>jekyll s
+</pre></td></tr></tbody></table></code></pre></div></div>
+
+<p>解决，服务器可以正常启动：</p>
+
+<div class="language-plaintext highlighter-rouge"><div class="highlight"><pre class="highlight"><code><table class="rouge-table"><tbody><tr><td class="rouge-gutter gl"><pre class="lineno">1
+2
+3
+4
+5
+6
+7
+8
+9
+10
+11
+12
+13
+14
+15
+16
+</pre></td><td class="rouge-code"><pre>/usr/local/lib/ruby/gems/3.0.0/gems/bundler-1.17.2/lib/bundler/shared_helpers.rb:29: warning: Pathname#untaint is deprecated and will be removed in Ruby 3.2.
+/usr/local/lib/ruby/gems/3.0.0/gems/bundler-1.17.2/lib/bundler/shared_helpers.rb:118: warning: Pathname#untaint is deprecated and will be removed in Ruby 3.2.
+/usr/local/lib/ruby/gems/3.0.0/gems/bundler-1.17.2/lib/bundler/shared_helpers.rb:118: warning: Pathname#untaint is deprecated and will be removed in Ruby 3.2.
+/usr/local/lib/ruby/gems/3.0.0/gems/bundler-1.17.2/lib/bundler/shared_helpers.rb:35: warning: Pathname#untaint is deprecated and will be removed in Ruby 3.2.
+/usr/local/lib/ruby/gems/3.0.0/gems/bundler-1.17.2/lib/bundler/shared_helpers.rb:35: warning: Pathname#untaint is deprecated and will be removed in Ruby 3.2.
+/usr/local/lib/ruby/gems/3.0.0/gems/bundler-1.17.2/lib/bundler/shared_helpers.rb:44: warning: Pathname#untaint is deprecated and will be removed in Ruby 3.2.
+/usr/local/lib/ruby/gems/3.0.0/gems/bundler-1.17.2/lib/bundler/shared_helpers.rb:118: warning: Pathname#untaint is deprecated and will be removed in Ruby 3.2.
+Configuration file: /Users/andy/Documents/GitHub/YEY11.github.io/_config.yml
+            Source: /Users/andy/Documents/GitHub/YEY11.github.io
+       Destination: /Users/andy/Documents/GitHub/YEY11.github.io/_site
+ Incremental build: disabled. Enable with --incremental
+      Generating...
+                    done in 6.922 seconds.
+ Auto-regeneration: enabled for '/Users/andy/Documents/GitHub/YEY11.github.io'
+    Server address: http://127.0.0.1:4000/
+  Server running... press ctrl-c to stop.
+</pre></td></tr></tbody></table></code></pre></div></div>
+
+<p><strong>参考资料：</strong></p>
+
+<ul>
+  <li><a href="https://github.com/jekyll/jekyll/issues/6892">https://github.com/jekyll/jekyll/issues/6892</a></li>
+  <li><a href="https://stackoverflow.com/questions/51664716/you-dont-have-write-permissions-for-the-library-ruby-gems-2-3-0-directory/54874320">https://stackoverflow.com/questions/51664716/you-dont-have-write-permissions-for-the-library-ruby-gems-2-3-0-directory/54874320</a></li>
+  <li><a href="https://stackoverflow.com/questions/51126403/you-dont-have-write-permissions-for-the-library-ruby-gems-2-3-0-directory-ma/54873916#54873916">https://stackoverflow.com/questions/51126403/you-dont-have-write-permissions-for-the-library-ruby-gems-2-3-0-directory-ma/54873916#54873916</a></li>
+  <li><a href="https://stackoverflow.com/questions/56911682/bundlergemnotfound-could-not-find-rake-12-3-2-in-any-of-the-sources">https://stackoverflow.com/questions/56911682/bundlergemnotfound-could-not-find-rake-12-3-2-in-any-of-the-sources</a></li>
+  <li><a href="https://stackoverflow.com/questions/23801899/bundlergemnotfound-could-not-find-rake-10-3-2-in-any-of-the-sources">https://stackoverflow.com/questions/23801899/bundlergemnotfound-could-not-find-rake-10-3-2-in-any-of-the-sources</a></li>
+  <li><a href="https://talk.jekyllrb.com/t/jekyll-4-2-0-please-append-trace-to-the-serve-command-error/5661">https://talk.jekyllrb.com/t/jekyll-4-2-0-please-append-trace-to-the-serve-command-error/5661</a></li>
+  <li><a href="https://github.com/jekyll/jekyll/issues/8523">https://github.com/jekyll/jekyll/issues/8523</a></li>
+  <li><a href="https://ruby-china.org/topics/26655">https://ruby-china.org/topics/26655</a></li>
+  <li><a href="https://github.com/rapid7/metasploit-framework/issues/14666">https://github.com/rapid7/metasploit-framework/issues/14666</a></li>
+</ul>
+
+:ET

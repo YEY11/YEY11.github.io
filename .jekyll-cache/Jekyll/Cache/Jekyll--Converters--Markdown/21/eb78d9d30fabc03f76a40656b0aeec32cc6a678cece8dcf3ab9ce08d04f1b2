@@ -1,0 +1,169 @@
+I"�<h1 id="module-08-可解释性">Module 08 可解释性</h1>
+
+<h2 id="1-动机为什么要问为什么">1. 动机：为什么要问为什么？</h2>
+
+<h3 id="11-什么是可解释人工智能">1.1 什么是可解释人工智能？</h3>
+
+<p><strong>可解释性（Explainability，以及 interpretability）</strong>就是 <em>理解（understanding）</em>。</p>
+
+<p><strong>可解释人工智能（Explainable AI）</strong>是人们能够理解人工智能模型和决策的能力。</p>
+
+<p><strong>解释（Explanation）</strong>是一种帮助人们理解的机制。</p>
+
+<h3 id="12-为什么我们关心可解释性">1.2 为什么我们关心可解释性？</h3>
+
+<p><img src="http://andy-blog.oss-cn-beijing.aliyuncs.com/blog/2021-06-22-WX20210623-005101%402x.png" width="70%" /></p>
+
+<center><font size="2">（来源：K. Stubbs et al.: Autonomy and Common Ground in Human-Robot Interaction: A Field Study, IEEE Intelligent Systems, 22(2):42-50, 2007.）</font></center>
+
+<h3 id="13-可解释人工智能的目标">1.3 可解释人工智能的目标</h3>
+
+<p>为什么我们关心可解释性？</p>
+
+<ul>
+  <li><strong>信任：</strong>合同中的正当信任和不信任</li>
+  <li><strong>伦理：</strong>通过产生信任来提高应用程序的伦理适用性</li>
+</ul>
+
+<p>如果某些人无法理解一个算法生成某种决策的原因，那么让他们对基于该算法辅助的决策负责是否合理？</p>
+
+<h3 id="14-哪些人关心可解释性-ai在什么阶段关注">1.4 哪些人关心可解释性 AI？在什么阶段关注？</h3>
+
+<p><img src="http://andy-blog.oss-cn-beijing.aliyuncs.com/blog/2021-06-22-WX20210623-005749%402x.png" width="100%" /></p>
+
+<center><font size="2">（来源：V. Belle and I. Papantonis: Principles and practice of explainable machine learning, arXiv, 2020. &lt;https://arxiv.org/abs/2009.11698&gt;）</font></center>
+
+<h2 id="2-可解释性-ai-的挑战">2. 可解释性 AI 的挑战</h2>
+
+<h3 id="21-挑战不透明度-opacity">2.1 挑战：不透明度 (Opacity)</h3>
+
+<p><strong>决策树 vs. 神经网络模型</strong></p>
+
+<p><img src="http://andy-blog.oss-cn-beijing.aliyuncs.com/blog/2021-06-22-WX20210623-010103%402x.png" width="80%" /></p>
+
+<h3 id="22-挑战因果关系casuality">2.2 挑战：因果关系（Casuality）</h3>
+
+<p><img src="http://andy-blog.oss-cn-beijing.aliyuncs.com/blog/2021-06-22-WX20210623-010600%402x.png" width="80%" /></p>
+
+<h3 id="23-挑战人的问题">2.3 挑战：人的问题</h3>
+
+<p><img src="http://andy-blog.oss-cn-beijing.aliyuncs.com/blog/2021-06-22-WX20210623-010720%402x.png" width="45%" /></p>
+
+<h2 id="3-可解释-ai-方法的特性">3. 可解释 AI 方法的特性</h2>
+
+<h4 id="31-全局-vs-局部">3.1 全局 vs. 局部</h4>
+
+<p><img src="http://andy-blog.oss-cn-beijing.aliyuncs.com/blog/2021-06-22-WX20210623-010901%402x.png" width="60%" /></p>
+
+<h3 id="32-固有intrinsicvs-事后post-hoc">3.2 固有（Intrinsic）vs. 事后（post-hoc）</h3>
+
+<p><img src="http://andy-blog.oss-cn-beijing.aliyuncs.com/blog/2021-06-22-WX20210623-011030%402x.png" width="80%" /></p>
+
+<p><img src="http://andy-blog.oss-cn-beijing.aliyuncs.com/blog/2021-06-22-WX20210623-011117%402x.png" width="80%" /></p>
+
+<center><font size="2">（来源：Stiglic G, Kocbek S, Pernek I, Kokol P: Comprehensive Decision Tree Models in Bioinformatics. PLoS ONE 7(3): e33812, 2012.）</font></center>
+
+<h3 id="33-模型不可知model-agnosticvs-模型特定model-specific">3.3 模型不可知（Model-agnostic）vs. 模型特定（model-specific）</h3>
+
+<p><strong>模型特定（Model specific）：</strong></p>
+
+<ul>
+  <li>使用模型的内部工作原理和特性来推导出可解释性机制。</li>
+</ul>
+
+<p><img src="http://andy-blog.oss-cn-beijing.aliyuncs.com/blog/2021-06-22-WX20210623-011459%402x.png" width="35%" /></p>
+
+<p><strong>模型不可知（Model-agnostic）：</strong></p>
+
+<ul>
+  <li>仅使用输入和输出来推导出可解释性机制。</li>
+</ul>
+
+<p><img src="http://andy-blog.oss-cn-beijing.aliyuncs.com/blog/2021-06-22-WX20210623-011513%402x.png" width="35%" /></p>
+
+<h2 id="4-可解释-ai-的基本方法">4. 可解释 AI 的基本方法</h2>
+
+<h3 id="41-基于归因attribution-based的解释">4.1 基于归因（Attribution-based）的解释</h3>
+
+<p><img src="http://andy-blog.oss-cn-beijing.aliyuncs.com/blog/2021-06-22-WX20210623-011814%402x.png" width="70%" /></p>
+
+<center><font size="2">（来源：T. Miller: "But why?" Understanding explainable artificial i XRDS 25, 3 (Spring 2019), 20–25. &lt;https://doi.org/10.1145/3313107&gt;）</font></center>
+
+<p><img src="http://andy-blog.oss-cn-beijing.aliyuncs.com/blog/2021-06-22-WX20210623-011920%402x.png" width="80%" /></p>
+
+<center><font size="2">（来源：Ribeiro et al.: Why should I trust you?: Explaining the predictions of any classifier. In SIGKDD international conference on knowledge discovery anddata mining. ACM, 2016.）</font></center>
+
+<h3 id="42-lime局部可解释模型不可知的解释">4.2 LIME：局部可解释、模型不可知的解释</h3>
+
+<p><img src="http://andy-blog.oss-cn-beijing.aliyuncs.com/blog/2021-06-22-WX20210623-012112%402x.png" width="55%" /></p>
+
+<center><font size="2">（来源：Ribeiro et al.: Why should I trust you?: Explaining the predictions of any classifier. In SIGKDD international conference on knowledge discovery anddata mining. ACM, 2016.）</font></center>
+
+<h3 id="43-基于示例的解释prototypes">4.3 基于示例的解释：Prototypes</h3>
+
+<p><img src="http://andy-blog.oss-cn-beijing.aliyuncs.com/blog/2021-06-22-WX20210623-012237%402x.png" width="70%" /></p>
+
+<center><font size="2">（来源：Kim et al.: Examples are not enough, learn to criticize! Criticism for interpretability. In NeurIPS. 2016.）</font></center>
+
+<h3 id="44-基于规则的解释">4.4 基于规则的解释</h3>
+
+<p>事后提取规则或直接学习可解释的规则：</p>
+
+<p><img src="http://andy-blog.oss-cn-beijing.aliyuncs.com/blog/2021-06-22-WX20210623-012418%402x.png" width="70%" /></p>
+
+<h3 id="45-对比解释">4.5 对比解释</h3>
+
+<blockquote>
+  <p><em>“关键的洞察力是认识到，一个人并不能解释事件本身，而是一个人解释了为什么令人费解的事件发生在目标案例中，而不是在一些反事实对比案例中。”</em></p>
+
+  <p>D. J. Hilton, Conversational processes and causal explanation, Psychological Bulletin. 107 (1) (1990) 65–81.</p>
+</blockquote>
+
+<h3 id="46-对比解释--差异条件">4.6 对比解释 —— 差异条件</h3>
+
+<p><img src="http://andy-blog.oss-cn-beijing.aliyuncs.com/blog/2021-06-22-WX20210623-013124%402x.png" width="80%" /></p>
+
+<center><font size="2">（来源：T. Miller. Contrastive Explanation: A Structural-Model Approach, Knowledge Engineering Review, (in print). &lt;https://arxiv.org/abs/1811.03163&gt;）</font></center>
+
+<h3 id="47-可解释性总结">4.7 可解释性：总结</h3>
+
+<p><strong>可解释性：</strong></p>
+
+<ul>
+  <li>不同的人有不同的可解释性需求</li>
+  <li>信任与伦理</li>
+  <li>人和技术方面的挑战
+    <ul>
+      <li>不透明度</li>
+      <li>因果关系</li>
+      <li>人类解释</li>
+    </ul>
+  </li>
+</ul>
+
+<p><strong>可解释性方法：</strong></p>
+
+<ul>
+  <li>分类
+    <ul>
+      <li>局部 vs. 全局</li>
+      <li>可解释 vs. 事后</li>
+      <li>模型不可知 vs. 模型特定</li>
+    </ul>
+  </li>
+  <li>关键方法
+    <ul>
+      <li>归因</li>
+      <li>示例</li>
+      <li>规则</li>
+      <li>对比</li>
+    </ul>
+  </li>
+</ul>
+
+<h2 id="5-推荐阅读">5. 推荐阅读</h2>
+
+<ul>
+  <li>[]</li>
+</ul>
+:ET

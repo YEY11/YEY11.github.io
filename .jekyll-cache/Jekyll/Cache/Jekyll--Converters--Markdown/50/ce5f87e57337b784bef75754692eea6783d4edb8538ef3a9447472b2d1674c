@@ -1,0 +1,468 @@
+I"�<h1 id="lecture-09-transforms-图像变换方法操作及自定义方法">Lecture 09 transforms 图像变换、方法操作及自定义方法</h1>
+
+<p>上节课中，我们学习了 transforms 中的裁剪、旋转和翻转，本节课我们将继续学习 transforms 中的其他数据增强方法。</p>
+
+<h2 id="1-transforms-图像变换">1. transforms 图像变换</h2>
+
+<h4 id="transformspad"><code class="language-plaintext highlighter-rouge">transforms.Pad</code></h4>
+
+<p><strong>功能</strong>：对图片边缘进行填充。</p>
+
+<div class="language-python highlighter-rouge"><div class="highlight"><pre class="highlight"><code><table class="rouge-table"><tbody><tr><td class="rouge-gutter gl"><pre class="lineno">1
+2
+3
+4
+5
+</pre></td><td class="rouge-code"><pre><span class="n">transforms</span><span class="p">.</span><span class="n">Pad</span><span class="p">(</span>
+    <span class="n">padding</span><span class="p">,</span>
+    <span class="n">fill</span><span class="o">=</span><span class="mi">0</span><span class="p">,</span>
+    <span class="n">padding_mode</span><span class="o">=</span><span class="s">'constant'</span>
+<span class="p">)</span>
+</pre></td></tr></tbody></table></code></pre></div></div>
+
+<p><strong>主要参数</strong>：</p>
+
+<ul>
+  <li><code class="language-plaintext highlighter-rouge">padding</code>：设置填充大小。
+    <ul>
+      <li>当为 <code class="language-plaintext highlighter-rouge">a</code> 时，上下左右均填充 <code class="language-plaintext highlighter-rouge">a</code> 个像素。</li>
+      <li>当为 <code class="language-plaintext highlighter-rouge">(a, b)</code> 时，上下填充 <code class="language-plaintext highlighter-rouge">b</code> 个像素，左右填充 <code class="language-plaintext highlighter-rouge">a</code> 个像素。</li>
+      <li>当为 <code class="language-plaintext highlighter-rouge">(a, b, c, d)</code> 时，左、上、右、下分别填充 <code class="language-plaintext highlighter-rouge">a</code>、<code class="language-plaintext highlighter-rouge">b</code>、<code class="language-plaintext highlighter-rouge">c</code>、<code class="language-plaintext highlighter-rouge">d</code> 个像素。</li>
+    </ul>
+  </li>
+  <li><code class="language-plaintext highlighter-rouge">padding_mode</code>：填充模式，有 4 种模式：
+    <ul>
+      <li><code class="language-plaintext highlighter-rouge">constant</code></li>
+      <li><code class="language-plaintext highlighter-rouge">edge</code></li>
+      <li><code class="language-plaintext highlighter-rouge">reflect</code></li>
+      <li><code class="language-plaintext highlighter-rouge">symmetric</code></li>
+    </ul>
+  </li>
+  <li><code class="language-plaintext highlighter-rouge">fill</code>：当 <code class="language-plaintext highlighter-rouge">padding_mode='constant'</code> 时，设置填充的像素值，<code class="language-plaintext highlighter-rouge">(R, G, B)</code> 或 <code class="language-plaintext highlighter-rouge">(Gray)</code>。</li>
+</ul>
+
+<h4 id="transformscolorjitter"><code class="language-plaintext highlighter-rouge">transforms.ColorJitter</code></h4>
+
+<p><strong>功能</strong>：调整亮度、对比度、饱和度和色相。</p>
+
+<div class="language-python highlighter-rouge"><div class="highlight"><pre class="highlight"><code><table class="rouge-table"><tbody><tr><td class="rouge-gutter gl"><pre class="lineno">1
+2
+3
+4
+5
+6
+</pre></td><td class="rouge-code"><pre><span class="n">transforms</span><span class="p">.</span><span class="n">ColorJitter</span><span class="p">(</span>
+    <span class="n">brightness</span><span class="o">=</span><span class="mi">0</span><span class="p">,</span>
+    <span class="n">contrast</span><span class="o">=</span><span class="mi">0</span><span class="p">,</span>
+    <span class="n">saturation</span><span class="o">=</span><span class="mi">0</span><span class="p">,</span>
+    <span class="n">hue</span><span class="o">=</span><span class="mi">0</span>
+<span class="p">)</span>
+</pre></td></tr></tbody></table></code></pre></div></div>
+
+<p><strong>主要参数</strong>：</p>
+
+<ul>
+  <li><code class="language-plaintext highlighter-rouge">brightness</code>：亮度调整因子。
+    <ul>
+      <li>当为 <code class="language-plaintext highlighter-rouge">a</code> 时， 从 <code class="language-plaintext highlighter-rouge">[max(0, 1-a), 1+a]</code> 中随机选择。</li>
+      <li>当为 <code class="language-plaintext highlighter-rouge">(a, b)</code> 时， 从 <code class="language-plaintext highlighter-rouge">[a, b]</code> 中随机选择。</li>
+    </ul>
+  </li>
+  <li><code class="language-plaintext highlighter-rouge">contrast</code> ：对比度参数，同 <code class="language-plaintext highlighter-rouge">brightness</code>。</li>
+  <li><code class="language-plaintext highlighter-rouge">saturation</code>：饱和度参数，同 <code class="language-plaintext highlighter-rouge">brightness</code>。</li>
+  <li><code class="language-plaintext highlighter-rouge">hue</code>：色相参数。
+    <ul>
+      <li>当为 <code class="language-plaintext highlighter-rouge">a</code> 时，从 <code class="language-plaintext highlighter-rouge">[-a, a]</code> 中选择参数。注：<code class="language-plaintext highlighter-rouge">0 &lt;= a &lt;= 0.5</code>。</li>
+      <li>当为 <code class="language-plaintext highlighter-rouge">(a, b)</code> 时，从 <code class="language-plaintext highlighter-rouge">[a, b]</code> 中选择参数。注：<code class="language-plaintext highlighter-rouge">-0.5 &lt;= a &lt;= b &lt;= 0.5</code>。</li>
+    </ul>
+  </li>
+</ul>
+
+<h4 id="transformsgrayscale"><code class="language-plaintext highlighter-rouge">transforms.Grayscale</code></h4>
+
+<p><strong>功能</strong>：将图片转换为灰度图。</p>
+
+<div class="language-python highlighter-rouge"><div class="highlight"><pre class="highlight"><code><table class="rouge-table"><tbody><tr><td class="rouge-gutter gl"><pre class="lineno">1
+</pre></td><td class="rouge-code"><pre><span class="n">transforms</span><span class="p">.</span><span class="n">Grayscale</span><span class="p">(</span><span class="n">num_output_channels</span><span class="p">)</span>
+</pre></td></tr></tbody></table></code></pre></div></div>
+
+<p><strong>主要参数</strong>：</p>
+
+<ul>
+  <li><code class="language-plaintext highlighter-rouge">num_ouput_channels</code>：输出通道数，只能设为 1 或 3。</li>
+</ul>
+
+<h4 id="transformsrandomgrayscale"><code class="language-plaintext highlighter-rouge">transforms.RandomGrayscale</code></h4>
+
+<p><strong>功能</strong>：依概率将图片转换为灰度图。</p>
+
+<div class="language-python highlighter-rouge"><div class="highlight"><pre class="highlight"><code><table class="rouge-table"><tbody><tr><td class="rouge-gutter gl"><pre class="lineno">1
+2
+3
+4
+</pre></td><td class="rouge-code"><pre><span class="n">transforms</span><span class="p">.</span><span class="n">RandomGrayscale</span><span class="p">(</span>
+    <span class="n">num_output_channels</span><span class="p">,</span>
+    <span class="n">p</span><span class="o">=</span><span class="mf">0.1</span>
+<span class="p">)</span>
+</pre></td></tr></tbody></table></code></pre></div></div>
+
+<p><strong>主要参数</strong>：</p>
+
+<ul>
+  <li><code class="language-plaintext highlighter-rouge">num_ouput_channels</code>：输出通道数，只能设为 1 或 3。</li>
+  <li><code class="language-plaintext highlighter-rouge">p</code>：概率值，图像被转换为灰度图的概率。</li>
+</ul>
+
+<h4 id="transformsrandomaffine"><code class="language-plaintext highlighter-rouge">transforms.RandomAffine</code></h4>
+
+<p><strong>功能</strong>：对图像进行仿射变换，仿射变换是二维的线性变换，由五种基本原子变换构成：<strong>旋转</strong>、<strong>平移</strong>、<strong>缩放</strong>、<strong>错切</strong> 和 <strong>翻转</strong>。</p>
+
+<div class="language-python highlighter-rouge"><div class="highlight"><pre class="highlight"><code><table class="rouge-table"><tbody><tr><td class="rouge-gutter gl"><pre class="lineno">1
+2
+3
+4
+5
+6
+7
+8
+</pre></td><td class="rouge-code"><pre><span class="n">transforms</span><span class="p">.</span><span class="n">RandomAffine</span><span class="p">(</span>
+    <span class="n">degrees</span><span class="p">,</span>
+    <span class="n">translate</span><span class="o">=</span><span class="bp">None</span><span class="p">,</span>
+    <span class="n">scale</span><span class="o">=</span><span class="bp">None</span><span class="p">,</span>
+    <span class="n">shear</span><span class="o">=</span><span class="bp">None</span><span class="p">,</span>
+    <span class="n">resample</span><span class="o">=</span><span class="bp">False</span><span class="p">,</span>
+    <span class="n">fillcolor</span><span class="o">=</span><span class="mi">0</span>
+<span class="p">)</span>
+</pre></td></tr></tbody></table></code></pre></div></div>
+
+<p><strong>主要参数</strong>：</p>
+
+<ul>
+  <li><code class="language-plaintext highlighter-rouge">degrees</code>：旋转角度设置。</li>
+  <li><code class="language-plaintext highlighter-rouge">translate</code>：平移区间设置，如 <code class="language-plaintext highlighter-rouge">(a, b)</code>, <code class="language-plaintext highlighter-rouge">a</code> 设置宽 (width)，<code class="language-plaintext highlighter-rouge">b</code> 设置高 (height)。图像在宽维度平移的区间为 <code class="language-plaintext highlighter-rouge">-img_width * a &lt; dx &lt; img_width * a</code>。</li>
+  <li><code class="language-plaintext highlighter-rouge">scale</code>：缩放比例 (以面积为单位)。</li>
+  <li><code class="language-plaintext highlighter-rouge">fill_color</code>：填充颜色设置。</li>
+  <li><code class="language-plaintext highlighter-rouge">shear</code>：错切角度设置，有水平错切和垂直错切。
+    <ul>
+      <li>若为 <code class="language-plaintext highlighter-rouge">a</code>，则仅在 x 轴错切，错切角度在 <code class="language-plaintext highlighter-rouge">(-a, a)</code> 之间。</li>
+      <li>若为 <code class="language-plaintext highlighter-rouge">(a, b)</code>，则 <code class="language-plaintext highlighter-rouge">a</code> 设置 x 轴角度，<code class="language-plaintext highlighter-rouge">b</code> 设置 y 轴角度。</li>
+      <li>若为 <code class="language-plaintext highlighter-rouge">(a, b, c, d)</code>，则 <code class="language-plaintext highlighter-rouge">a</code>、<code class="language-plaintext highlighter-rouge">b</code> 设置 x 轴角度，<code class="language-plaintext highlighter-rouge">c</code>、<code class="language-plaintext highlighter-rouge">d</code> 设置 y 轴角度。</li>
+    </ul>
+  </li>
+  <li><code class="language-plaintext highlighter-rouge">resample</code>：重采样方式，有 <code class="language-plaintext highlighter-rouge">NEAREST</code>、<code class="language-plaintext highlighter-rouge">BILINEAR</code>、<code class="language-plaintext highlighter-rouge">BICUBIC</code> 三种。</li>
+</ul>
+
+<h4 id="transformsrandomerasing"><code class="language-plaintext highlighter-rouge">transforms.RandomErasing</code></h4>
+
+<p><strong>功能</strong>：对图像进行随机遮挡。</p>
+
+<div class="language-python highlighter-rouge"><div class="highlight"><pre class="highlight"><code><table class="rouge-table"><tbody><tr><td class="rouge-gutter gl"><pre class="lineno">1
+2
+3
+4
+5
+6
+7
+</pre></td><td class="rouge-code"><pre><span class="n">transforms</span><span class="p">.</span><span class="n">RandomErasing</span><span class="p">(</span>
+    <span class="n">p</span><span class="o">=</span><span class="mf">0.5</span><span class="p">,</span>
+    <span class="n">scale</span><span class="o">=</span><span class="p">(</span><span class="mf">0.02</span><span class="p">,</span> <span class="mf">0.33</span><span class="p">),</span>
+    <span class="n">ratio</span><span class="o">=</span><span class="p">(</span><span class="mf">0.3</span><span class="p">,</span> <span class="mi">3</span><span class="p">,</span><span class="mi">3</span><span class="p">),</span>
+    <span class="n">value</span><span class="o">=</span><span class="mi">0</span><span class="p">,</span>
+    <span class="n">inplace</span><span class="o">=</span><span class="bp">False</span>
+<span class="p">)</span>
+</pre></td></tr></tbody></table></code></pre></div></div>
+
+<p><strong>主要参数</strong>：</p>
+
+<ul>
+  <li><code class="language-plaintext highlighter-rouge">p</code>：概率值，执行该操作的概率。</li>
+  <li><code class="language-plaintext highlighter-rouge">scale</code>：遮挡区域的面积。</li>
+  <li><code class="language-plaintext highlighter-rouge">ratio</code>：遮挡区域长宽比。</li>
+  <li><code class="language-plaintext highlighter-rouge">value</code>：设置遮挡区域的像素值，<code class="language-plaintext highlighter-rouge">(R, G, B)</code> 或者 <code class="language-plaintext highlighter-rouge">(Gray)</code>。</li>
+</ul>
+
+<p><strong>参考文献</strong>：<em><a href="https://arxiv.org/abs/1708.04896">Random Erasing Data Augmentation</a></em></p>
+
+<p><img src="http://andy-blog.oss-cn-beijing.aliyuncs.com/blog/2020-12-12-080901.png" width="80%" /></p>
+
+<h4 id="transformslambda"><code class="language-plaintext highlighter-rouge">transforms.Lambda</code></h4>
+
+<p><strong>功能</strong>：用户自定义 lambda 方法。</p>
+
+<div class="language-python highlighter-rouge"><div class="highlight"><pre class="highlight"><code><table class="rouge-table"><tbody><tr><td class="rouge-gutter gl"><pre class="lineno">1
+</pre></td><td class="rouge-code"><pre><span class="n">transforms</span><span class="p">.</span><span class="n">Lambda</span><span class="p">(</span><span class="n">lambd</span><span class="p">)</span>
+</pre></td></tr></tbody></table></code></pre></div></div>
+
+<p><strong>主要参数</strong>：</p>
+
+<ul>
+  <li><code class="language-plaintext highlighter-rouge">lambd</code>：lambda 匿名函数，<code class="language-plaintext highlighter-rouge">lambda [arg1 [,arg2, ... , argn]]: expression</code>。</li>
+</ul>
+
+<p><strong>代码示例</strong>：</p>
+
+<div class="language-python highlighter-rouge"><div class="highlight"><pre class="highlight"><code><table class="rouge-table"><tbody><tr><td class="rouge-gutter gl"><pre class="lineno">1
+2
+</pre></td><td class="rouge-code"><pre><span class="n">transforms</span><span class="p">.</span><span class="n">TenCrop</span><span class="p">(</span><span class="mi">200</span><span class="p">,</span> <span class="n">vertical_flip</span><span class="o">=</span><span class="bp">True</span><span class="p">),</span>
+<span class="n">transforms</span><span class="p">.</span><span class="n">Lambda</span><span class="p">(</span><span class="k">lambda</span> <span class="n">crops</span><span class="p">:</span> <span class="n">torch</span><span class="p">.</span><span class="n">stack</span><span class="p">([</span><span class="n">transforms</span><span class="p">.</span><span class="n">Totensor</span><span class="p">()(</span><span class="n">crop</span><span class="p">)</span> <span class="k">for</span> <span class="n">crop</span> <span class="ow">in</span> <span class="n">crops</span><span class="p">]))</span>
+</pre></td></tr></tbody></table></code></pre></div></div>
+
+<h2 id="2-transforms-选择操作">2. transforms 选择操作</h2>
+
+<p>我们已经学习了 transforms 中对图像的各种增强方法，下面我们将介绍对 transforms 方法的三种选择操作，它们可以使 transforms 数据增强方法更加灵活、丰富、多样。</p>
+
+<h4 id="transformsrandomchoice"><code class="language-plaintext highlighter-rouge">transforms.RandomChoice</code></h4>
+
+<p><strong>功能</strong>：从一系列 transforms 方法中随机挑选一个。</p>
+
+<div class="language-python highlighter-rouge"><div class="highlight"><pre class="highlight"><code><table class="rouge-table"><tbody><tr><td class="rouge-gutter gl"><pre class="lineno">1
+</pre></td><td class="rouge-code"><pre><span class="n">transforms</span><span class="p">.</span><span class="n">RandomChoice</span><span class="p">([</span><span class="n">transforms1</span><span class="p">,</span> <span class="n">transforms2</span><span class="p">,</span> <span class="n">transforms3</span><span class="p">])</span>
+</pre></td></tr></tbody></table></code></pre></div></div>
+
+<h4 id="transformsrandomapply"><code class="language-plaintext highlighter-rouge">transforms.RandomApply</code></h4>
+
+<p><strong>功能</strong>：依据概率执行一组 transforms 操作。</p>
+
+<div class="language-python highlighter-rouge"><div class="highlight"><pre class="highlight"><code><table class="rouge-table"><tbody><tr><td class="rouge-gutter gl"><pre class="lineno">1
+</pre></td><td class="rouge-code"><pre><span class="n">transforms</span><span class="p">.</span><span class="n">RandomApply</span><span class="p">([</span><span class="n">transforms1</span><span class="p">,</span> <span class="n">transforms2</span><span class="p">,</span> <span class="n">transforms3</span><span class="p">],</span> <span class="n">p</span><span class="o">=</span><span class="mf">0.5</span><span class="p">)</span>
+</pre></td></tr></tbody></table></code></pre></div></div>
+
+<h4 id="transformsrandomorder"><code class="language-plaintext highlighter-rouge">transforms.RandomOrder</code></h4>
+
+<p><strong>功能</strong>：对一组 transforms 操作打乱顺序。</p>
+
+<div class="language-python highlighter-rouge"><div class="highlight"><pre class="highlight"><code><table class="rouge-table"><tbody><tr><td class="rouge-gutter gl"><pre class="lineno">1
+</pre></td><td class="rouge-code"><pre><span class="n">transforms</span><span class="p">.</span><span class="n">RandomOrder</span><span class="p">([</span><span class="n">transforms1</span><span class="p">,</span> <span class="n">transforms2</span><span class="p">,</span> <span class="n">transforms3</span><span class="p">])</span>
+</pre></td></tr></tbody></table></code></pre></div></div>
+
+<h2 id="3-自定义-transforms">3. 自定义 transforms</h2>
+
+<p>尽管 PyTorch 提供了许多 transforms 方法，然而在实际应用中，可能还需要根据项目需求来自定义一些 transforms 方法。下面我们将学习如何自定义 transforms 方法及其注意事项。</p>
+
+<p>为了自定义 transforms 方法，首先需要了解其运行机制，在之前介绍数据读取机制 <code class="language-plaintext highlighter-rouge">DataLoader</code> 和 <code class="language-plaintext highlighter-rouge">Dataset</code> 时，我们提到过 transforms 方法是在 <code class="language-plaintext highlighter-rouge">Compose</code> 类中的 <code class="language-plaintext highlighter-rouge">__call__</code> 函数中被调用的。我们对一组 transforms 方法进行 <code class="language-plaintext highlighter-rouge">for</code> 循环，每次按顺序挑选出我们的 transforms 方法 <code class="language-plaintext highlighter-rouge">t</code> 并执行它。可以看到，每个 transforms 方法仅接收一个参数，并返回一个参数。另外注意，由于是通过 <code class="language-plaintext highlighter-rouge">for</code> 循环调用，当前 transforms 方法的输出就是下一个 transforms 方法的输入。</p>
+
+<div class="language-python highlighter-rouge"><div class="highlight"><pre class="highlight"><code><table class="rouge-table"><tbody><tr><td class="rouge-gutter gl"><pre class="lineno">1
+2
+3
+4
+5
+</pre></td><td class="rouge-code"><pre><span class="k">class</span> <span class="nc">Compose</span><span class="p">(</span><span class="nb">object</span><span class="p">):</span>
+    <span class="k">def</span> <span class="nf">__call__</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">img</span><span class="p">):</span>
+        <span class="k">for</span> <span class="n">t</span> <span class="ow">in</span> <span class="bp">self</span><span class="p">.</span><span class="n">transforms</span><span class="p">:</span>
+            <span class="n">img</span> <span class="o">=</span> <span class="n">t</span><span class="p">(</span><span class="n">img</span><span class="p">)</span>
+        <span class="k">return</span> <span class="n">img</span>
+</pre></td></tr></tbody></table></code></pre></div></div>
+
+<p><strong>自定义 transforms 要素</strong>：</p>
+
+<ol>
+  <li>仅接收一个参数，返回一个参数。</li>
+  <li>注意上下游的输出与输入之间的数据类型必须要匹配。</li>
+</ol>
+
+<p>我们在设计 transforms 方法的时候可能需要多个参数，比如设置概率值、信噪比等，这些可以通过类方法实现。</p>
+
+<p><strong>通过类实现多参数传入</strong>：</p>
+
+<div class="language-python highlighter-rouge"><div class="highlight"><pre class="highlight"><code><table class="rouge-table"><tbody><tr><td class="rouge-gutter gl"><pre class="lineno">1
+2
+3
+4
+5
+6
+</pre></td><td class="rouge-code"><pre><span class="k">class</span> <span class="nc">YourTransforms</span><span class="p">(</span><span class="nb">object</span><span class="p">):</span>
+    <span class="k">def</span> <span class="nf">__init__</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="p">...):</span>
+        <span class="p">...</span>
+    <span class="k">def</span> <span class="nf">__call__</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">img</span><span class="p">):</span>
+        <span class="p">...</span>
+        <span class="k">return</span> <span class="n">img</span>
+</pre></td></tr></tbody></table></code></pre></div></div>
+
+<p>上面是一个自定义 transforms 方法的基本结构。首先是一个初始化 <code class="language-plaintext highlighter-rouge">__init__</code> 方法，在初始化的时候我们可以传入想要的参数，比如概率值、信噪比等等。然后，这个类中还必须有一个 <code class="language-plaintext highlighter-rouge">__call__</code> 函数，即这个类的实例可以被调用，<code class="language-plaintext highlighter-rouge">__call__</code> 函数只接受一个 <code class="language-plaintext highlighter-rouge">input</code> 参数，然后执行自定义的一些功能，最后返回一个 <code class="language-plaintext highlighter-rouge">output</code>，并且输入与输出的数据类型必须匹配，比如都是 <code class="language-plaintext highlighter-rouge">img</code>、<code class="language-plaintext highlighter-rouge">tensor</code>、<code class="language-plaintext highlighter-rouge">list</code>、<code class="language-plaintext highlighter-rouge">turple</code> 或者 <code class="language-plaintext highlighter-rouge">dict</code> 等。</p>
+
+<h4 id="例子椒盐噪声">例子：椒盐噪声</h4>
+
+<p><strong>椒盐噪声 (salt pepper noise)</strong> 又称为 <strong>脉冲噪声</strong>，是一种随机出现的白点或者黑点，白点称为 <strong>盐噪声</strong>，黑点称为 <strong>椒噪声</strong>。</p>
+
+<p><strong>信噪比 (Signal-Noise Rate, SNR)</strong> 是衡量噪声的比例，在图像中为图像像素的占比。</p>
+
+<p>下面是对一张小猫图像增加不同信噪比的椒盐噪声的效果图：</p>
+
+<p><img src="http://andy-blog.oss-cn-beijing.aliyuncs.com/blog/2020-12-12-WX20201212-170903%402x.png" width="90%" /></p>
+
+<p>从左到右信噪比依次为 0.9、0.7、0.5、0.3。可以看到，随着信噪比的减小，即信号的减少，图片丢失的信息越来越多。当信噪比为 0.9 时，我们还可以清晰地看到这是一张小猫的图像；而当信噪比降低到 0.3 时，我们已经很难辨别图像的真实内容了。</p>
+
+<p>下面，我们通过自定义 transforms 方法对图像添加椒盐噪声：</p>
+
+<div class="language-python highlighter-rouge"><div class="highlight"><pre class="highlight"><code><table class="rouge-table"><tbody><tr><td class="rouge-gutter gl"><pre class="lineno">1
+2
+3
+4
+5
+6
+7
+8
+9
+10
+11
+</pre></td><td class="rouge-code"><pre><span class="k">class</span> <span class="nc">AddPepperNoise</span><span class="p">(</span><span class="nb">object</span><span class="p">):</span>
+
+    <span class="k">def</span> <span class="nf">__init__</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">snr</span><span class="p">,</span> <span class="n">p</span><span class="p">):</span>
+        <span class="bp">self</span><span class="p">.</span><span class="n">snr</span> <span class="o">=</span> <span class="n">snr</span>  <span class="c1"># 设置信噪比
+</span>        <span class="bp">self</span><span class="p">.</span><span class="n">p</span> <span class="o">=</span> <span class="n">p</span>  <span class="c1"># 设置概率值
+</span>
+    <span class="k">def</span> <span class="nf">__call__</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">img</span><span class="p">):</span>
+
+        <span class="p">...</span>  <span class="c1"># 添加椒盐噪声具体实现过程
+</span>
+        <span class="k">return</span> <span class="n">img</span>
+</pre></td></tr></tbody></table></code></pre></div></div>
+
+<p><strong>Python 代码示例</strong>：</p>
+
+<div class="language-python highlighter-rouge"><div class="highlight"><pre class="highlight"><code><table class="rouge-table"><tbody><tr><td class="rouge-gutter gl"><pre class="lineno">1
+2
+3
+4
+5
+6
+7
+8
+9
+10
+11
+12
+13
+14
+15
+16
+17
+18
+19
+20
+21
+22
+23
+24
+25
+26
+27
+28
+29
+30
+31
+</pre></td><td class="rouge-code"><pre><span class="k">class</span> <span class="nc">AddPepperNoise</span><span class="p">(</span><span class="nb">object</span><span class="p">):</span>
+    <span class="s">"""增加椒盐噪声
+    Args:
+        snr （float）: 信噪比，Signal Noise Rate
+        p (float): 概率值，依概率执行该操作
+    """</span>
+
+    <span class="k">def</span> <span class="nf">__init__</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">snr</span><span class="p">,</span> <span class="n">p</span><span class="o">=</span><span class="mf">0.9</span><span class="p">):</span>
+        <span class="k">assert</span> <span class="nb">isinstance</span><span class="p">(</span><span class="n">snr</span><span class="p">,</span> <span class="nb">float</span><span class="p">)</span> <span class="ow">or</span> <span class="p">(</span><span class="nb">isinstance</span><span class="p">(</span><span class="n">p</span><span class="p">,</span> <span class="nb">float</span><span class="p">))</span>
+        <span class="bp">self</span><span class="p">.</span><span class="n">snr</span> <span class="o">=</span> <span class="n">snr</span>
+        <span class="bp">self</span><span class="p">.</span><span class="n">p</span> <span class="o">=</span> <span class="n">p</span>
+
+    <span class="k">def</span> <span class="nf">__call__</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">img</span><span class="p">):</span>
+        <span class="s">"""
+        Args:
+            img (PIL Image): PIL Image
+        Returns:
+            PIL Image: PIL image.
+        """</span>
+        <span class="k">if</span> <span class="n">random</span><span class="p">.</span><span class="n">uniform</span><span class="p">(</span><span class="mi">0</span><span class="p">,</span> <span class="mi">1</span><span class="p">)</span> <span class="o">&lt;</span> <span class="bp">self</span><span class="p">.</span><span class="n">p</span><span class="p">:</span>
+            <span class="n">img_</span> <span class="o">=</span> <span class="n">np</span><span class="p">.</span><span class="n">array</span><span class="p">(</span><span class="n">img</span><span class="p">).</span><span class="n">copy</span><span class="p">()</span>
+            <span class="n">h</span><span class="p">,</span> <span class="n">w</span><span class="p">,</span> <span class="n">c</span> <span class="o">=</span> <span class="n">img_</span><span class="p">.</span><span class="n">shape</span>
+            <span class="n">signal_pct</span> <span class="o">=</span> <span class="bp">self</span><span class="p">.</span><span class="n">snr</span>
+            <span class="n">noise_pct</span> <span class="o">=</span> <span class="p">(</span><span class="mi">1</span> <span class="o">-</span> <span class="bp">self</span><span class="p">.</span><span class="n">snr</span><span class="p">)</span>
+            <span class="n">mask</span> <span class="o">=</span> <span class="n">np</span><span class="p">.</span><span class="n">random</span><span class="p">.</span><span class="n">choice</span><span class="p">((</span><span class="mi">0</span><span class="p">,</span> <span class="mi">1</span><span class="p">,</span> <span class="mi">2</span><span class="p">),</span> <span class="n">size</span><span class="o">=</span><span class="p">(</span><span class="n">h</span><span class="p">,</span> <span class="n">w</span><span class="p">,</span> <span class="mi">1</span><span class="p">),</span> <span class="n">p</span><span class="o">=</span><span class="p">[</span><span class="n">signal_pct</span><span class="p">,</span> <span class="n">noise_pct</span><span class="o">/</span><span class="mf">2.</span><span class="p">,</span> <span class="n">noise_pct</span><span class="o">/</span><span class="mf">2.</span><span class="p">])</span>
+            <span class="n">mask</span> <span class="o">=</span> <span class="n">np</span><span class="p">.</span><span class="n">repeat</span><span class="p">(</span><span class="n">mask</span><span class="p">,</span> <span class="n">c</span><span class="p">,</span> <span class="n">axis</span><span class="o">=</span><span class="mi">2</span><span class="p">)</span>
+            <span class="n">img_</span><span class="p">[</span><span class="n">mask</span> <span class="o">==</span> <span class="mi">1</span><span class="p">]</span> <span class="o">=</span> <span class="mi">255</span>   <span class="c1"># 盐噪声
+</span>            <span class="n">img_</span><span class="p">[</span><span class="n">mask</span> <span class="o">==</span> <span class="mi">2</span><span class="p">]</span> <span class="o">=</span> <span class="mi">0</span>     <span class="c1"># 椒噪声
+</span>            <span class="k">return</span> <span class="n">Image</span><span class="p">.</span><span class="n">fromarray</span><span class="p">(</span><span class="n">img_</span><span class="p">.</span><span class="n">astype</span><span class="p">(</span><span class="s">'uint8'</span><span class="p">)).</span><span class="n">convert</span><span class="p">(</span><span class="s">'RGB'</span><span class="p">)</span>
+        <span class="k">else</span><span class="p">:</span>
+            <span class="k">return</span> <span class="n">img</span>
+</pre></td></tr></tbody></table></code></pre></div></div>
+
+<h2 id="4-transforms-方法总结">4. transforms 方法总结</h2>
+
+<p><strong>裁剪</strong>：</p>
+
+<ul>
+  <li><code class="language-plaintext highlighter-rouge">transforms.CenterCrop</code></li>
+  <li><code class="language-plaintext highlighter-rouge">transforms.RandomCrop</code></li>
+  <li><code class="language-plaintext highlighter-rouge">transforms.RandomResizedCrop</code></li>
+  <li><code class="language-plaintext highlighter-rouge">transforms.FiveCrop</code></li>
+  <li><code class="language-plaintext highlighter-rouge">transforms.TenCrop</code></li>
+</ul>
+
+<p><strong>翻转和旋转</strong>：</p>
+
+<ul>
+  <li><code class="language-plaintext highlighter-rouge">transforms.RandomHorizontalFlip</code></li>
+  <li><code class="language-plaintext highlighter-rouge">transforms.RandomVerticalFlip</code></li>
+  <li><code class="language-plaintext highlighter-rouge">transforms.RandomRotation</code></li>
+</ul>
+
+<p><strong>图像变换</strong>：</p>
+
+<ul>
+  <li><code class="language-plaintext highlighter-rouge">transforms.Pad</code></li>
+  <li><code class="language-plaintext highlighter-rouge">transforms.ColorJitter</code></li>
+  <li><code class="language-plaintext highlighter-rouge">transforms.Grayscale</code></li>
+  <li><code class="language-plaintext highlighter-rouge">transforms.RandomGrayscale</code></li>
+  <li><code class="language-plaintext highlighter-rouge">transforms.RandomAffine</code></li>
+  <li><code class="language-plaintext highlighter-rouge">transforms.LinearTransformation</code></li>
+  <li><code class="language-plaintext highlighter-rouge">transforms.RandomErasing</code></li>
+  <li><code class="language-plaintext highlighter-rouge">transforms.Lambda</code></li>
+  <li><code class="language-plaintext highlighter-rouge">transforms.Resize</code></li>
+  <li><code class="language-plaintext highlighter-rouge">transforms.Totensor</code></li>
+  <li><code class="language-plaintext highlighter-rouge">transforms.Normalize</code></li>
+</ul>
+
+<p><strong>transforms 操作</strong>：</p>
+
+<ul>
+  <li><code class="language-plaintext highlighter-rouge">transforms.RandomChoice</code></li>
+  <li><code class="language-plaintext highlighter-rouge">transforms.RandomApply</code></li>
+  <li><code class="language-plaintext highlighter-rouge">transforms.RandomOrder</code></li>
+</ul>
+
+<h2 id="5-数据增强实战应用">5. 数据增强实战应用</h2>
+
+<p><strong>原则</strong>：让训练集与测试集更接近。</p>
+
+<ul>
+  <li>空间位置：平移</li>
+  <li>色彩：灰度图，色彩抖动</li>
+  <li>形状：仿射变换</li>
+  <li>上下文场景：遮挡， 填充</li>
+  <li>……</li>
+</ul>
+
+<p><strong>例子</strong>：</p>
+
+<p><img src="http://andy-blog.oss-cn-beijing.aliyuncs.com/blog/2020-12-12-WX20201212-175853%402x.png" width="60%" /></p>
+
+<p>我们看到，在训练集中，猫基本都处于图片的中央位置，而在测试集中的猫处于偏左/右，或者在角落的情况。对于这种情况，我们可以在数据增强时改变训练集中的空间位置，例如平移，来逼近测试集的图片。</p>
+
+<p><strong>例子</strong>：</p>
+
+<p><img src="http://andy-blog.oss-cn-beijing.aliyuncs.com/blog/2020-12-12-WX20201212-180459%402x.png" width="60%" /></p>
+
+<p>我们看到，在训练集中，猫基本都是白色的，而在测试集中的猫是黑色的。对于这种情况，我们可以在数据增强时对训练集中的图片进行色彩抖动或者变换处理，来逼近测试集的图片。有时，训练集和测试集中猫的姿态差异很大，这种情况下，我们可以通过对训练集图片进行仿射变换处理来改变猫的形状。另外，还可以对比看下测试集中有无遮挡情况，可以对训练集进行遮挡、填充等相应处理。</p>
+
+<h4 id="人民币分类">人民币分类</h4>
+
+<p><img src="http://andy-blog.oss-cn-beijing.aliyuncs.com/blog/2020-12-12-WX20201212-181527%402x.png" width="90%" /></p>
+
+<p>在之前的人民币分类例子中，我们的数据集是面额为 1 元与 100 元的第四套人民币各 100 张，那么基于该数据集训练出的模型是否可以对第五套人民币的 100 元进行正确分类呢？</p>
+
+<p>直观上，第五套人民币的 100 元与第四套人民币的 1 元在颜色上比较相近，而在面额上与第四套人民币的 1 00 元一样。实验证明，如果不进行额外的数据增强，模型会将第五套人民币的 100 元识别为 1 元，这很可能是由于二者在颜色上的相似性导致的。当我们对图像进行灰度处理后，模型将可以对第五套人民币的 100 元进行正确分类。</p>
+
+<h2 id="6-总结">6. 总结</h2>
+
+<p>在本节课中，我们学习了数据预处理 transforms 的图像变换、操作方法，以及自定义 transforms。到目前为止，PyTorch 中的数据模块我们已经学习完毕，在下节课中，我们将会学习 PyTorch 中的模型模块。</p>
+
+<p>下节内容：模型创建步骤与 nn.Module</p>
+:ET

@@ -1,0 +1,22 @@
+I"8<h1 id="lecture-08-深度学习卷积神经网络和自动编码器">Lecture 08 深度学习、卷积神经网络和自动编码器</h1>
+<h2 id="主要内容">主要内容</h2>
+<ul>
+  <li><strong>深度学习</strong>
+    <ul>
+      <li>表示能力</li>
+      <li>深度模型与表示学习</li>
+    </ul>
+  </li>
+  <li><strong>卷积神经网络</strong>
+    <ul>
+      <li>卷积操作</li>
+      <li>基于卷积的网络的元素</li>
+    </ul>
+  </li>
+  <li><strong>自动编码器</strong>
+    <ul>
+      <li>学习有效的编码</li>
+    </ul>
+  </li>
+</ul>
+:ET

@@ -1,0 +1,18 @@
+I"�<h1 id="lecture-07-多层感知器和反向传播">Lecture 07 多层感知器和反向传播</h1>
+<h2 id="主要内容">主要内容</h2>
+<ul>
+  <li><strong>多层感知器</strong>
+    <ul>
+      <li>模型结构</li>
+      <li>通用近似定理</li>
+      <li>预训练</li>
+    </ul>
+  </li>
+  <li><strong>反向传播</strong>
+    <ul>
+      <li>按步推导</li>
+      <li>正则化注意事项</li>
+    </ul>
+  </li>
+</ul>
+:ET

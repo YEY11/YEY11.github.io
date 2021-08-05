@@ -1,0 +1,380 @@
+I"H5<h1 id="module-01-信任机器和数字伦理">Module 01 信任、机器和数字伦理</h1>
+
+<h2 id="1-为什么信任机器">1. 为什么信任机器？</h2>
+
+<p><strong>信任的目标</strong></p>
+
+<p><strong>人际信任 (interpersonal trust，即两个人类之间的信任)</strong> 的社会学视角：</p>
+
+<ul>
+  <li>通过获得对某人的信任，我们可以使生活更加 <em>可预测 (predictable)</em>，从而可以实现人与人之间的协作。</li>
+</ul>
+
+<p><strong>人类-机器 (human-machine)</strong> 的视角：</p>
+
+<ul>
+  <li>通过获得对机器的信任，我们可以更轻松地预测机器的决策（可预测性），从而实现人机协作。</li>
+</ul>
+
+<p>最终目标不是信任本身。信任是一种有助于实现可预测性和协作的机制。</p>
+
+<h2 id="2-什么是信任">2. 什么是信任？</h2>
+
+<h3 id="21-信任社会学的视角">2.1 信任：社会学的视角</h3>
+
+<p><img src="http://andy-blog.oss-cn-beijing.aliyuncs.com/blog/2021-06-20-WX20210620-221323%402x.png" width="50%" /></p>
+
+<center>人际信任 = 人类信任人类</center>
+
+<p><img src="http://andy-blog.oss-cn-beijing.aliyuncs.com/blog/2021-06-20-WX20210620-222019%402x.png" width="50%" /></p>
+
+<p>人类 A <em>信任 (trusts)</em> 人类 B，如果：</p>
+
+<ul>
+  <li>A 相信 B 将为 A 的 <em>最大利益 (best interests)</em> 行事；</li>
+  <li>A 接受 B 行动的 <em>脆弱性 (vulnerability)</em>；</li>
+</ul>
+
+<p>使得 A 可以：</p>
+
+<ul>
+  <li><em>预期 (anticipate)</em> B 行动的 <em>影响 (impact)</em>，</li>
+</ul>
+
+<p>因此，可以使社交生活更具 <em>可预测性 (predictable)</em>，从而实现 <em>协作 (collaboration)</em>。</p>
+
+<h3 id="22-人类-ai-信任">2.2 人类-AI 信任</h3>
+
+<p><img src="http://andy-blog.oss-cn-beijing.aliyuncs.com/blog/2021-06-20-WX20210620-222458%402x.png" width="44%" /></p>
+
+<center>人类-AI 信任 = 人类信任 AI</center>
+
+<p><img src="http://andy-blog.oss-cn-beijing.aliyuncs.com/blog/2021-06-20-Image%20from%20Trust-%20machines-%20and%20digital%20ethics-%20page%209.png" width="38%" /></p>
+
+<p>H（人类）信任 M（机器），如果：</p>
+
+<ul>
+  <li>H 相信 M 将为 H 的最大利益而行动；（信念）</li>
+  <li>H 接受 M 行动的脆弱性；（风险）</li>
+</ul>
+
+<p>使得 H 可以：</p>
+
+<ul>
+  <li>预测 M 的决策对 H 的影响（目标）</li>
+</ul>
+
+<p>因此，可以使交互过程更加可预测，从而实现协作。</p>
+
+<h3 id="23-不信任和缺乏信任">2.3 不信任和缺乏信任</h3>
+
+<p><strong>不信任（Distrust）：</strong></p>
+
+<ul>
+  <li>H <strong>相信</strong> M <strong>不会</strong> 为 H 的最大利益行事。</li>
+</ul>
+
+<p><strong>缺乏信任（Lack of trust）：</strong></p>
+
+<ul>
+  <li>H <strong>不相信</strong> M <strong>会</strong> 为 H 的最大利益而行动；或者</li>
+  <li>H 不接受 M 行动的脆弱性。</li>
+</ul>
+
+<p><strong>注意：</strong>信任的存在与 H 是否可以预期 M 行动对 H 的影响无关。</p>
+
+<h2 id="3-合同信任">3. 合同信任</h2>
+
+<h3 id="31-合同信任社会学视角">3.1 合同信任：社会学视角</h3>
+
+<p><img src="http://andy-blog.oss-cn-beijing.aliyuncs.com/blog/2021-06-20-WX20210620-223923%402x.png" width="65%" /></p>
+
+<center>合同信任 = 人类信任在某个特定场景下履行某种合同的人类</center>
+
+<p><img src="http://andy-blog.oss-cn-beijing.aliyuncs.com/blog/2021-06-20-WX20210620-222019%402x.png" width="50%" /></p>
+
+<p><strong>注意：</strong>合同可以是社会/规范性的，而不仅限于法律。</p>
+
+<h3 id="32-合同信任人类-ai-信任视角">3.2 合同信任：人类-AI 信任视角</h3>
+
+<p><img src="http://andy-blog.oss-cn-beijing.aliyuncs.com/blog/2021-06-20-WX20210620-224528%402x.png" width="65%" /></p>
+
+<center>合同信任 = 人类信任在某个特定场景下履行某种合同的某个 AI 模型</center>
+
+<p><img src="http://andy-blog.oss-cn-beijing.aliyuncs.com/blog/2021-06-20-WX20210620-224741%402x.png" width="80%" /></p>
+
+<h3 id="33-ai-中的合同">3.3 AI 中的合同</h3>
+
+<p><strong>值得信任的 AI 模型标准：</strong></p>
+
+<p><img src="http://andy-blog.oss-cn-beijing.aliyuncs.com/blog/2021-06-20-Trustworth%20AI%20model.png" width="100%" /></p>
+
+<ul>
+  <li>我相信该模型可以保护我的隐私</li>
+  <li>我相信该模型在部署中表现良好</li>
+  <li>我相信该模型对于数据中的小噪声具有鲁棒性</li>
+</ul>
+
+<h3 id="34-重构人类-ai-信任">3.4 重构人类-AI 信任</h3>
+
+<p><img src="http://andy-blog.oss-cn-beijing.aliyuncs.com/blog/2021-06-20-WX20210620-225543%402x.png" width="48%" /></p>
+
+<p>H（人类）信任 M（机器），如果：</p>
+
+<ul>
+  <li>H 相信 M 将履行符合 H 最佳利益的 <em>一组特定合同 (a particular set of contracts)</em>；</li>
+  <li>H 接受 M 行动的脆弱性；</li>
+</ul>
+
+<p>使得 H 可以：</p>
+
+<ul>
+  <li>预测 M 的决策对 H 的影响</li>
+</ul>
+
+<p>因此，可以使交互更加可预测，从而实现协作。</p>
+
+<h2 id="4-可信赖度与信任">4. 可信赖度与信任</h2>
+
+<h3 id="41-可信赖的-ai">4.1 可信赖的 AI</h3>
+
+<p>AI 模型/代理是 <strong>可信赖的 (trustworthy)</strong>，如果：</p>
+
+<ul>
+  <li>它可以履行其一系列合同</li>
+</ul>
+
+<p>注意，这与 <strong>信任 (trust)</strong> 无关：</p>
+
+<ul>
+  <li>信任并不意味着可信赖度</li>
+  <li>可信赖度并不意味着信任</li>
+</ul>
+
+<h3 id="42-正当信任与非正当信任">4.2 正当信任与非正当信任</h3>
+
+<p><img src="http://andy-blog.oss-cn-beijing.aliyuncs.com/blog/2021-06-20-WX20210620-230353%402x.png" width="60%" /></p>
+
+<p><strong>正当信任 (Warranted trust)</strong> = 信任是由 <em>可信赖度 (trustworthiness)</em> 引起的</p>
+
+<p><strong>非正当信任 (Unwarranted trust)</strong> = 信任是由其他原因引起的</p>
+
+<h3 id="43-非正当信任的例子">4.3 非正当信任的例子</h3>
+
+<p>用户仅仅由于某系统拥有高质量的 UI 界面而相信该系统具有高性能：</p>
+
+<p><img src="http://andy-blog.oss-cn-beijing.aliyuncs.com/blog/2021-06-20-WX20210620-230721%402x.png" width="60%" /></p>
+
+<p><strong>注意：</strong>如果信任可以通过操纵可信赖度来改变，那么它就是正当的。</p>
+
+<h3 id="44-信任的理想结果">4.4 信任的理想结果</h3>
+
+<p>我们应该追求：</p>
+
+<ul>
+  <li>正当信任</li>
+  <li>正当不信任</li>
+</ul>
+
+<p>我们应该避免：</p>
+
+<ul>
+  <li>非正当信任</li>
+  <li>非正当不信任</li>
+</ul>
+
+<p><strong>注意：</strong>非正当信任并不是由可信赖度引起的，因此我们不能依靠它来得到适当的预期。</p>
+
+<h2 id="5-内部信任和外部信任">5. 内部信任和外部信任</h2>
+
+<h3 id="51-内部信任和外部信任">5.1 内部信任和外部信任</h3>
+
+<p>是什么 <strong>导致</strong> 了正当信任？</p>
+
+<p><img src="http://andy-blog.oss-cn-beijing.aliyuncs.com/blog/2021-06-20-WX20210620-232300%402x.png" width="100%" /></p>
+
+<h3 id="52-正当内部信任">5.2 正当内部信任</h3>
+
+<p>是什么 <strong>导致</strong> 了正当内部信任？</p>
+
+<p><img src="http://andy-blog.oss-cn-beijing.aliyuncs.com/blog/2021-06-20-WX20210620-232720%402x.png" width="40%" /></p>
+
+<p><strong>例子：</strong></p>
+
+<ul>
+  <li>我们相信医学专家在解释导致其诊断的各种因素时会引用可敬的研究来证明他们的主张是正确的。</li>
+  <li>我们信任基于 AI 的信用评分模型，因为我们对每个决策的重要特征都有解释，并建议如何更改决策。</li>
+</ul>
+
+<h3 id="53-正当外部信任">5.3 正当外部信任</h3>
+
+<p>是什么 <strong>导致</strong> 了正当外部信任？</p>
+
+<p><img src="http://andy-blog.oss-cn-beijing.aliyuncs.com/blog/2021-06-20-WX20210620-233042%402x.png" width="40%" /></p>
+
+<p><strong>例子：</strong></p>
+
+<ul>
+  <li>我们信任医学专家，因为他们已经通过了几项有关其能力的检查，并且具有为我们做出正确诊断的悠久历史。</li>
+  <li>我们信任基于 AI 的信用评分模型，因为我们已经看到了测试数据的结果，并且已经在部署中很好地工作了。</li>
+</ul>
+
+<h3 id="54-增加-ai-中的信任">5.4 增加 AI 中的信任</h3>
+
+<center>内部 (Intrinsic) = 理解推理 (reasoning)</center>
+
+<center>外部 (Extrinsic) = 理解行为 (behaviour)</center>
+
+<p><strong>增加内部信任：</strong></p>
+
+<ul>
+  <li>可解释性 (Explainability)
+    <ul>
+      <li>简洁性 (Simplicity)</li>
+      <li>透明度 (Transparency)</li>
+      <li>解释 (Explanation)</li>
+    </ul>
+  </li>
+</ul>
+
+<p><strong>增加外部信任：</strong></p>
+
+<ul>
+  <li>通过代理 (By proxy)：可信赖的专家判断 AI 模型</li>
+  <li>部署后数据 (Post-deployment data)：在实际环境中部署后维护合同的示例</li>
+  <li>测试集 (Test sets)：以特定方式分发的示例</li>
+</ul>
+
+<h2 id="6-使用误用弃用滥用不正当的信任和不信任">6. 使用、误用、弃用、滥用：不正当的信任和不信任</h2>
+
+<h3 id="61-决定自动化使用的因素">6.1 决定自动化使用的因素</h3>
+
+<p>根据 Parasurman 和 Riley（1997）的研究，有三个主要因素决定某人是否会使用 AI /自动化：</p>
+
+<ul>
+  <li>精神工作量 (Mental workload)</li>
+  <li>认知开销 (Cognitive overhead)</li>
+  <li>信任 (Trust)</li>
+</ul>
+
+<h3 id="62-自动化的误用-misuse">6.2 自动化的误用 (Misuse)</h3>
+
+<p><strong>定义：</strong>在不应该使用自动化时使用自动化。
+<strong>原因：</strong>非正当信任，由于：</p>
+
+<ul>
+  <li>对自动化的过度依赖（例如精神工作量大）</li>
+  <li>启发式决策中的决策偏见</li>
+  <li>人为监控错误（例如，不清楚的错误消息，高误报率）</li>
+  <li>机器监控错误</li>
+  <li>自动化偏差</li>
+</ul>
+
+<p><strong>影响：</strong>由自动化引起且未被人察觉的问题（例如自满）。</p>
+
+<h3 id="63-自动化的弃用-disuse">6.3 自动化的弃用 (Disuse)</h3>
+
+<p><strong>定义：</strong>应该使用自动化时不使用自动化。</p>
+
+<p><strong>原因：</strong>非正当的不信任，由于：</p>
+
+<ul>
+  <li>人为监控错误（误报率低）</li>
+  <li>机器监控错误</li>
+  <li>人为偏见</li>
+</ul>
+
+<p><strong>影响：</strong>禁用/忽略警报，导致人为检测不到的问题。</p>
+
+<h3 id="64-自动化的滥用-abuse">6.4 自动化的滥用 (Abuse)</h3>
+
+<p><strong>定义：</strong>在不应该使用自动化时进行部署（例如，设计时没有考虑到操作者的情况）。</p>
+
+<p><strong>原因：</strong>来自 <strong>设计者</strong> 的非正当信任，由于：</p>
+
+<ul>
+  <li>对人类操作员的不信任</li>
+  <li>自动化偏差</li>
+  <li>傲慢</li>
+</ul>
+
+<p><strong>影响：</strong>人机界面不匹配，操作员缺乏态势感知。</p>
+
+<h3 id="65-例子therac-25">6.5 例子：Therac-25</h3>
+
+<p><strong>Therac-25</strong> 是一台放射治疗机，由软件控制</p>
+
+<p><strong>结果：</strong>Therac-25 给六名患者带来了过量的辐射，导致其死亡。</p>
+
+<p><strong>原因：</strong>软件错误，来自：</p>
+
+<ul>
+  <li>误用：放射线师的不正当信任？ 错误代码对操作员毫无意义：例如 “故障16”</li>
+  <li>弃用 (?)：已从 Therac 早期版本中删除但未由软件代替的硬件互锁。</li>
+  <li>滥用：设计 Therac-25 的过程中，几乎没有放射线师的参与； 当烧伤和早期死亡被报道时，来自设计师的狂妄自大。</li>
+</ul>
+
+<h2 id="7-ai-中的信任和伦理">7. AI 中的信任和伦理</h2>
+
+<h3 id="71-信任和伦理">7.1 信任和伦理</h3>
+
+<center>信任 ≠ 伦理，但是二者是密不可分的。</center>
+
+<h3 id="72-用户信任">7.2 用户信任</h3>
+
+<p><img src="http://andy-blog.oss-cn-beijing.aliyuncs.com/blog/2021-06-20-WX20210621-001252%402x.png" width="55%" /></p>
+
+<h3 id="73-ai-中的伦理问题">7.3 AI 中的伦理问题</h3>
+
+<p><img src="http://andy-blog.oss-cn-beijing.aliyuncs.com/blog/2021-06-20-WX20210621-001511%402x.png" width="90%" /></p>
+
+<h3 id="74-信任机器和伦理总结">7.4 信任、机器和伦理：总结</h3>
+
+<p><strong>信任：</strong></p>
+
+<ul>
+  <li>
+    <p>相信行事“符合我的利益”</p>
+
+    <p>接受风险</p>
+
+    <p>预测决策的影响</p>
+  </li>
+  <li>
+    <p>合同信任</p>
+  </li>
+  <li>
+    <p>正当和非正当的信任和不信任</p>
+  </li>
+  <li>
+    <p>信任的原因</p>
+
+    <ul>
+      <li>
+        <p>内部信任（推理）</p>
+      </li>
+      <li>
+        <p>外部信任（行为）</p>
+      </li>
+    </ul>
+  </li>
+</ul>
+
+<p><strong>关键要点：</strong></p>
+
+<ul>
+  <li>
+    <p>明确哪些合同适用于您的模型/系统</p>
+  </li>
+  <li>信任只有在正当的情况下才是（道德上）可取的</li>
+  <li>不信任如果是正当的，那么它就是可取的</li>
+  <li>不正确校准的信任会导致现实问题</li>
+  <li>人工智能中的伦理问题源于人与人之间的利益不同，因此信任程度不同</li>
+</ul>
+
+<h2 id="8-推荐阅读">8. 推荐阅读</h2>
+<ul>
+  <li><a href="http://andy-blog.oss-cn-beijing.aliyuncs.com/blog/2021-08-02-Alon2021.pdf"><em>Formalizing Trust in Artificial Intelligence: Prerequisites, Causes and Goals of Human Trust in AI.</em></a></li>
+  <li><a href="http://andy-blog.oss-cn-beijing.aliyuncs.com/blog/2021-08-02-parasurman-humans-and-automation-use-misuse-disuse-abuse.pdf"><em>Human and Automation: Use, Misuse, Disuse, Abuse.</em></a></li>
+</ul>
+:ET
