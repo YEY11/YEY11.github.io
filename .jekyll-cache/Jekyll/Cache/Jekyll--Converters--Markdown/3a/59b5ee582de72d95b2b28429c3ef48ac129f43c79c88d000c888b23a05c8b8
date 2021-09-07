@@ -1,0 +1,251 @@
+I"!F<h1 id="华为-0902-机试复盘">华为 09.02 机试复盘</h1>
+
+<h2 id="1-缓存转发数据包统计">1. 缓存转发数据包统计</h2>
+
+<h3 id="题目描述">题目描述</h3>
+
+<p><strong>数据包转发线路结构：</strong></p>
+
+<ul>
+  <li>$k$ 个节点组成的队列</li>
+  <li>
+    <p>每个节点转发能力为 $m$，缓存能力为 $n$</p>
+  </li>
+  <li>节点可能由于故障直接跳过，但不会有两个连续故障节点</li>
+</ul>
+
+<p><strong>两轮操作：</strong></p>
+
+<ol>
+  <li>向此队列发送 $a$ 个数据包让其转发；</li>
+  <li>继续转发之前缓存的数据包（如果第二轮仍有数据包缓存则丢弃)。</li>
+</ol>
+
+<p><strong>问题：</strong></p>
+
+<ul>
+  <li>两轮操作后可能收到的<strong>最少数据包总数</strong>（如果第二轮仍有数据包缓存则丢弃)</li>
+  <li>$1 &lt;= k &lt;= 40 \; ;\quad 1 &lt;= m,n &lt;= 1000 \; ;\quad 1 &lt;= a &lt;= 1000$</li>
+</ul>
+
+<p><strong>输入描述：</strong></p>
+
+<ul>
+  <li>第 1 行：队列长度 $k$</li>
+  <li>第 2 行：$k$ 个节点转发能力数组，以空格分隔；每个节点的转发能力和缓存能力 $m,n$ 以逗号分隔</li>
+  <li>第 3 行：数据包个数 $a$</li>
+</ul>
+
+<h3 id="解题思路">解题思路</h3>
+
+<p>总体就是用 dp 表储存到达某个节点处两次传递的状态：</p>
+
+<ul>
+  <li>第一次的传递数量</li>
+  <li>第二次的传递数量</li>
+</ul>
+
+<p><code class="language-plaintext highlighter-rouge">dp[i]</code> 表示 <code class="language-plaintext highlighter-rouge">[第一次传递时从节点i发送的包数量, 第二次传递时从i发送的包数量]</code>，初始发送的数据包数量 $a$ 可以视为来自 0 号节点（$m_0 = \infty, n_0=0$），即 <code class="language-plaintext highlighter-rouge">dp[0]=[a, 0]</code>。</p>
+
+<p>由于节点可能发生故障导致被跳过，并且不存在连续两个节点故障，因此节点 $i$ 收到的数据包可能来自：</p>
+
+<ul>
+  <li>节点 $i-1$</li>
+  <li>或者节点 $i-2$（即节点 $i-1$ 坏掉了）</li>
+</ul>
+
+<p>因此，我们可以取上面两种情况中使得节点 $i$ 能够传递的数据包总数最少的那种情况作为 $i$ 的状态。</p>
+
+<p>然后就是理清楚如何从 $i-1$ 或者 $i-2$ 的状态得到 $i$（通过 <code class="language-plaintext highlighter-rouge">cal()</code> 函数完成）。</p>
+
+<p>只需要一次遍历，最后输出第 $k-1$ 和第 $k$ 个节点中转发包总数较小的那个即可（因为可能存在最后一个节点 $k$ 出现故障的情况）。</p>
+
+<div class="language-python highlighter-rouge"><div class="highlight"><pre class="highlight"><code><table class="rouge-table"><tbody><tr><td class="rouge-gutter gl"><pre class="lineno">1
+2
+3
+4
+5
+6
+7
+8
+9
+10
+11
+12
+13
+14
+15
+16
+17
+18
+19
+20
+21
+22
+23
+24
+25
+26
+27
+28
+29
+30
+31
+32
+33
+34
+35
+36
+37
+38
+39
+40
+</pre></td><td class="rouge-code"><pre><span class="c1"># 从控制台读取输入数据
+</span><span class="n">k</span> <span class="o">=</span> <span class="nb">int</span><span class="p">(</span><span class="nb">input</span><span class="p">())</span>  <span class="c1"># 节点数k
+</span><span class="n">nodes</span> <span class="o">=</span> <span class="p">[[</span><span class="nb">int</span><span class="p">(</span><span class="n">w</span><span class="p">)</span> <span class="k">for</span> <span class="n">w</span> <span class="ow">in</span> <span class="n">s</span><span class="p">.</span><span class="n">split</span><span class="p">(</span><span class="s">','</span><span class="p">)]</span> <span class="k">for</span> <span class="n">s</span> <span class="ow">in</span> <span class="nb">input</span><span class="p">().</span><span class="n">split</span><span class="p">(</span><span class="s">' '</span><span class="p">)]</span>  <span class="c1"># 各节点的转发能力m和缓存能力n
+</span><span class="n">a</span> <span class="o">=</span> <span class="nb">int</span><span class="p">(</span><span class="nb">input</span><span class="p">())</span>  <span class="c1"># 初始发包总数a
+</span>
+
+<span class="c1"># 动态规划主函数
+</span><span class="k">def</span> <span class="nf">main</span><span class="p">(</span><span class="n">k</span><span class="p">,</span> <span class="n">nodes</span><span class="p">,</span> <span class="n">a</span><span class="p">):</span>
+    <span class="s">"""
+    k: int, 节点数
+    nodes: list, 各节点的转发能力m和缓存能力n
+    a: int, 初始发包总数
+    return: int, 两轮操作后可能收到的最少数据包总数
+    """</span>
+    <span class="k">if</span> <span class="n">k</span> <span class="o">&lt;</span> <span class="mi">1</span><span class="p">:</span>
+        <span class="k">return</span> <span class="n">a</span>
+    <span class="n">dp</span> <span class="o">=</span> <span class="p">[[</span><span class="n">a</span><span class="p">,</span> <span class="mi">0</span><span class="p">]]</span>  <span class="c1"># 初始化dp表，将初始数据包来源视为0号节点，初始发包数量为a
+</span>    <span class="n">dp</span><span class="p">.</span><span class="n">append</span><span class="p">(</span><span class="n">cal</span><span class="p">(</span><span class="n">dp</span><span class="p">[</span><span class="mi">0</span><span class="p">],</span> <span class="n">nodes</span><span class="p">[</span><span class="mi">0</span><span class="p">]))</span>  <span class="c1"># 通过dp[0]计算dp[1]
+</span>    <span class="k">for</span> <span class="n">i</span> <span class="ow">in</span> <span class="nb">range</span><span class="p">(</span><span class="mi">2</span><span class="p">,</span> <span class="n">k</span> <span class="o">+</span> <span class="mi">1</span><span class="p">):</span>
+        <span class="n">res1</span> <span class="o">=</span> <span class="n">cal</span><span class="p">(</span><span class="n">dp</span><span class="p">[</span><span class="n">i</span><span class="o">-</span><span class="mi">1</span><span class="p">],</span> <span class="n">nodes</span><span class="p">[</span><span class="n">i</span><span class="o">-</span><span class="mi">1</span><span class="p">])</span>  <span class="c1"># 情况1：节点i接收的数据包来自节点i-1（节点i-1正常工作）
+</span>        <span class="n">res2</span> <span class="o">=</span> <span class="n">cal</span><span class="p">(</span><span class="n">dp</span><span class="p">[</span><span class="n">i</span><span class="o">-</span><span class="mi">2</span><span class="p">],</span> <span class="n">nodes</span><span class="p">[</span><span class="n">i</span><span class="o">-</span><span class="mi">1</span><span class="p">])</span>  <span class="c1"># 情况2：节点i接收的数据包来自节点i-2（节点i-1出现故障）
+</span>        <span class="k">if</span> <span class="n">res1</span><span class="p">[</span><span class="mi">0</span><span class="p">]</span> <span class="o">+</span> <span class="n">res1</span><span class="p">[</span><span class="mi">1</span><span class="p">]</span> <span class="o">&lt;=</span> <span class="n">res2</span><span class="p">[</span><span class="mi">0</span><span class="p">]</span> <span class="o">+</span> <span class="n">res2</span><span class="p">[</span><span class="mi">1</span><span class="p">]:</span>  <span class="c1"># 状态转移，选择当前节点转发包总数最少的情况
+</span>            <span class="n">dp</span><span class="p">.</span><span class="n">append</span><span class="p">(</span><span class="n">res1</span><span class="p">)</span>
+        <span class="k">else</span><span class="p">:</span>
+            <span class="n">dp</span><span class="p">.</span><span class="n">append</span><span class="p">(</span><span class="n">res2</span><span class="p">)</span>
+    <span class="k">return</span> <span class="nb">min</span><span class="p">(</span><span class="n">dp</span><span class="p">[</span><span class="n">k</span><span class="p">][</span><span class="mi">0</span><span class="p">]</span> <span class="o">+</span> <span class="n">dp</span><span class="p">[</span><span class="n">k</span><span class="p">][</span><span class="mi">1</span><span class="p">],</span> <span class="n">dp</span><span class="p">[</span><span class="n">k</span><span class="o">-</span><span class="mi">1</span><span class="p">][</span><span class="mi">0</span><span class="p">]</span> <span class="o">+</span> <span class="n">dp</span><span class="p">[</span><span class="n">k</span><span class="o">-</span><span class="mi">1</span><span class="p">][</span><span class="mi">1</span><span class="p">])</span>  <span class="c1"># 比较最后两个节点发包总数（最后一个节点可能出现故障）
+</span>
+
+<span class="c1"># 通过dp[i-1]或者dp[i-2]的状态来计算dp[i]的可能值
+</span><span class="k">def</span> <span class="nf">cal</span><span class="p">(</span><span class="n">pre</span><span class="p">,</span> <span class="n">cap</span><span class="p">):</span>
+    <span class="s">"""
+    pre: list, 第i-1或者i-2个节点处两次传递发出的数量, 即 [第一次发包数，第二次发包数]
+    cap: list, 节点i的传输能力，即 [节点i的转发能力，节点i的缓存能力]
+    return: list, 节点i两轮操作发送的包数量，即 [节点i第一轮发包数量，节点i第二轮发包数量]
+    """</span>
+    <span class="n">send1</span> <span class="o">=</span> <span class="nb">min</span><span class="p">(</span><span class="n">pre</span><span class="p">[</span><span class="mi">0</span><span class="p">],</span> <span class="n">cap</span><span class="p">[</span><span class="mi">0</span><span class="p">])</span>  <span class="c1">#第一次传递时从i发送的包数量
+</span>    <span class="n">send2</span> <span class="o">=</span> <span class="nb">min</span><span class="p">(</span><span class="nb">max</span><span class="p">(</span><span class="n">pre</span><span class="p">[</span><span class="mi">0</span><span class="p">]</span> <span class="o">-</span> <span class="n">cap</span><span class="p">[</span><span class="mi">0</span><span class="p">],</span> <span class="mi">0</span><span class="p">)</span> <span class="o">+</span> <span class="n">pre</span><span class="p">[</span><span class="mi">1</span><span class="p">],</span> <span class="n">cap</span><span class="p">[</span><span class="mi">1</span><span class="p">]</span> <span class="o">+</span> <span class="n">pre</span><span class="p">[</span><span class="mi">1</span><span class="p">],</span> <span class="n">cap</span><span class="p">[</span><span class="mi">0</span><span class="p">])</span>  <span class="c1">#第二次传递时从i发送的包数量
+</span>    <span class="k">return</span> <span class="p">[</span><span class="n">send1</span><span class="p">,</span> <span class="n">send2</span><span class="p">]</span>  <span class="c1"># 返回节点i两轮的发包数量
+</span>
+<span class="k">print</span><span class="p">(</span><span class="n">main</span><span class="p">(</span><span class="n">k</span><span class="p">,</span> <span class="n">nodes</span><span class="p">,</span> <span class="n">a</span><span class="p">))</span>
+</pre></td></tr></tbody></table></code></pre></div></div>
+
+<h2 id="2-查找知识图谱中的实例知识">2. 查找知识图谱中的实例知识</h2>
+
+<h3 id="题目描述-1">题目描述</h3>
+
+<p><strong>知识图谱中存在的关系：</strong></p>
+
+<ul>
+  <li><strong>概念：</strong>包括父概念及其子概念，通过 <code class="language-plaintext highlighter-rouge">subClassOf</code> 关系关联，父子概念可以有多个层级</li>
+  <li><strong>实例：</strong>仅和概念之间通过 <code class="language-plaintext highlighter-rouge">instanceOf</code> 关系关联</li>
+  <li><strong>关系：</strong>以三元组的形式表示，三元组是一个以空格为成员间分隔符的字符串。例如：
+    <ul>
+      <li><code class="language-plaintext highlighter-rouge">student subClassOf person</code> 表示 <code class="language-plaintext highlighter-rouge">student</code> 是 <code class="language-plaintext highlighter-rouge">person</code> 的子概念</li>
+      <li><code class="language-plaintext highlighter-rouge">apple instanceOf fruit</code> 表示 <code class="language-plaintext highlighter-rouge">apple</code> 是概念 <code class="language-plaintext highlighter-rouge">fruit</code> 的实例</li>
+    </ul>
+  </li>
+</ul>
+
+<p><strong>给定的图谱满足以下限制：</strong></p>
+
+<ul>
+  <li>有向图中不存在环路</li>
+  <li>所有点和关系的定义对大小写敏感</li>
+</ul>
+
+<p><strong>问题：</strong></p>
+
+<ul>
+  <li>给定一个知识图谱，编写一个方法，根据一个概念查找其所有的实例</li>
+  <li>如果一个概念拥有子概念，那么返回的结果需要包含其所有子概念的实例</li>
+  <li>输出结果中的字符串按照字典升序排列</li>
+  <li>如果输入的概念没有实例，则返回字符串 <code class="language-plaintext highlighter-rouge">"empty"</code></li>
+</ul>
+
+<p><strong>输入描述：</strong></p>
+
+<ul>
+  <li>第 1 行：图谱中关系的数量 $n$，其中 $1 \le n \le 10000$</li>
+  <li>第 2 到 $n+1$ 行：图谱中的关系，每一行是一个关系三元组 <code class="language-plaintext highlighter-rouge">(entity1, relationship, entity2)</code></li>
+  <li>第 $n+2$ 行：待查找的元节点，即目标概念</li>
+</ul>
+
+<h3 id="解题思路-1">解题思路</h3>
+
+<p>递归查找：</p>
+
+<ul>
+  <li>遇到目标概念的实例就添加进结果集</li>
+  <li>否则就将其子概念视为新的目标概念，递归调用函数查找其对应的实例</li>
+</ul>
+
+<div class="language-python highlighter-rouge"><div class="highlight"><pre class="highlight"><code><table class="rouge-table"><tbody><tr><td class="rouge-gutter gl"><pre class="lineno">1
+2
+3
+4
+5
+6
+7
+8
+9
+10
+11
+12
+13
+14
+15
+16
+17
+18
+19
+20
+21
+22
+23
+24
+25
+26
+27
+</pre></td><td class="rouge-code"><pre><span class="c1"># 从控制台读取输入数据
+</span><span class="n">n</span> <span class="o">=</span> <span class="nb">int</span><span class="p">(</span><span class="nb">input</span><span class="p">())</span>  <span class="c1"># 图谱中的关系数n
+</span><span class="n">relations</span> <span class="o">=</span> <span class="p">[</span><span class="nb">input</span><span class="p">().</span><span class="n">split</span><span class="p">()</span> <span class="k">for</span> <span class="n">i</span> <span class="ow">in</span> <span class="nb">range</span><span class="p">(</span><span class="n">n</span><span class="p">)]</span>  <span class="c1"># 图谱中的各关系三元组
+</span><span class="n">k</span> <span class="o">=</span> <span class="nb">input</span><span class="p">()</span>  <span class="c1"># 目标概念
+</span>
+
+<span class="n">res</span> <span class="o">=</span> <span class="nb">set</span><span class="p">()</span> <span class="c1"># 结果集合
+</span>
+
+<span class="c1"># 递归函数，获取目标概念（及其子概念）的所有实例
+</span><span class="k">def</span> <span class="nf">get_ins</span><span class="p">(</span><span class="n">n</span><span class="p">,</span> <span class="n">k</span><span class="p">,</span> <span class="n">relations</span><span class="p">):</span>
+    <span class="s">"""
+    n: int, 图谱中的关系数
+    k: str, 目标概念
+    relations: list, 图谱中各关系三元组构成的列表
+    """</span>
+    <span class="k">for</span> <span class="n">i</span> <span class="ow">in</span> <span class="nb">range</span><span class="p">(</span><span class="n">n</span><span class="p">):</span>
+        <span class="k">if</span> <span class="n">relations</span><span class="p">[</span><span class="n">i</span><span class="p">][</span><span class="mi">2</span><span class="p">]</span> <span class="o">==</span> <span class="n">k</span><span class="p">:</span>  <span class="c1"># 查找目标概念对应的子概念或实例
+</span>            <span class="k">if</span> <span class="n">relations</span><span class="p">[</span><span class="n">i</span><span class="p">][</span><span class="mi">1</span><span class="p">]</span> <span class="o">==</span> <span class="s">'instanceOf'</span><span class="p">:</span>  <span class="c1"># 如果是目标概念的实例，则加入结果集合中
+</span>                <span class="n">res</span><span class="p">.</span><span class="n">add</span><span class="p">(</span><span class="n">relations</span><span class="p">[</span><span class="n">i</span><span class="p">][</span><span class="mi">0</span><span class="p">])</span>
+            <span class="k">else</span><span class="p">:</span>  <span class="c1"># 如果是目标概念的子概念，则将子概念视为新的目标概念，递归调用该函数查找其对应的实例
+</span>                <span class="n">new_k</span> <span class="o">=</span> <span class="n">relations</span><span class="p">[</span><span class="n">i</span><span class="p">][</span><span class="mi">0</span><span class="p">]</span>
+                <span class="n">get_ins</span><span class="p">(</span><span class="n">n</span><span class="p">,</span> <span class="n">new_k</span><span class="p">,</span> <span class="n">relations</span><span class="p">)</span>
+
+
+<span class="n">get_ins</span><span class="p">(</span><span class="n">n</span><span class="p">,</span> <span class="n">k</span><span class="p">,</span> <span class="n">relations</span><span class="p">)</span>
+<span class="k">print</span><span class="p">(</span><span class="s">' '</span><span class="p">.</span><span class="n">join</span><span class="p">(</span><span class="nb">sorted</span><span class="p">(</span><span class="nb">list</span><span class="p">(</span><span class="n">res</span><span class="p">))))</span>  <span class="c1"># 排序后打印结果
+</span></pre></td></tr></tbody></table></code></pre></div></div>
+
+:ET
