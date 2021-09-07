@@ -1,0 +1,3 @@
+I"�<h2 id="引言">引言</h2>
+<p>在基于 <a href="https://github.com/Huxpro/huxpro.github.io/blob/master/README.zh.md">Hux</a> 和 <a href="https://www.jianshu.com/p/e68fba58f75c">BYQiu</a> 的教程搭建完 gitpages 博客后，为了提高效率，我们可以利用 <code class="language-plaintext highlighter-rouge">jekyll</code> 在本地调试博客，过程中遇到了一些问题，在此记录分享解决方案。</p>
+:ET

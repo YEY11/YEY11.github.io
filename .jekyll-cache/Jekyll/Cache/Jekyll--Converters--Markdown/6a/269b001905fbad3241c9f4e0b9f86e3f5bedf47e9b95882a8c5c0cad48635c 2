@@ -1,0 +1,690 @@
+I"�m<h1 id="lecture-01-课程概览与介绍">Lecture 01 课程概览与介绍</h1>
+
+<h2 id="1-课程介绍">1. 课程介绍</h2>
+<h3 id="11-预备知识">1.1 预备知识</h3>
+<ul>
+  <li>本课程要求先修以下两门课程中的任意一门：
+    <ul>
+      <li><a href="https://handbook.unimelb.edu.au/2020/subjects/comp90049">COMP90049 机器学习导论</a></li>
+      <li><a href="https://handbook.unimelb.edu.au/2020/subjects/comp30027">COMP30027 机器学习</a></li>
+    </ul>
+  </li>
+  <li>阅读材料：<a href="https://canvas.lms.unimelb.edu.au/courses/17601/files/2586500/download"><strong><em>Natural Language Processing</em></strong></a> by Jacob Eisenstein
+    <ul>
+      <li>Probability: <a href="https://andy-tk.top/2020/02/28/COMP90042-00-01/">Appendix A</a></li>
+      <li>Optimisation: <a href="https://andy-tk.top/2020/02/28/COMP90042-00-02/">Appendix B</a></li>
+      <li>Linear classifiers: <a href="https://andy-tk.top/2020/02/29/COMP90042-00-03/">Chapter 2</a></li>
+      <li>Neural networks: Chapter 3</li>
+    </ul>
+  </li>
+  <li>Python 编程经验</li>
+  <li>不需要具备语言学或者高等数学知识</li>
+  <li>注意：本课程不属于 “普通” 计算机科学
+    <ul>
+      <li>涉及一些基本 <span style="color:red">语言学</span>，例如：句法和词法</li>
+      <li>需要 <span style="color:red">数学</span>，例如：代数、优化、线性代数、动态规划</li>
+    </ul>
+  </li>
+</ul>
+
+<h3 id="12-期望与结果">1.2 期望与结果</h3>
+<ul>
+  <li>期望
+    <ul>
+      <li>提高 Python 技能</li>
+      <li>保持阅读进度</li>
+      <li>课堂参与</li>
+    </ul>
+  </li>
+  <li>结果
+    <ul>
+      <li>从实践中熟悉各种文本分析技术</li>
+      <li>了解这些工具背后的理论模型</li>
+      <li>阅读相关研究文献的能力</li>
+    </ul>
+  </li>
+</ul>
+
+<h3 id="13-作业与考试">1.3 作业与考试</h3>
+<ul>
+  <li><strong>作业</strong>（占总成绩的 20%，每个作业占 6-7%）
+    <ul>
+      <li>基于研讨会的小型作业</li>
+      <li>每隔几周发布一次，每个作业会给 2-3 周时间完成</li>
+    </ul>
+  </li>
+  <li><strong>项目</strong>（占总成绩的 30%）
+    <ul>
+      <li>发布日期：复活节前后</li>
+      <li>截止日期：学期末</li>
+    </ul>
+  </li>
+  <li><strong>考试</strong>（占总成绩的 50%）
+    <ul>
+      <li>两个小时，闭卷考试</li>
+      <li>内容涉及讲义、研讨会和规定的阅读材料</li>
+    </ul>
+  </li>
+  <li><strong><span style="color:red">通过标准</span></strong>：考试分数 &gt; 50% ；作业 + 项目 &gt; 50%</li>
+</ul>
+
+<h3 id="14-教学人员">1.4 教学人员</h3>
+<ul>
+  <li><strong>讲师</strong>：Jey Han Lau</li>
+  <li><strong>主管助教</strong>：Zenan Zhai</li>
+  <li><strong>助教</strong>：
+    <ul>
+      <li>Aili Shen</li>
+      <li>Biaoyan Fang</li>
+      <li>Dalin Wang</li>
+      <li>Fajri</li>
+      <li>Haonan Li</li>
+      <li>Jun Wang</li>
+      <li>Nitika Mathur</li>
+    </ul>
+  </li>
+</ul>
+
+<h3 id="15-推荐教材"><a name="res1"><span style="color:#404040">1.5 推荐教材</span></a></h3>
+<ul>
+  <li>教材：
+    <ul>
+      <li><strong>JM3:</strong> <em>Jurafsky and Martin; <a href="https://web.stanford.edu/~jurafsky/slp3/">Speech and Language Processing</a></em>, 3<sup>rd</sup> ed., Prentice Hall. draft</li>
+      <li><strong>E18:</strong> <em>Eisenstein; <a href="https://canvas.lms.unimelb.edu.au/courses/17601/files/2586500/download">Natural Language Processing</a></em>, Draft 15/10/18</li>
+      <li><strong>G15:</strong> <em>Goldberg; <a href="https://canvas.lms.unimelb.edu.au/courses/17601/files/2586501/download">A Primer on Neural Network Models for Natural Language Processing</a></em></li>
+    </ul>
+  </li>
+  <li>推荐 Python 学习资料：
+    <ul>
+      <li><em>Steven Bird, Ewan Klein and Edward Loper; <a href="http://www.nltk.org/book/">Natural Language Processing with Python</a></em>, O’Reilly, 2009</li>
+    </ul>
+  </li>
+  <li>阅读材料的链接和课程讲义将发布在 Canvas</li>
+</ul>
+
+<h3 id="16-进度安排">1.6 进度安排</h3>
+
+<table>
+  <thead>
+    <tr>
+      <th style="text-align: center">日期</th>
+      <th style="text-align: center">教学周</th>
+      <th style="text-align: center">课程</th>
+      <th style="text-align: center">名称</th>
+      <th style="text-align: center">主题</th>
+      <th style="text-align: center">阅读材料</th>
+    </tr>
+  </thead>
+  <tbody>
+    <tr>
+      <td style="text-align: center">3月2日</td>
+      <td style="text-align: center">1</td>
+      <td style="text-align: center">L01</td>
+      <td style="text-align: center"><a href="https://andy-tk.top/2020/03/02/COMP90042-01/">课程概览与介绍</a></td>
+      <td style="text-align: center">介绍</td>
+      <td style="text-align: center">N/A</td>
+    </tr>
+    <tr>
+      <td style="text-align: center">3月2日</td>
+      <td style="text-align: center">1</td>
+      <td style="text-align: center">L02</td>
+      <td style="text-align: center"><a href="https://andy-tk.top/2020/03/02/COMP90042-02/">文本预处理</a></td>
+      <td style="text-align: center">介绍</td>
+      <td style="text-align: center">JM3 第 2 章：<br /> 正则化</td>
+    </tr>
+    <tr>
+      <td style="text-align: center">3月9日</td>
+      <td style="text-align: center">2</td>
+      <td style="text-align: center">L03</td>
+      <td style="text-align: center">N-gram 语言模型</td>
+      <td style="text-align: center">单词 / 文档</td>
+      <td style="text-align: center">E18 第 6 章 <br />（跳过 6.3 节）</td>
+    </tr>
+    <tr>
+      <td style="text-align: center">3月9日</td>
+      <td style="text-align: center">2</td>
+      <td style="text-align: center">L04</td>
+      <td style="text-align: center">文本分类</td>
+      <td style="text-align: center">单词 / 文档</td>
+      <td style="text-align: center">E18 第 1 &amp; 2 章</td>
+    </tr>
+    <tr>
+      <td style="text-align: center">3月16日</td>
+      <td style="text-align: center">3</td>
+      <td style="text-align: center">L05</td>
+      <td style="text-align: center">词性标注</td>
+      <td style="text-align: center">序列标签</td>
+      <td style="text-align: center">JM3 第 8 章：<br /> 8.1-8.3；8.5.1 节</td>
+    </tr>
+    <tr>
+      <td style="text-align: center">3月16日</td>
+      <td style="text-align: center">3</td>
+      <td style="text-align: center">L06</td>
+      <td style="text-align: center">序列标注：隐马尔可夫模型</td>
+      <td style="text-align: center">序列标签</td>
+      <td style="text-align: center">JM3 附录 A</td>
+    </tr>
+    <tr>
+      <td style="text-align: center">3月23日</td>
+      <td style="text-align: center">4</td>
+      <td style="text-align: center">L07</td>
+      <td style="text-align: center">NLP 深度学习：前馈网络</td>
+      <td style="text-align: center">深度学习</td>
+      <td style="text-align: center">G15 第 4 章</td>
+    </tr>
+    <tr>
+      <td style="text-align: center">3月23日</td>
+      <td style="text-align: center">4</td>
+      <td style="text-align: center">L08</td>
+      <td style="text-align: center">NLP 深度学习：循环网络</td>
+      <td style="text-align: center">深度学习</td>
+      <td style="text-align: center">G15 第 10 章</td>
+    </tr>
+    <tr>
+      <td style="text-align: center">3月30日</td>
+      <td style="text-align: center">5</td>
+      <td style="text-align: center">L09</td>
+      <td style="text-align: center">词汇语义学</td>
+      <td style="text-align: center">语义学</td>
+      <td style="text-align: center">N/A</td>
+    </tr>
+    <tr>
+      <td style="text-align: center">3月30日</td>
+      <td style="text-align: center">5</td>
+      <td style="text-align: center">L10</td>
+      <td style="text-align: center">分布语义学</td>
+      <td style="text-align: center">语义学</td>
+      <td style="text-align: center">N/A</td>
+    </tr>
+    <tr>
+      <td style="text-align: center">4月6日</td>
+      <td style="text-align: center">6</td>
+      <td style="text-align: center">L11</td>
+      <td style="text-align: center">上下文表示</td>
+      <td style="text-align: center">语义学</td>
+      <td style="text-align: center">N/A</td>
+    </tr>
+    <tr>
+      <td style="text-align: center">4月6日</td>
+      <td style="text-align: center">6</td>
+      <td style="text-align: center">L12</td>
+      <td style="text-align: center">话语</td>
+      <td style="text-align: center">语义学</td>
+      <td style="text-align: center">N/A</td>
+    </tr>
+    <tr>
+      <td style="text-align: center"><strong>复活节假期</strong></td>
+      <td style="text-align: center">🏖</td>
+      <td style="text-align: center">🏖</td>
+      <td style="text-align: center">🏖</td>
+      <td style="text-align: center">🏖</td>
+      <td style="text-align: center">🏖</td>
+    </tr>
+    <tr>
+      <td style="text-align: center">4月20日</td>
+      <td style="text-align: center">7</td>
+      <td style="text-align: center">L13</td>
+      <td style="text-align: center">形式语言理论与有限状态自动机</td>
+      <td style="text-align: center">句法</td>
+      <td style="text-align: center">N/A</td>
+    </tr>
+    <tr>
+      <td style="text-align: center">4月20日</td>
+      <td style="text-align: center">7</td>
+      <td style="text-align: center">L14</td>
+      <td style="text-align: center">上下文无关语法</td>
+      <td style="text-align: center">句法</td>
+      <td style="text-align: center">N/A</td>
+    </tr>
+    <tr>
+      <td style="text-align: center">4月27日</td>
+      <td style="text-align: center">8</td>
+      <td style="text-align: center">L15</td>
+      <td style="text-align: center">成分句法分析</td>
+      <td style="text-align: center">句法</td>
+      <td style="text-align: center">N/A</td>
+    </tr>
+    <tr>
+      <td style="text-align: center">4月27日</td>
+      <td style="text-align: center">8</td>
+      <td style="text-align: center">L16</td>
+      <td style="text-align: center">依赖句法分析</td>
+      <td style="text-align: center">句法</td>
+      <td style="text-align: center">N/A</td>
+    </tr>
+    <tr>
+      <td style="text-align: center">5月4日</td>
+      <td style="text-align: center">9</td>
+      <td style="text-align: center">L17</td>
+      <td style="text-align: center">机器翻译</td>
+      <td style="text-align: center">应用</td>
+      <td style="text-align: center">N/A</td>
+    </tr>
+    <tr>
+      <td style="text-align: center">5月4日</td>
+      <td style="text-align: center">9</td>
+      <td style="text-align: center">L18</td>
+      <td style="text-align: center">信息提取</td>
+      <td style="text-align: center">应用</td>
+      <td style="text-align: center">N/A</td>
+    </tr>
+    <tr>
+      <td style="text-align: center">5月11日</td>
+      <td style="text-align: center">10</td>
+      <td style="text-align: center">L19</td>
+      <td style="text-align: center">问答系统</td>
+      <td style="text-align: center">应用</td>
+      <td style="text-align: center">N/A</td>
+    </tr>
+    <tr>
+      <td style="text-align: center">5月11日</td>
+      <td style="text-align: center">10</td>
+      <td style="text-align: center">L20</td>
+      <td style="text-align: center">主题模型</td>
+      <td style="text-align: center">应用</td>
+      <td style="text-align: center">N/A</td>
+    </tr>
+    <tr>
+      <td style="text-align: center">5月18日</td>
+      <td style="text-align: center">11</td>
+      <td style="text-align: center">L21</td>
+      <td style="text-align: center">概括</td>
+      <td style="text-align: center">应用</td>
+      <td style="text-align: center">N/A</td>
+    </tr>
+    <tr>
+      <td style="text-align: center">5月18日</td>
+      <td style="text-align: center">11</td>
+      <td style="text-align: center">L22</td>
+      <td style="text-align: center">生成</td>
+      <td style="text-align: center">应用</td>
+      <td style="text-align: center">N/A</td>
+    </tr>
+    <tr>
+      <td style="text-align: center">5月25日</td>
+      <td style="text-align: center">12</td>
+      <td style="text-align: center">L23</td>
+      <td style="text-align: center">客座演讲</td>
+      <td style="text-align: center">杂项</td>
+      <td style="text-align: center">N/A</td>
+    </tr>
+    <tr>
+      <td style="text-align: center">5月25日</td>
+      <td style="text-align: center">12</td>
+      <td style="text-align: center">L24</td>
+      <td style="text-align: center">课程回顾</td>
+      <td style="text-align: center">杂项</td>
+      <td style="text-align: center">N/A</td>
+    </tr>
+  </tbody>
+</table>
+
+<h3 id="17-时间安排">1.7 时间安排</h3>
+<ul>
+  <li>课程
+    <ul>
+      <li>周一 09:00-10:00 $\quad$ Glyn Davis (B117)</li>
+      <li>周一 16:15-17:15 $\quad$ Law GM15 (David P. Durham)</li>
+    </ul>
+  </li>
+  <li>研讨会：每周几次
+    <ul>
+      <li>可以向助教提出任何问题</li>
+      <li>如果需求人数很多，可能考虑安排办公室答疑时间</li>
+    </ul>
+  </li>
+  <li>推荐
+    <ul>
+      <li>通过 Canvas 上的讨论板块提问</li>
+    </ul>
+  </li>
+</ul>
+
+<h3 id="18-关于-python">1.8 关于 Python</h3>
+<ul>
+  <li>本课程中将会涉及大量使用 Python
+    <ul>
+      <li>研讨会中会涉及大量编程</li>
+      <li>形式为交互式 Jupyter Notebook</li>
+      <li>用 Python 完成作业和项目</li>
+    </ul>
+  </li>
+  <li>推荐的 Python 库
+    <ul>
+      <li>NLTK（文本处理）</li>
+      <li>Numpy, Scipy, Matplotlib（数学、绘图）</li>
+      <li>Scikit-Learn（机器学习工具）</li>
+    </ul>
+  </li>
+  <li>Python 新手？
+    <ul>
+      <li>请在课程学习中自行安排时间学习 <a href="#res1">推荐的资源</a></li>
+    </ul>
+  </li>
+</ul>
+
+<h2 id="2-背景介绍">2. 背景介绍</h2>
+<h3 id="21-自然语言处理">2.1 自然语言处理</h3>
+<ul>
+  <li>涉及语言学、计算机科学和人工智能的跨学科研究。</li>
+  <li>该研究的目的是了解如何设计算法来处理和分析人类语言数据。</li>
+  <li>与 <strong>计算语言学</strong> 密切相关，但是计算语言学的目标是从计算角度研究语言，以验证语言学假设。</li>
+</ul>
+
+<h3 id="22-为什么要进行文本处理">2.2 为什么要进行文本处理？</h3>
+<ul>
+  <li>大量的信息都 “陷入” 在非结构化文本中
+    <ul>
+      <li>我们如何找到这些信息？</li>
+      <li>如何让计算机自动在这些数据上进行推理？</li>
+      <li>首先需要了解这些结构，找到重要的元素和关系等等……</li>
+      <li>现存的人类语言超过 1000 种</li>
+    </ul>
+  </li>
+  <li>挑战
+    <ul>
+      <li>搜索、显示结果</li>
+      <li>信息提取</li>
+      <li>翻译</li>
+      <li>问答</li>
+      <li>……</li>
+    </ul>
+  </li>
+</ul>
+
+<h3 id="23-激动人心的应用">2.3 激动人心的应用</h3>
+<ul>
+  <li>智能对话代理，例如 《星际穿越》中的TARS（2014）
+    <ul>
+      <li><a href="https://www.youtube.com/watch?v=wVEfFHzUby0">https://www.youtube.com/watch?v=wVEfFHzUby0</a></li>
+      <li>语音识别</li>
+      <li>自然语言理解</li>
+      <li>语音合成</li>
+    </ul>
+  </li>
+  <li>IBM 的 “沃森” 问答系统
+    <ul>
+      <li>基于大型文本集的问答系统 —— 整合了信息提取和其他功能</li>
+      <li><a href="https://www.youtube.com/watch?v=FC3IryWr4c8">https://www.youtube.com/watch?v=FC3IryWr4c8</a></li>
+      <li><a href="https://www.youtube.com/watch?v=lI-M7O_bRNg">https://www.youtube.com/watch?v=lI-M7O_bRNg</a> （从 3:30 到 4:30）</li>
+    </ul>
+  </li>
+  <li>沃森背后的研究并非革命性的
+    <ul>
+      <li>但这是 AI 历史上的一个变革性的成果</li>
+      <li>将先进的文本处理组件与大型文本集合和高性能计算相结合</li>
+    </ul>
+  </li>
+  <li>还有很多其他方面的应用：机器翻译、搜索引擎、智能家居等等
+<img src="http://andy-blog.oss-cn-beijing.aliyuncs.com/blog/2020-03-02-WX20200302-150448%402x.png" /></li>
+</ul>
+
+<h2 id="3-主题概览">3. 主题概览</h2>
+<ul>
+  <li><strong>单词、序列和文档</strong>
+    <ul>
+      <li>文本预处理</li>
+      <li>语言模型</li>
+      <li>文本分类</li>
+    </ul>
+  </li>
+  <li><strong>结构学习</strong>
+    <ul>
+      <li>序列标注（例如：词性标注）</li>
+    </ul>
+  </li>
+  <li><strong>NLP 深度学习</strong>
+    <ul>
+      <li>前馈和循环模型</li>
+    </ul>
+  </li>
+  <li><strong>语义学</strong>
+    <ul>
+      <li>单词如何形成含义</li>
+    </ul>
+  </li>
+  <li><strong>句法</strong>
+    <ul>
+      <li>单词排列方式</li>
+    </ul>
+  </li>
+  <li><strong>应用</strong>
+    <ul>
+      <li>机器翻译</li>
+      <li>信息提取</li>
+      <li>问答系统</li>
+    </ul>
+  </li>
+</ul>
+
+<h2 id="4-模型与算法">4. 模型与算法</h2>
+<ul>
+  <li><strong>状态机</strong>
+    <ul>
+      <li>由状态、状态之间的转换和输入组成的形式模型。<br />
+例如：有限状态自动机</li>
+    </ul>
+  </li>
+  <li><strong>形式规则系统</strong>
+    <ul>
+      <li>正则语法、上下文无关语法来解释句法</li>
+    </ul>
+  </li>
+  <li><strong>机器学习</strong>
+    <ul>
+      <li>理解序列：隐马尔可夫模型</li>
+      <li>文本分类：Logistic 回归、SVM</li>
+      <li>神经网络（深度学习）</li>
+    </ul>
+  </li>
+</ul>
+
+<h2 id="5-语言中的歧义">5. 语言中的歧义</h2>
+<ul>
+  <li>$\textit{I made her duck.}$ 这句话存在以下几种可能的含义:
+    <ul>
+      <li>$\textit{I cooked 🦆 for her.}$<br />
+<em>我为她煮了鸭子。</em></li>
+      <li>$\textit{I cooked 🦆 belonging to her.}$<br />
+<em>我把她的鸭子给煮了。</em></li>
+      <li>$\textit{I caused her to quickly lower her head or body.}$<br />
+<em>我使得她迅速把头低下了或弯下了腰。</em></li>
+      <li>$\textit{I waved my magic wand and turned her into a 🦆.}$<br />
+<em>我挥舞我的魔杖，然后将她变成了一只鸭子。</em><br />
+<br /></li>
+    </ul>
+  </li>
+  <li>
+    <p>为什么存在如此多可能的解释？因为语言是很复杂的。<br />
+<br /></p>
+  </li>
+  <li>$Duck$ 这个词可能存在如下含义：
+    <ul>
+      <li>名词：鸭子 🦆</li>
+      <li>动词：快速低下头或弯下身体（例如：为了避开某物）</li>
+    </ul>
+  </li>
+  <li>$Her$ 这个词可以是一个：
+    <ul>
+      <li>宾语代词（即动词的间接宾语）</li>
+      <li>或者，所有格代词</li>
+    </ul>
+  </li>
+  <li>$Make$ 这个词在句法上也是模棱两可的：
+    <ul>
+      <li>及物动词（带一个宾语：$duck$）</li>
+      <li>双宾动词（第一个宾语：$her$；第二个宾语：$duck$）</li>
+      <li>可以带一个直接宾语和动词：宾语（$her$）被执行了言语动作（$duck$）</li>
+    </ul>
+  </li>
+</ul>
+
+<p><strong><span style="color:steelblue">思考：</span></strong> 这里之所以存在歧义是因为在这句话之前，我们没有足够的上下文。所以，只要有了足够的上下文信息，机器就可以分辨这种歧义吗？
+<br /></p>
+
+<p>显然，上下文信息总是越多越好的。但对于消除歧义来说，不仅仅是上下文的问题。因为即便可以得到所想要的全部上下文，对于机器来说可能还是无法轻易作出解释：这对人类来说很简单，但是对于机器来说很难。而且某些时候，上下文甚至不是文本类型的，它可以是非语言的，你可能没有接触过它，或者，有些时候这种上下文涉及的是一种文化层面的差异。所以，有时即便有了上下文，机器可能也无法真正去有效利用它。但通常来说，拥有更多的上下文信息总是更好的。</p>
+
+<h2 id="6-语言与思想">6. 语言与思想</h2>
+<ul>
+  <li>处理语言的能力可以视为真正的智能机器的一块试金石。</li>
+  <li>因为有效地使用语言与我们的一般认知能力息息相关。</li>
+  <li>艾伦·图灵（Alan Turing）提出了著名的 <strong>图灵测试（Turing test）</strong>，以评估一台机器是否具有智能。</li>
+</ul>
+
+<p><img src="http://andy-blog.oss-cn-beijing.aliyuncs.com/blog/2020-03-02-WX20200302-161830%402x.png" width="25%" align="right" /></p>
+
+<h3 id="61-图灵测试">6.1 图灵测试</h3>
+<ul>
+  <li>3 个参与者：2 个人类和 1 台计算机</li>
+  <li>其中一个人作为询问者</li>
+  <li>测试涉及两方之间的对话</li>
+  <li>询问者的作用是通过询问一系列问题来确定哪一方的参与者是机器</li>
+  <li>如果这台机器可以骗过询问者，让其误以为 他/她 在和一个人类进行对话，那么我们可以认为这台机器具有智能</li>
+</ul>
+
+<h3 id="62-机器具有智能了吗">6.2 机器具有智能了吗？</h3>
+<ul>
+  <li>艾伦·图灵（Alan Turing）预测，到 20 世纪末，具有 10 GB 内存的机器将有 30％ 概率成功欺骗人类询问者。</li>
+  <li>我们今天拥有的最聪明的对话代理离真正的智能还很遥远。</li>
+  <li>无论如何，你还是可以构建一些程序 <em>骗过</em> 这个测试。ELIZA 程序就是一个这样的例子。</li>
+</ul>
+
+<h3 id="63-eliza">6.3 ELIZA</h3>
+<ul>
+  <li><strong>用户</strong>: <em>You are like my father in some ways（你在某些方面像我父亲）</em></li>
+  <li><strong><span style="color:blue">ELIZA</span></strong><span style="color:blue">: <em>What resemblance do you see（你看到了什么相似之处）</em></span></li>
+  <li><strong>用户</strong>: <em>You are not very aggressive but I think you don’t want me to notice that（你有点不思进取，但我想你并不希望我注意到这一点）</em></li>
+  <li><strong><span style="color:blue">ELIZA</span></strong><span style="color:blue">: <em>What makes you think I am not aggressive（是什么让你认为我没有进取心）</em></span></li>
+  <li><strong>用户</strong>: <em>You don’t argue with me（你不跟我争论）</em></li>
+  <li><strong><span style="color:blue">ELIZA</span></strong><span style="color:blue">: <em>Why do you think I don’t argue with you（你为什么认为我不跟你争论）</em></span></li>
+  <li><strong>用户</strong>: <em>You are afraid of me（你害怕我）</em></li>
+  <li><strong><span style="color:blue">ELIZA</span></strong><span style="color:blue">: <em>Does it please you to believe I am afraid of you（拜托，你相信我会怕你吗）</em></span></li>
+</ul>
+
+<h2 id="7-自然语言处理简史">7. 自然语言处理简史</h2>
+<h3 id="1950-年代">1950 年代</h3>
+<ul>
+  <li><strong>Computing Machinery and Intelligence（计算机器与智能）</strong>, Alan Turing
+    <ul>
+      <li>Turing test（图灵测试）：通过一个对话测试来测量机器智能</li>
+    </ul>
+  </li>
+  <li><strong>Syntactic Structures（句法结构）</strong>, Noam Chomsky
+    <ul>
+      <li>Formal language theory（形式语言理论）：使用代数和集合论将形式语言定义为符号序列</li>
+      <li>例如：$\textit{Colourless green ideas sleep furiously.}$<em>（无色的绿色思想激烈地沉睡。）</em>
+        <ul>
+          <li>该句子从意义上讲不通</li>
+          <li>但它的语法似乎还不错</li>
+          <li>强调了语义（含义）和句法（句子结构）二者的区别</li>
+        </ul>
+      </li>
+    </ul>
+  </li>
+</ul>
+
+<p><img src="http://andy-blog.oss-cn-beijing.aliyuncs.com/blog/2020-03-02-WX20200302-194939%402x.png" width="20%" align="right" /></p>
+
+<h3 id="1960-1970-年代">1960-1970 年代</h3>
+<ul>
+  <li><strong>Symbolic paradigm（符号范式）</strong>
+    <ul>
+      <li>Generative grammar（生成式语法）：发现生成语法句子的规则系统</li>
+      <li>Parsing algorithms（解析算法）</li>
+    </ul>
+  </li>
+  <li><strong>Stochastic paradigm（随机范式）</strong>
+    <ul>
+      <li>贝叶斯方法用于光学字符识别（optical character recognition, OCR）和作者身份署名（authorship attribution）</li>
+    </ul>
+  </li>
+  <li><strong>第一个在线语料库：Brown corpus of American English（美式英语布朗语料库）</strong>
+    <ul>
+      <li>100 万个单词，覆盖 500 种不同类型的文档（新闻、小说等等）</li>
+    </ul>
+  </li>
+</ul>
+
+<h3 id="1970-1980-年代">1970-1980 年代</h3>
+<ul>
+  <li><strong>Stochastic paradigm（随机范式）</strong>
+    <ul>
+      <li>Hidden Markov models（隐马尔可夫模型）、noisy channel decoding（噪声信道解码）</li>
+      <li>Speech recognition and synthesis（语音识别与合成）</li>
+    </ul>
+  </li>
+  <li><strong>Logic-based paradigm（基于逻辑的范式）</strong>
+    <ul>
+      <li>更多的语法系统：例如，Lexical functional Grammar（词汇功能语法）</li>
+    </ul>
+  </li>
+  <li><strong>Natural language understanding（自然语言理解）</strong>
+    <ul>
+      <li>Terry Winograd 教授 在 MIT 人工智能实验室创建的 SHRDLU（积木世界）系统</li>
+      <li>嵌入玩具积木世界的机器人</li>
+      <li>程序采用自然语言命令，例如：<br />
+<em>move the red block to the left of the blue block（将红色块移动到蓝色块的左侧）</em></li>
+      <li>激发了对 semantics（语义）和 discourse（话语）领域的研究</li>
+    </ul>
+  </li>
+</ul>
+
+<h3 id="1980-1990-年代">1980-1990 年代</h3>
+<ul>
+  <li><strong>Finite-state machines（有限状态机）</strong>
+    <ul>
+      <li>Phonology（语音学）、morphology（词法）和 syntax（句法）</li>
+    </ul>
+  </li>
+  <li><strong>Return of empiricism（经验主义的回归）</strong>
+    <ul>
+      <li>IBM 为语音识别开发的概率模型</li>
+      <li>在 part-of-speech tagging（词性标注）、parsing（解析）和 semantics（语义）方面启发了其他的数据驱动方法</li>
+      <li>基于 held-out data（保留数据）、quantitative metrics（定量指标），以及和最新技术进行比较的经验主义评估</li>
+    </ul>
+  </li>
+</ul>
+
+<h3 id="1990-2000-年代机器学习的崛起">1990-2000 年代：机器学习的崛起</h3>
+<ul>
+  <li><strong>更好的计算能力</strong></li>
+  <li><strong>逐渐减少 Chomskyan theories of linguistics（乔姆斯基语言学理论）的主导地位</strong></li>
+  <li><strong>开发了更多的语料库</strong>
+    <ul>
+      <li>Penn Treebank, PropBank, RSTBank 等</li>
+      <li>涵盖各种形式的 syntactic（句法）、semantic（语义）和 discourse annotations（话语注释）的语料库</li>
+    </ul>
+  </li>
+  <li><strong>来自机器学习社区的更好的模型</strong>：支持向量机、Logistic 回归</li>
+</ul>
+
+<h3 id="2000-年代深度学习">2000 年代：深度学习</h3>
+<ul>
+  <li><strong>深度神经网络（即具有许多层的网络）的出现</strong></li>
+  <li><strong>从计算机视觉社区开始进行图像分类</strong></li>
+  <li><strong>优势</strong>：使用原始数据作为输入（例如仅是文字和文档），而无需开发手动特征工程</li>
+  <li><strong>计算上昂贵</strong>：依靠 GPU 在大型模型和训练数据上进行扩展</li>
+  <li><strong>促进了我们现在正在经历的 AI 浪潮</strong>
+    <ul>
+      <li>家庭助理和聊天机器人</li>
+    </ul>
+  </li>
+</ul>
+
+<h3 id="nlp-的未来">NLP 的未来</h3>
+<ul>
+  <li><strong>NLP 的问题解决了吗？</strong>
+    <ul>
+      <li>机器翻译的表现距离完美还很遥远</li>
+      <li>NLP 模型仍然无法推理文本</li>
+      <li>不太接近能够通过图灵测试的水平
+        <ul>
+          <li>Amazon Alexa Prize：<a href="https://www.youtube.com/watch?v=WTGuOg7GXYU">https://www.youtube.com/watch?v=WTGuOg7GXYU</a></li>
+        </ul>
+      </li>
+    </ul>
+  </li>
+</ul>
+
+<p>下节内容：文本预处理</p>
+:ET

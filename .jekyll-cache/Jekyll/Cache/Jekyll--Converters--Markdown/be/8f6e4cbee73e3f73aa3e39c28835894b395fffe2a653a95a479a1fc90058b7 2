@@ -1,0 +1,220 @@
+I"�,<h1 id="lecture-01-pytorch-简介与安装">Lecture 01 PyTorch 简介与安装</h1>
+
+<h2 id="1-pytorch-简介">1. PyTorch 简介</h2>
+<h3 id="11-pytorch-简介">1.1 PyTorch 简介</h3>
+
+<p>2017 年 1 月， FAIR (Facebook AI Research) 发布 PyTorch，它是在 Torch 基础上用 Python 语言重新打造的一款深度学习框架。Torch 是采用 Lua 语言为接口的机器学习框架，但因 Lua 语言较为小众，导致 Torch 知名度不高。</p>
+
+<h3 id="12-pytorch-发展">1.2 PyTorch 发展</h3>
+
+<ul>
+  <li>2017 年 1 月正式发布 PyTorch。</li>
+  <li>2018 年 4 月更新 0.4.0 版，支持 Windows 系统，caffe2 正式并入 PyTorch。</li>
+  <li>2018 年 11 月更新 1.0 稳定版，已成为 GitHub 上增长第二快的开源项目。</li>
+  <li>2019 年 5 月更新 1.1.0 版，支持 TensorBoard，增强可视化功能。</li>
+  <li>2019 年 8 月更新 1.2.0 版，更新 torchvision，torchaudio 和 torchtext，增加更多功能。</li>
+</ul>
+
+<p>2014 年 10 月至 2018 年 2 月 arXiv 论文中深度学习框架提及次数统计：</p>
+
+<p><img src="http://andy-blog.oss-cn-beijing.aliyuncs.com/blog/2020-12-09-WX20201209-123409%402x.png" width="80%" /></p>
+
+<p>PyTorch 的增长速度与 TensorFlow 一致。</p>
+
+<p>2019 年 3 月各深度学习框架在 GitHub 上的 Stars、Forks、Watchers 和 Contributors 数量对比：</p>
+
+<p><img src="http://andy-blog.oss-cn-beijing.aliyuncs.com/blog/2020-12-09-WX20201209-123944%402x.png" width="80%" /></p>
+
+<h3 id="13-pytorch-优点">1.3 PyTorch 优点</h3>
+
+<ul>
+  <li><strong>上手快</strong>：掌握 Numpy 和基本深度学习概念即可上手。</li>
+  <li><strong>代码简洁灵活</strong>：用 <code class="language-plaintext highlighter-rouge">nn.module</code> 封装使网络搭建更方便；基于动态图机制，更灵活。</li>
+  <li><strong>Debug 方便</strong>：调试 PyTorch 就像调试 Python 代码一样简单。</li>
+  <li><strong>文档规范</strong>：<a href="https://pytorch.org/docs/">https://pytorch.org/docs/</a> 可查各版本文档。</li>
+  <li><strong>资源多</strong>：arXiv 中的新算法大多有 PyTorch 实现。</li>
+  <li><strong>开发者多</strong>：GitHub 上贡献者 (Contributors) 已超过 1100+。</li>
+  <li><strong>背靠大树</strong>：FaceBook 维护开发。</li>
+  <li>……</li>
+</ul>
+
+<h3 id="14-适合人群">1.4 适合人群</h3>
+
+<ul>
+  <li><strong>深度学习初学者</strong>：模型算法实现容易，加深深度学习概念认识。</li>
+  <li><strong>机器学习爱好者</strong>：数十行代码便可实现人脸识别、目标检测、图像生成等有趣实验。</li>
+  <li><strong>算法研究员</strong>：最新 arXiv 论文算法快速复现。</li>
+</ul>
+
+<h2 id="2-软件安装">2. 软件安装</h2>
+
+<h3 id="21-软件安装">2.1 软件安装</h3>
+
+<ul>
+  <li><strong>Python 包管理器</strong>：Anaconda。</li>
+  <li><strong>Python 集成开发环境</strong>：PyCharm。</li>
+  <li><strong>深度学习框架</strong>：PyTorch。</li>
+</ul>
+
+<h3 id="22-解释器与工具包">2.2 解释器与工具包</h3>
+
+<p><img src="http://andy-blog.oss-cn-beijing.aliyuncs.com/blog/2020-12-09-WX20201209-130741%402x.png" width="90%" /></p>
+
+<ul>
+  <li><strong>工具包</strong>
+    <ul>
+      <li><strong>工具包</strong> 又称为 <strong>依赖包</strong>、<strong>模块</strong>、<strong>库</strong>、<strong>包</strong>。</li>
+      <li>Python 之所以强大是因为拥有大量工具包。</li>
+      <li><strong>内置包</strong>：<code class="language-plaintext highlighter-rouge">os</code>、<code class="language-plaintext highlighter-rouge">sys</code>、<code class="language-plaintext highlighter-rouge">glob</code>、<code class="language-plaintext highlighter-rouge">re</code>、<code class="language-plaintext highlighter-rouge">math</code> 等。</li>
+      <li><strong>第三方包</strong>：<code class="language-plaintext highlighter-rouge">pytorch</code>、<code class="language-plaintext highlighter-rouge">tensorflow</code>、<code class="language-plaintext highlighter-rouge">numpy</code> 等。</li>
+    </ul>
+  </li>
+</ul>
+
+<h3 id="23-虚拟环境">2.3 虚拟环境</h3>
+
+<p><img src="http://andy-blog.oss-cn-beijing.aliyuncs.com/blog/2020-12-09-WX20201209-163435%402x.png" width="90%" /></p>
+
+<h3 id="24-anaconda-安装">2.4 Anaconda 安装</h3>
+
+<p>Anaconda 是为方便使用 Python 而建立的一个软件包，其包含常用的 250 多个 <strong>工具包</strong>，多版本 Python <strong>解释器</strong> 和强大的 <strong>虚拟环境管理</strong> 工具，所以 Anaconda 也被称为 Python 全家桶。</p>
+
+<p>Anaconda 可以使安装、运行和升级环境变得更简单，因此推荐安装使用。</p>
+
+<p><strong>安装步骤</strong>：</p>
+
+<ol>
+  <li>官网下载安装包：<a href="https://www.anaconda.com/distribution/#download-section">https://www.anaconda.com/distribution/#download-section</a></li>
+  <li>运行 <code class="language-plaintext highlighter-rouge">Anaconda3-2019.07-Windows-x86_64.exe</code></li>
+  <li>选择路径，勾选 <code class="language-plaintext highlighter-rouge">Add Anaconda to the system PATH environment variable</code>，等待安装完成</li>
+  <li>验证安装成功，打开终端，输入 <code class="language-plaintext highlighter-rouge">conda</code>，回车</li>
+  <li>添加中科大镜像</li>
+</ol>
+
+<h4 id="设置-conda-国内镜像源加速">设置 conda 国内镜像源（加速）</h4>
+
+<p>打开终端，复制以下命令，回车：</p>
+
+<div class="language-shell highlighter-rouge"><div class="highlight"><pre class="highlight"><code><table class="rouge-table"><tbody><tr><td class="rouge-gutter gl"><pre class="lineno">1
+2
+3
+4
+5
+6
+7
+8
+9
+10
+11
+12
+13
+14
+15
+16
+17
+18
+19
+20
+</pre></td><td class="rouge-code"><pre><span class="c"># 查看 conda 配置</span>
+conda config <span class="nt">--show</span>
+
+<span class="c"># 添加 conda 中科大镜像源</span>
+conda config <span class="nt">--add</span> channels https://mirrors.ustc.edu.cn/anaconda/pkgs/main/
+conda config <span class="nt">--add</span> channels https://mirrors.ustc.edu.cn/anaconda/pkgs/free/
+conda config <span class="nt">--add</span> channels https://mirrors.ustc.edu.cn/anaconda/cloud/conda-forge/
+conda config <span class="nt">--add</span> channels https://mirrors.ustc.edu.cn/anaconda/cloud/msys2/
+conda config <span class="nt">--add</span> channels https://mirrors.ustc.edu.cn/anaconda/cloud/bioconda/
+conda config <span class="nt">--add</span> channels https://mirrors.ustc.edu.cn/anaconda/cloud/menpo/
+
+<span class="c"># 添加 conda 清华镜像源</span>
+conda config <span class="nt">--add</span> channels https://mirrors.tuna.tsinghua.edu.cn/anaconda/pkgs/main/
+conda config <span class="nt">--add</span> channels https://mirrors.tuna.tsinghua.edu.cn/anaconda/pkgs/free/
+
+<span class="c"># 设置搜索时显示通道地址</span>
+conda config <span class="nt">--set</span> show_channel_urls <span class="nb">yes</span>
+
+<span class="c"># 重置 conda channels</span>
+conda config <span class="nt">--remove-key</span> channels
+</pre></td></tr></tbody></table></code></pre></div></div>
+
+<h4 id="创建-conda-虚拟环境">创建 conda 虚拟环境</h4>
+
+<div class="language-shell highlighter-rouge"><div class="highlight"><pre class="highlight"><code><table class="rouge-table"><tbody><tr><td class="rouge-gutter gl"><pre class="lineno">1
+2
+3
+4
+5
+6
+7
+8
+9
+10
+11
+12
+13
+14
+15
+</pre></td><td class="rouge-code"><pre><span class="c"># 查看 conda 虚拟环境</span>
+conda <span class="nb">env </span>list
+
+<span class="c"># 创建 conda 虚拟环境, 由于网络原因可能会创建失败，可以通过多次尝试或者切换镜像源解决</span>
+<span class="c"># 环境名为 "pytorch_1.5_cpu", 解释器为 Python 3.6</span>
+conda create <span class="nt">-n</span> pytorch_1.5_cpu <span class="nv">python</span><span class="o">=</span>3.6
+
+<span class="c"># 启动 conda 虚拟环境</span>
+conda activate pytorch_1.5_cpu
+
+<span class="c"># 退出 conda 虚拟环境, 如果是在一个虚拟环境下启动另一个虚拟环境，需要执行两次退出回到 base 环境</span>
+conda deactivate
+
+<span class="c"># 删除 conda 虚拟环境</span>
+conda <span class="nb">env </span>remove <span class="nt">-n</span> pytorch_1.5_cpu
+</pre></td></tr></tbody></table></code></pre></div></div>
+
+<h3 id="25-pycharm-安装">2.5 Pycharm 安装</h3>
+
+<p>Pycharm 是由捷克公司 JetBrains 开发的一款强大的 Python IDE，拥有 <strong>调试</strong>、<strong>语法高亮</strong>、Project 管理、<strong>代码跳转</strong>、<strong>智能提示</strong>、版本控制等功能。</p>
+
+<p><strong>安装步骤</strong>：</p>
+
+<ol>
+  <li>官网下载安装包：<a href="https://www.jetbrains.com/pycharm/">https://www.jetbrains.com/pycharm/</a></li>
+  <li>运行 <code class="language-plaintext highlighter-rouge">pycharm-professional-2019.2.exe</code></li>
+  <li>选择路径，勾选 <code class="language-plaintext highlighter-rouge">Add launchers dir to the PATH</code>，等待安装完成</li>
+</ol>
+
+<h3 id="26-pytorch-安装">2.6 PyTorch 安装</h3>
+
+<p><strong>安装步骤</strong>：</p>
+
+<ol>
+  <li>检查是否有合适 GPU，若有，需安装 <code class="language-plaintext highlighter-rouge">CUDA</code> 与 <code class="language-plaintext highlighter-rouge">CuDNN</code></li>
+  <li><code class="language-plaintext highlighter-rouge">CUDA</code> 与 <code class="language-plaintext highlighter-rouge">CuDNN</code> 安装（非必须）</li>
+  <li>
+    <p>下载 <code class="language-plaintext highlighter-rouge">whl</code> 文件，登陆 <a href="https://download.pytorch.org/whl/torch_stable.html">https://download.pytorch.org/whl/torch_stable.html</a></p>
+
+    <p>命名解释：</p>
+
+    <p><img src="http://andy-blog.oss-cn-beijing.aliyuncs.com/blog/2020-12-09-WX20201209-170558%402x.png" width="80%" /></p>
+
+    <p>下载 pytorch 与 torchvision 的 whl 文件，进入相应虚拟环境，通过 pip 安装</p>
+  </li>
+  <li>
+    <p>在 pycharm 中创建 hello pytorch 项目，运行脚本， 查看 pytorch 版本</p>
+
+    <div class="language-python highlighter-rouge"><div class="highlight"><pre class="highlight"><code><table class="rouge-table"><tbody><tr><td class="rouge-gutter gl"><pre class="lineno">1
+2
+3
+</pre></td><td class="rouge-code"><pre><span class="kn">import</span> <span class="nn">torch</span>
+<span class="k">print</span><span class="p">(</span><span class="s">"hello pytorch {}"</span><span class="p">.</span><span class="nb">format</span><span class="p">(</span><span class="n">torch</span><span class="p">.</span><span class="n">__version__</span><span class="p">))</span>
+<span class="k">print</span><span class="p">(</span><span class="s">"cuda is avaiable: {}"</span><span class="p">.</span><span class="nb">format</span><span class="p">(</span><span class="n">torch</span><span class="p">.</span><span class="n">cuda</span><span class="p">.</span><span class="n">is_available</span><span class="p">()))</span>
+</pre></td></tr></tbody></table></code></pre></div>    </div>
+  </li>
+</ol>
+
+<h2 id="3-总结">3. 总结</h2>
+
+<p>本节课介绍了 PyTorch 及其作为深度学习框架的优势，并且对安装 Pycharm、Anaconda、Cuda、cudnn 和 PyTorch 进行了演示，环境配置好后会进行 demo 演示，测试 PyTorch 可以正常使用。</p>
+
+<p>下节内容：张量简介及创建</p>
+:ET

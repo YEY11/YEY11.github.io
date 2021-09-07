@@ -1,0 +1,13 @@
+I"A<h1 id="lecture-13-多臂老虎机">Lecture 13 多臂老虎机</h1>
+<h2 id="主要内容">主要内容</h2>
+<ul>
+  <li><strong>随机多臂老虎机</strong>
+    <ul>
+      <li>“我们学会采取行动的地方；我们仅仅接受奖励形式的间接监督；并且我们只观测行动带来的奖励。” —— 这是一个关于如何权衡 <strong>探索-利用（Exploration-Exploitation）</strong> 最简单的设定</li>
+      <li>不确定性下的顺序决策</li>
+      <li>$(\varepsilon)$-Greedy 算法</li>
+      <li>UCB 算法</li>
+    </ul>
+  </li>
+</ul>
+:ET

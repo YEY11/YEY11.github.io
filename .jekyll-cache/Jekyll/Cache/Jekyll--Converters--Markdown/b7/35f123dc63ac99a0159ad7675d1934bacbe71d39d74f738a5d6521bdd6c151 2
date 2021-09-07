@@ -1,0 +1,5 @@
+I"2<h1 id="lecture-02-导论-2">Lecture 02 导论 (2)</h1>
+<h2 id="4-拟合一个关于-gavote-的线性模型">4. 拟合一个关于 <code class="language-plaintext highlighter-rouge">gavote</code> 的线性模型</h2>
+<h3 id="41-最小二乘估计">4.1 最小二乘估计</h3>
+<p>一个线性模型 $\mathbf y=X\boldsymbol \beta+\boldsymbol \varepsilon$ 可以利用 <strong>最小二乘法（Least Squares method，LS）</strong> 来拟合数据。据此得到的参数 $\boldsymbol \beta$ 的 <strong>最小二乘估计量（LS estimator）</strong> 为：</p>
+:ET
