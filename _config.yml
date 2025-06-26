@@ -2,7 +2,7 @@
 title: YEY Blog
 SEOTitle: YEY 的博客 | YEY Blog
 header-img: img/home-bg-02.png
-email: yangye0329@gmail.com
+email: yangye0329@outlook.com
 description: "Every failure is leading towards success."
 keyword: "YEY Blog, YEY 的博客, Data Science"
 url: "http://yey11.github.io"          # your host, for absolute URL
@@ -23,7 +23,7 @@ RSS: false
 github_username:    yey11
 linkedin_username:  yey11
 wechat_username:  Andy
-email: yangye0329@gmail.com
+email: yangye0329@outlook.com
 #facebook_username:  baiying.qiu.7
 #jianshu_username:   e71990ada2fd
 #twitter_username:   qiubaiying
